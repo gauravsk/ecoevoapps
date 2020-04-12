@@ -1,0 +1,58 @@
+---
+title: "Single population models"
+author: "Gaurav Kandlikar"
+date: "4/12/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(deSolve)
+exponential_growth <- function(time,init,params) {
+  with (as.list(c(time,init,params)), {
+    # description of parameters:
+    # r = per-capita growth rate of Sp. 1
+    # N1 = population size of Sp. 1
+    dN1 <- (r*N1) 
+    return(list(c(dN1)))
+  })
+}
+time <- seq(0,100, by=1)
+
+```
+
+```{r}
+includeMarkdown("single-population-overview.md")
+```
+
+## Interactive application
+
+
+```{r eruptions, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    sliderInput("r_val1", label = "Intrinsic growth rate (r):",
+                min = 0.01, max = 0.15, value = .1, step = 0.0005),
+    sliderInput("N1_val1", label = "Initial population size:",
+                min = 1, max = 1000, value = 50, step = 1)
+  ),  
+  mainPanel(
+    renderPlot({trajectory1()}, width = 400)
+  )
+)
+params1 <- reactive({c(r = input$r_val1)})
+init1 <- reactive({c(N1=input$N1_val1)})
+exp_out <- reactive({data.frame(ode(func=exponential_growth,
+                                         y=init1(),parms=params1(),times=time))})
+
+trajectory1 <- reactive({
+   ggplot(exp_out()) + 
+    geom_line(aes(x = time, y = N1)) +
+    # theme_gsk() +
+    ylim(c(0, 10500)) +
+    ylab("Population size")
+})
+
+```
