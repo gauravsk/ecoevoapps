@@ -1,0 +1,89 @@
+---
+title: "Single population models"
+author: "Gaurav Kandlikar"
+date: "4/12/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+```
+
+```{r}
+includeMarkdown("single_population_overview.md")
+```
+
+## Interactive application
+
+
+```{r eruptions, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    radioButtons("densdep", "Type of population growth", 
+                 choices = c(`Density Independent` = "indep", `Density Dependent` = "dep")),
+    
+    # User defined intrinsic growth rate r
+    sliderInput("r_val", label = "Intrinsic growth rate (r):",
+                min = 0.01, max = 0.15, value = .1, step = 0.0005),
+    
+    # If Density Dependent growth requested, ask for K
+    conditionalPanel(condition = "input.densdep == 'dep'",
+                     sliderInput("K_val", label = "Carrying capacity (k)",
+                                 min = 1, max = 10000, value = 500, step = 10)),
+    
+    # User defined initial population size
+    sliderInput("N1_val", label = "Initial population size:",
+                min = 1, max = 1000, value = 50, step = 10),
+        # User defined initial population size
+    numericInput("max_time", label = "Length of simulation:",
+                value = 100)
+  ),  
+  mainPanel(
+    renderPlot({trajectory_comb()})
+  )
+)
+params <- reactive({c(r = input$r_val, K = input$K_val)})
+init <- reactive({c(N1 = input$N1_val)})
+time <- reactive({seq(from = 0, to = input$max_time, by=1)})
+
+exp_out <- reactive({if(input$densdep == 'indep') {
+  data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
+                 y=init(), parms=params(), times = time()))
+} else { 
+  data.frame(ode(func = ecoevoapps::logistic_growth,
+                 y=init(), parms=params(), times = time()))
+}})
+
+plot_caption <- reactive({if(input$densdep == 'indep') {
+  paste0("Parameter values: r = ", input$r_val)
+} else { 
+    paste0("Parameter values: r = ", input$r_val, ", K = ", input$K_val)
+
+}})
+
+trajectory <- reactive({
+   ggplot(exp_out()) + 
+    geom_line(aes(x = time, y = N1)) +
+    ecoevoapps::theme_apps() +
+    # ylim(c(0, 10500)) +
+    ylab("Population size") + 
+    labs(title = "Population size vs. Time (N vs. t)")
+})
+
+trajectory_log <- reactive({
+  trajectory() + 
+    scale_y_log10() + 
+  labs(title = "Log 10 (Population size) vs. Time")
+
+})
+
+trajectory_comb <- reactive({
+  trajectory() + trajectory_log() + 
+    labs(caption = plot_caption())
+})
+```
