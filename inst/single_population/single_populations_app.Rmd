@@ -24,66 +24,191 @@ includeMarkdown("single_population_overview.md")
 ```{r eruptions, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
+    # User defined density dependent or independent growth ----
     radioButtons("densdep", "Type of population growth", 
                  choices = c(`Density Independent` = "indep", `Density Dependent` = "dep")),
     
-    # User defined intrinsic growth rate r
+    # User defined intrinsic growth rate r -----
     sliderInput("r_val", label = "Intrinsic growth rate (r):",
-                min = 0.01, max = 0.15, value = .1, step = 0.0005),
+                min = 0.01, max = 0.15, value = .1, step = 0.01),
     
-    # If Density Dependent growth requested, ask for K
+    # If Density Dependent growth requested, ask for K -----
     conditionalPanel(condition = "input.densdep == 'dep'",
-                     sliderInput("K_val", label = "Carrying capacity (k)",
+                     sliderInput("K_val", label = "Carrying capacity (K)",
                                  min = 1, max = 10000, value = 500, step = 10)),
     
-    # User defined initial population size
+    # User defined initial population size  -----
     sliderInput("N1_val", label = "Initial population size:",
                 min = 1, max = 1000, value = 50, step = 10),
-        # User defined initial population size
+    hr(),
+    # User can add a second species ----
+    checkboxInput("secondsp", "Add a second species?", value = F), 
+    
+    # If second species requested, add the following... ----
+    conditionalPanel(condition = "input.secondsp == true",
+                     # User defined density dependent or independent growth for sp2 ----
+                     radioButtons("densdep2", "Type of population growth for Species 2", 
+                                  choices = c(`Density Independent` = "indep", `Density Dependent` = "dep")),
+                     
+                     # User defined intrinsic growth rate r2 -----
+                     sliderInput("r_val2", label = "Intrinsic growth rate for species 2 (r2):",
+                                 min = 0.01, max = 0.15, value = .09, step = 0.01),
+                     
+                     # If Density Dependent growth requested for sp2, ask for K2 -----
+                     conditionalPanel(condition = "input.densdep2 == 'dep'",
+                                      sliderInput("K_val2", label = "Carrying capacity for species 2 (K2)",
+                                                  min = 1, max = 10000, value = 500, step = 10),
+                     ),
+                     sliderInput("N2_val", label = "Initial population size of species 2:",
+                                 min = 1, max = 1000, value = 50, step = 10),
+                         hr()),
+    # User can select which plots to show ----
+    checkboxGroupInput("plots_to_show", "Select which plots to show",
+                       c("N vs. Time" = "Nvtime",
+                         "ln(N) vs. Time" = "lnNvtime",
+                         "dN/dt vs. N" = "n1overn",
+                         "dN/Ndt vs. N" = "n1novern"), selected = c("Nvtime", "lnNvtime")),
+    hr(),
+
+    # User defined length of simulation -----
     numericInput("max_time", label = "Length of simulation:",
-                value = 100)
-  ),  
+                value = 100),
+
+                     # User defined initial population size  -----
+    ),
+
+  
+  
+  # Panel of plots -----
   mainPanel(
-    renderPlot({trajectory_comb()})
+    renderPlot({plots_to_print()}, width = 600,
+               height = 600)
   )
 )
+
+# Get user defined parameters for sp 1  ------
 params <- reactive({c(r = input$r_val, K = input$K_val)})
 init <- reactive({c(N1 = input$N1_val)})
 time <- reactive({seq(from = 0, to = input$max_time, by=1)})
 
-exp_out <- reactive({if(input$densdep == 'indep') {
-  data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
-                 y=init(), parms=params(), times = time()))
-} else { 
-  data.frame(ode(func = ecoevoapps::logistic_growth,
-                 y=init(), parms=params(), times = time()))
-}})
+params2 <- reactive({c(r = input$r_val2, K = input$K_val2)})
+init2 <- reactive({c(N1 = input$N2_val)})
 
+# Generate trajectories for sp 1 --------
+pop_growth <- reactive({
+  if(input$densdep == 'indep') {
+    data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
+                            y=init(), parms=params(), times = time()))
+  } else { 
+    data.frame(ode(func = ecoevoapps::logistic_growth,
+                   y=init(), parms=params(), times = time()))
+  }})
+
+pop_growth2 <- reactive({
+  if(input$secondsp) {
+    if(input$densdep2 == 'indep') {
+      data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
+                              y=init2(), parms=params2(), times = time()))
+    } else { 
+      data.frame(deSolve::ode(func = ecoevoapps::logistic_growth,
+                     y=init2(), parms=params2(), times = time()))
+    }
+  }
+}) 
+
+pop_growth_mod <- reactive ({
+  pop_out <- pop_growth()
+  pop_out$N1diff <- c(NA, diff(pop_out$N1))
+  pop_out$N1Ndiff <- c(NA, diff(pop_out$N1))/pop_out$N1
+  if(input$densdep == 'indep') {
+    pop_out$N1Ndiff <- input$r_val
+  }
+  pop_out
+})
+
+pop_growth2_mod <- reactive ({
+  pop_out2 <- pop_growth2()
+  pop_out2$N1diff <- c(NA, diff(pop_out2$N1))
+  pop_out2$N1Ndiff <- c(NA, diff(pop_out2$N1))/pop_out2$N1
+  if(input$densdep2 == 'indep'){
+    pop_out2$N1Ndiff <- input$r_val2
+  }
+  pop_out2
+})
+
+pops_combined <- reactive({
+  dplyr::bind_rows(pop_growth_mod(), pop_growth2_mod(),
+                   .id = "which_pop")
+})
+# Make plots -----------
+
+# 0. Make caption 
 plot_caption <- reactive({if(input$densdep == 'indep') {
   paste0("Parameter values: r = ", input$r_val)
 } else { 
     paste0("Parameter values: r = ", input$r_val, ", K = ", input$K_val)
-
 }})
 
+# 1. Trajectory of N vs. time
 trajectory <- reactive({
-   ggplot(exp_out()) + 
-    geom_line(aes(x = time, y = N1)) +
-    ecoevoapps::theme_apps() +
-    # ylim(c(0, 10500)) +
-    ylab("Population size") + 
-    labs(title = "Population size vs. Time (N vs. t)")
+  if("Nvtime" %in% input$plots_to_show) {
+    ggplot(pops_combined()) + 
+      geom_line(aes(x = time, y = N1, color = which_pop), size = 2) +
+      ecoevoapps::theme_apps() +
+      scale_color_brewer("Species", palette = "Set1") +
+      ylab("Population size") 
+    } 
 })
 
+# 2. Trjectory of ln(N) vs. time
 trajectory_log <- reactive({
-  trajectory() + 
-    scale_y_log10() + 
-  labs(title = "Log 10 (Population size) vs. Time")
-
+  if("lnNvtime" %in% input$plots_to_show) {
+    ggplot(pops_combined()) + 
+      geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
+      scale_color_brewer("Species", palette = "Set1") +
+      ecoevoapps::theme_apps() +
+      # ylim(c(0, 10500)) +
+      ylab("ln(Population size)") 
+    }
 })
 
-trajectory_comb <- reactive({
-  trajectory() + trajectory_log() + 
-    labs(caption = plot_caption())
+# 3. dN/dT vs. N
+n1_over_n <- reactive({
+  if("n1overn" %in% input$plots_to_show) {
+    
+    ggplot(pops_combined() %>% na.omit) +
+      geom_line(aes(x = N1, y = N1diff, color = which_pop), size = 2) + 
+      xlab("Population Size") + 
+      ylab("Population growth rate (dN/dt)") + 
+      scale_color_brewer("Species", palette = "Set1") +
+      theme_apps() 
+    }
 })
+
+# 4. dN/Ndt vs. N
+n1n_over_n <- reactive({
+  if("n1novern" %in% input$plots_to_show) {
+    ggplot(pops_combined() %>% na.omit) +
+      geom_line(aes(x = N1, y = N1Ndiff, color = which_pop), size = 2) + 
+      xlab("Population Size") + 
+      ylab("per-capita population growth rate\n(dN/Ndt)") + 
+      scale_color_brewer("Species", palette = "Set1") +
+      theme_apps() 
+    }
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+plot_list <- reactive({
+  list(trajectory(), trajectory_log(),
+       n1_over_n(), n1n_over_n()) %>% 
+    discard(is.null)
+  })
+
+plots_to_print <- reactive({
+  wrap_plots(plot_list(), ncol = 2) + 
+    labs(caption = plot_caption()) + 
+    plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+})
+
+
 ```
