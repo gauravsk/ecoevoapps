@@ -75,7 +75,7 @@ sidebarLayout(
                      
                      # If timelag requested in density-dependent growth, ask for tau -----
                      conditionalPanel(condition = "input.densdepLag2 == 'lag'",
-                                      sliderInput("tau2", label = "Time lag (tau)",
+                                      sliderInput("tau2", label = "Time lag sp 2 (tau2)",
                                                   min = 0, max = 4, value = 1, step = .1)),
                      sliderInput("N2_val", label = "Initial population size of species 2:",
                                  min = 1, max = 1000, value = 50, step = 10),
@@ -118,7 +118,7 @@ pop_growth <- reactive({
   if(input$densdep == 'indep') {
     data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
                             y=init(), parms=params(), times = time()))
-  } else if (input$densdepLag == "nolag"){ 
+  } else if (input$densdepLag == "nolag") { 
     data.frame(ode(func = ecoevoapps::logistic_growth,
                    y=init(), parms=params(), times = time()))
   } else {
@@ -164,19 +164,49 @@ pop_growth2_mod <- reactive ({
 })
 
 pops_combined <- reactive({
-  dplyr::bind_rows(pop_growth_mod(), pop_growth2_mod(),
-                   .id = "which_pop")
+  if(input$secondsp) {
+    dplyr::bind_rows(pop_growth_mod(), pop_growth2_mod(),
+                     .id = "which_pop")
+  } else {
+    pg <- pop_growth_mod()
+    pg$which_pop = "1"
+    pg
+  }
 })
 # Make plots -----------
 
-# 0. Make caption 
-plot_caption <- reactive({if(input$densdep == 'indep') {
-  paste0("Parameter values: r = ", input$r_val)
-} else { 
-    paste0("Parameter values: r = ", input$r_val, ", K = ", input$K_val)
-}})
+# 0. Make caption  ------
+plot_caption1 <- reactive({
+  if(input$densdep == 'indep') {
+  paste0("Species 1 parameter values: r1 = ", input$r_val)
+  } else if (input$densdepLag == "nolag") { 
+    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val) 
+    } else { 
+    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
+    }
+})
 
-# 1. Trajectory of N vs. time
+plot_caption2 <- reactive({
+  if(input$secondsp) {
+    if(input$densdep2 == 'indep') {
+      paste0("Species 2 parameter values: r2 = ", input$r_val2)
+    } else if (input$densdepLag2 == "nolag") { 
+      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
+    } else { 
+      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
+    }
+  }
+})
+
+plot_caption <- reactive ({
+  if(input$secondsp) {
+    paste0(plot_caption1(), "\n", plot_caption2())
+  } else {
+    plot_caption1()
+  }
+})
+
+# 1. Trajectory of N vs. time -----------
 trajectory <- reactive({
   if("Nvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
@@ -187,7 +217,7 @@ trajectory <- reactive({
     } 
 })
 
-# 2. Trjectory of ln(N) vs. time
+# 2. Trjectory of ln(N) vs. time --------
 trajectory_log <- reactive({
   if("lnNvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
@@ -199,7 +229,7 @@ trajectory_log <- reactive({
     }
 })
 
-# 3. dN/dT vs. N
+# 3. dN/dT vs. N -----------
 n1_over_n <- reactive({
   if("n1overn" %in% input$plots_to_show) {
     
@@ -212,7 +242,7 @@ n1_over_n <- reactive({
     }
 })
 
-# 4. dN/Ndt vs. N
+# 4. dN/Ndt vs. N -----------
 n1n_over_n <- reactive({
   if("n1novern" %in% input$plots_to_show) {
     ggplot(pops_combined() %>% na.omit) +
