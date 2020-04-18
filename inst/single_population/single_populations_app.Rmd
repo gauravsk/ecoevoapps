@@ -30,17 +30,26 @@ sidebarLayout(
     
     # User defined intrinsic growth rate r -----
     sliderInput("r_val", label = "Intrinsic growth rate (r):",
-                min = 0.01, max = 0.15, value = .1, step = 0.01),
+                min = 0.01, max = 1, value = .2, step = 0.01),
     
     # If Density Dependent growth requested, ask for K -----
     conditionalPanel(condition = "input.densdep == 'dep'",
                      sliderInput("K_val", label = "Carrying capacity (K)",
                                  min = 1, max = 10000, value = 500, step = 10)),
+    # If Density Dependent growth requested, ask if time lag requested -----
+    conditionalPanel(condition = "input.densdep == 'dep'",
+                     radioButtons("densdepLag", label = "Delayed density dependence?",choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
+    
+    # If timelag requested in density-dependent growth, ask for tau -----
+    conditionalPanel(condition = "input.densdepLag == 'lag'",
+                     sliderInput("tau", label = "Time lag (tau)",
+                                 min = 0, max = 4, value = 1, step = .1)),
     
     # User defined initial population size  -----
     sliderInput("N1_val", label = "Initial population size:",
                 min = 1, max = 1000, value = 50, step = 10),
     hr(),
+    
     # User can add a second species ----
     checkboxInput("secondsp", "Add a second species?", value = F), 
     
@@ -52,16 +61,26 @@ sidebarLayout(
                      
                      # User defined intrinsic growth rate r2 -----
                      sliderInput("r_val2", label = "Intrinsic growth rate for species 2 (r2):",
-                                 min = 0.01, max = 0.15, value = .09, step = 0.01),
+                                 min = 0.01, max = 1, value = .15, step = 0.01),
                      
                      # If Density Dependent growth requested for sp2, ask for K2 -----
                      conditionalPanel(condition = "input.densdep2 == 'dep'",
                                       sliderInput("K_val2", label = "Carrying capacity for species 2 (K2)",
                                                   min = 1, max = 10000, value = 500, step = 10),
                      ),
+                     # If Density Dependent growth requested, ask if time lag requested -----
+                     conditionalPanel(condition = "input.densdep2 == 'dep'",
+                                      radioButtons("densdepLag2", label = "Delayed density dependence in Species 2?",
+                                                   choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
+                     
+                     # If timelag requested in density-dependent growth, ask for tau -----
+                     conditionalPanel(condition = "input.densdepLag2 == 'lag'",
+                                      sliderInput("tau2", label = "Time lag (tau)",
+                                                  min = 0, max = 4, value = 1, step = .1)),
                      sliderInput("N2_val", label = "Initial population size of species 2:",
                                  min = 1, max = 1000, value = 50, step = 10),
                          hr()),
+    
     # User can select which plots to show ----
     checkboxGroupInput("plots_to_show", "Select which plots to show",
                        c("N vs. Time" = "Nvtime",
@@ -87,11 +106,11 @@ sidebarLayout(
 )
 
 # Get user defined parameters for sp 1  ------
-params <- reactive({c(r = input$r_val, K = input$K_val)})
+params <- reactive({c(r = input$r_val, K = input$K_val, tau = input$tau)})
 init <- reactive({c(N1 = input$N1_val)})
 time <- reactive({seq(from = 0, to = input$max_time, by=1)})
 
-params2 <- reactive({c(r = input$r_val2, K = input$K_val2)})
+params2 <- reactive({c(r = input$r_val2, K = input$K_val2, tau = input$tau2)})
 init2 <- reactive({c(N1 = input$N2_val)})
 
 # Generate trajectories for sp 1 --------
@@ -99,21 +118,29 @@ pop_growth <- reactive({
   if(input$densdep == 'indep') {
     data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
                             y=init(), parms=params(), times = time()))
-  } else { 
+  } else if (input$densdepLag == "nolag"){ 
     data.frame(ode(func = ecoevoapps::logistic_growth,
                    y=init(), parms=params(), times = time()))
-  }})
+  } else {
+        data.frame(dede(func = ecoevoapps::lagged_logistic_growth,
+                   y=init(), parms=params(), times = time()))
+  }
+  
+})
 
+# Generate trajectories for sp 2 --------
 pop_growth2 <- reactive({
   if(input$secondsp) {
     if(input$densdep2 == 'indep') {
       data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
                               y=init2(), parms=params2(), times = time()))
-    } else { 
-      data.frame(deSolve::ode(func = ecoevoapps::logistic_growth,
-                     y=init2(), parms=params2(), times = time()))
-    }
-  }
+  } else if (input$densdepLag2 == "nolag"){ 
+    data.frame(ode(func = ecoevoapps::logistic_growth,
+                   y=init2(), parms=params2(), times = time()))
+  } else {
+        data.frame(dede(func = ecoevoapps::lagged_logistic_growth,
+                   y=init2(), parms=params2(), times = time()))
+  }}
 }) 
 
 pop_growth_mod <- reactive ({
