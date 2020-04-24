@@ -24,11 +24,11 @@ lagged_logistic_growth <- function(time, init, params) {
   with (as.list(c(time,init,params)), {
     tlag <- time - tau
     if (tlag < 0) {
-      ylag <- N1
+      Nlag <- N1
     } else {
-      ylag <- lagvalue(tlag)
+      Nlag <- lagvalue(tlag)
     }
-    dN1 <- r * N1[1] * (1-(ylag[1]/K))
+    dN1 <- r * N1 * (1-(Nlag/K))
     return(list(c(dN1)))
   })
 }
