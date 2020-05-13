@@ -1,0 +1,27 @@
+---
+title: "Introduction to the Island Biogegraphy model"
+author: "M. C. Vaz"
+date: "April 29, 2020"
+output: html_document
+---
+
+# Crucial concepts
+## The sampling effect
+## Dynamic equilibrium
+## Species composition vs. richness
+
+# History
+
+# Model parameters and outputs
+
+# Assumptions and biological realism
+
+# Real-world applications
+
+# Exercises
+
+# References
+
+# Code
+
+
