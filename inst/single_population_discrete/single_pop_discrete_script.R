@@ -57,3 +57,5 @@ ggplot(dlog_df) +
   geom_point(aes(x = lag(Nt), y = Nt), size = 1.5, shape = 21,
              fill = "white", stroke = .8 ) +
   ecoevoapps::theme_apps()
+
+# some new stuff
