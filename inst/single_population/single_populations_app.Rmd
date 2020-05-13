@@ -38,7 +38,8 @@ sidebarLayout(
                                  min = 1, max = 10000, value = 500, step = 10)),
     # If Density Dependent growth requested, ask if time lag requested -----
     conditionalPanel(condition = "input.densdep == 'dep'",
-                     radioButtons("densdepLag", label = "Delayed density dependence?",choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
+                     radioButtons("densdepLag", label = "Delayed density dependence?",
+                                  choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
     
     # If timelag requested in density-dependent growth, ask for tau -----
     conditionalPanel(condition = "input.densdepLag == 'lag'",
