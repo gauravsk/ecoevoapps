@@ -24,4 +24,8 @@ output: html_document
 
 # Code
 
+```{r}
+plot(1:10)
+```
+
 
