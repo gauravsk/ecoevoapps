@@ -26,3 +26,19 @@ ricker_model <- function(N0, K, r, time) {
 }
 
 
+#' Discrete logistic model
+#' @param N0 initial population size of population
+#' @param K Carrying capacity
+#' @param rd Discrete growth factor
+#' @param time Number of time steps over which to project the model
+#' @export
+discrete_logistic <- function(N0, K, rd, time) {
+  to_return <- numeric(time)
+  to_return[1] <- N0
+  for(current_time in 2:time) {
+    Nt <- to_return[current_time-1]
+    to_return[current_time] <-Nt+rd*Nt*(1-Nt/K)
+  }
+  return(to_return)
+
+}
