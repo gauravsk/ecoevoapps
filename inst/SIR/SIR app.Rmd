@@ -1,0 +1,119 @@
+---
+title: "SIR app"
+author: "Madeline Cowen"
+date: "April 29, 2020"
+output: html_document
+runtime: shiny
+---
+
+```{r message=FALSE, echo=FALSE, warning=FALSE}
+library(tidyverse)
+library(deSolve)
+```
+
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+```{r echo = F}
+source("~/Dropbox/UCLA/ecoevo_models/R/SIR_ODE_variants.R")
+
+##### run SIR model without vaccination #####
+# Set the initial population sizes
+init <- c(S = 500, I = 1, R = 0)
+# Set the parameter values
+params <- c(m = .1, beta = .01, v = 0, gamma = .2)
+# Time over which to simulate model dynamics
+time <- seq(0,100,by = .1)
+
+# Use the SIR function above to run 
+# the SIR model using the 
+# parameter estimates defined above
+out <- data.frame(deSolve::ode(func = SIR,
+                                  y=init, parms=params, times = time))
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long <- pivot_longer(out, c(S, I, R), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I", "R")))
+
+# Plot abundance through time
+SIRplot <- ggplot(out_long) + 
+  geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") + 
+  ecoevoapps::theme_apps()
+
+```
+
+```{r app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta", label = "Infection rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("gamma", label = "Recovery rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("v", label = "Vaccination rate:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0", label = "Initial population size of S", min = 0, value = 10),
+    numericInput("I0", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("R0", label = "Initial population size of R", min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  mainPanel(renderPlot({SIRplot()}))
+  
+)
+
+
+# Set the initial population sizes
+init <- reactive({c(S = input$S0, I = input$I0, R = input$R0)})
+# Set the parameter values
+params <- reactive({c(m = input$m, beta = input$beta, v = input$v, gamma = input$gamma)})
+# Time over which to simulate model dynamics
+time <- reactive({seq(0,input$time,by = .1)})
+
+# Use the SIR function above to run 
+# the SIR model using the 
+# parameter estimates defined above
+out <- reactive({data.frame(deSolve::ode(func = SIR,
+                               y=init(), parms=params(), times = time()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long <- reactive({pivot_longer(out(), c(S, I, R), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I", "R")))})
+
+# Plot abundance through time
+SIRplot <- reactive({ggplot(out_long()) + 
+  geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") + 
+  ecoevoapps::theme_apps()})
+
+
+```
+
