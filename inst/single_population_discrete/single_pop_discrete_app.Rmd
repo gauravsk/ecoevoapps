@@ -1,0 +1,119 @@
+---
+title: "Single population models"
+author: "Gaurav Kandlikar"
+date: "4/12/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+theme_set(ecoevoapps::theme_apps())
+```
+
+### Discrete exponential growth 
+
+```{r eruptions, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("lambda", label = "Population growth rate (lambda):",
+                min = 0.01, max = 2, value = 1.01, step = .01),
+    # User defined N0 -------
+    numericInput("N0", label = "Initial population size (N0)",
+                min = 1, max = 100, value = 1, step = 1),
+    # User defined time ---------
+    numericInput("time", label = "Number of time steps to project",
+                min = 1, max = 1000, value = 100, step = 1)
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print()}, width = 450, height = 450)
+  )
+)
+
+# Generate trajectories for sp 1 --------
+exponential_pop_traj <- reactive({discrete_exponential(N0 = input$N0, 
+                                                       lambda = input$lambda,
+                                                       time = input$time)})
+exponential_pop_df <- reactive({data.frame(time = 0:input$time,
+                                 N_t= exponential_pop_traj(),
+                                 popdiff = c(NA, diff(exponential_pop_traj())),
+                                 Ntm1 = c(lag(exponential_pop_traj())),
+                                 popratio = exponential_pop_traj()/lag(exponential_pop_traj()))})
+
+
+# Make plot -----------
+trajaectory_plot <- reactive({ggplot(data.frame(exponential_pop_df())) +
+  geom_line(aes(y = N_t, x = time), size = .2) +
+    geom_point(aes(y = N_t, x = time), size = .2, shape = 21,
+               fill = "white", stroke = .8) +
+    ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)"))})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_print <- reactive({trajaectory_plot()})
+
+
+```
+
+### Discrete logistic
+
+```{r ab, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("rd", label = "Population growth rate (rd):",
+                min = 0.01, max = 3, value = 1.01, step = .01),
+    # User defined N0 -------
+    numericInput("N0_2", label = "Initial population size (N0)",
+                min = 1, max = 100, value = 1, step = 1),
+    # User defined time ---------
+    numericInput("time_2", label = "Number of time steps to project",
+                min = 1, max = 1000, value = 100, step = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K", label = "Carrying capacity",
+                 min = 1, max = 1000, value = 100, step = 1)
+
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print2()}, width = 450, height = 450)
+  )
+)
+
+# Get user defined parameters for discrete logistic  ------
+discrete_pop_traj <- reactive({discrete_logistic(N0 = input$N0_2, K = input$K, rd = input$rd, time = input$time_2)})
+dlog_df <- reactive({data.frame(Nt = discrete_pop_traj(),
+                      time = 1:input$time_2)})
+
+# Generate trajectories for discrete logistic --------
+trajaectory_plot2 <- reactive({ggplot(dlog_df()) +
+  geom_line(aes(x = time, y = Nt), size = .2) +
+  geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
+             fill = "white", stroke = .8 )})
+# Make plots -----------
+
+# 0. Make caption  ------
+
+# 1. Trajectory of N vs. time -----------
+
+# 2. Trjectory of ln(N) vs. time --------
+
+# 3. dN/dT vs. N -----------
+
+# 4. dN/Ndt vs. N -----------
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_print2 <- reactive({trajaectory_plot2()})
+
+
+```
+
