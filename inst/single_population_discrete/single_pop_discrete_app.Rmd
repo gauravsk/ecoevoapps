@@ -17,7 +17,7 @@ theme_set(ecoevoapps::theme_apps())
 
 ### Discrete exponential growth 
 
-```{r eruptions, echo=FALSE}
+```{r exponential-logistic, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     # User defined lambda -------
@@ -55,7 +55,7 @@ trajaectory_plot <- reactive({ggplot(data.frame(exponential_pop_df())) +
                fill = "white", stroke = .8) +
     ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)"))})
 
-# Make a list of plots and print out plots based on which ones were requested ----
+# Make a list of plots  ----
 
 plots_to_print <- reactive({trajaectory_plot()})
 
@@ -64,17 +64,17 @@ plots_to_print <- reactive({trajaectory_plot()})
 
 ### Discrete logistic
 
-```{r ab, echo=FALSE}
+```{r discrete-logistic, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     # User defined lambda -------
-    sliderInput("rd", label = "Population growth rate (rd):",
+    sliderInput("rd_dl", label = "Population growth rate (rd):",
                 min = 0.01, max = 3, value = 1.01, step = .01),
     # User defined N0 -------
-    numericInput("N0_2", label = "Initial population size (N0)",
+    numericInput("N0_dl", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1, step = 1),
     # User defined time ---------
-    numericInput("time_2", label = "Number of time steps to project",
+    numericInput("time_dl", label = "Number of time steps to project",
                 min = 1, max = 1000, value = 100, step = 1),
     # User defined carrying capacity (K) ----------    
     numericInput("K", label = "Carrying capacity",
@@ -84,36 +84,73 @@ sidebarLayout(
 
   # Panel of plots -----
   mainPanel(
-    renderPlot({plots_to_print2()}, width = 450, height = 450)
+    renderPlot({plots_to_print_dl()}, width = 450, height = 450)
   )
 )
 
 # Get user defined parameters for discrete logistic  ------
-discrete_pop_traj <- reactive({discrete_logistic(N0 = input$N0_2, K = input$K, rd = input$rd, time = input$time_2)})
-dlog_df <- reactive({data.frame(Nt = discrete_pop_traj(),
-                      time = 1:input$time_2)})
+dl_pop_traj <- reactive({discrete_logistic(N0 = input$N0_dl, K = input$K, 
+                                           rd = input$rd_dl, time = input$time_dl)})
+dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
+                      time = 1:input$time_dl)})
 
 # Generate trajectories for discrete logistic --------
-trajaectory_plot2 <- reactive({ggplot(dlog_df()) +
+trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
   geom_line(aes(x = time, y = Nt), size = .2) +
   geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
              fill = "white", stroke = .8 )})
-# Make plots -----------
 
-# 0. Make caption  ------
+# Make a list of plots  ----
 
-# 1. Trajectory of N vs. time -----------
-
-# 2. Trjectory of ln(N) vs. time --------
-
-# 3. dN/dT vs. N -----------
-
-# 4. dN/Ndt vs. N -----------
-
-# Make a list of plots and print out plots based on which ones were requested ----
-
-plots_to_print2 <- reactive({trajaectory_plot2()})
-
+plots_to_print_dl <- reactive({trajaectory_plot_dl()})
 
 ```
+
+
+
+
+### Ricker model
+
+```{r ricker-model, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("r_ricker", label = "Population growth rate (r):",
+                min = 0.01, max = 3, value = 1.01, step = .01),
+    # User defined N0 -------
+    numericInput("N0_ricker", label = "Initial population size (N0)",
+                min = 1, max = 100, value = 1, step = 1),
+    # User defined time ---------
+    numericInput("time_ricker", label = "Number of time steps to project",
+                min = 1, max = 1000, value = 100, step = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K_ricker", label = "Carrying capacity",
+                 min = 1, max = 1000, value = 100, step = 1)
+
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print_ricker()}, width = 450, height = 450)
+  )
+)
+
+# Get user defined parameters for discrete logistic  ------
+ricker_pop_traj <- reactive({ricker_model(N0 = input$N0_ricker, K = input$K_ricker, 
+                                                 r = input$r_ricker, time = input$time_ricker)})
+ricker_df <- reactive({data.frame(Nt = ricker_pop_traj(),
+                      time = 1:input$time_ricker)})
+
+# Generate trajectories for discrete logistic --------
+trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
+  geom_line(aes(x = time, y = Nt), size = .2) +
+  geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
+             fill = "white", stroke = .8 )})
+
+# Make a list of plots  ----
+
+plots_to_print_ricker <- reactive({trajaectory_plot_ricker()})
+
+```
+
 
