@@ -1,5 +1,5 @@
 ---
-title: "Single population models"
+title: "Discrete population growth models"
 author: "Gaurav Kandlikar"
 date: "4/12/2020"
 output: html_document
@@ -16,6 +16,8 @@ theme_set(ecoevoapps::theme_apps())
 ```
 
 ### Discrete exponential growth 
+
+$N_{t+1} = \lambda N_t$
 
 ```{r exponential-logistic, echo=FALSE}
 sidebarLayout(
@@ -42,27 +44,37 @@ exponential_pop_traj <- reactive({discrete_exponential(N0 = input$N0,
                                                        lambda = input$lambda,
                                                        time = input$time)})
 exponential_pop_df <- reactive({data.frame(time = 0:input$time,
-                                 N_t= exponential_pop_traj(),
+                                 Nt= exponential_pop_traj(),
                                  popdiff = c(NA, diff(exponential_pop_traj())),
                                  Ntm1 = c(lag(exponential_pop_traj())),
                                  popratio = exponential_pop_traj()/lag(exponential_pop_traj()))})
 
 
+# Make plot caption -------------
+plot_caption_exp <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $\\lambda = $", input$lambda))
+})
+
+
 # Make plot -----------
 trajaectory_plot <- reactive({ggplot(data.frame(exponential_pop_df())) +
-  geom_line(aes(y = N_t, x = time), size = .2) +
-    geom_point(aes(y = N_t, x = time), size = .2, shape = 21,
+  geom_line(aes(y = Nt, x = time), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    geom_point(aes(y = Nt, x = time), size = .2, shape = 21,
                fill = "white", stroke = .8) +
     ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)"))})
 
 # Make a list of plots  ----
-
-plots_to_print <- reactive({trajaectory_plot()})
-
+plots_to_print <- reactive({trajaectory_plot() +
+    labs(caption = plot_caption_exp(),
+         title = "Population growth with the discrete exponential model")})
 
 ```
 
 ### Discrete logistic
+
+$N_{t+1} = N_t = r_dN_t\left(1-\frac{N_t}{K}\right)$
 
 ```{r discrete-logistic, echo=FALSE}
 sidebarLayout(
@@ -73,12 +85,12 @@ sidebarLayout(
     # User defined N0 -------
     numericInput("N0_dl", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1, step = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K_dl", label = "Carrying capacity",
+                 min = 1, max = 1000, value = 100, step = 1),
     # User defined time ---------
     numericInput("time_dl", label = "Number of time steps to project",
-                min = 1, max = 1000, value = 100, step = 1),
-    # User defined carrying capacity (K) ----------    
-    numericInput("K", label = "Carrying capacity",
-                 min = 1, max = 1000, value = 100, step = 1)
+                min = 1, max = 1000, value = 100, step = 1)
 
     ),
 
@@ -89,7 +101,7 @@ sidebarLayout(
 )
 
 # Get user defined parameters for discrete logistic  ------
-dl_pop_traj <- reactive({discrete_logistic(N0 = input$N0_dl, K = input$K, 
+dl_pop_traj <- reactive({discrete_logistic(N0 = input$N0_dl, K = input$K_dl, 
                                            rd = input$rd_dl, time = input$time_dl)})
 dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
                       time = 1:input$time_dl)})
@@ -97,20 +109,26 @@ dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
 # Generate trajectories for discrete logistic --------
 trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
   geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+
   geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
              fill = "white", stroke = .8 )})
-
+# Make plot caption ----
+plot_caption_dl <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $r_d = $", input$rd_dl, "; K = ", input$K_dl))
+})
 # Make a list of plots  ----
 
-plots_to_print_dl <- reactive({trajaectory_plot_dl()})
+plots_to_print_dl <- reactive({trajaectory_plot_dl() + 
+    labs(caption = plot_caption_dl(),
+         title = "Population growth with the discrete logistic model")})
 
 ```
 
-
-
-
 ### Ricker model
 
+$N_{t+1} = N_t e^{(r (1 - N_t/K))}$
 ```{r ricker-model, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
@@ -120,12 +138,12 @@ sidebarLayout(
     # User defined N0 -------
     numericInput("N0_ricker", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1, step = 1),
-    # User defined time ---------
-    numericInput("time_ricker", label = "Number of time steps to project",
-                min = 1, max = 1000, value = 100, step = 1),
     # User defined carrying capacity (K) ----------    
     numericInput("K_ricker", label = "Carrying capacity",
-                 min = 1, max = 1000, value = 100, step = 1)
+                 min = 1, max = 1000, value = 100, step = 1),
+    # User defined time ---------
+    numericInput("time_ricker", label = "Number of time steps to project",
+                min = 1, max = 1000, value = 100, step = 1)
 
     ),
 
@@ -143,13 +161,23 @@ ricker_df <- reactive({data.frame(Nt = ricker_pop_traj(),
 
 # Generate trajectories for discrete logistic --------
 trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
-  geom_line(aes(x = time, y = Nt), size = .2) +
-  geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
-             fill = "white", stroke = .8 )})
+    geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    
+    geom_point(aes(x = time, y = Nt), size = 1.5, shape = 21,
+               fill = "white", stroke = .8 )})
+
+# Make plot caption ----
+plot_caption_ricker <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $r = $", input$r_ricker, "; K = ", input$K_ricker))
+})
 
 # Make a list of plots  ----
 
-plots_to_print_ricker <- reactive({trajaectory_plot_ricker()})
+plots_to_print_ricker <- reactive({trajaectory_plot_ricker() + 
+    labs(caption = plot_caption_ricker(),
+         title = "Population growth with the Ricker model")})
 
 ```
 
