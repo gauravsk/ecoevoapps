@@ -1,7 +1,7 @@
 ---
 title: "Pulliam source-sink metapopulation model"
 author: "Xinyi Yan"
-date: "May 10, 2020"
+date: "May 17, 2020"
 output: html_document
 runtime: shiny
 ---
