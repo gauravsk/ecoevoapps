@@ -4,6 +4,7 @@ author: "Gaurav Kandlikar"
 date: "4/12/2020"
 output:
   html_document:
+    theme: united
     toc: true
     toc_depth: 3
 runtime: shiny
