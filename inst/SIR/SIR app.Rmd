@@ -1,5 +1,5 @@
 ---
-title: "SIR app"
+title: "Infectious disease models"
 author: "Madeline Cowen"
 date: "April 29, 2020"
 output: html_document
@@ -18,9 +18,10 @@ library(patchwork)
 includeMarkdown("SIR_overview.md")
 ```
 
+# Disease Models {.tabset}
+## SIR model
 
-
-```{r app, echo=FALSE}
+```{r SIR app, echo=FALSE}
 sidebarLayout(
   
   sidebarPanel(
@@ -56,7 +57,7 @@ sidebarLayout(
   ),
   
   # Render plots -----------------
-  mainPanel(renderPlot({all_plots()}, width = 600, height = 800))
+  mainPanel(renderPlot({plots_to_render_SIR()}, width = 600, height = 800))
   
 )
 
@@ -103,7 +104,7 @@ pop_out_long <- reactive({ pop_out() %>%
 
 
 # Plot abundance through time ----------
-SIR_abund_plot <- reactive({ggplot(out_long()) + 
+abund_plot_SIR <- reactive({ggplot(out_long()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") + 
@@ -111,7 +112,7 @@ SIR_abund_plot <- reactive({ggplot(out_long()) +
 })
 
 # Plot dS, dI, dR over time
-dSIR_plot <- reactive({ ggplot(pop_out_long()) +
+dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("Change in population size") +
@@ -162,10 +163,133 @@ SIR_2d_plots <- reactive({
   wrap_plots(SIplot(), RIplot(), SRplot(), ncol = 3)
 })
 
-# combine abundance and 2d plots
-all_plots <- reactive({
-  wrap_plots(SIR_abund_plot(), dSIR_plot(), SIR_2d_plots(), nrow = 3)
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_SIR <- reactive({
+  wrap_plots(abund_plot_SIR(), dabund_plot_SIR(), SIR_2d_plots(), nrow = 3) 
 })
+
 
 ```
 
+## SIS model
+
+```{r sis app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_sis", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sis", label = "Infection rate:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_sis", label = "Recovery rate:",
+                min = 0, max = 1, value = .2, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sis", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("I0_sis", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("R0_sis", label = "Initial population size of R", min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sis", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sis()}, width = 600, height = 800))
+  
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sis <- reactive({c(S = input$S0_sis, I = input$I0_sis)})
+# Set the parameter values
+params_sis <- reactive({c(m = input$m_sis, beta = input$beta_sis, gamma = input$gamma_sis)})
+# Time over which to simulate model dynamics
+time_sis <- reactive({seq(0, input$time_sis, by = .1)})
+
+# Use the SIR function above to run 
+# the SIR model using the 
+# parameter estimates defined above
+out_sis <- reactive({data.frame(deSolve::ode(func = SIS,
+                               y = init_sis(), parms = params_sis(), times = time_sis()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long_sis <- reactive({pivot_longer(out_sis(), c(S, I), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I")))})
+
+# use out to create dS, dI, dR, and the per capita changes in population
+pop_out_sis <- reactive({
+  pop_out <- out_sis()
+  pop_out$dS <- c(NA, diff(pop_out$S))
+  pop_out$dI <- c(NA, diff(pop_out$I))
+  # not using pgrs right now but could be useful to calculate
+  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+  pop_out
+})
+
+pop_out_long_sis <- reactive({ pop_out_sis() %>%
+  select(time, dS, dI) %>%
+  pivot_longer(c(dS, dI), "group") %>%
+  mutate(group = factor(group, levels = c("dS", "dI")))
+})
+
+# Make plots --------------------
+
+
+# Plot abundance through time ----------
+abund_plot_sis <- reactive({ggplot(out_long_sis()) + 
+    geom_line(aes(x = time, y = value, color = group), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") + 
+    ecoevoapps::theme_apps()
+})
+
+# Plot dS, dI, dR over time
+dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
+    geom_line(aes(x = time, y = value, color = group), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("Change in population size") +
+    ecoevoapps::theme_apps()
+})
+
+# Plot S vs I ---------
+SIplot_sis <- reactive({ggplot(out_sis()) +
+    geom_segment(x = out_sis()$S[round(length(time_sis()))/25], 
+                 y = out_sis()$I[round(length(time_sis()))/25], 
+                 xend = out_sis()$S[round(length(time_sis())/25) + 1], 
+                 yend = out_sis()$I[round(length(time_sis())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sis <- reactive({
+  wrap_plots(abund_plot_sis(), dabund_plot_sis(), SIplot_sis(), nrow = 3) 
+})
+
+
+```
