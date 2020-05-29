@@ -1,7 +1,7 @@
 ---
 title: "Pulliam source-sink metapopulation model"
 author: "Xinyi Yan"
-date: "May 17, 2020"
+date: "May 27, 2020"
 output: html_document
 runtime: shiny
 ---
@@ -10,7 +10,7 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include=FALSE}
 # Pulliam source-sink metapopulation model
 #library(deSolve)
 library(tidyverse)
@@ -63,6 +63,11 @@ source_sink <- function(endtime,init,params) {
 }
 
 ```
+### Some resources on Source/Sink Metapopullation model:  
+[Original Paper (Pulliam 1988)](https://www.journals.uchicago.edu/doi/abs/10.1086/284880)  
+[Colorado State University Lecture Notes](https://sites.warnercnr.colostate.edu/gwhite/wp-content/uploads/sites/73/2017/06/Winkelman-Lecture-8.pdf)  
+[UCLA Lecture Notes](https://faculty.eeb.ucla.edu/Sork/Env121Sork/SorkLec4_Metapop/Metapop.html#IV)  
+
 
 Extra feature: double check if labmda 1 > 1 and labmda 2 < 1
 ```{r eruptions, echo=FALSE}
