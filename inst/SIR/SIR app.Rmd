@@ -10,7 +10,11 @@ runtime: shiny
 
 knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse)
+# library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
 library(deSolve)
 library(ecoevoapps)
 library(patchwork)
