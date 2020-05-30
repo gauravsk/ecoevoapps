@@ -1,5 +1,6 @@
 library(deSolve)
-library(tidyverse)
+library(tidyr)
+library(ggplot2)
 
 # Write a function that runs the Lotka Volterra competition model
 lv_competition <- function(time,init,params) {
