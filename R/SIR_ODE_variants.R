@@ -51,7 +51,7 @@ SEIR <- function(time,init,params) {
     dS_dt = m*(S + E + I + R)*(1 - v) - m*S - beta*S*I
     dE_dt = beta*S*I - a*E - m*E
     dI_dt = a*E - m*I - gamma*I
-    dR_dt = gamma*I - m*R + m*(S + I + R)*v
+    dR_dt = gamma*I - m*R + m*(S + E + I + R)*v
     return(list(c(dS = dS_dt, dE = dE_dt, dI = dI_dt, dR = dR_dt)))
   })
 }
