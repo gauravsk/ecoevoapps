@@ -25,6 +25,22 @@ includeMarkdown("SIR_overview.md")
 # Disease Models {.tabset}
 ## SIR model
 
+\begin{equation}
+\frac{dS}{dt} = m*(S + I + R)*(1 - v) - m*S - \beta*S*I\\
+\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I\\
+\frac{dR}{dt} = \gamma*I - m*R + m*(S + I + R)*v
+\end{equation}
+
+Where:
+
+* $S =$ number of susceptible individuals
+* $I =$ number of infectious individuals
+* $R =$ number of recovered individuals
+* $m =$ death/birth rate
+* $beta =$ infection rate
+* $gamma =$ recovery rate
+* $v =$ vaccination rate  
+
 ```{r SIR app, echo=FALSE}
 sidebarLayout(
   
@@ -177,9 +193,11 @@ plots_to_render_SIR <- reactive({
 
 ```
 
+
+
+```{r SIR app no vitals, echo=FALSE, eval = FALSE}
 ## SIR model without vital rates
 
-```{r SIR app no vitals, echo=FALSE}
 sidebarLayout(
   
   sidebarPanel(
@@ -329,6 +347,20 @@ plots_to_render_SIR_sir_novitals <- reactive({
 
 ## SIS model
 
+\begin{equation}
+\frac{dS}{dt} = m*(S + I) - m*S - \beta*S*I + \gamma*I\\
+\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I\\
+\end{equation}
+
+Where:
+
+* $S =$ number of susceptible individuals
+* $I =$ number of infectious individuals
+* $m =$ death/birth rate
+* $beta =$ infection rate
+* $gamma =$ recovery rate
+* $v =$ vaccination rate  
+
 ```{r sis app, echo=FALSE}
 sidebarLayout(
   
@@ -448,6 +480,25 @@ plots_to_render_sis <- reactive({
 
 
 ## SEIR model
+
+\begin{equation}
+\frac{dS}{dt} = m*(S + E + I + R)*(1 - v) - m*S - \beta*S*I\\
+\frac{dE}{dt} = \beta*S*I - a*E - m*E\\
+\frac{dI}{dt} = a*E - m*I - \gamma*I\\
+\frac{dR}{dt} = \gamma*I - m*R + m*(S + E + I + R)*v
+\end{equation}
+
+Where:
+
+* $S =$ number of susceptible individuals
+* $E =$ number of exposed individuals
+* $I =$ number of infectious individuals
+* $R =$ number of recovered individuals
+* $m =$ death/birth rate
+* $beta =$ infection rate
+* $a =$ inverse of incubation period
+* $gamma =$ recovery rate
+* $v =$ vaccination rate  
 
 ```{r seir app, echo=FALSE}
 sidebarLayout(
@@ -647,6 +698,25 @@ plots_to_render_seir <- reactive({
 ```
 
 ## SIRD model
+
+\begin{equation}
+\frac{dS}{dt} = m*(S + I + R)*(1 - v) - m*S - \beta*S*I\\
+\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I - \mu*I\\
+\frac{dR}{dt} = \gamma*I - m*R + m*(S + I + R)*v
+\frac{dI}{dt} = \mu*I\\
+\end{equation}
+
+Where:
+
+* $S =$ number of susceptible individuals
+* $I =$ number of infectious individuals
+* $R =$ number of recovered individuals
+* $D =$ number of individuals deceased due to infection
+* $m =$ death/birth rate
+* $beta =$ infection rate
+* $gamma =$ recovery rate
+* $mu =$ death rate from infection
+* $v =$ vaccination rate  
 
 ```{r sird app, echo=FALSE}
 sidebarLayout(
