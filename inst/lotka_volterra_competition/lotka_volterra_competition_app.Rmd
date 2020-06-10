@@ -1,0 +1,155 @@
+---
+title: "Lotka-Volterra Competition"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+library(ecoevoapps)
+library(deSolve)
+library(tidyverse)
+library(patchwork)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+theme_set(ecoevoapps::theme_apps())
+```
+
+# {.tabset}
+
+## Use carrying capacity
+
+Equations for Lotka-Volterra Competition with carrying capacities:
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
+```{r parameter descriptions}
+Parameter <- c("$r_1$", "$r_2$", "$N_1$", "$N_2$", "$K_1$", "$K_2$", "$\\alpha$", "$\\beta$")
+Description <- c("Intrinsic growth rate of Species 1",
+                 "Intrinsic growth rate of Species 2",
+                 "Population size of Species 1",
+                 "Population size of Species 2",
+                 "Carrying capacity of Species 1",
+                 "Carrying capacity of Species 2",
+                 "Relative effect of Species 2 on Species 1",
+                 "Relative effect of Species 1 on Species 2")
+param_df <- data.frame(Parameter, Description)
+kable(x = param_df, format = "html") %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+Zero net growth isoclines (solved for $N_2$):
+$$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
+$$N_2 = -\beta N_1 + K_2$$
+
+---
+
+```{r Lotka-Volterra Competition with carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow user to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show",
+                       label = "Select plots to diplay",
+                       choices = c("N vs. Time" = "N_vs_Time", 
+                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+                       selected = c("N_vs_Time")),
+    
+    hr(),
+    
+    # User-defined parameter values
+    sliderInput("r1", label = "r1: Intrinsic growth rate of Species 1",
+                min = 0.001, max = 1, value = 0.2),
+    sliderInput("r2", label = "r2: Intrinsic growth rate of Species 2",
+                min = 0.001, max = 1, value = 0.5),
+    numericInput("K1", label = "K1: Carrying capacity of Species 1",
+                min = 1, value = 300),
+    numericInput("K2", label = "K2: Carrying capacity of Species 2",
+                min = 1, value = 200),
+    sliderInput("alpha", label = "alpha: Relative effect of Species 2 on Species 1",
+                min = 0.001, max = 2, value = 0.3),
+    sliderInput("beta", label = "beta: Relative effect of Species 1 on Species 2",
+                min = 0.001, max = 2, value = 0.2),
+    # User-defined initial values
+    numericInput("N1", label = "Initial population size of Species 1",
+                 min = 1, value = 50),
+    numericInput("N2", label = "Initial population size of Species 2",
+                 min = 1, value = 70),
+    # User-defined length of simulation
+    numericInput("max_time", label = "Length of simulation",
+                 min = 1, value = 100)
+  ),
+  
+  # Panel of plots
+  mainPanel(renderPlot(plots_to_print(), width = 600, height = 500))
+)
+
+# Get user-defined parameters
+init <- reactive({ c(N1 = input$N1, N2 = input$N2) })
+time <- reactive({ seq(from = 0, to = input$max_time, by = 0.1) })
+params <- reactive({ c(r1 = input$r1, r2 = input$r2, K1 = input$K1, K2 = input$K2,
+                       a = input$alpha, b = input$beta) })
+
+# Run lotka_volterra_competition function
+lvcomp_out <- reactive({ data.frame(ode(func = lotka_volterra_competition, y = init(),
+                             times = time(), parms = params())) })
+
+# Convert data long format
+lvcomp_out_long <- reactive({ pivot_longer(data = lvcomp_out(), cols = c(N1, N2),
+                                           names_to = "species") })
+
+# Plot N vs time for both species
+N_vs_Time <- reactive({ 
+  if ("N_vs_Time" %in% input$plots_to_show) {
+    ggplot(data = lvcomp_out_long()) +
+      geom_line(aes(x = time, y = value, color = species), size = 2) +
+      scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
+      labs(x = "Time", y = "Population size (N)", color = "Species") +
+      coord_cartesian(ylim = c(0, max(c(input$K1, input$K2, input$N1, input$N2))))
+  }
+})
+
+# Plot ZNGIs with population trajectories
+# First create data frame for ZNGI slopes/intercepts
+slopes <- reactive({ c(-1/input$alpha, -input$beta) })
+intercepts <- reactive({ c(input$K1/input$alpha, input$K2) })
+colors <- c("Species 1", "Species 2")
+ZNGI_df <- reactive({ data.frame(slopes(), intercepts(), colors) })
+
+# Now create plot
+ZNGI <- reactive({ 
+  if ("ZNGI" %in% input$plots_to_show) {
+    ggplot(data = lvcomp_out()) +
+      geom_abline(data = ZNGI_df(),
+                  aes(slope = slopes(), intercept = intercepts(), color = colors),
+                  size = 2) +
+      scale_color_manual(values = brewer.pal(3, name = "Set1"), 
+                         labels = c("Species 1", "Species 2")) +
+      geom_path(aes(x = N1, y = N2), size = 1) +
+      geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
+      geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2), 
+                 pch = 21, size = 3, fill = "white", stroke = 1) +
+      geom_segment(x = lvcomp_out()$N1[round(length(time()))/25],
+                   y = lvcomp_out()$N2[round(length(time()))/25],
+                   xend = lvcomp_out()$N1[round(length(time()))/25 + 1],
+                   yend = lvcomp_out()$N2[round(length(time()))/25 + 1],
+                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
+      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+      coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
+                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))))
+  }
+})
+
+# Make a list of plots to print based on user request
+plot_list <- reactive({ 
+  list(N_vs_Time(), ZNGI()) %>%
+    discard(is.null)
+  })
+
+plots_to_print <- reactive({ 
+  wrap_plots(plot_list(), ncol = 1)
+  })
+```
+
+## Don't use carrying capacity
