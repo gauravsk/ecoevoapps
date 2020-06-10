@@ -106,24 +106,31 @@ N_vs_Time <- reactive({
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
       labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, max(c(input$K1, input$K2, input$N1, input$N2))))
+      coord_cartesian(ylim = c(0, max(c(input$K1, input$K2, input$N1, input$N2))),
+                      expand = FALSE,
+                      clip = "off")
   }
 })
 
 # Plot ZNGIs with population trajectories
-# First create data frame for ZNGI slopes/intercepts
-slopes <- reactive({ c(-1/input$alpha, -input$beta) })
-intercepts <- reactive({ c(input$K1/input$alpha, input$K2) })
-colors <- c("Species 1", "Species 2")
-ZNGI_df <- reactive({ data.frame(slopes(), intercepts(), colors) })
+# First create data frames for ZNGI starting/ending points
+ZNGI_sp1 <- reactive({ 
+  data.frame(x1 = 0, y1 = input$K1/input$alpha, xend1 = input$K1, yend1 = 0) 
+})
+ZNGI_sp2 <- reactive({ 
+  data.frame(x2 = 0, y2 = input$K2, xend2 = input$K2/input$beta, yend2 = 0) 
+})
 
 # Now create plot
 ZNGI <- reactive({ 
   if ("ZNGI" %in% input$plots_to_show) {
     ggplot(data = lvcomp_out()) +
-      geom_abline(data = ZNGI_df(),
-                  aes(slope = slopes(), intercept = intercepts(), color = colors),
-                  size = 2) +
+      geom_segment(data = ZNGI_sp1(),
+                   aes(x = x1, y = y1, xend = xend1, yend = yend1, color = "Species 1"),
+                   size = 2) +
+      geom_segment(data = ZNGI_sp2(),
+                   aes(x = x2, y = y2, xend = xend2, yend = yend2, color = "Species 2"),
+                   size = 2) +
       scale_color_manual(values = brewer.pal(3, name = "Set1"), 
                          labels = c("Species 1", "Species 2")) +
       geom_path(aes(x = N1, y = N2), size = 1) +
@@ -137,7 +144,9 @@ ZNGI <- reactive({
                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
       labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
       coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
-                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))))
+                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
+                      expand = FALSE,
+                      clip = "off")
   }
 })
 
