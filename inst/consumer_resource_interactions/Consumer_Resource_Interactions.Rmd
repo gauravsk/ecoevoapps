@@ -145,7 +145,10 @@ sidebarLayout(
   ),  
   
  
-  mainPanel(renderPlot(plot_lvpred1()),renderPlot(np_lvpred1()))
+  mainPanel(renderPlot(plot_lvpred1()),
+            renderPlot(np_lvpred1()),
+            # renderPlot(dabund_plot_lv_pred1())
+            )
 
 )
 
@@ -206,6 +209,31 @@ np_lvpred1 <- reactive({ggplot(out_lv_pred1()) +
                          geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) })
 
 
+# 
+# pop_out_lv_pred1 <- reactive({
+#   pop_out <- out_lv_pred1()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_lv_pred1 <- reactive({ pop_out_lv_pred1() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_lv_pred1 <- reactive({ ggplot(pop_out_long_lv_pred1()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
    
 ```
 
@@ -258,7 +286,10 @@ sidebarLayout(
   ),  
   
  
-  mainPanel(renderPlot(plot_logprey()), renderPlot(np_logprey()))
+  mainPanel(renderPlot(plot_logprey()), 
+            renderPlot(np_logprey()),
+            # renderPlot(dabund_plot_logprey())
+            )
   
   #mainPanel(renderPlot(lvpred2_np()))
 )
@@ -318,6 +349,30 @@ np_logprey <- reactive({ggplot(out_logprey()) +
                          geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)})
 
 
+
+# pop_out_logprey <- reactive({
+#   pop_out <- out_logprey()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_logprey <- reactive({ pop_out_logprey() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_logprey <- reactive({ ggplot(pop_out_long_logprey()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
    
 ```
 
@@ -369,7 +424,10 @@ sidebarLayout(
   ),  
   
  
-  mainPanel(renderPlot(plot_lvpred2()),renderPlot(np_lvpred2()))
+  mainPanel(renderPlot(plot_lvpred2()),
+            renderPlot(np_lvpred2()),
+            # renderPlot(dabund_plot_lv_pred2())
+            )
   
 
 )
@@ -428,6 +486,29 @@ np_lvpred2 <- reactive({ggplot(out_lv_pred2()) +
                          geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)})
 
 
+# pop_out_lv_pred2 <- reactive({
+#   pop_out <- out_lv_pred2()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_lv_pred2 <- reactive({ pop_out_lv_pred2() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_lv_pred2 <- reactive({ ggplot(pop_out_long_lv_pred2()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
    
 ```
 
@@ -482,7 +563,10 @@ sidebarLayout(
   ),  
   
  
-  mainPanel(renderPlot(plot_rm()),renderPlot(np_rm()))
+  mainPanel(renderPlot(plot_rm()),
+            renderPlot(np_rm()),
+            # renderPlot(dabund_plot_rm())
+            )
   
   #mainPanel(renderPlot(lvpred2_np()))
 )
@@ -542,6 +626,29 @@ np_rm <- reactive({ggplot(out_rm()) +
                          geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)})
 
 
+# pop_out_rm <- reactive({
+#   pop_out <- out_rm()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_rm <- reactive({ pop_out_rm() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_rm <- reactive({ ggplot(pop_out_long_rm()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
    
 ```
 
