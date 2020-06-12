@@ -301,7 +301,6 @@ plot_logprey <- reactive({ggplot(out_long_logprey()) +
 
 np_logprey <- reactive({ggplot(out_logprey()) + 
                          geom_path(aes(x = H, y = P), size = 2) + 
-                         scale_color_brewer(palette = "Set1") + 
                          xlab("Number of Prey") + 
                          ylab("Number of Predators") + 
                          ecoevoapps::theme_apps() +
@@ -355,12 +354,12 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100),
+    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100)
     
   ),  
   
  
-  mainPanel(renderPlot(plot_lvpred2()),renderPlot(np_lvpred2())),
+  mainPanel(renderPlot(plot_lvpred2()),renderPlot(np_lvpred2()))
   
 
 )
@@ -407,7 +406,6 @@ plot_lvpred2 <- reactive({ggplot(out_long_lv_pred2()) +
 
 np_lvpred2 <- reactive({ggplot(out_lv_pred2()) + 
                          geom_path(aes(x = H, y = P), size = 2) + 
-                         scale_color_brewer(palette = "Set1") + 
                          xlab("Number of Prey") + 
                          ylab("Number of Predators") + 
                          ecoevoapps::theme_apps() +
@@ -464,12 +462,12 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_rm", label = "Timesteps", min = 1, value = 100),
+    numericInput("t_rm", label = "Timesteps", min = 1, value = 100)
     
   ),  
   
  
-  mainPanel(renderPlot(plot_rm()),renderPlot(np_rm())),
+  mainPanel(renderPlot(plot_rm()),renderPlot(np_rm()))
   
   #mainPanel(renderPlot(lvpred2_np()))
 )
@@ -517,7 +515,6 @@ plot_rm <- reactive({ggplot(out_long_rm()) +
 
 np_rm <- reactive({ggplot(out_rm()) + 
                          geom_path(aes(x = H, y = P), size = 2) + 
-                         scale_color_brewer(palette = "Set1") + 
                          xlab("Number of Prey") + 
                          ylab("Number of Predators") + 
                          ecoevoapps::theme_apps() +
