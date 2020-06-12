@@ -1,0 +1,198 @@
+---
+title: "Competition app"
+author: "Madeline Cowen"
+date: "June 12, 2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+```
+
+
+## Consumer- Resource Interactions
+
+```{r competition, include=FALSE}
+
+# competition
+
+competition <- function(time, init, params) {
+  with (as.list(c(time, init, params)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # q = 1/prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - q*H) - (a1*H*P1)/(1 + a1*T_h1*H) - (a2*H*P2)/(1 + a2*T_h2*H)
+    dP1_dt = e1*(a1*H*P1)/(1 + a1*T_h1*H) - d1*P1
+    dP2_dt = e2*(a2*H*P2)/(1 + a2*T_h2*H) - d2*P2
+    return(list(c(dH = dH_dt, dP1 = dP1_dt, dP2 = dP2_dt)))
+    
+  })
+}
+```  
+
+
+### Rosenzweig- MacArthur Model 
+
+
+\[
+\begin{eqnarray}
+\frac{dH}{dt} = rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
+\\
+\frac{dP_1}{dt} = e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
+\\
+\frac{dP2}{dt} = e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
+\end{eqnarray}
+\]
+
+Where:
+
+* $H =$ Prey population size
+* $P =$ Predator population size
+* $r =$ per capita growth rate of Prey
+* $K =$ Prey carrying capacity
+* $a =$ Predator attack rate
+* $T_h =$ Predator handling time
+* $e =$ conversion efficiency
+* $d =$ Predator death rate  
+
+```{r rosenzweig-macarthur, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
+    sliderInput("q", label = "Inverse of prey carrying capacity", min = 0, max = 1.0, step = 0.001, value = .01),
+    sliderInput("a1", label = "Predator 1 attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("T_h1", label = "Predator 1 handling time", min = 0.001, max = 1.0, value = 1),
+    sliderInput("e1", label = "Predator 1 conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("d1", label = "Per capita death rate of Predator 1", min = .0001, max = 1.0, value = .4),
+    sliderInput("a2", label = "Predator 2 attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("T_h2", label = "Predator 2 handling time", min = 0.001, max = 1.0, value = 1),
+    sliderInput("e2", label = "Predator 2 conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("d2", label = "Per capita death rate of Predator 2", min = .0001, max = 1.0, value = .4),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("P1", label = "Initial population size of Predator 1", min = 1, value = 25),
+    numericInput("P2", label = "Initial population size of Predator 2", min = 1, value = 30),
+    
+    ### Ask users for time to simulate ----
+    
+    
+    numericInput("t", label = "Timesteps", min = 1, value = 100)
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot())
+            # renderPlot(np())
+            # renderPlot(dabund_plot())
+            )
+  
+)
+
+ # Set the initial population sizes
+
+init <- reactive({c(H = input$H , P1 = input$P1, P2 = input$P2)})
+
+# Set the parameter values
+
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+
+params <- reactive({c(r = input$r, q = input$q, a1 = input$a1 , T_h1 = input$T_h1 , e1 = input$e1 , d1 = input$d1, 
+                         a2 = input$a2 , T_h2 = input$T_h2 , e2 = input$e2 , d2 = input$d2)})
+
+# Time over which to simulate model dynamics
+time <- reactive({seq(0,input$t,by = .1)})
+
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out <- reactive({data.frame(deSolve::ode(func = competition, y = init(), parms = params(), times = time()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long <- reactive({pivot_longer(out(), c(H, P1, P2), "Population")})
+
+
+# Plots
+plot <- reactive({ggplot(out_long()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") + 
+  ecoevoapps::theme_apps()})
+
+# np <- reactive({ggplot(out()) + 
+#                          geom_path(aes(x = H, y = P1), size = 2) + 
+#                          xlab("Number of Prey") + 
+#                          ylab("Number of Predators") + 
+#     geom_segment(x = out_rm()$H[min(5, round(length(time_rm()))/50)], #did this min thing in case someone asks for very few timesteps
+#                  y = out_rm()$P[min(5, round(length(time_rm()))/50)], 
+#                  xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)], 
+#                  yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)], 
+#                  arrow = arrow(length = unit(0.1, "npc"))) +
+#                          ecoevoapps::theme_apps() +
+#                          stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+#                          geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)})
+
+
+# pop_out_rm <- reactive({
+#   pop_out <- out_rm()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_rm <- reactive({ pop_out_rm() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_rm <- reactive({ ggplot(pop_out_long_rm()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+   
+```
+
+
+
+
