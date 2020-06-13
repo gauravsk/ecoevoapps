@@ -20,7 +20,7 @@ library(RColorBrewer)
 ```
 
 
-## Consumer- Resource Interactions
+## Competition with Explicit Resource Dynamics
 
 ```{r competition, include=FALSE}
 
@@ -46,9 +46,6 @@ competition <- function(time, init, params) {
 ```  
 
 
-### Rosenzweig- MacArthur Model 
-
-
 \[
 \begin{eqnarray}
 \frac{dH}{dt} = rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
@@ -71,61 +68,63 @@ Where:
 * $d =$ Predator death rate  
 
 ```{r rosenzweig-macarthur, echo=FALSE}
-sidebarLayout(
-  sidebarPanel(
-    ### Ask users for parameter values ----
-    ## r, a, T_h, e, d
+wellPanel(
+  fluidRow(
+    column(4, 
+           ### Ask users for parameter values ----
+           ## start with Prey params
+           sliderInput("r", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
+           sliderInput("q", label = "Inverse of prey carrying capacity", min = 0, max = 0.10, step = 0.0001, value = .0066),
+           numericInput("H", label = "Initial population size of Prey", min = 1, value = 30),
+           numericInput("P1", label = "Initial population size of Predator 1", min = 1, value = 25),
+           numericInput("P2", label = "Initial population size of Predator 2", min = 1, value = 25),
+           numericInput("t", label = "Timesteps", min = 1, value = 1000)
+           
+    ),
     
-    sliderInput("r", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
-    sliderInput("q", label = "Inverse of prey carrying capacity", min = 0, max = 1.0, step = 0.001, value = .01),
-    sliderInput("a1", label = "Predator 1 attack rate", min = .001, max = 1.0, value = .02),
-    sliderInput("T_h1", label = "Predator 1 handling time", min = 0.001, max = 1.0, value = 1),
-    sliderInput("e1", label = "Predator 1 conversion efficiency", min = .001, max = 1.0, value = 1),
-    sliderInput("d1", label = "Per capita death rate of Predator 1", min = .0001, max = 1.0, value = .4),
-    sliderInput("a2", label = "Predator 2 attack rate", min = .001, max = 1.0, value = .02),
-    sliderInput("T_h2", label = "Predator 2 handling time", min = 0.001, max = 1.0, value = 1),
-    sliderInput("e2", label = "Predator 2 conversion efficiency", min = .001, max = 1.0, value = 1),
-    sliderInput("d2", label = "Per capita death rate of Predator 2", min = .0001, max = 1.0, value = .4),
+    column(4,
+           ## now pred1 params + initial conditions
+           sliderInput("a1", label = "Predator 1 attack rate", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h1", label = "Predator 1 handling time", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e1", label = "Predator 1 conversion efficiency", min = .001, max = 1.0, value = 0.4),
+           sliderInput("d1", label = "Per capita death rate of Predator 1", min = .0001, max = 1.0, value = .1)
+    ),
     
-    
-      
-    ### Ask users for initial conditions -----
-    #N1, N2
-    
-    numericInput("H", label = "Initial population size of Prey", min = 1, value = 30),
-    numericInput("P1", label = "Initial population size of Predator 1", min = 1, value = 25),
-    numericInput("P2", label = "Initial population size of Predator 2", min = 1, value = 30),
-    
-    ### Ask users for time to simulate ----
-    
-    
-    numericInput("t", label = "Timesteps", min = 1, value = 100)
-    
-  ),  
-  
- 
-  mainPanel(renderPlot(plot())
-            # renderPlot(np())
-            # renderPlot(dabund_plot())
-            )
-  
-)
+    column(4,
+           ## now pred2 params + initial conditions
+           sliderInput("a2", label = "Predator 2 attack rate", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h2", label = "Predator 2 handling time", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e2", label = "Predator 2 conversion efficiency", min = .001, max = 1.0, value = 0.39),
+           sliderInput("d2", label = "Per capita death rate of Predator 2", min = .0001, max = 1.0, value = .1)
+    )
+  ))
 
- # Set the initial population sizes
+hr()
+
+
+fluidRow(
+  column(12,
+         renderPlot(plot())
+         # renderPlot(np())
+         # renderPlot(dabund_plot())
+  ))
+
+
+# Set the initial population sizes
 
 init <- reactive({c(H = input$H , P1 = input$P1, P2 = input$P2)})
 
 # Set the parameter values
 
-    # description of parameters:
-    # r = per capita growth rate (prey)
-    # a = attack rate 
-    # T_h = handling time
-    # e = conversion efficiency
-    # d = predator death rate 
+# description of parameters:
+# r = per capita growth rate (prey)
+# a = attack rate 
+# T_h = handling time
+# e = conversion efficiency
+# d = predator death rate 
 
 params <- reactive({c(r = input$r, q = input$q, a1 = input$a1 , T_h1 = input$T_h1 , e1 = input$e1 , d1 = input$d1, 
-                         a2 = input$a2 , T_h2 = input$T_h2 , e2 = input$e2 , d2 = input$d2)})
+                      a2 = input$a2 , T_h2 = input$T_h2 , e2 = input$e2 , d2 = input$d2)})
 
 # Time over which to simulate model dynamics
 time <- reactive({seq(0,input$t,by = .1)})
