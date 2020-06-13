@@ -24,7 +24,7 @@ Equations for Lotka-Volterra Competition with carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
 $$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
 ```{r parameter descriptions}
-Parameter <- c("$r_1$", 
+pars_vars <- c("$r_1$", 
                "$r_2$", 
                "$N_1$", 
                "$N_2$", 
@@ -32,7 +32,7 @@ Parameter <- c("$r_1$",
                "$K_2$", 
                "$\\alpha$", 
                "$\\beta$")
-Description <- c("Intrinsic growth rate of Species 1",
+descriptions <- c("Intrinsic growth rate of Species 1",
                  "Intrinsic growth rate of Species 2",
                  "Population size of Species 1",
                  "Population size of Species 2",
@@ -40,8 +40,9 @@ Description <- c("Intrinsic growth rate of Species 1",
                  "Carrying capacity of Species 2",
                  "Relative effect of Species 2 on Species 1",
                  "Relative effect of Species 1 on Species 2")
-param_df <- data.frame(Parameter, Description)
-kable(x = param_df, format = "html") %>%
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -68,10 +69,10 @@ sidebarLayout(
     # User-defined parameter values
     sliderInput(inputId = "r1", 
                 label = "r1: Intrinsic growth rate of Species 1",
-                min = 0.001, max = 1, value = 0.2),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
     sliderInput(inputId = "r2", 
                 label = "r2: Intrinsic growth rate of Species 2",
-                min = 0.001, max = 1, value = 0.5),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
     numericInput(inputId = "K1", 
                  label = "K1: Carrying capacity of Species 1",
                  min = 1, value = 300),
@@ -80,10 +81,10 @@ sidebarLayout(
                  min = 1, value = 200),
     sliderInput(inputId = "alpha", 
                 label = "alpha: Relative effect of Species 2 on Species 1",
-                min = 0.001, max = 2, value = 0.3),
+                min = 0.01, max = 2, value = 0.3, step = 0.01),
     sliderInput(inputId = "beta", 
                 label = "beta: Relative effect of Species 1 on Species 2",
-                min = 0.001, max = 2, value = 0.2),
+                min = 0.01, max = 2, value = 0.2, step = 0.01),
     # User-defined initial values
     numericInput(inputId = "N1", 
                  label = "Initial population size of Species 1",
