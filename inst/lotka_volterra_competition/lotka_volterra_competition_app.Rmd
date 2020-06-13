@@ -125,33 +125,51 @@ params <- reactive({
     a = input$alpha, b = input$beta)
 })
 
+# Compute equilibria
+sp1_equilibria <- reactive({
+  c((input$K1 - input$alpha*input$K2)/(1 - input$alpha*input$beta),
+    0, input$K1) %>%
+    round()
+})
+sp2_equilibria <- reactive({
+  c((input$K2 - input$beta*input$K1)/(1 - input$alpha*input$beta),
+    0, input$K2) %>%
+    round()
+})
+
 # Run lotka_volterra_competition function
 lvcomp_out <- reactive({
   if (input$run_time == "run_spec") {
-    data.frame(ode(func = lotka_volterra_competition, y = init(),
-                   times = time(), parms = params()))
+    ode(func = lotka_volterra_competition, y = init(), 
+        times = time(), parms = params()) %>%
+    data.frame()
   } else if (input$run_time == "run_to_eq") {
     runs <- 100
     run_seq <- seq(from = 0, to = runs, by = 0.1)
-    equilibrium <- FALSE
+    lvcomp_iter <-
+      ode(func = lotka_volterra_competition, y = init(), 
+          times = run_seq, parms = params()) %>%
+      data.frame()
+    if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
+        round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
+      equilibrium <- TRUE
+    } else {
+      equilibrium <- FALSE
+      runs <- runs + 100
+      run_seq <- seq(from = 0, to = runs, by = 0.1)
+    }
     while (equilibrium == FALSE) {
       lvcomp_iter <- 
-        data.frame(ode(func = lotka_volterra_competition, y = init(),
-                       times = run_seq, parms = params()))
-      # Compute difference between last two entries of N1
-      delta_N1 <- 
-        round(lvcomp_iter$N1[nrow(lvcomp_iter)], 3) - 
-        round(lvcomp_iter$N1[nrow(lvcomp_iter) - 1], 3)
-      # Compute difference between last two entries of N2
-      delta_N2 <- 
-        round(lvcomp_iter$N2[nrow(lvcomp_iter)], 3) - 
-        round(lvcomp_iter$N2[nrow(lvcomp_iter) - 1], 3)
-      if (delta_N1 == 0 & delta_N2 == 0) {
+        ode(func = lotka_volterra_competition, y = init(), 
+            times = run_seq, parms = params()) %>%
+        data.frame()
+      if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
+          round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
         equilibrium <- TRUE
       } else {
-        runs <- runs + 100
-        run_seq <- seq(from = 0, to = runs, by = 0.1)
-      }
+          runs <- runs + 100
+          run_seq <- seq(from = 0, to = runs, by = 0.1)
+        }
     }
     lvcomp_iter
   }
@@ -189,11 +207,11 @@ ZNGI <- reactive({
   if ("ZNGI" %in% input$plots_to_show) {
     ggplot(data = lvcomp_out()) +
       geom_segment(data = ZNGI_sp1(),
-                   aes(x = x1, y = y1, xend = xend1, yend = yend1, color = "Species 1"),
-                   size = 2) +
+                   aes(x = x1, y = y1, xend = xend1, yend = yend1, 
+                       color = "Species 1"), size = 2) +
       geom_segment(data = ZNGI_sp2(),
-                   aes(x = x2, y = y2, xend = xend2, yend = yend2, color = "Species 2"),
-                   size = 2) +
+                   aes(x = x2, y = y2, xend = xend2, yend = yend2, 
+                       color = "Species 2"), size = 2) +
       scale_color_manual(values = brewer.pal(3, name = "Set1"), 
                          labels = c("Species 1", "Species 2")) +
       geom_path(aes(x = N1, y = N2), size = 1) +
