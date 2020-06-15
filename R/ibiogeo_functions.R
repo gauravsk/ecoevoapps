@@ -14,7 +14,7 @@ ibiogeo_I <- function(S,D,M,k){
 #' @param k scaling constant
 #' @export
 ibiogeo_E <- function(S,A,k) {
-  exp(k*A*S)-1
+  exp(k*S/A)-1
 }
 
 #' Equilibrium number of species on island for Island Biogeography model
@@ -24,7 +24,7 @@ ibiogeo_E <- function(S,A,k) {
 #' @param k scaling constant
 #' @export
 ibiogeo_Sx <- function(D,A,M,k){
-  M/(D*A+1)
+  A*M/(D+A)
 }
 
 #' equilibrium immigration rate for Island Biogeography model
@@ -42,3 +42,4 @@ ibiogeo_Ix <- function(D,A,M,k){
 ibiogeo_Ex <- function(D,A,M,k){
   exp(k*A*ibiogeo_Sx(D,A,M,k))-1
 }
+

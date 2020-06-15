@@ -35,8 +35,6 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
 
 }
 
-make_islands_map(tx = tx, ty = ty, txa = txa, txb = txb,
-                 tya = tya, tyb = tyb, D = D, A=A, M=M, k=k)
 
 make_equilibrium_plot <- function(D, A, M, k) {
   (ggplot(data.frame(x = c(0, M)), aes(x)) +
@@ -60,4 +58,3 @@ make_equilibrium_plot <- function(D, A, M, k) {
   originator +
   NULL
 }
-make_equilibrium_plot(D, A, M, k)
