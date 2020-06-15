@@ -37,24 +37,26 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
 
 }
 
+make_islands_map(tx = tx, ty = ty, txa = txa, txb = txb,
+                 tya = tya, tyb = tyb, D = D, A=A, M=M, k=k)
 
 make_equilibrium_plot <- function(D, A, M, k) {
   (ggplot(data.frame(x = c(0, M)), aes(x)) +
     stat_function(fun = ibiogeo_I, args = list(D = D[1], M = M, k = k), aes(color = "colorpal[1]", linetype = "1")) +
     stat_function(fun = ibiogeo_I, args = list(D = D[2], M = M, k = k), aes(color = "colorpal[2]", linetype = "1")) +
-    stat_function(fun = ibiogeo_E, args = list(A = A[1], M = M, k = k), aes(color = "colorpal[1]", linetype = "2")) +
-    stat_function(fun = ibiogeo_E, args = list(A = A[2], M = M, k = k), aes(color = "colorpal[2]", linetype = "2")) +
+    stat_function(fun = ibiogeo_E, args = list(A = A[1], k = k), aes(color = "colorpal[1]", linetype = "2")) +
+    stat_function(fun = ibiogeo_E, args = list(A = A[2], k = k), aes(color = "colorpal[2]", linetype = "2")) +
     ylab("Immigration or Extinction Rate\n(species/year)") +
     xlab("\nNumber of species on island") +
     geom_segment(aes(x = ibiogeo_Sx(D[1],A[1], M = M, k = k), xend = ibiogeo_Sx(D[1],A[1], M = M, k = k),
-                     y = 0, yend = ibiogeo_Ex(D[1],A[1])), color = colorpal[1], linetype = 3) +
-    geom_text(x = ibiogeo_Sx(D[1],A[1], M = M, k = k), y = 0, vjust = 3, label = floor(ibiogeo_Sx(D[1],A[1], M = M, k = k)), color = colorpal[1]) +
-    geom_text(x = ibiogeo_Sx(D[2],A[2], M = M, k = k), y = 0, vjust = 3, label = floor(ibiogeo_Sx(D[2],A[2], M = M, k = k)), color = colorpal[2]) +
+                     y = 0, yend = ibiogeo_Ex(D = D[1], A = A[1], M = M, k = k)), color = colorpal[1], linetype = 3) +
+    geom_text(x = ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k), y = 0, vjust = 3, label = floor(ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k)), color = colorpal[1]) +
+    geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3, label = floor(ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2]) +
     coord_cartesian(clip = "off") +
     scale_color_manual(name = " ", guide = "legend", values = colorpal, labels = c("Island A", "Island B")) +
     scale_linetype_manual(name = "", values = c(1,2), labels = c("Immigration rate", "Extinction rate")) +
-    geom_segment(aes(x = ibiogeo_Sx(D[2],A[2], M = M, k = k), xend = ibiogeo_Sx(D[2],A[2], M = M, k = k),
-                     y = 0, yend = ibiogeo_Ex(D[2],A[2])), color = colorpal[2], linetype = 3) +
+    geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), xend = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
+                     y = 0, yend = ibiogeo_Ex(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2], linetype = 3) +
     theme_apps() +
     theme(legend.position = "top"))  %>%
   originator +

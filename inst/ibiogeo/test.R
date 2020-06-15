@@ -65,10 +65,10 @@ ggplot() +
 
 
 (ggplot(data.frame(x = c(0, M)), aes(x)) +
-  stat_function(fun = I, args = list(D = D[1]), aes(color = "colorpal[1]", linetype = "1")) +
-  stat_function(fun = I, args = list(D = D[2]), aes(color = "colorpal[2]", linetype = "1")) +
-  stat_function(fun = E, args = list(A = A[1]), aes(color = "colorpal[1]", linetype = "2")) +
-  stat_function(fun = E, args = list(A = A[2]), aes(color = "colorpal[2]", linetype = "2")) +
+    stat_function(fun = I, args = list(D = D[1]), aes(color = "colorpal[1]", linetype = "1")) +
+    stat_function(fun = I, args = list(D = D[2]), aes(color = "colorpal[2]", linetype = "1")) +
+    stat_function(fun = E, args = list(A = A[1]), aes(color = "colorpal[1]", linetype = "2")) +
+    stat_function(fun = E, args = list(A = A[2]), aes(color = "colorpal[2]", linetype = "2")) +
     ylab("Immigration or Extinction Rate\n(species/year)") +
     xlab("\nNumber of species on island") +
     geom_segment(aes(x = Sx(D[1],A[1]), xend = Sx(D[1],A[1]),
