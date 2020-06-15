@@ -1,7 +1,5 @@
+options(warn=-1)
 # set some default values
-D = c(1,4) # distances from mainland (km)
-A = c(1,.5) # island size (km^2)
-M = 100 # number of species in the mainland
 k = 0.015 # scaling constant
 
 # set some values to make plots
@@ -11,7 +9,7 @@ txa = c(-1.98662207 ,-1.91715976 ,-1.63931052 ,-1.29199897, -1.04888089,-1.01414
 tya = c(-0.007009346,  0.273364486,  0.658878505,  0.799065421,  0.974299065, 1.184579439,  1.394859813,  1.535046729,  1.535046729,  1.394859813, 1.149532710,  1.114485981,  1.149532710,  1.184579439,  0.904205607, 0.764018692,  0.764018692,  0.553738318,  0.238317757,  0.203271028, 0.098130841, -0.042056075, -0.217289720, -0.532710280, -0.707943925,-0.988317757, -0.988317757, -0.988317757, -0.918224299, -1.058411215,-1.408878505, -1.408878505, -1.408878505, -1.268691589, -0.988317757,-0.848130841, -0.848130841, -0.883177570, -0.637850467, -0.532710280,-0.007009346)
 txb=-txa; tyb=-tya
 
-colorpal <- RColorBrewer::brewer.pal(2, "Set1")
+colorpal <- RColorBrewer::brewer.pal(3, "Set1")
 
 make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
                              D, A, k, M) {
@@ -26,7 +24,7 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
              color = colorpal[1]) +
     annotate("text", x = 12, y = D[2]-sqrt(A[2])*min(tyb), label = "island\nB",
              color = colorpal[2]) +
-    annotate("text", x = 7.5, y = -1 , label = "Mainland", hjust = 0, size = 6) +
+    annotate("text", x = 7.5, y = -1.25 , label = paste0("Mainland\n(", M, " species)"), hjust = 0.5, size = 6) +
 
     xlab("") +
     ylab("Distance from mainland (km)") +
@@ -54,11 +52,11 @@ make_equilibrium_plot <- function(D, A, M, k) {
     geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3, label = floor(ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2]) +
     coord_cartesian(clip = "off") +
     scale_color_manual(name = " ", guide = "legend", values = colorpal, labels = c("Island A", "Island B")) +
-    scale_linetype_manual(name = "", values = c(1,2), labels = c("Immigration rate", "Extinction rate")) +
+    scale_linetype_manual(name = "", values = c(1,2), labels = c("Immigration\nrate", "Extinction\nrate")) +
     geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), xend = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
                      y = 0, yend = ibiogeo_Ex(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2], linetype = 3) +
     theme_apps() +
-    theme(legend.position = "top"))  %>%
+    theme(legend.position = "top", legend.text = element_text(size = 12)))  %>%
   originator +
   NULL
 }

@@ -32,7 +32,7 @@ ibiogeo_Sx <- function(D,A,M,k){
 #' @param A size of island (km^2)
 #' @export
 ibiogeo_Ix <- function(D,A,M,k){
-  exp(-(k/D)*(Sx(D,A)-M))-1
+  exp(-(k/D)*(ibiogeo_Sx(D,A,M,k)-M))-1
 }
 
 #' equilibrium extinction rate for Island Biogeography model
@@ -40,5 +40,5 @@ ibiogeo_Ix <- function(D,A,M,k){
 #' @param A size of island (km^2)
 #' @export
 ibiogeo_Ex <- function(D,A,M,k){
-  exp(k*A*Sx(D,A))-1
+  exp(k*A*ibiogeo_Sx(D,A,M,k))-1
 }
