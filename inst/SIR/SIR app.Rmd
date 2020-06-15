@@ -124,23 +124,23 @@ pop_out_long <- reactive({ pop_out() %>%
 
 
 # Plot abundance through time ----------
-abund_plot_SIR <- reactive({(ggplot(out_long()) + 
+abund_plot_SIR <- reactive({ggplot(out_long()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
-    ylab("Population size")) %>%   
+    ylab("Population size") + 
     ecoevoapps::theme_apps()
 })
 
 # Plot dS, dI, dR over time
-dabund_plot_SIR <- reactive({ (ggplot(pop_out_long()) +
+dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size")) %>% 
+    ylab("Change in population size") +
     ecoevoapps::theme_apps()
 })
 
 # Plot S vs I ---------
-SIplot <- reactive({(ggplot(out()) +
+SIplot <- reactive({ggplot(out()) +
     geom_segment(x = out()$S[round(length(time()))/25], 
                  y = out()$I[round(length(time()))/25], 
                  xend = out()$S[round(length(time())/25) + 1], 
@@ -149,11 +149,11 @@ SIplot <- reactive({(ggplot(out()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot I vs R --------------
-RIplot <- reactive({(ggplot(out()) +
+RIplot <- reactive({ggplot(out()) +
     geom_segment(x = out()$R[round(length(time()))/25], 
                  y = out()$I[round(length(time()))/25], 
                  xend = out()$R[round(length(time())/25) + 1], 
@@ -162,11 +162,11 @@ RIplot <- reactive({(ggplot(out()) +
   geom_path(aes(x = R, y = I), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("I size") +
-  xlab("R size")) %>% 
+  xlab("R size") +
   ecoevoapps::theme_apps()})
 
 # Plot S vs R ------------
-SRplot <- reactive({(ggplot(out()) +
+SRplot <- reactive({ggplot(out()) +
     geom_segment(x = out()$S[round(length(time()))/25], 
                  y = out()$R[round(length(time()))/25], 
                  xend = out()$S[round(length(time())/25) + 1], 
@@ -175,7 +175,7 @@ SRplot <- reactive({(ggplot(out()) +
   geom_path(aes(x = S, y = R), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("R size") +
-  xlab("S size")) %>% 
+  xlab("S size") +
   ecoevoapps::theme_apps()})
 
 # combine 2d plots -----
@@ -276,23 +276,23 @@ pop_out_long_sir_novitals <- reactive({ pop_out_sir_novitals() %>%
 
 
 # Plot abundance through time ----------
-abund_plot_SIR_novitals <- reactive({(ggplot(out_long_sir_novitals()) + 
+abund_plot_SIR_novitals <- reactive({ggplot(out_long_sir_novitals()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
-    ylab("Population size")) %>%  
+    ylab("Population size") + 
     ecoevoapps::theme_apps()
 })
 
 # Plot dS, dI, dR over time
-dabund_plot_SIR_novitals <- reactive({(ggplot(pop_out_long_sir_novitals()) +
+dabund_plot_SIR_novitals <- reactive({ ggplot(pop_out_long_sir_novitals()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size")) %>% 
+    ylab("Change in population size") +
     ecoevoapps::theme_apps()
 })
 
 # Plot S vs I ---------
-SIplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
+SIplot_sir_novitals <- reactive({ggplot(out_sir_novitals()) +
     geom_segment(x = out_sir_novitals()$S[round(length(time_sir_novitals()))/25], 
                  y = out_sir_novitals()$I[round(length(time_sir_novitals()))/25], 
                  xend = out_sir_novitals()$S[round(length(time_sir_novitals())/25) + 1], 
@@ -301,11 +301,11 @@ SIplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot I vs R --------------
-RIplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
+RIplot_sir_novitals <- reactive({ggplot(out_sir_novitals()) +
     geom_segment(x = out_sir_novitals()$R[round(length(time_sir_novitals()))/25], 
                  y = out_sir_novitals()$I[round(length(time_sir_novitals()))/25], 
                  xend = out_sir_novitals()$R[round(length(time_sir_novitals())/25) + 1], 
@@ -314,11 +314,11 @@ RIplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
   geom_path(aes(x = R, y = I), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("I size") +
-  xlab("R size")) %>% 
+  xlab("R size") +
   ecoevoapps::theme_apps()})
 
 # Plot S vs R ------------
-SRplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
+SRplot_sir_novitals <- reactive({ggplot(out_sir_novitals()) +
     geom_segment(x = out_sir_novitals()$S[round(length(time_sir_novitals()))/25], 
                  y = out_sir_novitals()$R[round(length(time_sir_novitals()))/25], 
                  xend = out_sir_novitals()$S[round(length(time_sir_novitals())/25) + 1], 
@@ -327,7 +327,7 @@ SRplot_sir_novitals <- reactive({(ggplot(out_sir_novitals()) +
   geom_path(aes(x = S, y = R), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("R size") +
-  xlab("S size")) %>% 
+  xlab("S size") +
   ecoevoapps::theme_apps()})
 
 # combine 2d plots -----
@@ -439,23 +439,23 @@ pop_out_long_sis <- reactive({ pop_out_sis() %>%
 
 
 # Plot abundance through time ----------
-abund_plot_sis <- reactive({(ggplot(out_long_sis()) + 
+abund_plot_sis <- reactive({ggplot(out_long_sis()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
-    ylab("Population size")) %>%  
+    ylab("Population size") + 
     ecoevoapps::theme_apps()
 })
 
 # Plot dS, dI, dR over time
-dabund_plot_sis <- reactive({(ggplot(pop_out_long_sis()) +
+dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size")) %>% 
+    ylab("Change in population size") +
     ecoevoapps::theme_apps()
 })
 
 # Plot S vs I ---------
-SIplot_sis <- reactive({(ggplot(out_sis()) +
+SIplot_sis <- reactive({ggplot(out_sis()) +
     geom_segment(x = out_sis()$S[round(length(time_sis()))/25], 
                  y = out_sis()$I[round(length(time_sis()))/25], 
                  xend = out_sis()$S[round(length(time_sis())/25) + 1], 
@@ -464,7 +464,7 @@ SIplot_sis <- reactive({(ggplot(out_sis()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 
@@ -590,23 +590,23 @@ pop_out_long_seir <- reactive({ pop_out_seir() %>%
 
 
 # Plot abundance through time ----------
-abund_plot_seir <- reactive({(ggplot(out_long_seir()) + 
+abund_plot_seir <- reactive({ggplot(out_long_seir()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
-    ylab("Population size")) %>%  
+    ylab("Population size") + 
     ecoevoapps::theme_apps()
 })
 
 # Plot dS, dE, dI, dR over time
-dabund_plot_seir <- reactive({(ggplot(pop_out_long_seir()) +
+dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size")) %>% 
+    ylab("Change in population size") +
     ecoevoapps::theme_apps()
 })
 
 # Plot S vs E ---------
-SEplot_seir <- reactive({(ggplot(out_seir()) +
+SEplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$E[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -615,11 +615,11 @@ SEplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = S, y = E), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("E size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot S vs I ---------
-SIplot_seir <- reactive({(ggplot(out_seir()) +
+SIplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -628,11 +628,11 @@ SIplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot S vs R ---------
-SRplot_seir <- reactive({(ggplot(out_seir()) +
+SRplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$R[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -641,11 +641,11 @@ SRplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = S, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot E vs I ---------
-EIplot_seir <- reactive({(ggplot(out_seir()) +
+EIplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$E[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$E[round(length(time_seir())/25) + 1], 
@@ -654,11 +654,11 @@ EIplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = E, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("E size")) %>% 
+    xlab("E size") +
     ecoevoapps::theme_apps()})
 
 # Plot E vs R ---------
-ERplot_seir <- reactive({(ggplot(out_seir()) +
+ERplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$E[round(length(time_seir()))/25], 
                  y = out_seir()$R[round(length(time_seir()))/25], 
                  xend = out_seir()$E[round(length(time_seir())/25) + 1], 
@@ -667,11 +667,11 @@ ERplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = E, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("E size")) %>% 
+    xlab("E size") +
     ecoevoapps::theme_apps()})
 
 # Plot R vs I ---------
-RIplot_seir <- reactive({(ggplot(out_seir()) +
+RIplot_seir <- reactive({ggplot(out_seir()) +
     geom_segment(x = out_seir()$R[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$R[round(length(time_seir())/25) + 1], 
@@ -680,7 +680,7 @@ RIplot_seir <- reactive({(ggplot(out_seir()) +
     geom_path(aes(x = R, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("R size")) %>% 
+    xlab("R size") +
     ecoevoapps::theme_apps()})
 
 # combine 2d plots -----
@@ -808,23 +808,23 @@ pop_out_long_sird <- reactive({ pop_out_sird() %>%
 
 
 # Plot abundance through time ----------
-abund_plot_sird <- reactive({(ggplot(out_long_sird()) + 
+abund_plot_sird <- reactive({ggplot(out_long_sird()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
-    ylab("Population size")) %>%  
+    ylab("Population size") + 
     ecoevoapps::theme_apps()
 })
 
 # Plot dS, dD, dI, dR over time
-dabund_plot_sird <- reactive({(ggplot(pop_out_long_sird()) +
+dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
     geom_line(aes(x = time, y = value, color = group), size = 2) +
     scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size")) %>% 
+    ylab("Change in population size") +
     ecoevoapps::theme_apps()
 })
 
 # Plot S vs D ---------
-SDplot_sird <- reactive({(ggplot(out_sird()) +
+SDplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$D[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -833,11 +833,11 @@ SDplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = S, y = D), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("D size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot S vs I ---------
-SIplot_sird <- reactive({(ggplot(out_sird()) +
+SIplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -846,11 +846,11 @@ SIplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot S vs R ---------
-SRplot_sird <- reactive({(ggplot(out_sird()) +
+SRplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$R[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -859,11 +859,11 @@ SRplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = S, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("S size")) %>% 
+    xlab("S size") +
     ecoevoapps::theme_apps()})
 
 # Plot D vs I ---------
-DIplot_sird <- reactive({(ggplot(out_sird()) +
+DIplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$D[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$D[round(length(time_sird())/25) + 1], 
@@ -872,11 +872,11 @@ DIplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = D, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("D size")) %>% 
+    xlab("D size") +
     ecoevoapps::theme_apps()})
 
 # Plot D vs R ---------
-DRplot_sird <- reactive({(ggplot(out_sird()) +
+DRplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$D[round(length(time_sird()))/25], 
                  y = out_sird()$R[round(length(time_sird()))/25], 
                  xend = out_sird()$D[round(length(time_sird())/25) + 1], 
@@ -885,11 +885,11 @@ DRplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = D, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("D size")) %>% 
+    xlab("D size") +
     ecoevoapps::theme_apps()})
 
 # Plot R vs I ---------
-RIplot_sird <- reactive({(ggplot(out_sird()) +
+RIplot_sird <- reactive({ggplot(out_sird()) +
     geom_segment(x = out_sird()$R[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$R[round(length(time_sird())/25) + 1], 
@@ -898,7 +898,7 @@ RIplot_sird <- reactive({(ggplot(out_sird()) +
     geom_path(aes(x = R, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("R size")) %>% 
+    xlab("R size") +
     ecoevoapps::theme_apps()})
 
 # combine 2d plots -----

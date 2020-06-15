@@ -158,12 +158,12 @@ init_lv_pred1 <- reactive({c(H = input$H_lv_pred1 , P = input$P_lv_pred1)})
 
 # Set the parameter values
 
-# description of parameters:
-# r = per capita growth rate (prey)
-# a = attack rate 
-# T_h = handling time
-# e = conversion efficiency
-# d = predator death rate 
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
 
 pars_lv_pred1 <- reactive({c(r = input$r_lv_pred1, a = input$a_lv_pred1 , e = input$e_lv_pred1, d = input$d_lv_pred1)})
 
@@ -178,7 +178,7 @@ time_lv_pred1 <- reactive({seq(0, input$t_lv_pred1, by = .1)})
 
 out_lv_pred1 <- reactive({data.frame(deSolve::ode(func = lv_pred1, 
                                                   y = init_lv_pred1(), parms = pars_lv_pred1(), times = time_lv_pred1()))})
-
+  
 
 # Reshape the data so that population sizes of both 
 # species are in one column, and an extra column to define
@@ -188,14 +188,14 @@ out_long_lv_pred1 <- reactive({pivot_longer(out_lv_pred1(), c(H,P), "Population"
 
 
 # Plots
-plot_lvpred1 <- reactive({(ggplot(out_long_lv_pred1()) + 
+plot_lvpred1 <- reactive({ggplot(out_long_lv_pred1()) + 
                              geom_line(aes(x = time, y = value, color = Population), size = 2) + 
                              scale_color_brewer(palette = "Set1") +
-                             ylab("Population size")) %>% 
+                             ylab("Population size") + 
     ecoevoapps::theme_apps()})
 
 
-np_lvpred1 <- reactive({(ggplot(out_lv_pred1()) + 
+np_lvpred1 <- reactive({ggplot(out_lv_pred1()) + 
                            geom_path(aes(x = H, y = P), size = 2) + 
                            xlab("Number of Prey") + 
                            ylab("Number of Predators") + 
@@ -205,7 +205,7 @@ np_lvpred1 <- reactive({(ggplot(out_lv_pred1()) +
                                         yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)], 
                                         arrow = arrow(length = unit(0.1, "npc"))) +
                            geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-                           geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
+                           geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
     ecoevoapps::theme_apps()})
 
 
@@ -329,13 +329,13 @@ out_long_logprey <- reactive({pivot_longer(out_logprey(), c(H,P), "Population")}
 
 
 # Plots
-plot_logprey <- reactive({(ggplot(out_long_logprey()) + 
+plot_logprey <- reactive({ggplot(out_long_logprey()) + 
   geom_line(aes(x = time, y = value, color = Population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
-  ylab("Population size")) %>% 
+  ylab("Population size") +
   ecoevoapps::theme_apps()})
 
-np_logprey <- reactive({(ggplot(out_logprey()) + 
+np_logprey <- reactive({ggplot(out_logprey()) + 
                            geom_path(aes(x = H, y = P), size = 2) + 
                            xlab("Number of Prey") + 
                            ylab("Number of Predators") + 
@@ -345,7 +345,7 @@ np_logprey <- reactive({(ggplot(out_logprey()) +
                                         yend = out_logprey()$P[min(5 + 1, round(length(time_logprey())/50) + 1)], 
                                         arrow = arrow(length = unit(0.1, "npc"))) +
                            geom_abline(intercept = input$r_logprey/input$a_logprey, slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-                           geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
+                           geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
     ecoevoapps::theme_apps()})
 
 
@@ -466,23 +466,23 @@ out_long_lv_pred2 <- reactive({pivot_longer(out_lv_pred2(), c(H,P), "Population"
 
 
 # Plots
-plot_lvpred2 <- reactive({(ggplot(out_long_lv_pred2()) + 
+plot_lvpred2 <- reactive({ggplot(out_long_lv_pred2()) + 
   geom_line(aes(x = time, y = value, color = Population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
-  ylab("Population size")) %>% 
+  ylab("Population size") +
   ecoevoapps::theme_apps()})
 
-np_lvpred2 <- reactive({(ggplot(out_lv_pred2()) + 
-                         geom_path(aes(x = H, y = P), size = 2) + 
-                         xlab("Number of Prey") + 
-                         ylab("Number of Predators") + 
+np_lvpred2 <- reactive({ggplot(out_lv_pred2()) + 
+    geom_path(aes(x = H, y = P), size = 2) + 
+    xlab("Number of Prey") + 
+    ylab("Number of Predators") + 
     geom_segment(x = out_lv_pred2()$H[min(5, round(length(time_lv_pred2()))/50)], #did this min thing in case someone asks for very few timesteps
                  y = out_lv_pred2()$P[min(5, round(length(time_lv_pred2()))/50)], 
                  xend = out_lv_pred2()$H[min(5 + 1, round(length(time_lv_pred2())/50) + 1)], 
                  yend = out_lv_pred2()$P[min(5 + 1, round(length(time_lv_pred2())/50) + 1)], 
                  arrow = arrow(length = unit(0.1, "npc"))) +
-                         geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-                         geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
+    geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
     ecoevoapps::theme_apps()})
 
 
@@ -606,23 +606,23 @@ out_long_rm <- reactive({pivot_longer(out_rm(), c(H,P), "Population")})
 
 
 # Plots
-plot_rm <- reactive({(ggplot(out_long_rm()) + 
+plot_rm <- reactive({ggplot(out_long_rm()) + 
   geom_line(aes(x = time, y = value, color = Population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
-  ylab("Population size")) %>%  
+  ylab("Population size") + 
   ecoevoapps::theme_apps()})
 
-np_rm <- reactive({(ggplot(out_rm()) + 
-                         geom_path(aes(x = H, y = P), size = 2) + 
-                         xlab("Number of Prey") + 
-                         ylab("Number of Predators") + 
+np_rm <- reactive({ggplot(out_rm()) + 
+    geom_path(aes(x = H, y = P), size = 2) + 
+    xlab("Number of Prey") + 
+    ylab("Number of Predators") + 
     geom_segment(x = out_rm()$H[min(5, round(length(time_rm()))/50)], #did this min thing in case someone asks for very few timesteps
                  y = out_rm()$P[min(5, round(length(time_rm()))/50)], 
                  xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)], 
                  yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)], 
                  arrow = arrow(length = unit(0.1, "npc"))) +
-                         stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-                         geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
+    stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
     ecoevoapps::theme_apps()})
 
 
