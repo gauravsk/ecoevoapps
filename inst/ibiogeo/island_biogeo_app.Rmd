@@ -10,7 +10,7 @@ runtime: shiny
 ---
 
 Extinction rate on island:
-$$E = e^{k*S*A}-1$$
+$$E = e^{k\frac{S}{A}}-1$$
 Immigration rate from mainland to island:
 $$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
 Equilibrium number of species on the island:  
@@ -22,7 +22,7 @@ where:
 - $A$ is the area of the island (km^2);  
 - $M$ is the number of species on the mainland;  
 - $k$ is the scaling constant (set to $k=0.15$ in this app).
-```{r, echo  = F}
+```{r, include = F}
 library(tidyverse)
 library(ecoevoapps)
 library(patchwork)
