@@ -204,8 +204,8 @@ np_lvpred1 <- reactive({(ggplot(out_lv_pred1()) +
                                         xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)], 
                                         yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)], 
                                         arrow = arrow(length = unit(0.1, "npc"))) +
-                           geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
-                           geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)) %>% 
+                           geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                           geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
     ecoevoapps::theme_apps()})
 
 
@@ -344,8 +344,8 @@ np_logprey <- reactive({(ggplot(out_logprey()) +
                                         xend = out_logprey()$H[min(5 + 1, round(length(time_logprey())/50) + 1)], 
                                         yend = out_logprey()$P[min(5 + 1, round(length(time_logprey())/50) + 1)], 
                                         arrow = arrow(length = unit(0.1, "npc"))) +
-                           geom_abline(intercept = input$r_logprey/input$a_logprey, slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
-                           geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)) %>% 
+                           geom_abline(intercept = input$r_logprey/input$a_logprey, slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                           geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
     ecoevoapps::theme_apps()})
 
 
@@ -425,7 +425,7 @@ sidebarLayout(
   
  
   mainPanel(renderPlot(plot_lvpred2()),
-            renderPlot(np_lvpred2()),
+            renderPlot(np_lvpred2())
             # renderPlot(dabund_plot_lv_pred2())
             )
   
@@ -481,8 +481,8 @@ np_lvpred2 <- reactive({(ggplot(out_lv_pred2()) +
                  xend = out_lv_pred2()$H[min(5 + 1, round(length(time_lv_pred2())/50) + 1)], 
                  yend = out_lv_pred2()$P[min(5 + 1, round(length(time_lv_pred2())/50) + 1)], 
                  arrow = arrow(length = unit(0.1, "npc"))) +
-                         geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
-                         geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)) %>% 
+                         geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                         geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
     ecoevoapps::theme_apps()})
 
 
@@ -621,8 +621,8 @@ np_rm <- reactive({(ggplot(out_rm()) +
                  xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)], 
                  yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)], 
                  arrow = arrow(length = unit(0.1, "npc"))) +
-                         stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
-                         geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[1], size = 2)) %>% 
+                         stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                         geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2)) %>% 
     ecoevoapps::theme_apps()})
 
 
