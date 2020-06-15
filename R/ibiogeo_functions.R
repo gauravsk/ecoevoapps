@@ -11,10 +11,9 @@ ibiogeo_I <- function(S,D,M,k){
 #' Extinction rate for Island Biogeography model
 #' @param S number of species on island
 #' @param A size of island (km^2)
-#' @param M number of species in the mainland
 #' @param k scaling constant
 #' @export
-ibiogeo_E <- function(S,A,M,k) {
+ibiogeo_E <- function(S,A,k) {
   exp(k*S/A)-1
 }
 
@@ -32,14 +31,15 @@ ibiogeo_Sx <- function(D,A,M,k){
 #' @param D distance from mainland (km)
 #' @param A size of island (km^2)
 #' @export
-ibiogeo_Ix <- function(D,A){
-  exp(-(k/D)*(Sx(D,A)-M))-1
+ibiogeo_Ix <- function(D,A,M,k){
+  exp(-(k/D)*(ibiogeo_Sx(D,A,M,k)-M))-1
 }
 
 #' equilibrium extinction rate for Island Biogeography model
 #' @param D distance from mainland (km)
 #' @param A size of island (km^2)
 #' @export
-ibiogeo_Ex <- function(D,A){
-  exp(k*A*Sx(D,A))-1
+ibiogeo_Ex <- function(D,A,M,k){
+  exp(k*A*ibiogeo_Sx(D,A,M,k))-1
 }
+

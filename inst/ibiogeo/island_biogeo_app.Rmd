@@ -9,10 +9,25 @@ output:
 runtime: shiny
 ---
 
-```{r, echo  = F}
+Extinction rate on island:
+<<<<<<< HEAD
+$$E = e^{\frac{kS}{A}}-1$$
+Immigration rate from mainland to island:
+$$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
+Equilibrium number of species on the island:  
+$$S_{eq} = \frac{AM}{D+A}$$
+
+where:
+
+- $D$ is the distance from the mainland to the island (km);  
+- $A$ is the area of the island (km^2);  
+- $M$ is the number of species on the mainland;  
+- $k$ is the scaling constant (set to $k=0.15$ in this app).
+```{r, include = F}
 library(tidyverse)
 library(ecoevoapps)
-knitr::opts_chunk$set(echo = FALSE)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 # source("functions.R")
 source("ibiogeo_constants.R")
 ```
@@ -47,16 +62,27 @@ sidebarLayout(
                         value = 100),
             width=4),
         mainPanel(
-            renderPlot({map()})
+            renderPlot({plot_to_print()}, width = 400, height = 600)
         )
 )
 
+Dvec <- reactive({c(input$D1, input$D2)})
+Avec <- reactive({c(input$A1, input$A2)})
 map <- reactive({
-  # generate plots based on input$bins from ui.R
-  make_islands_map(tx = tx, ty = ty, txa = txa, tya = tya, 
-                   txb = txb, tyb = tyb, D = c(input$D1, input$D2), A=c(input$A1,input$A2), M=input$M,k=0.015)
-  # mapNrates(D=c(input$D1,input$D2),A=c(input$A1,input$A2),M=input$M,k=0.015)
+  # generate "map" of islands
+  make_islands_map(tx = tx, ty = ty, txa = txa, tya = tya,
+                   txb = txb, tyb = tyb, D = Dvec(), 
+                   A = Avec(), M=input$M, k=0.015)
+  
 })
-    
+
+eq_plot <- reactive({
+  # generate plot that shows equilibrium species number
+  make_equilibrium_plot(D = Dvec(), A = Avec(), M = input$M, k = k)
+})
+
+plot_to_print <- reactive({
+  map() / eq_plot()
+})
 
 ```
