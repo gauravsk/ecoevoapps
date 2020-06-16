@@ -1,0 +1,91 @@
+---
+title: "Abiotic resource competition app"
+author: "Gaurav Kandlikar"
+date: "4/12/2020"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_depth: 3
+runtime: shiny
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+```
+
+## Tilman R* Rule
+
+$$\frac{dN_1}{dt} = N_1(a_1*R - d_1)$$
+
+$$\frac{dN_2}{dt} = N_2(a_2*R - d_2)$$
+
+$$\frac{dR}{dt} = r - a_1N_1R - a_2N_2R$$
+
+```{r}
+sidebarLayout(
+  sidebarPanel(
+    # User defined resource growth rate -------
+    sliderInput("r", label = "Resource supply rate (r):",
+                min = 0.01, max = .5, value = .15, step = .01),
+    # User defined resource acquisition rates -------
+    sliderInput("a1", label = "Species 1 resource acquisition rate (a1):",
+                min = 0.001, max = .2, value = .05, step = .01),
+    sliderInput("a2", label = "Species 2 resource acquisition rate (a2):",
+                min = 0.001, max = .2, value = .05, step = .01),
+    # User defined mortality rates -------
+    sliderInput("d1", label = "Species 1 mortality rate (d1):",
+                min = 0.001, max = .2, value = .05, step = .01),
+    sliderInput("d2", label = "Species 2 mortality rate (d2):",
+                min = 0.001, max = .2, value = .05, step = .01),
+
+    # User defined N1, N2, and R -------
+    numericInput("N1", label = "Initial population size of species 1 (N1)",
+                min = 1, max = 100, value = 25),
+    numericInput("N2", label = "Initial population size of species 1 (N2)",
+                min = 1, max = 100, value = 50),
+    numericInput("R", label = "Initial population size of Resources (R)",
+                min = 1, max = 100, value = 100),
+    # User defined time ---------
+    numericInput("time", label = "Number of time steps to project",
+                min = 1, max = 1000, value = 500)
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({tilman_1sp_out()}, width = 450, height = 450)
+    # renderDataTable({tilman_out()})
+  )
+)
+
+
+tilman_1sp_params <- reactive({c(r = input$r, a1 = input$a1, a2 = input$a2,
+                                 d1 = input$d1, d2 = input$d2)})
+tilman_1sp_init <- reactive({c(N1 = input$N1, N2 = input$N2, R = input$R)})
+time <- reactive({seq(from = 0, to = input$time, by=1)})
+
+tilman_out <- reactive({data.frame(deSolve::ode(func = ecoevoapps::tilman_comp,
+                                      y=tilman_1sp_init(), parms=tilman_1sp_params(), times = time()))})
+
+
+tilman_out2 <- reactive({
+  ti <- tilman_out()
+  pivot_longer(ti, c(N1,N2,R), "species")
+})
+
+tilman_1sp_out <- reactive({ggplot(tilman_out2()) +
+  geom_line(aes(x = time, y = value, color = species), size = 2) +
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+  ecoevoapps::theme_apps()})
+
+
+
+
+```
