@@ -1,6 +1,6 @@
 #' @export
 theme_apps <- function() {
-  ggplot2::theme_minimal()+
+  ggplot2::theme_minimal() +
     ggplot2::theme(panel.border = ggplot2::element_blank(),
           panel.grid.major = ggplot2::element_blank(),
           panel.grid.minor = ggplot2::element_blank(),
@@ -9,4 +9,13 @@ theme_apps <- function() {
           axis.title = ggplot2::element_text(size = 15),
           plot.caption = ggplot2::element_text(size = 15)
     )
+}
+
+
+#' @export
+#'
+originator <- function(plot) {
+  plot +
+    ggplot2::scale_x_continuous(expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(expand = c(0, 0))
 }

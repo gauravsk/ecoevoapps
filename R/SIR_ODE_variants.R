@@ -46,11 +46,12 @@ SEIR <- function(time,init,params) {
     # beta is the infection rate
     # m is the natural mortality/birth rate
     # v is the newborn vaccination rate
+    # a is the inverse of the incubation period
     # gamma is the recovery rate
     dS_dt = m*(S + E + I + R)*(1 - v) - m*S - beta*S*I
     dE_dt = beta*S*I - a*E - m*E
     dI_dt = a*E - m*I - gamma*I
-    dR_dt = gamma*I - m*R + m*(S + I + R)*v
+    dR_dt = gamma*I - m*R + m*(S + E + I + R)*v
     return(list(c(dS = dS_dt, dE = dE_dt, dI = dI_dt, dR = dR_dt)))
   })
 }
@@ -66,6 +67,7 @@ SIRD <- function(time,init,params) {
     # beta is the infection rate
     # m is the natural mortality/birth rate
     # v is the newborn vaccination rate
+    # mu is the death rate due to infection
     # gamma is the recovery rate
     dS_dt = m*(S + I + R)*(1 - v) - m*S - beta*S*I
     dI_dt = beta*S*I - m*I - gamma*I - mu*I
