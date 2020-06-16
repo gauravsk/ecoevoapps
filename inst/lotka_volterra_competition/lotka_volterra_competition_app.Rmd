@@ -39,8 +39,8 @@ descriptions <- c("Intrinsic growth rate of Species 1",
                  "Population size of Species 2",
                  "Carrying capacity of Species 1",
                  "Carrying capacity of Species 2",
-                 "Relative effect of Species 2 on Species 1",
-                 "Relative effect of Species 1 on Species 2")
+                 "Relative per capita effect of Species 2 on Species 1",
+                 "Relative per capita effect of Species 1 on Species 2")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
       col.names = c("Parameter/Variable", "Description")) %>%
