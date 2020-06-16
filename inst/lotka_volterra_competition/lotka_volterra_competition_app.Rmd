@@ -20,7 +20,7 @@ theme_set(ecoevoapps::theme_apps())
 
 ## Use carrying capacity
 
-Equations for Lotka-Volterra Competition with carrying capacities:
+Equations for Lotka-Volterra Competition expressed with carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
 $$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
 
@@ -245,3 +245,39 @@ plots_to_print <- reactive({
 ```
 
 ## Don't use carrying capacity
+
+Equations for Lotka-Volterra Competition expressed without carrying capacities:
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \alpha_{22}N_2 - \alpha_{21}N_1\right)$$
+
+```{r parameter descriptions w/o carrying capacity}
+pars_vars_wo_K <- c("$r_1$",
+                    "$r_2$",
+                    "$N_1$",
+                    "$N_2$",
+                    "$\\alpha_{11}$",
+                    "$\\alpha_{12}$",
+                    "$\\alpha_{22}$",
+                    "$\\alpha_{21}$")
+descriptions_wo_K <- c("Intrinsic growth rate of Species 1",
+                       "Intrinsic growth rate of Species 2",
+                       "Population size of Species 1",
+                       "Population size of Species 2",
+                       "Per capita effect of Species 1 on itself",
+                       "Per capita effect of Species 2 on Species 1",
+                       "Per capita effect of Species 2 on itself",
+                       "Per capita effect of Species 1 on Species 2")
+param_df_wo_K <- data.frame(pars_vars_wo_K, descriptions_wo_K)
+kable(x = param_df_wo_K, format = "html",
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+Zero net growth isoclines (solved for $N_2$):
+$$N_2 = -\frac{\alpha_{11}}{\alpha_{12}}N_1 + \frac{1}{\alpha_{12}}$$
+$$N_2 = -\frac{\alpha_{21}}{\alpha_{22}}N_1 + \frac{1}{\alpha_{22}}$$
+
+---
+
