@@ -32,26 +32,59 @@ $$\frac{dR}{dt} = r - a_1N_1R - a_2N_2R$$
 sidebarLayout(
   sidebarPanel(
     # User defined resource growth rate -------
-    sliderInput("r", label = "Resource supply rate (r):",
-                min = 0.01, max = .5, value = .15, step = .01),
+    sliderInput("S1", label = "supply rate for resource 1 (S1):",
+                min = 0.01, max = 25, value = 12, step = .1),
+    # User defined resource growth rate -------
+    sliderInput("S2", label = "supply rate for resource 2 (S2):",
+                min = 0.01, max = 2, value = 12, step = .1),
+
+        # User defined resource growth rate -------
+    sliderInput("r1", label = "supply rate for resource 1 (r1):",
+                min = 0.01, max = 2, value = 1.6, step = .1),
+    # User defined resource growth rate -------
+    sliderInput("r2", label = "supply rate for resource 2 (r2):",
+                min = 0.01, max = 2, value = 1, step = .1),
+    
+    # User defined resource uptake rates -------
+    sliderInput("k11", label = "k11",
+                min = 1, max = 30, value = 18, step = .1),
+    sliderInput("k12", label = "k12",
+                min = 1, max = 30, value = 4, step = .1),
+    sliderInput("k21", label = "k21",
+                min = 1, max = 30, value = 2, step = .1),
+    sliderInput("k22", label = "k22",
+                min = 1, max = 30, value = 14, step = .1),
+
+        # User defined resource uptake rates -------
+    sliderInput("c11", label = "c11",
+                min = 0.01, max = 1, value = .25, step = .01),
+    sliderInput("c12", label = "c12",
+                min = 0.01, max = 1, value = .08, step = .01),
+    sliderInput("c21", label = "c21",
+                min = 0.01, max = 1, value = .1, step = .01),
+    sliderInput("c22", label = "c22",
+                min = 0.01, max = 1, value = .2, step = .01),
+
     # User defined resource acquisition rates -------
     sliderInput("a1", label = "Species 1 resource acquisition rate (a1):",
-                min = 0.001, max = .2, value = .05, step = .01),
+                min = 0.001, max = 1, value = .5, step = .01),
     sliderInput("a2", label = "Species 2 resource acquisition rate (a2):",
-                min = 0.001, max = .2, value = .05, step = .01),
+                min = 0.001, max = 1, value = .5, step = .01),
     # User defined mortality rates -------
-    sliderInput("d1", label = "Species 1 mortality rate (d1):",
-                min = 0.001, max = .2, value = .05, step = .01),
-    sliderInput("d2", label = "Species 2 mortality rate (d2):",
-                min = 0.001, max = .2, value = .05, step = .01),
+    sliderInput("m1", label = "Species 1 mortality rate (m1):",
+                min = 0.001, max = .5, value = .2, step = .01),
+    sliderInput("m2", label = "Species 2 mortality rate (m2):",
+                min = 0.001, max = .5, value = .2, step = .01),
 
     # User defined N1, N2, and R -------
     numericInput("N1", label = "Initial population size of species 1 (N1)",
-                min = 1, max = 100, value = 25),
+                min = 1, max = 100, value = 10),
     numericInput("N2", label = "Initial population size of species 1 (N2)",
-                min = 1, max = 100, value = 50),
-    numericInput("R", label = "Initial population size of Resources (R)",
-                min = 1, max = 100, value = 100),
+                min = 1, max = 100, value = 10),
+    numericInput("R1", label = "Initial population size of Resources (R1)",
+                min = 1, max = 100, value = 20),
+    numericInput("R2", label = "Initial population size of Resources (R2)",
+                min = 1, max = 100, value = 20),
     # User defined time ---------
     numericInput("time", label = "Number of time steps to project",
                 min = 1, max = 1000, value = 500)
@@ -59,32 +92,45 @@ sidebarLayout(
 
   # Panel of plots -----
   mainPanel(
-    renderPlot({tilman_1sp_out()}, width = 450, height = 450)
-    # renderDataTable({tilman_out()})
+    renderPlot({tilman_out_R1R2()}),
+    renderDataTable({tilman_out()})
   )
 )
 
 
-tilman_1sp_params <- reactive({c(r = input$r, a1 = input$a1, a2 = input$a2,
-                                 d1 = input$d1, d2 = input$d2)})
-tilman_1sp_init <- reactive({c(N1 = input$N1, N2 = input$N2, R = input$R)})
+tilman_params <- reactive({c(S1 = input$S1, S2 = input$S2, r1 = input$r1, r2 = input$r2, 
+                             k11 = input$k11, k12 = input$k12, k21 = input$k21, k22 = input$k22, 
+                             m1 = input$m1, m2 = input$m2, 
+                             c11 = input$c11, c12 = input$c12, c21 = input$c21, c22 = input$c22, 
+                             a1 = input$a1, a2 = input$a2)})
+tilman_init <- reactive({
+  c(N1 = input$N1, N2 = input$N2, R1 = input$R1, R2 = input$R2)
+})
 time <- reactive({seq(from = 0, to = input$time, by=1)})
 
-tilman_out <- reactive({data.frame(deSolve::ode(func = ecoevoapps::tilman_comp,
-                                      y=tilman_1sp_init(), parms=tilman_1sp_params(), times = time()))})
+Rstar_vec <- reactive({ecoevoapps::Rstar_essential(tilman_params())})
+Rstar_df <- reactive({
+  Rstar_vec <- Rstar_vec()
+  data.frame(species = c("N1", "N2"),
+             R1star = c(Rstar_vec["R11"], Rstar_vec["R12"]),
+             R2star = c(Rstar_vec["R21"], Rstar_vec["R22"]))
+  })
 
-
-tilman_out2 <- reactive({
-  ti <- tilman_out()
-  pivot_longer(ti, c(N1,N2,R), "species")
+tilman_out <- reactive({
+  data.frame(deSolve::ode(func = ecoevoapps::tilman_comp_essential,
+                          y=tilman_init(), parms=tilman_params(), times = time()))
 })
 
-tilman_1sp_out <- reactive({ggplot(tilman_out2()) +
-  geom_line(aes(x = time, y = value, color = species), size = 2) +
-  scale_color_brewer(palette = "Set1") +
-  ylab("Population size") +
-  ecoevoapps::theme_apps()})
-
+tilman_out_R1R2 <- reactive({
+  ggplot(tilman_out()) +
+  geom_path(aes(x = R1, y = R2)) +
+  geom_segment(data = Rstar_df(), 
+               aes(x = R1star, xend = R1star, y = R2star, yend = Inf, color = species)) +
+  geom_segment(data = Rstar_df(), 
+               aes(x = R1star, xend = Inf, y = R2star, yend = R2star, color = species)) +
+  scale_color_brewer(name = "Consumer\nspecies", palette = "Set1") +
+  ecoevoapps::theme_apps() 
+})
 
 
 
