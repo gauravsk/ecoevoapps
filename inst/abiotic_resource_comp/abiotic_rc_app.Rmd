@@ -1,12 +1,11 @@
 ---
-title: "Abiotic resource competition app"
+title: "Competition for two essential resources"
 author: "Gaurav Kandlikar"
 date: "4/12/2020"
 output:
   html_document:
     theme: united
-    toc: true
-    toc_depth: 3
+    toc: false
 runtime: shiny
 ---
 
@@ -20,13 +19,17 @@ library(ecoevoapps)
 library(patchwork)
 ```
 
-## Tilman R* Rule
+**Resource dynamics equations**  
 
-$$\frac{dN_1}{dt} = N_1(a_1*R - d_1)$$
+$$\frac{dR_1}{dt} = a_1(S_1-R_1) - N_1c_{11}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{21}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
+$$\frac{dR_2}{dt} = a_2(S_2-R_2) - N_2c_{12}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{22}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
 
-$$\frac{dN_2}{dt} = N_2(a_2*R - d_2)$$
+**Consumer dynamics equations**  
+$$\frac{1}{N_1}\frac{dN_1}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{11}} - m_1 ,\frac{r_2R_2}{R_2 + k_{12}} - m_1\right)$$
 
-$$\frac{dR}{dt} = r - a_1N_1R - a_2N_2R$$
+$$\frac{1}{N_2}\frac{dN_2}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{21}} - m_2 ,\frac{r_2R_2}{R_2 + k_{22}} - m_2\right)$$
+
+
 
 ```{r}
 sidebarLayout(
@@ -87,13 +90,14 @@ sidebarLayout(
                 min = 1, max = 100, value = 20),
     # User defined time ---------
     numericInput("time", label = "Number of time steps to project",
-                min = 1, max = 5000, value = 1000)
+                min = 1, max = 5000, value = 2500)
     ),
 
   # Panel of plots -----
   mainPanel(
-    renderPlot({plot_out()}, width = 1200, height = 300)
-    # renderDataTable({tilman_out()})
+    renderPlot({plot_out()}, width = 600,
+               height = 300),
+    renderTable(Rstar_df())
   )
 )
 
@@ -130,13 +134,16 @@ tilman_out_long <- reactive({
 
 tilman_out_R1R2 <- reactive({
   ggplot(tilman_out()) +
-  geom_path(aes(x = R1, y = R2)) +
   geom_segment(data = Rstar_df(), 
-               aes(x = R1star, xend = R1star, y = R2star, yend = Inf, color = species)) +
+               aes(x = R1star, xend = R1star, y = R2star, yend = Inf, color = species), size = 1.5) +
   geom_segment(data = Rstar_df(), 
-               aes(x = R1star, xend = Inf, y = R2star, yend = R2star, color = species)) +
+               aes(x = R1star, xend = Inf, y = R2star, yend = R2star, color = species), size = 1.5) +
+  geom_path(aes(x = R1, y = R2), size = 1) +
+    geom_point(data = tail(tilman_out(), 1), aes(x = R1, y = R2), size = 4, stroke = 2, shape = 21) + 
+    xlab("Resource 1") + ylab("Resource 2") + 
   scale_color_brewer(name = "Consumer\nspecies", palette = "Set1") +
-  ecoevoapps::theme_apps() 
+  ecoevoapps::theme_apps() +
+    theme(legend.position = "none")
 })
 
 tilman_out_N1N2 <- reactive({
