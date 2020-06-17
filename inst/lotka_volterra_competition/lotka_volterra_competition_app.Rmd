@@ -300,18 +300,47 @@ sidebarLayout(
     sliderInput(inputId = "r2_wo_K",
                 label = HTML("r<sub>2</sub>: Intrinsic growth rate of Species 2"),
                 min = 0.01, max = 1, value = 0.5, step = 0.01),
-    sliderInput(inputId = "alpha11",
-                label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
-                min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
-    sliderInput(inputId = "alpha12",
-                label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
-                min = 0.0001, max = 0.01, value = 0.001, step = NULL),
-    sliderInput(inputId = "alpha22",
-                label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
-                min = 0.0001, max = 0.01, value = 0.005, step = NULL),
-    sliderInput(inputId = "alpha21",
-                label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
-                min = 0.0001, max = 0.01, value = 0.001, step = NULL),
+    
+    # Allow user to choose input method for competition coefficients
+    radioButtons(inputId = "alpha_input_wo_K",
+                 label = "Input method for competition coefficients:",
+                 choices = c("Slider" = "slider", "Manual" = "manual"),
+                 selected = "slider"),
+    
+    # Conditional panel for slider input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'slider'",
+      sliderInput(inputId = "alpha11_slider",
+                  label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                  min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
+      sliderInput(inputId = "alpha12_slider",
+                  label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL),
+      sliderInput(inputId = "alpha22_slider",
+                  label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                  min = 0.0001, max = 0.01, value = 0.005, step = NULL),
+      sliderInput(inputId = "alpha21_slider",
+                  label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL)
+    ),
+    
+    # Conditional panel for manual input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'manual'",
+      numericInput(inputId = "alpha11_manual",
+                   label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                   min = 0.0001, max = 1, value = 0.0033, step = 0.0001),
+      numericInput(inputId = "alpha12_manual",
+                   label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001),
+      numericInput(inputId = "alpha22_manual",
+                   label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                   min = 0.0001, max = 1, value = 0.005, step = 0.0001),
+      numericInput(inputId = "alpha21_manual",
+                   label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001)
+    ),
+    
     # User-defined initial values
     numericInput(inputId = "N1_wo_K",
                  label = "Initial population size of Species 1",
@@ -341,6 +370,36 @@ sidebarLayout(
   mainPanel(renderPlot(plots_to_print_wo_K(), width = 600, height = 500))
 )
 
+# Store inputted competition coefficients as new reactive objects
+alpha11_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha11_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha11_manual
+  }
+})
+alpha12_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha12_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha12_manual
+  }
+})
+alpha22_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha22_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha22_manual
+  }
+})
+alpha21_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha21_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha21_manual
+  }
+})
+
 # Get user-defined parameters
 init_wo_K <- reactive({
   c(N1 = input$N1_wo_K, N2 = input$N2_wo_K)
@@ -350,19 +409,19 @@ time_wo_K <- reactive({
 })
 params_wo_K <- reactive({
   c(r1 = input$r1_wo_K, r2 = input$r2_wo_K,
-    a11 = input$alpha11, a12 = input$alpha12,
-    a22 = input$alpha22, a21 = input$alpha21)
+    a11 = alpha11_wo_K(), a12 = alpha12_wo_K(),
+    a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
 })
 
 # Compute equilibria
 sp1_equilibria_wo_K <- reactive({
-  c((input$alpha22 - input$alpha12)/(input$alpha11*input$alpha22 - input$alpha12*input$alpha21),
-    0, 1/input$alpha11) %>%
+  c((alpha22_wo_K() - alpha12_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
+    0, 1/alpha11_wo_K()) %>%
     round()
 })
 sp2_equilibria_wo_K <- reactive({
-  c((input$alpha11 - input$alpha21)/(input$alpha11*input$alpha22 - input$alpha12*input$alpha21),
-    0, 1/input$alpha22) %>%
+  c((alpha11_wo_K() - alpha21_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
+    0, 1/alpha22_wo_K()) %>%
     round()
 })
 
@@ -416,7 +475,7 @@ N_vs_Time_wo_K <- reactive({
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
       labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, 1.1*max(c(1/input$alpha11, 1/input$alpha22,
+      coord_cartesian(ylim = c(0, 1.1*max(c(1/alpha11_wo_K(), 1/alpha22_wo_K(),
                                         input$N1_wo_K, input$N2_wo_K))),
                       expand = FALSE, clip = "off")
   }
@@ -425,10 +484,10 @@ N_vs_Time_wo_K <- reactive({
 # Plot ZNGIs with population trajectories
 # First create data frames for ZNGI starting/ending points
 ZNGI_sp1_wo_K <- reactive({
-  data.frame(x1 = 0, y1 = 1/input$alpha12, xend1 = 1/input$alpha11, yend1 = 0)
+  data.frame(x1 = 0, y1 = 1/alpha12_wo_K(), xend1 = 1/alpha11_wo_K(), yend1 = 0)
 })
 ZNGI_sp2_wo_K <- reactive({
-  data.frame(x2 = 0, y2 = 1/input$alpha22, xend2 = 1/input$alpha21, yend2 = 0)
+  data.frame(x2 = 0, y2 = 1/alpha22_wo_K(), xend2 = 1/alpha21_wo_K(), yend2 = 0)
 })
 
 # Now create plot
@@ -453,8 +512,8 @@ ZNGI_wo_K <- reactive({
                    yend = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4) + 1],
                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
       labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
-      coord_cartesian(xlim = c(0, 1.1*max(c(1/input$alpha11, input$N1_wo_K, 1/input$alpha21))),
-                      ylim = c(0, 1.1*max(c(1/input$alpha22, input$N2_wo_K, 1/input$alpha12))),
+      coord_cartesian(xlim = c(0, 1.1*max(c(1/alpha11_wo_K(), input$N1_wo_K, 1/alpha21_wo_K()))),
+                      ylim = c(0, 1.1*max(c(1/alpha22_wo_K(), input$N2_wo_K, 1/alpha12_wo_K()))),
                       expand = FALSE,
                       clip = "off")
   }
