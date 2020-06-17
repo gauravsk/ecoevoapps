@@ -189,7 +189,7 @@ N_vs_Time <- reactive({
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
       labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, max(c(input$K1, input$K2, input$N1, input$N2))),
+      coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
                       expand = FALSE,
                       clip = "off")
   }
@@ -416,7 +416,7 @@ N_vs_Time_wo_K <- reactive({
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
       labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, max(c(1/input$alpha11, 1/input$alpha22,
+      coord_cartesian(ylim = c(0, 1.1*max(c(1/input$alpha11, 1/input$alpha22,
                                         input$N1_wo_K, input$N2_wo_K))),
                       expand = FALSE, clip = "off")
   }
