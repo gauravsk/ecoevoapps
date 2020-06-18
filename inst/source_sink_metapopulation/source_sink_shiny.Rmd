@@ -7,13 +7,14 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r}
 # Pulliam source-sink metapopulation model
 #library(deSolve)
-library(tidyverse)
+library(ggplot2)
+library(tidyr)
 #library(phaseR)
 
 # Write a function to calculate Nt+1 for both populations, using DISCRETE time
@@ -86,7 +87,7 @@ sidebarLayout(
     numericInput("endtime", label = "years to simulate", min = 2, value = 50)
   ),
   
-  mainPanel(renderPlot(ss_plot()))
+  mainPanel(renderPlot({ss_plot()}, width = 500))
 )
 
 
@@ -118,6 +119,7 @@ ss_out_long <- reactive({ pivot_longer(ss_out(), c(source,sink), "population") }
 ss_plot <- reactive({ ggplot(ss_out_long()) + 
   geom_line(aes(x = year, y = value, color = population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
+    ecoevoapps::theme_apps() + 
   ylab("Population size")  })
 
 ```

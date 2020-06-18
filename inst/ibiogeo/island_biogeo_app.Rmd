@@ -10,7 +10,6 @@ runtime: shiny
 ---
 
 Extinction rate on island:
-<<<<<<< HEAD
 $$E = e^{\frac{kS}{A}}-1$$
 Immigration rate from mainland to island:
 $$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
@@ -24,7 +23,8 @@ where:
 - $M$ is the number of species on the mainland;  
 - $k$ is the scaling constant (set to $k=0.15$ in this app).
 ```{r, include = F}
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
 library(ecoevoapps)
 library(patchwork)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
