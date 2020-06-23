@@ -1,7 +1,5 @@
 ---
-title: "Competition app"
-author: "Madeline Cowen"
-date: "June 12, 2020"
+title: "Competition with Explicit Resource Dynamics"
 output: html_document
 runtime: shiny
 ---
@@ -17,10 +15,11 @@ library(deSolve)
 library(ecoevoapps)
 library(patchwork)
 library(RColorBrewer)
+library(kableExtra)
 ```
 
 
-## Competition with Explicit Resource Dynamics
+Equations:  
 
 ```{r competition, include=FALSE}
 
@@ -56,16 +55,34 @@ competition <- function(time, init, params) {
 \end{eqnarray}
 \]
 
-Where:
 
-* $H =$ Prey population size
-* $P =$ Predator population size
-* $r =$ per capita growth rate of Prey
-* $K =$ Prey carrying capacity
-* $a =$ Predator attack rate
-* $T_h =$ Predator handling time
-* $e =$ conversion efficiency
-* $d =$ Predator death rate  
+```{r parameter descriptions, echo=F}
+pars_vars <- c("$H$", 
+               "$P_i$", 
+               "$r$", 
+               "$q$", 
+               "$a_i$", 
+               "$T_{h_i}$", 
+               "$e_i$", 
+               "$d_i$")
+descriptions <- c("Population size of the prey",
+                 "Population size of predator $i$",
+                 "Per capita growth rate of prey",
+                 "Density-dependent mortality rate",
+                 "Attack rate of predator $i$",
+                 "Handling time of predator $i$",
+                 "Conversion efficiency of predator $i$",
+                 "Death rate of predator $i$")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+- Note that if $q =0$, prey has exponential growth. If $q>0$, then prey has logistic growth with carrying capacity $K = \frac{1}{q}$.  
+- Also note that if $T_{h_{i}} = 0$, predator $i$ has a Type 1 functional response.  
 
 ```{r rosenzweig-macarthur, echo=FALSE}
 wellPanel(
