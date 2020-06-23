@@ -19,7 +19,7 @@ library(kableExtra)
 ```
 
 
-Equations:  
+System of equations describing the most complex version of this model:  
 
 ```{r competition, include=FALSE}
 
@@ -51,6 +51,7 @@ competition <- function(time, init, params) {
 \\
 \frac{dP_1}{dt} = e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
 \\
+\\
 \frac{dP2}{dt} = e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
 \end{eqnarray}
 \]
@@ -68,7 +69,7 @@ pars_vars <- c("$H$",
 descriptions <- c("Population size of the prey",
                  "Population size of predator $i$",
                  "Per capita growth rate of prey",
-                 "Density-dependent mortality rate",
+                 "Per capita prey self-limitation",
                  "Attack rate of predator $i$",
                  "Handling time of predator $i$",
                  "Conversion efficiency of predator $i$",
