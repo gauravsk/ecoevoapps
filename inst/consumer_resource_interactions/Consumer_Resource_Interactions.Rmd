@@ -1,5 +1,5 @@
 ---
-title: "Consumer Resource Interactions"
+title: "Consumer-Resource Interactions"
 author: "Madeline Cowen and Rosa M. McGuire"
 date: "6/8/2020"
 output: html_document
@@ -17,12 +17,11 @@ library(deSolve)
 library(ecoevoapps)
 library(patchwork)
 library(RColorBrewer)
+library(kableExtra)
 ```
 
 
-## Consumer- Resource Interactions {.tabset}
-
-### Type I Functional Response
+## Consumer-Resource aka Predator-Prey Interactions {.tabset}
 
 ```{r consumer resource functions, include=FALSE}
 
@@ -99,7 +98,7 @@ rm_predation <-function(time,init,params) {
 }
 ```
 
-
+### Type I Functional Response
 
 \[
 \begin{eqnarray}
@@ -109,14 +108,27 @@ rm_predation <-function(time,init,params) {
 \end{eqnarray}
 \]
 
-Where:
+```{r params type 1, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $H =$ Prey population size
-* $P =$ Predator population size
-* $r =$ per capita growth rate of Prey
-* $a =$ Predator attack rate
-* $e =$ conversion efficiency
-* $d =$ Predator death rate  
 
 ```{r type 1 pred prey, echo=FALSE}
 sidebarLayout(
@@ -248,15 +260,29 @@ np_lvpred1 <- reactive({ggplot(out_lv_pred1()) +
 \end{eqnarray}
 \]
 
-Where:
+```{r params logistic growth, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of predator",
+                 "Conversion efficiency of predator",
+                 "Death rate of predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $H =$ Prey population size
-* $P =$ Predator population size
-* $r =$ per capita growth rate of Prey
-* $K =$ Prey carrying capacity
-* $a =$ Predator attack rate
-* $e =$ conversion efficiency
-* $d =$ Predator death rate  
 
 ```{r logprey, echo=FALSE}
 sidebarLayout(
@@ -386,15 +412,29 @@ np_logprey <- reactive({ggplot(out_logprey()) +
 \end{eqnarray}
 \]
 
-Where:
+```{r params type ii, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $H =$ Prey population size
-* $P =$ Predator population size
-* $r =$ per capita growth rate of Prey
-* $a =$ Predator attack rate
-* $T_h =$ Predator handling time
-* $e =$ conversion efficiency
-* $d =$ Predator death rate  
 
 ```{r eruptions, echo=FALSE}
 sidebarLayout(
@@ -523,16 +563,32 @@ np_lvpred2 <- reactive({ggplot(out_lv_pred2()) +
 \end{eqnarray}
 \]
 
-Where:
+```{r params rosen-mac, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $H =$ Prey population size
-* $P =$ Predator population size
-* $r =$ per capita growth rate of Prey
-* $K =$ Prey carrying capacity
-* $a =$ Predator attack rate
-* $T_h =$ Predator handling time
-* $e =$ conversion efficiency
-* $d =$ Predator death rate  
+
 
 ```{r rosenzweig-macarthur, echo=FALSE}
 sidebarLayout(
