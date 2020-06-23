@@ -1,7 +1,6 @@
 ---
-title: "Consumer-Resource Interactions"
+title: "Consumer-Resource Dynamics"
 author: "Madeline Cowen and Rosa M. McGuire"
-date: "6/8/2020"
 output: html_document
 runtime: shiny
 ---
@@ -21,7 +20,9 @@ library(kableExtra)
 ```
 
 
-## Consumer-Resource aka Predator-Prey Interactions {.tabset}
+## Consumer-Resource Dynamics in Continuous Time {.tabset}
+
+Consumer-resource models can model the interactions of predator-prey, parasitoid-host, herbivore-plant, etc. Here we refer to the resource as prey and the consumer as predator.
 
 ```{r consumer resource functions, include=FALSE}
 
@@ -100,6 +101,8 @@ rm_predation <-function(time,init,params) {
 
 ### Type I Functional Response
 
+Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
+
 \[
 \begin{eqnarray}
 \frac{dH}{dt} = rH - aHP\\
@@ -128,6 +131,15 @@ kable(x = param_df, format = "html",
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{eqnarray}
+P = \frac{r}{a}\\
+\\
+H = \frac{d}{ea} 
+\end{eqnarray}
+\]
 
 
 ```{r type 1 pred prey, echo=FALSE}
@@ -251,6 +263,8 @@ np_lvpred1 <- reactive({ggplot(out_lv_pred1()) +
 
 ### Logistic Prey
  
+Equations describing prey that grows logistically and predators that consume the prey following a Type I functional response:
+
 
 \[
 \begin{eqnarray}
@@ -283,6 +297,14 @@ kable(x = param_df, format = "html",
                 position = "center")
 ```  
 
+Equations for the zero net growth isoclines:
+\[
+\begin{eqnarray}
+P = \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+\\
+H = \frac{d}{ea} \\
+\end{eqnarray}
+\]
 
 ```{r logprey, echo=FALSE}
 sidebarLayout(
@@ -404,6 +426,9 @@ np_logprey <- reactive({ggplot(out_logprey()) +
 
 ### Type II Functional Response
 
+Equations describing prey that grows exponentially and predators that consume the prey following a Type II functional response:
+
+
 \[
 \begin{eqnarray}
 \frac{dH}{dt} = rH - \frac{aH}{1+aT_hH} P\\
@@ -434,6 +459,15 @@ kable(x = param_df, format = "html",
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{eqnarray}
+P = \frac{r}{a} +rT_hH\\
+\\
+H = \frac{d}{ea - adT_h} \\
+\end{eqnarray}
+\]
 
 
 ```{r eruptions, echo=FALSE}
@@ -554,6 +588,8 @@ np_lvpred2 <- reactive({ggplot(out_lv_pred2()) +
 
 ### Rosenzweig- MacArthur Model 
 
+Equations describing prey that grows logistically and predators that consume the prey following a Type II functional response:
+
 
 \[
 \begin{eqnarray}
@@ -588,6 +624,14 @@ kable(x = param_df, format = "html",
                 position = "center")
 ```  
 
+Equations for the zero net growth isoclines:
+\[
+\begin{eqnarray}
+P = \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+\\
+H = \frac{d}{ea - adT_h} \\
+\end{eqnarray}
+\]
 
 
 ```{r rosenzweig-macarthur, echo=FALSE}
