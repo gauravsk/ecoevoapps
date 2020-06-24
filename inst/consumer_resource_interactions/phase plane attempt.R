@@ -85,16 +85,36 @@ lowP <- round(min(out_lv_pred1$P), 0)
 hiP <- round(max(out_lv_pred1$P), 0)
 
 # select a sequence of points between those values
-seqH <- seq(lowH, hiH, length.out = 5)
-seqP <- seq(lowP, hiP, length.out = 5)
+seqH <- seq(0.9*lowH, 1.4*hiH, length.out = 20)
+seqP <- seq(0.9*lowP, 1.4*hiP, length.out = 20)
 
 # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
 hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
 
 # use those values to solve dP and dH and calculate pend and hend
-lv_pred1_eq(H = 4, P = 2, pars_lv_pred1)
-
-hpcoords %>% map2_df(~ lv_pred1_eq(H = .Hstart, P = .Pstart, pars_lv_pred1))
-map2_df(hpcoords$Hstart, hpcoords$Pstart, pars_lv_pred1, ~lv_pred1_eq)
+hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, lv_pred1_eq, pars_lv_pred1))
+hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
 
 # give those to geom_segment
+
+ggplot(out_lv_pred1) +
+  geom_segment(data = hpcoords, aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend), arrow = arrow(length = unit(0.02, "npc")), color = "light gray") +
+  geom_path(aes(x = H, y = P), size = 2) +
+  # geom_point(data = hpcoords, aes(x = Hstart, y = Pstart)) +
+  xlab("Number of Prey") +
+  ylab("Number of Predators") +
+  # xlim(c(lowH, hiH)) +
+  # ylim(c(lowP, hiP)) +
+  # scale_color_manual(values = rainbowvec) +
+  coord_cartesian(xlim = c(lowH, hiH + 1), ylim = c(lowP, hiP + 1)) +
+  # coord_cartesian(expand = FALSE, clip = "off") +
+  geom_segment(x = out_lv_pred1$H[min(5, round(length(time_lv_pred1))/50)], #did this min thing in case someone asks for very few timesteps
+               y = out_lv_pred1$P[min(5, round(length(time_lv_pred1))/50)],
+               xend = out_lv_pred1$H[min(5 + 1, round(length(time_lv_pred1)/50) + 1)],
+               yend = out_lv_pred1$P[min(5 + 1, round(length(time_lv_pred1)/50) + 1)],
+               arrow = arrow(length = unit(0.1, "npc")),
+               cex = 2) +
+  geom_hline(yintercept = r_lv_pred1/a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+  geom_vline(xintercept = d_lv_pred1/(e_lv_pred1*a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+  ecoevoapps::theme_apps()
+
