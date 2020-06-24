@@ -150,7 +150,7 @@ sidebarLayout(
     
     sliderInput("r_lv_pred1", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
     sliderInput("a_lv_pred1", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
-    sliderInput("e_lv_pred1", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("e_lv_pred1", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.2),
     sliderInput("d_lv_pred1", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
     
     
@@ -315,7 +315,7 @@ sidebarLayout(
     sliderInput("r_logprey", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
     numericInput("K_logprey", label = "Carrying capacity of Prey", min = 1, value = 100),
     sliderInput("a_logprey", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
-    sliderInput("e_logprey", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("e_logprey", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.5),
     sliderInput("d_logprey", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
     
     
@@ -479,7 +479,7 @@ sidebarLayout(
     sliderInput("r_lv_pred2", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
     sliderInput("a_lv_pred2", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
     sliderInput("T_h_lv_pred2", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.2),
-    sliderInput("e_lv_pred2", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("e_lv_pred2", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.7),
     sliderInput("d_lv_pred2", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
     
     
@@ -643,8 +643,8 @@ sidebarLayout(
     sliderInput("r_rm", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
     numericInput("K_rm", label = "Prey carrying capacity", min = 1, value = 150),
     sliderInput("a_rm", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
-    sliderInput("T_h_rm", label = "Predator handling time", min = 0.001, max = 1.0, value = 1),
-    sliderInput("e_rm", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 1),
+    sliderInput("T_h_rm", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.3),
+    sliderInput("e_rm", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.6),
     sliderInput("d_rm", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .4),
     
     
