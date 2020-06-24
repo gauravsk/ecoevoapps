@@ -148,13 +148,13 @@ abund_plot_SIR <- reactive({ggplot(out_long()) +
     ecoevoapps::theme_apps()
 })
 
-# Plot dS, dI, dR over time
-dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size") +
-    ecoevoapps::theme_apps()
-})
+# # Plot dS, dI, dR over time
+# dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
 
 # Plot S vs I ---------
 SIplot <- reactive({ggplot(out()) +
@@ -204,7 +204,9 @@ SIR_2d_plots <- reactive({
 # Make a list of plots and print out plots based on which ones were requested ----
 
 plots_to_render_SIR <- reactive({
-  wrap_plots(abund_plot_SIR(), dabund_plot_SIR(), SIR_2d_plots(), nrow = 3) 
+  wrap_plots(abund_plot_SIR(), 
+             # dabund_plot_SIR(), 
+             SIR_2d_plots(), nrow = 2) 
 })
 
 
@@ -300,13 +302,13 @@ abund_plot_SIR_novitals <- reactive({ggplot(out_long_sir_novitals()) +
     ecoevoapps::theme_apps()
 })
 
-# Plot dS, dI, dR over time
-dabund_plot_SIR_novitals <- reactive({ ggplot(pop_out_long_sir_novitals()) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size") +
-    ecoevoapps::theme_apps()
-})
+# # Plot dS, dI, dR over time
+# dabund_plot_SIR_novitals <- reactive({ ggplot(pop_out_long_sir_novitals()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
 
 # Plot S vs I ---------
 SIplot_sir_novitals <- reactive({ggplot(out_sir_novitals()) +
@@ -356,7 +358,9 @@ SIR_2d_plots_novitals <- reactive({
 # Make a list of plots and print out plots based on which ones were requested ----
 
 plots_to_render_SIR_sir_novitals <- reactive({
-  wrap_plots(abund_plot_SIR_novitals(), dabund_plot_SIR_novitals(), SIR_2d_plots_novitals(), nrow = 3) 
+  wrap_plots(abund_plot_SIR_novitals(), 
+             # dabund_plot_SIR_novitals(), 
+             SIR_2d_plots_novitals(), nrow = 2) 
 })
 
 
@@ -479,13 +483,13 @@ abund_plot_sis <- reactive({ggplot(out_long_sis()) +
     ecoevoapps::theme_apps()
 })
 
-# Plot dS, dI, dR over time
-dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size") +
-    ecoevoapps::theme_apps()
-})
+# # Plot dS, dI, dR over time
+# dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
 
 # Plot S vs I ---------
 SIplot_sis <- reactive({ggplot(out_sis()) +
@@ -505,7 +509,9 @@ SIplot_sis <- reactive({ggplot(out_sis()) +
 # Make a list of plots and print out plots based on which ones were requested ----
 
 plots_to_render_sis <- reactive({
-  wrap_plots(abund_plot_sis(), dabund_plot_sis(), SIplot_sis(), nrow = 3) 
+  wrap_plots(abund_plot_sis(), 
+             # dabund_plot_sis(), 
+             SIplot_sis(), nrow = 2) 
 })
 
 
@@ -648,13 +654,13 @@ abund_plot_seir <- reactive({ggplot(out_long_seir()) +
     ecoevoapps::theme_apps()
 })
 
-# Plot dS, dE, dI, dR over time
-dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size") +
-    ecoevoapps::theme_apps()
-})
+# # Plot dS, dE, dI, dR over time
+# dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
 
 # Plot S vs E ---------
 SEplot_seir <- reactive({ggplot(out_seir()) +
@@ -742,7 +748,9 @@ SEIR_2d_plots <- reactive({
 # Make a list of plots and print out plots based on which ones were requested ----
 
 plots_to_render_seir <- reactive({
-  wrap_plots(abund_plot_seir(), dabund_plot_seir(), SEIR_2d_plots(), nrow = 3) 
+  wrap_plots(abund_plot_seir(), 
+             # dabund_plot_seir(), 
+             SEIR_2d_plots(), nrow = 2) 
 })
 
 
@@ -884,13 +892,13 @@ abund_plot_sird <- reactive({ggplot(out_long_sird()) +
     ecoevoapps::theme_apps()
 })
 
-# Plot dS, dD, dI, dR over time
-dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Change in population size") +
-    ecoevoapps::theme_apps()
-})
+# # Plot dS, dD, dI, dR over time
+# dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
 
 # Plot S vs D ---------
 SDplot_sird <- reactive({ggplot(out_sird()) +
@@ -978,7 +986,9 @@ SIRD_2d_plots <- reactive({
 # Make a list of plots and print out plots based on which ones were requested ----
 
 plots_to_render_sird <- reactive({
-  wrap_plots(abund_plot_sird(), dabund_plot_sird(), SIRD_2d_plots(), nrow = 3) 
+  wrap_plots(abund_plot_sird(), 
+             # dabund_plot_sird(), 
+             SIRD_2d_plots(), nrow = 2) 
 })
 
 
