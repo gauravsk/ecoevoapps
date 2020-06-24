@@ -76,45 +76,89 @@ np_lvpred1 <- ggplot(out_lv_pred1) +
     geom_vline(xintercept = d_lv_pred1/(e_lv_pred1*a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
     ecoevoapps::theme_apps()
 
-## attempt the phase plane -------
+## make function to generate data for vector field/phase plane -------
 
-# determine the min and max of the number of prey and predators
-lowH <- round(min(out_lv_pred1$H), 0)
-hiH <- round(max(out_lv_pred1$H), 0)
-lowP <- round(min(out_lv_pred1$P), 0)
-hiP <- round(max(out_lv_pred1$P), 0)
+vector_field_input <- function(sim_df, eq_func, pars_for_eq_func, vec_density = 20) {
 
-# select a sequence of points between those values
-seqH <- seq(0.9*lowH, 1.4*hiH, length.out = 20)
-seqP <- seq(0.9*lowP, 1.4*hiP, length.out = 20)
+  # INPUTS
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # eq_func is the function with the system of equations that calculate dH and dP for one time step
+  # pars_for_eq_func is the vector of named parameters to use in the eq_func
+  # vec_density determines the number of arrows (vec_density^2)
 
-# find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
-hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+  # OUTPUT:
+  # a df with Hstart, Hend, Pstart, Pend (and dH, dP) for drawing vectors
 
-# use those values to solve dP and dH and calculate pend and hend
-hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, lv_pred1_eq, pars_lv_pred1))
-hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+  # BODY:
+  # add error checks here
 
-# give those to geom_segment
+  # determine the min and max of the number of prey and predators
+  lowH <- round(min(sim_df$H), 0)
+  hiH <- round(max(sim_df$H), 0)
+  lowP <- round(min(sim_df$P), 0)
+  hiP <- round(max(sim_df$P), 0)
 
-ggplot(out_lv_pred1) +
-  geom_segment(data = hpcoords, aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend), arrow = arrow(length = unit(0.02, "npc")), color = "light gray") +
+  # select a sequence of points between (and a little beyond) those values
+  seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
+  seqP <- seq(0.9*lowP, 1.4*hiP, length.out = vec_density)
+
+  # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
+  hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+
+  # use those values to solve dP and dH and calculate pend and hend
+  hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, eq_func, pars_for_eq_func))
+  hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+
+  return(hpcoords)
+}
+
+hpcoords2 <- vector_field_input(sim_df = out_lv_pred1, eq_func = lv_pred1_eq, pars_for_eq_func = pars_lv_pred1)
+
+# function to make the vector field with ggplot
+vector_field <- function(sim_df, vector_field_input_data) {
+
+  # INPUT
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # vector_field_input_data has the output from vector_field_input, which is a list of start and end coordinates for each vector segment
+
+  # OUTPUT
+  # is a ggplot
+
+  ggplot(sim_df) +
+
+    # vector field
+    geom_segment(data = vector_field_input_data,
+                 aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
+                 arrow = arrow(length = unit(0.02, "npc")),
+                 color = "light gray")
+
+}
+
+# plot vector field
+
+# ggplot(out_lv_pred1) +
+#
+#   # vector field
+#   geom_segment(data = hpcoords2, aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend), arrow = arrow(length = unit(0.02, "npc")), color = "light gray") +
+
+vector_field(out_lv_pred1, hpcoords2) +
+
+  # the isoclines
+  geom_hline(yintercept = r_lv_pred1/a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+  geom_vline(xintercept = d_lv_pred1/(e_lv_pred1*a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+
+  # the trace of the simulation and arrow for direction of the trace
   geom_path(aes(x = H, y = P), size = 2) +
-  # geom_point(data = hpcoords, aes(x = Hstart, y = Pstart)) +
-  xlab("Number of Prey") +
-  ylab("Number of Predators") +
-  # xlim(c(lowH, hiH)) +
-  # ylim(c(lowP, hiP)) +
-  # scale_color_manual(values = rainbowvec) +
-  coord_cartesian(xlim = c(lowH, hiH + 1), ylim = c(lowP, hiP + 1)) +
-  # coord_cartesian(expand = FALSE, clip = "off") +
   geom_segment(x = out_lv_pred1$H[min(5, round(length(time_lv_pred1))/50)], #did this min thing in case someone asks for very few timesteps
                y = out_lv_pred1$P[min(5, round(length(time_lv_pred1))/50)],
                xend = out_lv_pred1$H[min(5 + 1, round(length(time_lv_pred1)/50) + 1)],
                yend = out_lv_pred1$P[min(5 + 1, round(length(time_lv_pred1)/50) + 1)],
                arrow = arrow(length = unit(0.1, "npc")),
                cex = 2) +
-  geom_hline(yintercept = r_lv_pred1/a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-  geom_vline(xintercept = d_lv_pred1/(e_lv_pred1*a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+
+  # plot appearance
+  xlab("Number of Prey") +
+  ylab("Number of Predators") +
+  coord_cartesian(xlim = c(lowH, hiH + 1), ylim = c(lowP, hiP + 1)) + #need this line to show all vectors that go beyond plot limits
   ecoevoapps::theme_apps()
 
