@@ -1,7 +1,5 @@
 ---
 title: "Infectious disease models"
-author: "Madeline Cowen"
-date: "April 29, 2020"
 output: html_document
 runtime: shiny
 ---
@@ -18,28 +16,47 @@ library(dplyr)
 library(deSolve)
 library(ecoevoapps)
 library(patchwork)
+library(kableExtra)
 
 includeMarkdown("SIR_overview.md")
 ```
 
-# Disease Models {.tabset}
+# Compartmental Infectious Disease Models {.tabset}
+All of the following disease models include vital rates (i.e., births/deaths). If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. To run a model without vital rates, set $m = 0$. 
+
 ## SIR model
 
-\begin{equation}
-\frac{dS}{dt} = m*(S + I + R)*(1 - v) - m*S - \beta*S*I\\
-\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I\\
-\frac{dR}{dt} = \gamma*I - m*R + m*(S + I + R)*v
-\end{equation}
+\[
+\begin{eqnarray}
+\frac{dS}{dt} = m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} = \beta SI - mI - \gamma I\\
+\frac{dR}{dt} = \gamma I - mR + mv(S + I + R)
+\end{eqnarray}
+\]
 
-Where:
+```{r params SIR, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $S =$ number of susceptible individuals
-* $I =$ number of infectious individuals
-* $R =$ number of recovered individuals
-* $m =$ death/birth rate
-* $beta =$ infection rate
-* $gamma =$ recovery rate
-* $v =$ vaccination rate  
 
 ```{r SIR app, echo=FALSE}
 sidebarLayout(
@@ -347,19 +364,35 @@ plots_to_render_SIR_sir_novitals <- reactive({
 
 ## SIS model
 
-\begin{equation}
-\frac{dS}{dt} = m*(S + I) - m*S - \beta*S*I + \gamma*I\\
-\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I\\
-\end{equation}
 
-Where:
+\[
+\begin{eqnarray}
+\frac{dS}{dt} = m(S + I) - mS - \beta SI + \gamma I\\
+\frac{dI}{dt} = \beta SI - mI - \gamma I\\
+\end{eqnarray}
+\]
 
-* $S =$ number of susceptible individuals
-* $I =$ number of infectious individuals
-* $m =$ death/birth rate
-* $beta =$ infection rate
-* $gamma =$ recovery rate
-* $v =$ vaccination rate  
+```{r params SIS, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
 
 ```{r sis app, echo=FALSE}
 sidebarLayout(
@@ -481,24 +514,42 @@ plots_to_render_sis <- reactive({
 
 ## SEIR model
 
-\begin{equation}
-\frac{dS}{dt} = m*(S + E + I + R)*(1 - v) - m*S - \beta*S*I\\
-\frac{dE}{dt} = \beta*S*I - a*E - m*E\\
-\frac{dI}{dt} = a*E - m*I - \gamma*I\\
-\frac{dR}{dt} = \gamma*I - m*R + m*(S + E + I + R)*v
-\end{equation}
+\[
+\begin{eqnarray}
+\frac{dS}{dt} = m(S + E + I + R)(1 - v) - mS - \beta SI\\
+\frac{dE}{dt} = \beta SI - aE - mE\\
+\frac{dI}{dt} = aE - mI - \gamma I\\
+\frac{dR}{dt} = \gamma I - mR + mv(S + E + I + R)
+\end{eqnarray}
+\]
 
-Where:
+```{r params SEIR, echo=F}
+pars_vars <- c("$S$", 
+               "$E$",
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "a",
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                  "Population size of exposed (not yet infectious) individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Inverse of incubation period",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $S =$ number of susceptible individuals
-* $E =$ number of exposed individuals
-* $I =$ number of infectious individuals
-* $R =$ number of recovered individuals
-* $m =$ death/birth rate
-* $beta =$ infection rate
-* $a =$ inverse of incubation period
-* $gamma =$ recovery rate
-* $v =$ vaccination rate  
 
 ```{r seir app, echo=FALSE}
 sidebarLayout(
@@ -699,24 +750,42 @@ plots_to_render_seir <- reactive({
 
 ## SIRD model
 
-\begin{equation}
-\frac{dS}{dt} = m*(S + I + R)*(1 - v) - m*S - \beta*S*I\\
-\frac{dI}{dt} = \beta*S*I - m*I - \gamma*I - \mu*I\\
-\frac{dR}{dt} = \gamma*I - m*R + m*(S + I + R)*v
-\frac{dI}{dt} = \mu*I\\
-\end{equation}
+\[
+\begin{eqnarray}
+\frac{dS}{dt} = m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} = \beta SI - mI - \gamma I - \mu I\\
+\frac{dR}{dt} = \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} = \mu I\\
+\end{eqnarray}
+\]
 
-Where:
+```{r params SIRD, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$D$",
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$\\mu$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Number of individuals who die due to infection",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Death rate from infection",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
 
-* $S =$ number of susceptible individuals
-* $I =$ number of infectious individuals
-* $R =$ number of recovered individuals
-* $D =$ number of individuals deceased due to infection
-* $m =$ death/birth rate
-* $beta =$ infection rate
-* $gamma =$ recovery rate
-* $mu =$ death rate from infection
-* $v =$ vaccination rate  
 
 ```{r sird app, echo=FALSE}
 sidebarLayout(
