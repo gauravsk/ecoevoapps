@@ -188,7 +188,7 @@ fr_df <- reactive({
 plot_fxnrep_sp1 <- reactive({
   if("Yes" %in% input$fxnrep){
     (ggplot(fr_df(), aes(x = prey, y = y1)) +
-      geom_path(col = brewer.pal(n = 3, name = "Set1")[2]) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
       xlab("Prey Density") +
       ylab("Prey Consumed \nper Predator") +
       ecoevoapps::theme_apps()) %>% originator()
@@ -198,7 +198,7 @@ plot_fxnrep_sp1 <- reactive({
 plot_fxnrep_sp2 <- reactive({
   if("Yes" %in% input$fxnrep){
     (ggplot(fr_df(), aes(x = prey, y = y2)) +
-      geom_path(col = brewer.pal(n = 3, name = "Set1")[3]) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[3], size = 2) +
       xlab("Prey Density") +
       ylab("Prey Consumed \nper Predator") +
       ecoevoapps::theme_apps()) %>% originator()
