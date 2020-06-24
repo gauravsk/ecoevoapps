@@ -27,11 +27,11 @@ All of the following disease models include vital rates (i.e., births/deaths). I
 ## SIR model
 
 \[
-\begin{eqnarray}
-\frac{dS}{dt} = m(S + I + R)(1 - v) - mS - \beta SI\\
-\frac{dI}{dt} = \beta SI - mI - \gamma I\\
-\frac{dR}{dt} = \gamma I - mR + mv(S + I + R)
-\end{eqnarray}
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)
+\end{align}
 \]
 
 ```{r params SIR, echo=F}
@@ -370,10 +370,10 @@ plots_to_render_SIR_sir_novitals <- reactive({
 
 
 \[
-\begin{eqnarray}
-\frac{dS}{dt} = m(S + I) - mS - \beta SI + \gamma I\\
-\frac{dI}{dt} = \beta SI - mI - \gamma I\\
-\end{eqnarray}
+\begin{align}
+\frac{dS}{dt} &= m(S + I) - mS - \beta SI + \gamma I\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\end{align}
 \]
 
 ```{r params SIS, echo=F}
@@ -521,12 +521,12 @@ plots_to_render_sis <- reactive({
 ## SEIR model
 
 \[
-\begin{eqnarray}
-\frac{dS}{dt} = m(S + E + I + R)(1 - v) - mS - \beta SI\\
-\frac{dE}{dt} = \beta SI - aE - mE\\
-\frac{dI}{dt} = aE - mI - \gamma I\\
-\frac{dR}{dt} = \gamma I - mR + mv(S + E + I + R)
-\end{eqnarray}
+\begin{align}
+\frac{dS}{dt} &= m(S + E + I + R)(1 - v) - mS - \beta SI\\
+\frac{dE}{dt} &= \beta SI - aE - mE\\
+\frac{dI}{dt} &= aE - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + E + I + R)
+\end{align}
 \]
 
 ```{r params SEIR, echo=F}
@@ -759,12 +759,12 @@ plots_to_render_seir <- reactive({
 ## SIRD model
 
 \[
-\begin{eqnarray}
-\frac{dS}{dt} = m(S + I + R)(1 - v) - mS - \beta SI\\
-\frac{dI}{dt} = \beta SI - mI - \gamma I - \mu I\\
-\frac{dR}{dt} = \gamma I - mR + mv(S + I + R)\\
-\frac{dD}{dt} = \mu I\\
-\end{eqnarray}
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I - \mu I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} &= \mu I\\
+\end{align}
 \]
 
 ```{r params SIRD, echo=F}

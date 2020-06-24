@@ -243,11 +243,11 @@ vector_field <- function(sim_df, vector_field_input_data) {
 Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
 
 \[
-\begin{eqnarray}
-\frac{dH}{dt} = rH - aHP\\
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
 \\
-\frac{dP}{dt} = eaHP - dP
-\end{eqnarray}
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
 \]
 
 ```{r params type 1, echo=F}
@@ -273,11 +273,11 @@ kable(x = param_df, format = "html",
 
 Equations for the zero net growth isoclines:
 \[
-\begin{eqnarray}
-P = \frac{r}{a}\\
+\begin{align}
+P &= \frac{r}{a}\\
 \\
-H = \frac{d}{ea} 
-\end{eqnarray}
+H &= \frac{d}{ea} 
+\end{align}
 \]
 
 
@@ -448,11 +448,11 @@ Equations describing prey that grows logistically and predators that consume the
 
 
 \[
-\begin{eqnarray}
-\frac{dH}{dt} = rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
 \\
-\frac{dP}{dt} = eaHP - dP
-\end{eqnarray}
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
 \]
 
 ```{r params logistic growth, echo=F}
@@ -480,11 +480,11 @@ kable(x = param_df, format = "html",
 
 Equations for the zero net growth isoclines:
 \[
-\begin{eqnarray}
-P = \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+\begin{align}
+P &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
 \\
-H = \frac{d}{ea} \\
-\end{eqnarray}
+H &= \frac{d}{ea} \\
+\end{align}
 \]
 
 ```{r logprey, echo=FALSE}
@@ -658,11 +658,11 @@ Equations describing prey that grows exponentially and predators that consume th
 
 
 \[
-\begin{eqnarray}
-\frac{dH}{dt} = rH - \frac{aH}{1+aT_hH} P\\
+\begin{align}
+\frac{dH}{dt} &= rH - \frac{aH}{1+aT_hH} P\\
 \\
-\frac{dP}{dt} = eP \frac{aH}{1+aT_hH} - dP
-\end{eqnarray}
+\frac{dP}{dt} &= eP \frac{aH}{1+aT_hH} - dP
+\end{align}
 \]
 
 ```{r params type ii, echo=F}
@@ -690,11 +690,11 @@ kable(x = param_df, format = "html",
 
 Equations for the zero net growth isoclines:
 \[
-\begin{eqnarray}
-P = \frac{r}{a} +rT_hH\\
+\begin{align}
+P &= \frac{r}{a} +rT_hH\\
 \\
-H = \frac{d}{ea - adT_h} \\
-\end{eqnarray}
+H &= \frac{d}{ea - adT_h} \\
+\end{align}
 \]
 
 
@@ -864,11 +864,11 @@ Equations describing prey that grows logistically and predators that consume the
 
 
 \[
-\begin{eqnarray}
-\frac{dH}{dt} = rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
 \\
-\frac{dP}{dt} = e \frac{aHP}{1+aT_hH} - dP
-\end{eqnarray}
+\frac{dP}{dt} &= e \frac{aHP}{1+aT_hH} - dP
+\end{align}
 \]
 
 ```{r params rosen-mac, echo=F}
@@ -898,11 +898,11 @@ kable(x = param_df, format = "html",
 
 Equations for the zero net growth isoclines:
 \[
-\begin{eqnarray}
-P = \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+\begin{align}
+P &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
 \\
-H = \frac{d}{ea - adT_h} \\
-\end{eqnarray}
+H &= \frac{d}{ea - adT_h} \\
+\end{align}
 \]
 
 

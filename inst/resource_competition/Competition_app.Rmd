@@ -46,14 +46,14 @@ competition <- function(time, init, params) {
 
 
 \[
-\begin{eqnarray}
-\frac{dH}{dt} = rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
+\begin{align}
+\frac{dH}{dt} &= rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
 \\
-\frac{dP_1}{dt} = e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
+\frac{dP_1}{dt} &= e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
 \\
 \\
-\frac{dP2}{dt} = e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
-\end{eqnarray}
+\frac{dP2}{dt} &= e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
+\end{align}
 \]
 
 
