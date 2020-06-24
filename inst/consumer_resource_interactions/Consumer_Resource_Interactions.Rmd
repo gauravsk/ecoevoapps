@@ -303,7 +303,9 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_lv_pred1", label = "Timesteps", min = 1, value = 100)
+    numericInput("t_lv_pred1", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred1", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
   
@@ -359,29 +361,55 @@ plot_lvpred1 <- reactive({ggplot(out_long_lv_pred1()) +
                              ylab("Population size") + 
     ecoevoapps::theme_apps()})
 
-## make vector field plot
+## make isocline plot and add vector field depending on user input
 vec_input_lv_pred1 <- reactive({vector_field_input(sim_df = out_lv_pred1(), eq_func = lv_pred1_eq, pars_for_eq_func = pars_lv_pred1())})
 
-np_lvpred1 <- reactive({vector_field(out_lv_pred1(), vec_input_lv_pred1()) +
+np_lvpred1 <- reactive({
+  
+  if("Yes" %in% input$vectors_lv_pred1) {
+    vector_field(out_lv_pred1(), vec_input_lv_pred1()) +
+      
+      # the isoclines
+      geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      
+      # the trace of the simulation and arrow for direction of the trace
+      geom_path(aes(x = H, y = P), size = 2) +
+      geom_segment(x = out_lv_pred1()$H[min(5, round(length(time_lv_pred1()))/50)], #did this min thing in case someone asks for very few timesteps
+                   y = out_lv_pred1()$P[min(5, round(length(time_lv_pred1()))/50)],
+                   xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   arrow = arrow(length = unit(0.1, "npc")),
+                   cex = 2) +
+      
+      # plot appearance
+      xlab("Number of Prey") +
+      ylab("Number of Predators") +
+      coord_cartesian(xlim = c(min(out_lv_pred1()$H), max(out_lv_pred1()$H) + 1), ylim = c(min(out_lv_pred1()$P), max(out_lv_pred1()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+      ecoevoapps::theme_apps()
     
-    # the isoclines
-    geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
-    geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+  } else {
     
-    # the trace of the simulation and arrow for direction of the trace
-    geom_path(aes(x = H, y = P), size = 2) +
-    geom_segment(x = out_lv_pred1()$H[min(5, round(length(time_lv_pred1()))/50)], #did this min thing in case someone asks for very few timesteps
-                 y = out_lv_pred1()$P[min(5, round(length(time_lv_pred1()))/50)],
-                 xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
-                 yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
-                 arrow = arrow(length = unit(0.1, "npc")),
-                 cex = 2) +
-    
-    # plot appearance
-    xlab("Number of Prey") +
-    ylab("Number of Predators") +
-    coord_cartesian(xlim = c(min(out_lv_pred1()$H), max(out_lv_pred1()$H) + 1), ylim = c(min(out_lv_pred1()$P), max(out_lv_pred1()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
-    ecoevoapps::theme_apps()
+    ggplot(out_lv_pred1()) +
+      # the isoclines
+      geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      
+      # the trace of the simulation and arrow for direction of the trace
+      geom_path(aes(x = H, y = P), size = 2) +
+      geom_segment(x = out_lv_pred1()$H[min(5, round(length(time_lv_pred1()))/50)], #did this min thing in case someone asks for very few timesteps
+                   y = out_lv_pred1()$P[min(5, round(length(time_lv_pred1()))/50)],
+                   xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   arrow = arrow(length = unit(0.1, "npc")),
+                   cex = 2) +
+      
+      # plot appearance
+      xlab("Number of Prey") +
+      ylab("Number of Predators") +
+      coord_cartesian(xlim = c(min(out_lv_pred1()$H), max(out_lv_pred1()$H) + 1), ylim = c(min(out_lv_pred1()$P), max(out_lv_pred1()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+      ecoevoapps::theme_apps()
+  }
   
 })
 
@@ -482,7 +510,9 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_logprey", label = "Timesteps", min = 1, value = 100)
+    numericInput("t_logprey", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_logprey", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
   
@@ -538,10 +568,13 @@ plot_logprey <- reactive({ggplot(out_long_logprey()) +
   ylab("Population size") +
   ecoevoapps::theme_apps()})
 
-## make vector field plot
+## make isocline plot and add vector field depending on user input
 vec_input_logprey <- reactive({vector_field_input(sim_df = out_logprey(), eq_func = logprey_eq, pars_for_eq_func = pars_logprey(), vec_density = 15)})
 
-np_logprey <- reactive({vector_field(out_logprey(), vec_input_logprey()) +
+np_logprey <- reactive({
+  
+  if("Yes" %in% input$vectors_logprey) {
+  vector_field(out_logprey(), vec_input_logprey()) +
     
     # the isoclines
     geom_abline(intercept = input$r_logprey/input$a_logprey, 
@@ -564,6 +597,32 @@ np_logprey <- reactive({vector_field(out_logprey(), vec_input_logprey()) +
     ylab("Number of Predators") +
     coord_cartesian(xlim = c(min(out_logprey()$H), max(out_logprey()$H) + 1), ylim = c(min(out_logprey()$P), max(out_logprey()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
     ecoevoapps::theme_apps()
+    
+  } else {
+    
+    ggplot(out_logprey()) +
+    # the isoclines
+    geom_abline(intercept = input$r_logprey/input$a_logprey, 
+                slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), 
+                col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), 
+               col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_logprey()$H[min(5, round(length(time_logprey()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_logprey()$P[min(5, round(length(time_logprey()))/50)],
+                 xend = out_logprey()$H[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 yend = out_logprey()$P[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_logprey()$H), max(out_logprey()$H) + 1), ylim = c(min(out_logprey()$P), max(out_logprey()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+  }
   
 })
 
@@ -662,7 +721,9 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100)
+    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred2", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
   
@@ -717,10 +778,13 @@ plot_lvpred2 <- reactive({ggplot(out_long_lv_pred2()) +
   ylab("Population size") +
   ecoevoapps::theme_apps()})
 
-## make vector field plot
+## make isocline plot and add vector field depending on user input
 vec_input_lv_pred2 <- reactive({vector_field_input(sim_df = out_lv_pred2(), eq_func = lv_pred2_eq, pars_for_eq_func = pars_lv_pred2())})
 
-np_lvpred2 <- reactive({vector_field(out_lv_pred2(), vec_input_lv_pred2()) +
+np_lvpred2 <- reactive({
+  
+  if("Yes" %in% input$vectors_lv_pred2) {
+  vector_field(out_lv_pred2(), vec_input_lv_pred2()) +
     
     # the isoclines
     geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
@@ -740,6 +804,30 @@ np_lvpred2 <- reactive({vector_field(out_lv_pred2(), vec_input_lv_pred2()) +
     ylab("Number of Predators") +
     coord_cartesian(xlim = c(min(out_lv_pred2()$H), max(out_lv_pred2()$H) + 1), ylim = c(min(out_lv_pred2()$P), max(out_lv_pred2()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
     ecoevoapps::theme_apps()
+    
+  } else {
+    
+    ggplot(out_lv_pred2()) +
+    # the isoclines
+    geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_lv_pred2()$H[min(5, round(length(time_lv_pred2()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_lv_pred2()$P[min(5, round(length(time_lv_pred2()))/50)],
+                 xend = out_lv_pred2()$H[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 yend = out_lv_pred2()$P[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_lv_pred2()$H), max(out_lv_pred2()$H) + 1), ylim = c(min(out_lv_pred2()$P), max(out_lv_pred2()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  }
   
 })
 
@@ -842,7 +930,9 @@ sidebarLayout(
     ### Ask users for time to simulate ----
     
     
-    numericInput("t_rm", label = "Timesteps", min = 1, value = 100)
+    numericInput("t_rm", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_rm", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
   
@@ -898,10 +988,13 @@ plot_rm <- reactive({ggplot(out_long_rm()) +
   ylab("Population size") + 
   ecoevoapps::theme_apps()})
 
-## make vector field plot
+## make isocline plot and add vector field depending on user input
 vec_input_rm <- reactive({vector_field_input(sim_df = out_rm(), eq_func = rm_predation_eq, pars_for_eq_func = pars_rm())})
 
-np_rm <- reactive({vector_field(out_rm(), vec_input_rm()) +
+np_rm <- reactive({
+  
+  if("Yes" %in% input$vectors_rm) {
+  vector_field(out_rm(), vec_input_rm()) +
     
     # the isoclines
     stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
@@ -921,6 +1014,30 @@ np_rm <- reactive({vector_field(out_rm(), vec_input_rm()) +
     ylab("Number of Predators") +
     coord_cartesian(xlim = c(min(out_rm()$H), max(out_rm()$H) + 1), ylim = c(min(out_rm()$P), max(out_rm()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
     ecoevoapps::theme_apps()
+  
+  } else {
+    
+    ggplot(out_rm()) +
+    # the isoclines
+    stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_rm()$H[min(5, round(length(time_rm()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_rm()$P[min(5, round(length(time_rm()))/50)],
+                 xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_rm()$H), max(out_rm()$H) + 1), ylim = c(min(out_rm()$P), max(out_rm()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  }
   
 })
 
