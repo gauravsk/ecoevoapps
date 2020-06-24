@@ -159,6 +159,6 @@ vector_field(out_lv_pred1, hpcoords2) +
   # plot appearance
   xlab("Number of Prey") +
   ylab("Number of Predators") +
-  coord_cartesian(xlim = c(lowH, hiH + 1), ylim = c(lowP, hiP + 1)) + #need this line to show all vectors that go beyond plot limits
+  coord_cartesian(xlim = c(min(out_lv_pred1$H), max(out_lv_pred1$H) + 1), ylim = c(min(out_lv_pred1$P), max(out_lv_pred1$P) + 1)) + #need this line to show all vectors that go beyond plot limits
   ecoevoapps::theme_apps()
 
