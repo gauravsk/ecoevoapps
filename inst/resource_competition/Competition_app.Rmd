@@ -177,20 +177,36 @@ abund_plot <- reactive({(ggplot(out_long()) +
   })
 
 ## functional responses of sp1 and sp2
+
+fr_df <- reactive({
+  fr_df <- data.frame(prey = 1:2000)
+  fr_df <- fr_df %>% mutate(y1 = (input$a1 * prey)/(1 + input$a1 * input$T_h1 * prey),
+                            y2 = (input$a2 * prey)/(1 + input$a2 * input$T_h2 * prey))
+  fr_df
+})
+
 plot_fxnrep_sp1 <- reactive({
-  if(input$fxnrep == "Yes"){
-  ggplot()
+  if("Yes" %in% input$fxnrep){
+    (ggplot(fr_df(), aes(x = prey, y = y1)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[2]) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      ecoevoapps::theme_apps()) %>% originator()
   }
 })
 
 plot_fxnrep_sp2 <- reactive({
-  if(input$fxnrep == "Yes"){
-  ggplot() + geom_point(aes(x = 1:10, y = 1:10))
+  if("Yes" %in% input$fxnrep){
+    (ggplot(fr_df(), aes(x = prey, y = y2)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[3]) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      ecoevoapps::theme_apps()) %>% originator()
   }
 })
 
 plot_fxnreps <- reactive({
-  if(input$fxnrep == "Yes"){
+  if("Yes" %in% input$fxnrep){
   wrap_plots(plot_fxnrep_sp1(), plot_fxnrep_sp2(), nrow = 2)
   }
 })
@@ -202,12 +218,11 @@ plot_fxnreps <- reactive({
 #   })
 
 plots_to_print <- reactive({
-  if(input$fxnrep == "Yes"){
-    wrap_plots(abund_plot(), plot_fxnreps(), ncol = 2)
+  if("Yes" %in% input$fxnrep){
+    wrap_plots(abund_plot(), plot_fxnreps(), design = "AAB")
   } else {
-    abund_plot()
+    wrap_plots(abund_plot(), ncol = 1)
   }
-  
   
 })
 
