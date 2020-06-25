@@ -12,6 +12,7 @@ runtime: shiny
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyr)
+library(kableExtra)
 library(ggplot2)
 library(purrr)
 library(deSolve)
@@ -31,9 +32,37 @@ $$\frac{1}{N_2}\frac{dN_2}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{21}} -
 
 
 
+```{r parameter descriptions}
+pars_vars <- c("$N_i$",
+               "$R_j$",
+               "$r_i$",
+               "$k_{ij}$",
+               "$c_{ij}$",
+               "$m_i$",
+               "$S_j$",
+               "$a_j$")
+descriptions <- c("Population size of consumer species $i$",
+                 "Abundance of resource $j$",
+                 "Maximum per-capita growth rate of consumer species $i$",
+                 "Half-saturation constant of consumer $i$ for resource $j$ (i.e. the concentration of resource $j$ at which species $i$ grows at half of its maximum growth rate)",
+                 "Consumption rate of resource $j$ by species $i$",
+                 "Mortality rate of consumer species $i$",
+                 "Supply point (or maximum resource level) of resource $j$",
+                 "Rate at which resource $j$ is converted from its unusable to usable form")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+
+
+
 ```{r}
 sidebarLayout(
-  sidebarPanel(
+  sidebarPanel(style = "overflow-y:scroll; max-height: 400px",
     # User defined resource growth rate -------
     sliderInput("S1", label = "supply rate for resource 1 (S1):",
                 min = 0.01, max = 25, value = 12, step = .1),
@@ -49,7 +78,8 @@ sidebarLayout(
                 min = 0.01, max = 2, value = 1, step = .1),
     
     # User defined resource uptake rates -------
-    sliderInput("k11", label = "k11",
+    h5("Half saturation constants"),
+    sliderInput("k11", label = "$k_{11}$",
                 min = 1, max = 30, value = 18, step = .1),
     sliderInput("k12", label = "k12",
                 min = 1, max = 30, value = 4, step = .1),
@@ -58,12 +88,14 @@ sidebarLayout(
     sliderInput("k22", label = "k22",
                 min = 1, max = 30, value = 14, step = .1),
     # User defined mortality rates -------
-    sliderInput("m1", label = "Species 1 mortality rate (m1):",
+    h5("Mortality rates"),
+    sliderInput("m1", label = "m1",
                 min = 0.001, max = .5, value = .2, step = .01),
-    sliderInput("m2", label = "Species 2 mortality rate (m2):",
+    sliderInput("m2", label = "m2",
                 min = 0.001, max = .5, value = .2, step = .01),
     
     # User defined resource uptake rates -------
+    h5("Resource uptake rates"),
     sliderInput("c11", label = "c11",
                 min = 0.01, max = 1, value = .25, step = .01),
     sliderInput("c12", label = "c12",
@@ -74,20 +106,25 @@ sidebarLayout(
                 min = 0.01, max = 1, value = .2, step = .01),
 
     # User defined resource acquisition rates -------
-    sliderInput("a1", label = "Species 1 resource acquisition rate (a1):",
+    h5("Resource conversion rates"),
+    sliderInput("a1", label = "a1",
                 min = 0.001, max = 1, value = .5, step = .01),
-    sliderInput("a2", label = "Species 2 resource acquisition rate (a2):",
+    sliderInput("a2", label = "a2",
                 min = 0.001, max = 1, value = .5, step = .01),
 
     # User defined N1, N2, and R -------
-    numericInput("N1", label = "Initial population size of species 1 (N1)",
-                min = 1, max = 100, value = 10),
-    numericInput("N2", label = "Initial population size of species 1 (N2)",
-                min = 1, max = 100, value = 10),
-    numericInput("R1", label = "Initial population size of Resources (R1)",
-                min = 1, max = 100, value = 20),
-    numericInput("R2", label = "Initial population size of Resources (R2)",
-                min = 1, max = 100, value = 20),
+    h5("Initial population size of consumers"),
+    column(width = 6, numericInput("N1", label = "N1",
+                min = 1, max = 100, value = 10)),
+    column(width = 6, numericInput("N2", label = "N2",
+                min = 1, max = 100, value = 10)),
+    h5("Initial size of resource pools"),
+    column(width = 6,
+           numericInput("R1", label = "R1",
+                min = 1, max = 100, value = 20)),
+    column(width = 6,
+           numericInput("R2", label = "R2",
+                min = 1, max = 100, value = 20)),
     # User defined time ---------
     numericInput("time", label = "Number of time steps to project",
                 min = 1, max = 5000, value = 2500)
