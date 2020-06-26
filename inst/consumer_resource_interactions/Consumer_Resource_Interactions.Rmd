@@ -1068,4 +1068,159 @@ np_rm <- reactive({
    
 ```
 
+## Consumer Functional Response {.tabset}
 
+Represents the relationship between consumer intake rate as a function of resource density
+
+```{r functional response functions, echo=FALSE}
+
+
+type1_fr <- function (H_init, H_final, a){
+  to_return <- c(a*(H_init:H_final))
+  return(to_return)
+}
+
+type2_fr <- function (H_init, H_final, a, Th){
+  to_return <- c((a*(H_init:H_final)/(1+a*Th*(H_init:H_final))))
+  return(to_return)
+}
+
+```
+
+### Type I
+
+Linear increase in intake rate with resource density, as shown by the equation:
+
+
+\begin{align}
+
+f(H) = aH
+
+\end{align}
+
+
+```{r params type 1 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 1 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a
+    
+    sliderInput("a_fr_type1", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type1", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("H_final_fr_type1", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type1())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type1 <- reactive({type1_fr(H_init = input$H_init_fr_type1, 
+                                   H_final = input$H_final_fr_type1,
+                                   a = input$a_fr_type1)})
+
+type1_fr_df <- reactive({data.frame(H = input$H_init_fr_type1:input$H_final_fr_type1,
+                                    f_rate = out_fr_type1())})
+
+#Plot
+
+plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
+                            ecoevoapps::theme_apps()})
+   
+```
+
+### Type II
+
+Decelerating intake rate, where the plateau represents consumer saturation:
+
+
+\begin{align}
+
+g(H) = \frac {aH}{1+aT_hH}
+
+\end{align}
+
+
+```{r params type 2 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$", 
+               "$T_h$")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 2 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a, Th
+    
+    sliderInput("a_fr_type2", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("T_h_fr_type2", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.3),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type2", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("H_final_fr_type2", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type2())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type2 <- reactive({type2_fr(H_init = input$H_init_fr_type2, 
+                                   H_final = input$H_final_fr_type2,
+                                   a = input$a_fr_type2,
+                                   Th = input$T_h_fr_type2)})
+
+type2_fr_df <- reactive({data.frame(H = input$H_init_fr_type2:input$H_final_fr_type2,
+                                    f_rate = out_fr_type2())})
+
+#Plot
+
+plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
+                            ecoevoapps::theme_apps()})
+   
+```
