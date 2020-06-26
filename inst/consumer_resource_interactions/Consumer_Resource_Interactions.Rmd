@@ -274,9 +274,9 @@ kable(x = param_df, format = "html",
 Equations for the zero net growth isoclines:
 \[
 \begin{align}
-P &= \frac{r}{a}\\
+P^* &= \frac{r}{a}\\
 \\
-H &= \frac{d}{ea} 
+H^* &= \frac{d}{ea} 
 \end{align}
 \]
 
@@ -481,9 +481,9 @@ kable(x = param_df, format = "html",
 Equations for the zero net growth isoclines:
 \[
 \begin{align}
-P &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
 \\
-H &= \frac{d}{ea} \\
+H^* &= \frac{d}{ea} \\
 \end{align}
 \]
 
@@ -691,9 +691,9 @@ kable(x = param_df, format = "html",
 Equations for the zero net growth isoclines:
 \[
 \begin{align}
-P &= \frac{r}{a} +rT_hH\\
+P^* &= \frac{r}{a} +rT_hH\\
 \\
-H &= \frac{d}{ea - adT_h} \\
+H^* &= \frac{d}{ea - adT_h} \\
 \end{align}
 \]
 
@@ -899,9 +899,9 @@ kable(x = param_df, format = "html",
 Equations for the zero net growth isoclines:
 \[
 \begin{align}
-P &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
 \\
-H &= \frac{d}{ea - adT_h} \\
+H^* &= \frac{d}{ea - adT_h} \\
 \end{align}
 \]
 
