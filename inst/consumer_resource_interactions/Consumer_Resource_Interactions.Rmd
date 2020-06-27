@@ -1150,6 +1150,7 @@ plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
                             scale_color_brewer(palette = "Set1") +
                             xlab("Number of Prey") + 
                             ylab("Foraging Rate") +
+                            ylim(0,50)+
                             ecoevoapps::theme_apps()})
    
 ```
@@ -1221,6 +1222,7 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
                             scale_color_brewer(palette = "Set1") +
                             xlab("Number of Prey") + 
                             ylab("Foraging Rate") +
+                            ylim(0,4)+
                             ecoevoapps::theme_apps()})
    
 ```
