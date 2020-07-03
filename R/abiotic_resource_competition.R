@@ -13,10 +13,10 @@ with (as.list(c(time,init,params)), {
   # r = intrinsic growth rate of resource
 
   # Differential equations
-  dN1 <- min((r1*R1)/(R1+k11)-m1, (r1*R2)/(R2+k12)-m1)
-  dN2 <- min((r2*R1)/(R1+k21)-m2, (r2*R2)/(R2+k22)-m2)
-  dR1 <- a1*(S1-R1) - N1*c11*(dN1/N1 + m1) - N2*c21*(dN2/N2 + m1)
-  dR2 <- a2*(S2-R2) - N1*c12*(dN1/N1 + m2) - N2*c22*(dN2/N2 + m2)
+  dN1 <- N1*(min((r1*R1)/(R1+k11)-m1, (r1*R2)/(R2+k12)-m1))
+  dN2 <- N2*(min((r2*R1)/(R1+k21)-m2, (r2*R2)/(R2+k22)-m2))
+  dR1 <- a1*(S1-R1) - N1*c11*(dN1/N1 + m1) - N2*c21*(dN2/N2 + m2)
+  dR2 <- a2*(S2-R2) - N1*c12*(dN1/N1 + m1) - N2*c22*(dN2/N2 + m2)
   # return both dN1 and dN2
   return(list(c(dN1, dN2, dR1, dR2)))
 
