@@ -64,22 +64,24 @@ kable(x = param_df, format = "html",
 sidebarLayout(
   sidebarPanel(style = "overflow-y:scroll; max-height: 400px",
     # User defined resource growth rate -------
-    sliderInput("S1", label = "supply rate for resource 1 (S1):",
+    h5("Resource supply rates"),
+    sliderInput("S1", label = "S1",
                 min = 0.01, max = 25, value = 12, step = .1),
     # User defined resource growth rate -------
-    sliderInput("S2", label = "supply rate for resource 2 (S2):",
+    sliderInput("S2", label = "S2",
                 min = 0.01, max = 25, value = 12, step = .1),
 
-        # User defined resource growth rate -------
-    sliderInput("r1", label = "supply rate for resource 1 (r1):",
+    # User defined resource growth rate -------
+    h5("Consumers' max intrinsic growth rates"),
+    sliderInput("r1", label = "r1",
                 min = 0.01, max = 2, value = 1.6, step = .1),
     # User defined resource growth rate -------
-    sliderInput("r2", label = "supply rate for resource 2 (r2):",
+    sliderInput("r2", label = "r2",
                 min = 0.01, max = 2, value = 1, step = .1),
     
     # User defined resource uptake rates -------
     h5("Half saturation constants"),
-    sliderInput("k11", label = "$k_{11}$",
+    sliderInput("k11", label = "k11",
                 min = 1, max = 30, value = 18, step = .1),
     sliderInput("k12", label = "k12",
                 min = 1, max = 30, value = 4, step = .1),
