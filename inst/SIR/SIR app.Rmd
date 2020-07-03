@@ -1,5 +1,5 @@
 ---
-title: "Infectious disease models"
+title: "Compartmental infectious disease models"
 output: html_document
 runtime: shiny
 ---
@@ -21,10 +21,13 @@ library(kableExtra)
 includeMarkdown("SIR_overview.md")
 ```
 
-# Compartmental Infectious Disease Models {.tabset}
-All of the following disease models include vital rates (i.e., births/deaths). If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. To run a model without vital rates, set $m = 0$. 
+## Models Assuming Density-Dependent Transmission {.tabset}
 
-## SIR model
+All of the following disease models assume that infectious individuals mix homogenously with other individuals in the population and that infections occur in direct proportion to the number of encounters between susceptible and infectious individuals (i.e., *disease transmission is density-dependent* and happens at rate $\beta SI$).
+
+*Open versus closed populations:* All of the models here include vital rates (i.e., births/deaths), which is called an open population. They assume that the number of births = the number of non-disease-induced deaths. If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. Models that do not include vital rates are said to model a closed population. To run a model in this app without vital rates, set $m = 0$. 
+
+### SIR model
 
 \[
 \begin{align}
@@ -366,7 +369,7 @@ plots_to_render_SIR_sir_novitals <- reactive({
 
 ```
 
-## SIS model
+### SIS model
 
 
 \[
@@ -518,7 +521,7 @@ plots_to_render_sis <- reactive({
 ```
 
 
-## SEIR model
+### SEIR model
 
 \[
 \begin{align}
@@ -756,7 +759,7 @@ plots_to_render_seir <- reactive({
 
 ```
 
-## SIRD model
+### SIRD model
 
 \[
 \begin{align}
