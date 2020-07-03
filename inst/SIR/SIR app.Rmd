@@ -997,3 +997,828 @@ plots_to_render_sird <- reactive({
 
 ```
 
+## Models Assuming Frequency-Dependent Transmission {.tabset}
+
+All of the following disease models assume that disease transmission depends on the frequency of susceptible individuals in the population as opposed to the absolute number of susceptible individuals. Thus, the disease is transmitted at rate $\beta \frac{SI}{N}$ instead of $\beta SI$.
+
+*Open versus closed populations:* All of the models here include vital rates (i.e., births/deaths), which is called an open population. They assume that the number of births = the number of non-disease-induced deaths. If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. Models that do not include vital rates are said to model a closed population. To run a model in this app without vital rates, set $m = 0$. 
+
+### SIR model
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)
+\end{align}
+\]
+
+```{r params SIR ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r SIR ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_ft", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_ft", label = "Infection rate:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_ft", label = "Recovery rate:",
+                min = 0, max = 1, value = .2, step = 0.1),
+    
+    sliderInput("v_ft", label = "Vaccination rate:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_ft", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("I0_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("R0_ft", label = "Initial population size of R", min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_ft", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_SIR_ft()}, width = 600, height = 800))
+  
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_ft <- reactive({c(S = input$S0_ft, I = input$I0_ft, R = input$R0_ft)})
+# Set the parameter values
+params_ft <- reactive({c(m = input$m_ft, beta = input$beta_ft, v = input$v_ft, gamma = input$gamma_ft)})
+# Time over which to simulate model dynamics
+time_ft <- reactive({seq(0,input$time_ft,by = .1)})
+
+# Use the SIR function above to run 
+# the SIR model using the 
+# parameter estimates defined above
+out_ft <- reactive({data.frame(deSolve::ode(func = SIR_ft,
+                               y=init_ft(), parms=params_ft(), times = time_ft()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long_ft <- reactive({pivot_longer(out_ft(), c(S, I, R), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I", "R")))})
+
+# use out to create dS, dI, dR, and the per capita changes in population
+pop_out_ft <- reactive({
+  pop_out <- out_ft()
+  pop_out$dS <- c(NA, diff(pop_out$S))
+  pop_out$dI <- c(NA, diff(pop_out$I))
+  pop_out$dR <- c(NA, diff(pop_out$R))
+  # not using pgrs right now but could be useful to calculate
+  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+  pop_out
+})
+
+pop_out_long_ft <- reactive({ pop_out_ft() %>%
+  select(time, dS, dI, dR) %>%
+  pivot_longer(c(dS, dI, dR), "group") %>%
+  mutate(group = factor(group, levels = c("dS", "dI", "dR")))
+})
+
+# Make plots --------------------
+
+
+# Plot abundance through time ----------
+abund_plot_SIR_ft <- reactive({ggplot(out_long_ft()) + 
+    geom_line(aes(x = time, y = value, color = group), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") + 
+    ecoevoapps::theme_apps()
+})
+
+# # Plot dS, dI, dR over time
+# dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
+# Plot S vs I ---------
+SIplot_ft <- reactive({ggplot(out_ft()) +
+    geom_segment(x = out_ft()$S[round(length(time_ft()))/25], 
+                 y = out_ft()$I[round(length(time_ft()))/25], 
+                 xend = out_ft()$S[round(length(time_ft())/25) + 1], 
+                 yend = out_ft()$I[round(length(time_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot I vs R --------------
+RIplot_ft <- reactive({ggplot(out_ft()) +
+    geom_segment(x = out_ft()$R[round(length(time_ft()))/25], 
+                 y = out_ft()$I[round(length(time_ft()))/25], 
+                 xend = out_ft()$R[round(length(time_ft())/25) + 1], 
+                 yend = out_ft()$I[round(length(time_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+  geom_path(aes(x = R, y = I), size = 2) +
+  scale_color_brewer(palette = "Set1") +
+  ylab("I size") +
+  xlab("R size") +
+  ecoevoapps::theme_apps()})
+
+# Plot S vs R ------------
+SRplot_ft <- reactive({ggplot(out_ft()) +
+    geom_segment(x = out_ft()$S[round(length(time_ft()))/25], 
+                 y = out_ft()$R[round(length(time_ft()))/25], 
+                 xend = out_ft()$S[round(length(time_ft())/25) + 1], 
+                 yend = out_ft()$R[round(length(time_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+  geom_path(aes(x = S, y = R), size = 2) +
+  scale_color_brewer(palette = "Set1") +
+  ylab("R size") +
+  xlab("S size") +
+  ecoevoapps::theme_apps()})
+
+# combine 2d plots -----
+SIR_2d_plots_ft <- reactive({
+  wrap_plots(SIplot_ft(), RIplot_ft(), SRplot_ft(), ncol = 3)
+})
+
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_SIR_ft <- reactive({
+  wrap_plots(abund_plot_SIR_ft(), 
+             # dabund_plot_SIR(), 
+             SIR_2d_plots_ft(), nrow = 2) 
+})
+
+
+```
+
+
+### SIS model
+
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I) - mS - \beta \frac{SI}{N} + \gamma I\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I\\
+\end{align}
+\]
+
+```{r params SIS ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sis ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #gamma - recovery rate
+    
+    sliderInput("m_sis_ft", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sis_ft", label = "Infection rate:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_sis_ft", label = "Recovery rate:",
+                min = 0, max = 1, value = .2, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sis_ft", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("I0_sis_ft", label = "Initial population size of I", min = 0, value = 1),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sis_ft", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sis_ft()}, width = 600, height = 800))
+  
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sis_ft <- reactive({c(S = input$S0_sis_ft, I = input$I0_sis_ft)})
+# Set the parameter values
+params_sis_ft <- reactive({c(m = input$m_sis_ft, beta = input$beta_sis_ft, gamma = input$gamma_sis_ft)})
+# Time over which to simulate model dynamics
+time_sis_ft <- reactive({seq(0, input$time_sis_ft, by = .1)})
+
+# Use the SIR function above to run 
+# the SIR model using the 
+# parameter estimates defined above
+out_sis_ft <- reactive({data.frame(deSolve::ode(func = SIS_ft,
+                               y = init_sis_ft(), parms = params_sis_ft(), times = time_sis_ft()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long_sis_ft <- reactive({pivot_longer(out_sis_ft(), c(S, I), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I")))})
+
+# use out to create dS, dI, dR, and the per capita changes in population
+pop_out_sis_ft <- reactive({
+  pop_out <- out_sis_ft()
+  pop_out$dS <- c(NA, diff(pop_out$S))
+  pop_out$dI <- c(NA, diff(pop_out$I))
+  # not using pgrs right now but could be useful to calculate
+  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+  pop_out
+})
+
+pop_out_long_sis_ft <- reactive({ pop_out_sis_ft() %>%
+  select(time, dS, dI) %>%
+  pivot_longer(c(dS, dI), "group") %>%
+  mutate(group = factor(group, levels = c("dS", "dI")))
+})
+
+# Make plots --------------------
+
+
+# Plot abundance through time ----------
+abund_plot_sis_ft <- reactive({ggplot(out_long_sis_ft()) + 
+    geom_line(aes(x = time, y = value, color = group), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") + 
+    ecoevoapps::theme_apps()
+})
+
+# # Plot dS, dI, dR over time
+# dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
+# Plot S vs I ---------
+SIplot_sis_ft <- reactive({ggplot(out_sis_ft()) +
+    geom_segment(x = out_sis_ft()$S[round(length(time_sis_ft()))/25], 
+                 y = out_sis_ft()$I[round(length(time_sis_ft()))/25], 
+                 xend = out_sis_ft()$S[round(length(time_sis_ft())/25) + 1], 
+                 yend = out_sis_ft()$I[round(length(time_sis_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sis_ft <- reactive({
+  wrap_plots(abund_plot_sis_ft(), 
+             # dabund_plot_sis(), 
+             SIplot_sis_ft(), nrow = 2) 
+})
+
+
+```
+
+
+### SEIR model
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + E + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dE}{dt} &= \beta \frac{SI}{N} - aE - mE\\
+\frac{dI}{dt} &= aE - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + E + I + R)
+\end{align}
+\]
+
+```{r params SEIR ft, echo=F}
+pars_vars <- c("$S$", 
+               "$E$",
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "a",
+               "$\\gamma$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                  "Population size of exposed (not yet infectious) individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Inverse of incubation period",
+                 "Recovery rate",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r seir ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #a - inverse of incubation period
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_seir_ft", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_seir_ft", label = "Infection rate:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("a_seir_ft", label = "Inverse of incubation period:",
+                min = 0, max = 1, value = 0.05, step = 0.01),
+    
+    sliderInput("gamma_seir_ft", label = "Recovery rate:",
+                min = 0, max = 1, value = .2, step = 0.1),
+    
+    sliderInput("v_seir_ft", label = "Vaccination rate:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_seir_ft", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("E0_seir_ft", label = "Initial population size of E", min = 0, value = 0),
+    numericInput("I0_seir_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("R0_seir_ft", label = "Initial population size of R", min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_seir_ft", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_seir_ft()}, width = 600, height = 800))
+  
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_seir_ft <- reactive({c(S = input$S0_seir_ft, E = input$E0_seir_ft, I = input$I0_seir_ft, R = input$S0_seir_ft)})
+# Set the parameter values
+params_seir_ft <- reactive({c(m = input$m_seir_ft, beta = input$beta_seir_ft, a = input$a_seir_ft, gamma = input$gamma_seir_ft, v = input$v_seir_ft)})
+# Time over which to simulate model dynamics
+time_seir_ft <- reactive({seq(0, input$time_seir_ft, by = .1)})
+
+# Use the SEIR function above to run 
+# the SEIR model using the 
+# parameter estimates defined above
+out_seir_ft <- reactive({data.frame(deSolve::ode(func = SEIR_ft,
+                               y = init_seir_ft(), parms = params_seir_ft(), times = time_seir_ft()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long_seir_ft <- reactive({pivot_longer(out_seir_ft(), c(S, E, I, R), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "E", "I", "R")))})
+
+# use out to create dS, dE, dI, dR, and the per capita changes in population
+pop_out_seir_ft <- reactive({
+  pop_out <- out_seir_ft()
+  pop_out$dS <- c(NA, diff(pop_out$S))
+  pop_out$dE <- c(NA, diff(pop_out$E))
+  pop_out$dI <- c(NA, diff(pop_out$I))
+  pop_out$dR <- c(NA, diff(pop_out$R))
+  # not using pgrs right now but could be useful to calculate
+  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+  pop_out
+})
+
+pop_out_long_seir_ft <- reactive({ pop_out_seir_ft() %>%
+  select(time, dS, dE, dI, dR) %>%
+  pivot_longer(c(dS, dE, dI, dR), "group") %>%
+  mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
+})
+
+# Make plots --------------------
+
+
+# Plot abundance through time ----------
+abund_plot_seir_ft <- reactive({ggplot(out_long_seir_ft()) + 
+    geom_line(aes(x = time, y = value, color = group), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") + 
+    ecoevoapps::theme_apps()
+})
+
+# # Plot dS, dE, dI, dR over time
+# dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
+# Plot S vs E ---------
+SEplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$E[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = E), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("E size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot S vs I ---------
+SIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$I[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot S vs R ---------
+SRplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$R[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = R), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("R size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot E vs I ---------
+EIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$E[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$I[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = E, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("E size") +
+    ecoevoapps::theme_apps()})
+
+# Plot E vs R ---------
+ERplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$E[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$R[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = E, y = R), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("R size") +
+    xlab("E size") +
+    ecoevoapps::theme_apps()})
+
+# Plot R vs I ---------
+RIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+    geom_segment(x = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
+                 y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
+                 xend = out_seir_ft()$R[round(length(time_seir_ft())/25) + 1], 
+                 yend = out_seir_ft()$I[round(length(time_seir_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = R, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("R size") +
+    ecoevoapps::theme_apps()})
+
+# combine 2d plots -----
+SEIR_2d_plots_ft <- reactive({
+  wrap_plots(SEplot_seir_ft(), SIplot_seir_ft(), SRplot_seir_ft(), EIplot_seir_ft(), ERplot_seir_ft(), RIplot_seir_ft(), ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_seir_ft <- reactive({
+  wrap_plots(abund_plot_seir_ft(), 
+             # dabund_plot_seir(), 
+             SEIR_2d_plots_ft(), nrow = 2) 
+})
+
+
+```
+
+### SIRD model
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I - \mu I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} &= \mu I\\
+\end{align}
+\]
+
+```{r params SIRD ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$D$",
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$\\mu$",
+               "v")
+descriptions <- c("Population size of susceptible individuals",
+                 "Population size of infectious individuals",
+                 "Population size of recovered individuals",
+                 "Number of individuals who die due to infection",
+                 "Birth/death rate",
+                 "Infection rate",
+                 "Recovery rate",
+                 "Death rate from infection",
+                 "Newborn vaccination rate")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sird ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #mu - death rate due to infection
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_sird_ft", label = "Birth/Death rate:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sird_ft", label = "Infection rate:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_sird_ft", label = "Recovery rate:",
+                min = 0, max = 1, value = .2, step = 0.1),
+    
+    sliderInput("mu_sird_ft", label = "Death rate due to infection:",
+                min = 0, max = 1, value = 0.05, step = 0.01),
+    
+    sliderInput("v_sird_ft", label = "Vaccination rate:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sird_ft", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("I0_sird_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("R0_sird_ft", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("D0_sird_ft", label = "Initial population size of D", min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sird_ft", label = "Time to simulate", min = 10, value = 100)
+    
+    
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sird_ft()}, width = 600, height = 800))
+  
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sird_ft <- reactive({c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$S0_sird_ft, D = input$D0_sird_ft)})
+# Set the parameter values
+params_sird_ft <- reactive({c(m = input$m_sird_ft, beta = input$beta_sird_ft, mu = input$mu_sird_ft, gamma = input$gamma_sird_ft, v = input$v_sird_ft)})
+# Time over which to simulate model dynamics
+time_sird_ft <- reactive({seq(0, input$time_sird_ft, by = .1)})
+
+# Use the sird function above to run 
+# the sird model using the 
+# parameter estimates defined above
+out_sird_ft <- reactive({data.frame(deSolve::ode(func = SIRD_ft,
+                               y = init_sird_ft(), parms = params_sird_ft(), times = time_sird_ft()))})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+out_long_sird_ft <- reactive({pivot_longer(out_sird_ft(), c(S, I, R, D), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I", "R", "D")))})
+
+# use out to create dS, dD, dI, dR, and the per capita changes in population
+pop_out_sird_ft <- reactive({
+  pop_out <- out_sird_ft()
+  pop_out$dS <- c(NA, diff(pop_out$S))
+  pop_out$dI <- c(NA, diff(pop_out$I))
+  pop_out$dR <- c(NA, diff(pop_out$R))
+  pop_out$dD <- c(NA, diff(pop_out$D))
+  # not using pgrs right now but could be useful to calculate
+  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+  pop_out
+})
+
+pop_out_long_sird_ft <- reactive({ pop_out_sird_ft() %>%
+  select(time, dS, dI, dR, dD) %>%
+  pivot_longer(c(dS, dI, dR, dD), "group") %>%
+  mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
+})
+
+# Make plots --------------------
+
+
+# Plot abundance through time ----------
+abund_plot_sird_ft <- reactive({ggplot(out_long_sird_ft()) + 
+    geom_line(aes(x = time, y = value, color = group), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") + 
+    ecoevoapps::theme_apps()
+})
+
+# # Plot dS, dD, dI, dR over time
+# dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
+# Plot S vs D ---------
+SDplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$D[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = D), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("D size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot S vs I ---------
+SIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$I[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot S vs R ---------
+SRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$R[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = S, y = R), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("R size") +
+    xlab("S size") +
+    ecoevoapps::theme_apps()})
+
+# Plot D vs I ---------
+DIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$D[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$I[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = D, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("D size") +
+    ecoevoapps::theme_apps()})
+
+# Plot D vs R ---------
+DRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$D[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$R[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = D, y = R), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("R size") +
+    xlab("D size") +
+    ecoevoapps::theme_apps()})
+
+# Plot R vs I ---------
+RIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+    geom_segment(x = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
+                 y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
+                 xend = out_sird_ft()$R[round(length(time_sird_ft())/25) + 1], 
+                 yend = out_sird_ft()$I[round(length(time_sird_ft())/25) + 1], 
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = R, y = I), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("I size") +
+    xlab("R size") +
+    ecoevoapps::theme_apps()})
+
+# combine 2d plots -----
+SIRD_2d_plots_ft <- reactive({
+  wrap_plots(SIplot_sird_ft(), SRplot_sird_ft(), SDplot_sird_ft(), RIplot_sird_ft(), DIplot_sird_ft(), DRplot_sird_ft(),  ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sird_ft <- reactive({
+  wrap_plots(abund_plot_sird_ft(), 
+             # dabund_plot_sird(), 
+             SIRD_2d_plots_ft(), nrow = 2) 
+})
+
+
+```
+
+
+
