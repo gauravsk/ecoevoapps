@@ -57,6 +57,8 @@ $$n_{2~next~year~initial} = n_{2~end~of~year} + I_{to~source}= \lambda_{2} n_{2}
 From there, the annual cycle begins again.
 
 # Simulation of the populations
+
+## Interactive simulation plot
 ```{r, include=FALSE}
 # Pulliam source-sink metapopulation model
 library(tidyverse)
@@ -115,52 +117,56 @@ source_sink <- function(endtime,init,params) {
 shinyApp( #to embed shiny app into the html document
   
     ### user interface part, ask for parameters and present the final outputs(suggested input, graph)
-    ui = fluidPage(
+  ui = fluidPage(
     #withMathJax(), # not working so far -- for displaying special characters
     shinyFeedback::useShinyFeedback(), # feedback to ui
-    #div(titlePanel("Simulation: Pulliam's Source/Sink Metapopulation Dynamic", style = "position:fixed;width:inherit;")),
-    #fixedPanel(height = 50, width = "100%","Simulation: Pulliam's Source/Sink Metapopulation Dynamic"),
     
-    sidebarLayout(
-      sidebarPanel(
-        # style of the side panel
-        style = "float:left;position:flex;width = 10%;",
+    fluidRow(
+        column(3,
+            # style of the side panel
+            #style = "width = 10%;",
+            
+            wellPanel(width = "100%",
+            ### ask for params (model parameters)
+            ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+            sliderInput("pa", label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
+            sliderInput("pj", label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
+            sliderInput("beta1", label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
+            textOutput("suggest_beta1"),
+            sliderInput("beta2", label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
+            textOutput("suggest_beta2"),
+            numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
+            
+            ### ask for init (inital conditions)
+            ### init <- c(N = 20, P = 2)
+            numericInput("n10",label = "initial population at source", min = 0, value = 110),
+            numericInput("n20",label = "initial population at sink", min = 0, value = 100),
+            
+            ### ask for time (time to simulate)
+            numericInput("endtime", label = "years to simulate", min = 2, value = 50)
+            )
+            #br(), # empty line
+            
+        ), # end of left/input column
         
-        ### ask for params (model parameters)
-        ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
-        sliderInput("pa", label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
-        sliderInput("pj", label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
-        sliderInput("beta1", label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
-        textOutput("suggest_beta1"),
-        sliderInput("beta2", label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
-        textOutput("suggest_beta2"),
-        numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
-        
-        ### ask for init (inital conditions)
-        ### init <- c(N = 20, P = 2)
-        numericInput("n10",label = "initial population at source", min = 0, value = 110),
-        numericInput("n20",label = "initial population at sink", min = 0, value = 100),
-        
-        ### ask for time (time to simulate)
-        numericInput("endtime", label = "years to simulate", min = 2, value = 50),
-        
-        ### show calculated sink population equilibrium
-        actionButton("showAnswer", "Display/update sink equilibirum", style = "color: blue;"),
-        textOutput("equilibrium")
-      ),
+        column(8, 
+            fixedPanel(right = 5, top = 30, width = "65%", plotOutput("simulation") ), # gives the plot
+            offset = 1
+            #the output name "simulation" is a renderPlot object desined in the server part)
+        ) # end of right/plot column
+    ), # end of the first fluid row
     
-      ### Show a plot of the simulated population
-      mainPanel(
-        style = "margin-left:35%;position:fixed;width:65%",
-        plotOutput("simulation") # gives the plot
-        #the output name "simulation" is a renderPlot object desined in the server part
-      )
-      
-      # fixedPanel(
-      #   # #h3("simulation plot", align = "center"),
-      #   # right = 10, width = "60%", plotOutput("simulation"))
-     
-    )
+    fixedRow(
+      column(12, 
+             ### show calculated sink population equilibrium
+            fixedPanel(right = 5, bottom = 15, width = "60%", height = 40,  
+              actionButton("showAnswer", "Show/update sink equilibirum", style = "color: rgb(201, 18, 18);"),
+              textOutput("equilibrium")
+            ) # end of fixed panel
+      ) # end of this column
+    ) # end of the second fluid row
+    
+    
   ), # end of ui
 
   ### server part, check validity of the input, generate output (graph) from the input
@@ -220,16 +226,37 @@ shinyApp( #to embed shiny app into the html document
       scale_color_brewer(palette = "Set1") +
       ylab("Population size")  })    
     
-    output$simulation <- renderPlot(ss_plot())
+    output$simulation <- renderPlot(ss_plot(), height = 300)
     
     ### calculate equilibrium for sink population, display on click
     equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$beta1 - 1)*input$N1/(input$pa + input$pj*input$beta2 - 1), digits = 0)})
-    output$equilibrium <- renderText({ paste(equi(), ". (Read the next section for details.)") })
+    output$equilibrium <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
     
   } # end of server
     
-)
+) # end of shiny app
 ```
+
+## Table of model parameters
+<details>
+  <summary>Click to show the Parameter Table </summary>
+```{r paramtable, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+paramTable <- data.frame(
+  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{1}$", "$\\beta_{2}$", "$\\lambda_{1}$", "$\\lambda_{2}$", "$n_{1}$", "$n_{2}$", "$N_{1}$ or $N^{*}$"),
+  
+  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{1}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{2}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
+  
+  Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
+
+kable(paramTable) %>%
+  kable_styling(bootstrap_options = c("striped"))
+```
+</details> 
+
 
 # Population equilibirium
 
@@ -257,15 +284,17 @@ Calculate the equilibirum of your sink population based on your input and verify
 # DEV NOTES
 Possible additional features:   
 
-- currently the side bar style doesn't work due to adding the action button
+- currently the side bar style doesn't work due to adding the action button CANNOT
+
+- ALTERNATIVE, use a different tab
 
 - model description DONE
 
-- parameter table
+- parameter table DONE
 
 - click to show answer/ask for answer&check for equilibrium question. DONE, needs to fix position though  
 
-- click to show equations (default collased)?  
+- click to show equations (default collased)? NO NEED TO currently  
 
 - Add some diagram (the one from the paper is great but copyright hmmm) or illustration (I have some drawings that's VAGUELY related to the topic) DONE  
 
