@@ -121,52 +121,99 @@ shinyApp( #to embed shiny app into the html document
     #withMathJax(), # not working so far -- for displaying special characters
     shinyFeedback::useShinyFeedback(), # feedback to ui
     
-    fluidRow(
-        column(3,
-            # style of the side panel
-            #style = "width = 10%;",
-            
-            wellPanel(width = "100%",
-            ### ask for params (model parameters)
-            ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
-            sliderInput("pa", label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
-            sliderInput("pj", label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
-            sliderInput("beta1", label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
-            textOutput("suggest_beta1"),
-            sliderInput("beta2", label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
-            textOutput("suggest_beta2"),
-            numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
-            
-            ### ask for init (inital conditions)
-            ### init <- c(N = 20, P = 2)
-            numericInput("n10",label = "initial population at source", min = 0, value = 110),
-            numericInput("n20",label = "initial population at sink", min = 0, value = 100),
-            
-            ### ask for time (time to simulate)
-            numericInput("endtime", label = "years to simulate", min = 2, value = 50)
-            )
-            #br(), # empty line
-            
-        ), # end of left/input column
-        
-        column(8, 
-            fixedPanel(right = 5, top = 30, width = "65%", plotOutput("simulation") ), # gives the plot
-            offset = 1
-            #the output name "simulation" is a renderPlot object desined in the server part)
-        ) # end of right/plot column
-    ), # end of the first fluid row
-    
-    fixedRow(
-      column(12, 
-             ### show calculated sink population equilibrium
-            fixedPanel(right = 5, bottom = 15, width = "60%", height = 40,  
-              actionButton("showAnswer", "Show/update sink equilibirum", style = "color: rgb(201, 18, 18);"),
-              textOutput("equilibrium")
-            ) # end of fixed panel
-      ) # end of this column
-    ) # end of the second fluid row
-    
-    
+    tabsetPanel(
+      tabPanel("desktop full screen",
+      fluidRow(
+          column(4,
+              # style of the side panel
+              #style = "width = 10%;",
+              
+              wellPanel(width = "100%",
+              ### ask for params (model parameters)
+              ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+              sliderInput("pa", label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
+              sliderInput("pj", label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
+              sliderInput("beta1", label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
+              textOutput("suggest_beta1"),
+              sliderInput("beta2", label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
+              textOutput("suggest_beta2"),
+              numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
+              
+              ### ask for init (inital conditions)
+              ### init <- c(N = 20, P = 2)
+              numericInput("n10",label = "initial population at source", min = 0, value = 110),
+              numericInput("n20",label = "initial population at sink", min = 0, value = 100),
+              
+              ### ask for time (time to simulate)
+              numericInput("endtime", label = "years to simulate", min = 2, value = 50)
+              )
+              #br(), # empty line
+              
+          ), # end of left/input column
+          
+          column(8, 
+            # tabsetPanel("fixed",
+              fixedPanel(right = 5, top = 30, width = "65%", plotOutput("simulation") ) # gives the plot
+            # ), # end of first tabsetPanel (fixed plot)
+            # tabsetPanel("fluid",
+            #   fluidPanel( plotOutput("simulation") )
+            # ), # end of the second tabsetPanel (fluid plot)
+              
+              #the output name "simulation" is a renderPlot object desined in the server part)
+          ) # end of right/plot column
+      ), # end of the first fluid row
+      
+      fixedRow(
+        column(12, 
+               ### show calculated sink population equilibrium
+              fixedPanel(right = 5, bottom = 15, width = "60%", height = 40,  
+                actionButton("showAnswer", "Show/update sink equilibirum", style = "color: rgb(201, 18, 18);"),
+                textOutput("equilibrium")
+              ) # end of fixed panel
+        ) # end of this column
+      ) # end of the second fluid row
+    ), # end of tab "desktop" 
+    tabPanel("mobile devices",
+        fluidRow(
+          column(4,
+              # style of the side panel
+              #style = "width = 10%;",
+              
+              wellPanel(width = "100%",
+              ### ask for params (model parameters)
+              ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+              sliderInput("pa", label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
+              sliderInput("pj", label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
+              sliderInput("beta1", label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
+              #textOutput("suggest_beta1"),
+              sliderInput("beta2", label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
+              #textOutput("suggest_beta2"),
+              numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
+              
+              ### ask for init (inital conditions)
+              ### init <- c(N = 20, P = 2)
+              numericInput("n10",label = "initial population at source", min = 0, value = 110),
+              numericInput("n20",label = "initial population at sink", min = 0, value = 100),
+              
+              ### ask for time (time to simulate)
+              numericInput("endtime", label = "years to simulate", min = 2, value = 50)
+              )
+              #br(), # empty line
+              
+          ), # end of left/input column
+          
+          column(8, 
+                 fluidRow(plotOutput("simulation_mobile")),  # gives the plot
+                 fluidRow(
+                   wellPanel( 
+                    actionButton("showAnswer", "Show/update sink equilibirum", style = "color: rgb(201, 18, 18);"),
+                    textOutput("equilibrium_mobile")
+                   ) # end of wellpanel
+                 ) #end of equilibirium row
+          ) # end of right/plot column
+        )
+      ) # end of tab "mobile"
+    ) #end of tabset
   ), # end of ui
 
   ### server part, check validity of the input, generate output (graph) from the input
@@ -227,10 +274,12 @@ shinyApp( #to embed shiny app into the html document
       ylab("Population size")  })    
     
     output$simulation <- renderPlot(ss_plot(), height = 300)
+    output$simulation_mobile <- renderPlot(ss_plot())
     
     ### calculate equilibrium for sink population, display on click
     equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$beta1 - 1)*input$N1/(input$pa + input$pj*input$beta2 - 1), digits = 0)})
     output$equilibrium <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
+    output$equilibrium_mobile <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
     
   } # end of server
     
@@ -281,7 +330,7 @@ Calculate the equilibirum of your sink population based on your input and verify
 3. [UCLA Lecture Notes](https://faculty.eeb.ucla.edu/Sork/Env121Sork/SorkLec4_Metapop/Metapop.html#IV)
 
 
-# DEV NOTES
+# DEV NOTES (will delete)
 Possible additional features:   
 
 - currently the side bar style doesn't work due to adding the action button CANNOT
