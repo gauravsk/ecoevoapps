@@ -1,0 +1,340 @@
+---
+title: "Additional Consumer Resource Scenarios"
+author: "Madeline Cowen"
+date: "July 6, 2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+library(kableExtra)
+```
+
+
+## Consumer-Resource Variants and Scenarios {.tabset}
+
+
+
+```{r consumer resource functions, include=FALSE}
+
+## EQUATIONS FOR DESOLVE -------
+# Type I Functional Response
+
+lv_pred1 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Logistic prey
+
+logprey <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation <-function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+    
+  })
+}
+
+## EQ FOR SINGLE TIMESTEP CALCULATIONS -------
+
+# exponential growth, type I
+lv_pred1_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Logistic prey
+
+logprey_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2_eq <- function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation_eq <-function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+    
+  })
+}
+
+## make function to generate data for vector field/phase plane -------
+
+vector_field_input <- function(sim_df, eq_func, pars_for_eq_func, vec_density = 20) {
+
+  # INPUTS
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # eq_func is the function with the system of equations that calculate dH and dP for one time step
+  # pars_for_eq_func is the vector of named parameters to use in the eq_func
+  # vec_density determines the number of arrows (vec_density^2)
+
+  # OUTPUT:
+  # a df with Hstart, Hend, Pstart, Pend (and dH, dP) for drawing vectors
+
+  # BODY:
+  # add error checks here
+
+  # determine the min and max of the number of prey and predators
+  lowH <- round(min(sim_df$H), 0)
+  hiH <- round(max(sim_df$H), 0)
+  lowP <- round(min(sim_df$P), 0)
+  hiP <- round(max(sim_df$P), 0)
+
+  # select a sequence of points between (and a little beyond) those values
+  seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
+  seqP <- seq(0.9*lowP, 1.4*hiP, length.out = vec_density)
+
+  # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
+  hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+
+  # use those values to solve dP and dH and calculate pend and hend
+  hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, eq_func, pars_for_eq_func))
+  hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+
+  return(hpcoords)
+}
+
+
+# function to make the vector field with ggplot ------
+vector_field <- function(sim_df, vector_field_input_data) {
+
+  # INPUT
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # vector_field_input_data has the output from vector_field_input, which is a list of start and end coordinates for each vector segment
+
+  # OUTPUT
+  # is a ggplot
+
+  ggplot(sim_df) +
+
+    # vector field
+    geom_segment(data = vector_field_input_data,
+                 aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
+                 arrow = arrow(length = unit(0.02, "npc")),
+                 color = "light gray")
+
+}
+
+
+```
+
+### Nicholson-Bailey Model (Discrete Time)
+
+This is a classic host-parasitoid model in discrete time
+
+**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params nic-bai, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+### Intraguild Predation
+
+Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
+
+**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params intraguild-pred, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+### Apparent Competition
+
+**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params apparent-comp, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
