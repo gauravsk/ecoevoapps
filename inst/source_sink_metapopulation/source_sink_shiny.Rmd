@@ -152,8 +152,8 @@ ssinputUI <- function(id) {
         
         ### ask for init (inital conditions)
         ### init <- c(N = 20, P = 2)
-        numericInput(NS(id, "n10"), label = "initial population at source", min = 0, value = 110),
-        numericInput(NS(id, "n20"), label = "initial population at sink", min = 0, value = 100),
+        numericInput(NS(id, "n10"), label = "initial population at source (n1)", min = 0, value = 110),
+        numericInput(NS(id, "n20"), label = "initial population at sink (n2)", min = 0, value = 100),
         
         ### ask for time (time to simulate)
         numericInput(NS(id, "endtime"), label = "years to simulate", min = 2, value = 50)
@@ -236,8 +236,11 @@ ssServer <- function(id) {
         ### Plot
         ss_plot <- reactive({ ggplot(ss_out_long()) + 
           geom_line(aes(x = year, y = value, color = population), size = 2) + 
-          scale_color_brewer(palette = "Set1") +
-          ylab("Population size")  })    
+            ecoevoapps::theme_apps() + 
+            scale_x_continuous(expand = c(0, 0, .1, 0)) +
+            scale_y_continuous(expand = c(0, 0, .1, 0)) + 
+            scale_color_brewer(palette = "Set1") +
+            ylab("Population size")  })    
         
         output$simulation <- renderPlot(ss_plot(), height = 300)
         
