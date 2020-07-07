@@ -44,7 +44,7 @@ pars_vars <- c("$S$",
                "$m$", 
                "$\\beta$", 
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Population size of recovered individuals",
@@ -80,7 +80,7 @@ sidebarLayout(
                 min = 0, max = 1, value = .01, step = 0.01),
     
     sliderInput("gamma", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .2, step = 0.01),
     
     sliderInput("v", label = "Vaccination rate:",
                 min = 0, max = 1, value = 0, step = 0.1),
@@ -385,7 +385,7 @@ pars_vars <- c("$S$",
                "$m$", 
                "$\\beta$", 
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Birth/death rate",
@@ -419,7 +419,7 @@ sidebarLayout(
                 min = 0, max = 1, value = .01, step = 0.01),
     
     sliderInput("gamma_sis", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .2, step = 0.01),
     
     
     ### Ask user for initial conditions ----
@@ -539,9 +539,9 @@ pars_vars <- c("$S$",
                "$R$", 
                "$m$", 
                "$\\beta$", 
-               "a",
+               "$a$",
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                   "Population size of exposed (not yet infectious) individuals",
                  "Population size of infectious individuals",
@@ -583,7 +583,7 @@ sidebarLayout(
                 min = 0, max = 1, value = 0.05, step = 0.01),
     
     sliderInput("gamma_seir", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .2, step = 0.01),
     
     sliderInput("v_seir", label = "Vaccination rate:",
                 min = 0, max = 1, value = 0, step = 0.1),
@@ -779,7 +779,7 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$\\mu$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Population size of recovered individuals",
@@ -818,7 +818,7 @@ sidebarLayout(
                 min = 0, max = 1, value = .01, step = 0.01),
     
     sliderInput("gamma_sird", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .2, step = 0.01),
     
     sliderInput("mu_sird", label = "Death rate due to infection:",
                 min = 0, max = 1, value = 0.05, step = 0.01),
@@ -1020,7 +1020,7 @@ pars_vars <- c("$S$",
                "$m$", 
                "$\\beta$", 
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Population size of recovered individuals",
@@ -1053,17 +1053,17 @@ sidebarLayout(
                 min = 0, max = 1, value = .1, step = 0.1),
     
     sliderInput("beta_ft", label = "Infection rate:",
-                min = 0, max = 1, value = .01, step = 0.01),
+                min = 0, max = 1, value = .2, step = 0.01),
     
     sliderInput("gamma_ft", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .1, step = 0.01),
     
     sliderInput("v_ft", label = "Vaccination rate:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     ### Ask user for initial conditions ----
-    numericInput("S0_ft", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("S0_ft", label = "Initial population size of S", min = 0, value = 50),
+    numericInput("I0_ft", label = "Initial population size of I", min = 0, value = 20),
     numericInput("R0_ft", label = "Initial population size of R", min = 0, value = 0),
     
     ### Ask user for time to simulate ----
@@ -1208,7 +1208,7 @@ pars_vars <- c("$S$",
                "$m$", 
                "$\\beta$", 
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Birth/death rate",
@@ -1239,15 +1239,15 @@ sidebarLayout(
                 min = 0, max = 1, value = .1, step = 0.1),
     
     sliderInput("beta_sis_ft", label = "Infection rate:",
-                min = 0, max = 1, value = .01, step = 0.01),
+                min = 0, max = 1, value = .35, step = 0.01),
     
     sliderInput("gamma_sis_ft", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .1, step = 0.01),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sis_ft", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0_sis_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("S0_sis_ft", label = "Initial population size of S", min = 0, value = 50),
+    numericInput("I0_sis_ft", label = "Initial population size of I", min = 0, value = 20),
     
     ### Ask user for time to simulate ----
     numericInput("time_sis_ft", label = "Time to simulate", min = 10, value = 100)
@@ -1362,9 +1362,9 @@ pars_vars <- c("$S$",
                "$R$", 
                "$m$", 
                "$\\beta$", 
-               "a",
+               "$a$",
                "$\\gamma$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                   "Population size of exposed (not yet infectious) individuals",
                  "Population size of infectious individuals",
@@ -1400,22 +1400,22 @@ sidebarLayout(
                 min = 0, max = 1, value = .1, step = 0.1),
     
     sliderInput("beta_seir_ft", label = "Infection rate:",
-                min = 0, max = 1, value = .01, step = 0.01),
+                min = 0, max = 1, value = .35, step = 0.01),
     
     sliderInput("a_seir_ft", label = "Inverse of incubation period:",
-                min = 0, max = 1, value = 0.05, step = 0.01),
+                min = 0, max = 1, value = 0.2, step = 0.01),
     
     sliderInput("gamma_seir_ft", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .1, step = 0.01),
     
     sliderInput("v_seir_ft", label = "Vaccination rate:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_seir_ft", label = "Initial population size of S", min = 0, value = 100),
+    numericInput("S0_seir_ft", label = "Initial population size of S", min = 0, value = 50),
     numericInput("E0_seir_ft", label = "Initial population size of E", min = 0, value = 0),
-    numericInput("I0_seir_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("I0_seir_ft", label = "Initial population size of I", min = 0, value = 20),
     numericInput("R0_seir_ft", label = "Initial population size of R", min = 0, value = 0),
     
     ### Ask user for time to simulate ----
@@ -1602,7 +1602,7 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$\\mu$",
-               "v")
+               "$v$")
 descriptions <- c("Population size of susceptible individuals",
                  "Population size of infectious individuals",
                  "Population size of recovered individuals",
@@ -1638,23 +1638,22 @@ sidebarLayout(
                 min = 0, max = 1, value = .1, step = 0.1),
     
     sliderInput("beta_sird_ft", label = "Infection rate:",
-                min = 0, max = 1, value = .01, step = 0.01),
+                min = 0, max = 1, value = .35, step = 0.01),
     
     sliderInput("gamma_sird_ft", label = "Recovery rate:",
-                min = 0, max = 1, value = .2, step = 0.1),
+                min = 0, max = 1, value = .1, step = 0.01),
     
     sliderInput("mu_sird_ft", label = "Death rate due to infection:",
-                min = 0, max = 1, value = 0.05, step = 0.01),
+                min = 0, max = 1, value = 0.01, step = 0.01),
     
     sliderInput("v_sird_ft", label = "Vaccination rate:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sird_ft", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0_sird_ft", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("S0_sird_ft", label = "Initial population size of S", min = 0, value = 50),
+    numericInput("I0_sird_ft", label = "Initial population size of I", min = 0, value = 20),
     numericInput("R0_sird_ft", label = "Initial population size of R", min = 0, value = 0),
-    numericInput("D0_sird_ft", label = "Initial population size of D", min = 0, value = 0),
     
     ### Ask user for time to simulate ----
     numericInput("time_sird_ft", label = "Time to simulate", min = 10, value = 100)
@@ -1671,7 +1670,7 @@ sidebarLayout(
 # Run the simulation -------------------
 
 # Set the initial population sizes
-init_sird_ft <- reactive({c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$S0_sird_ft, D = input$D0_sird_ft)})
+init_sird_ft <- reactive({c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$S0_sird_ft, D = 0)})
 # Set the parameter values
 params_sird_ft <- reactive({c(m = input$m_sird_ft, beta = input$beta_sird_ft, mu = input$mu_sird_ft, gamma = input$gamma_sird_ft, v = input$v_sird_ft)})
 # Time over which to simulate model dynamics
