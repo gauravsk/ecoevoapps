@@ -20,39 +20,42 @@ knitr::opts_chunk$set(echo = TRUE)
 </div>
 
 # Model overview
-A metapopulation is a collection of spatially separated populations of the a given species.  
+A metapopulation is a collection of spatially separated populations of a given species.  
 The source-sink metapopulation model focuses on the "impact of **habitat-specific demographic rates** on population growth and regulation." (Pulliam 1988).   
-In the simplified model scenario, the two populations differ in their fecundity due to different habitat qualities. The **source** population has a high-quality habitat (but space limited), high fecundity, and overall positive population growth rate; vice versa for the **sink** population.      
+
+In the simplified model scenario, the two populations differ in their fecundity due to different habitat quality. The **source** population has a high-quality habitat, in which it achieves high fecundity and overall positive population growth rate until it reaches a carrying capacity. The **sink** population has a low-quality habitat in which the population cannot sustain itself. 
+
 The two populations are linked via emmigration/immigration, and their population growths are described in the next section. 
 
 # Annual cycle & population growth
-The population size at the **beinning of a year** is denoted by $n$.  
-After summer (breeding season), each adult produces $\beta$ offspring.  
-Therefore, the **end-of-summer** population size is:
-$$n_{end~of~summer} = addults + newborn~juveniles = n + \beta n $$
+The population size at the **beginning of a year** is denoted $n$.  
+During the summer breeding season, each adult produces $\beta$ offspring.  
+Therefore, the **end-of-summer** population size is given by:
+$$n_{\mathrm{end~of~summer}} = \mathrm{adults} + \mathrm{newborn~juveniles} = n + \beta n $$
   
-The adults have an average annual survival rate of $P_{A}$, and juveniles of $P_{J}$. 
+The annual survival rate of adults is denoted $P_{A}$, and that of juveniles is denoted $P_{J}$. 
 
 Therefore, the **end-of-year** population size is:
-$$n_{end~of~year} = survived~addults + survived~juveniles = P_{A}n + P_{J} \beta n $$
+$$n_{\mathrm{end~of~year}} = \mathrm{survived~adults} + \mathrm{survived~juveniles} = P_{A}n + P_{J} \beta n $$
   
-Thus, we can respectively write the end-of-year source population (1) and sink population (2) as: 
-$$n_{1~end~of~year} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
-$$n_{2~end~of~year} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
-where the $\lambda s$ are the annual growth rates of the respective population.  
-Note that the Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$); the source population has a positive population growht rate ( $\lambda$ > 1) and the sink population has a negative population growth rate ($\lambda$ < 1).     
+Thus, we can respectively write the end-of-year size of the source population (1) and sink population (2) as: 
+$$n_{1\mathrm{~end~of~year}} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
+$$n_{2\mathrm{~end~of~year}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+where the $\lambda_i = (P_A + P_J\beta_i)$ represents the net annual growth rates of the respective population.  Populations can grow provided that $\lambda > 1$. 
+
+Note that the Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). The source population by definition has a positive population growth rate ($\lambda_1$ > 1) and the sink population by definition has a negative population growth rate ($\lambda$ < 1).     
   
-If the source population exceeds the site carrying capacity, any excess indivuduals at the source site (limited high-quality habitat, carrying capacity $N^{*}$) will **disperse** to the sink site (unlimited carrying capacity). 
-$$E_{from~sink} = I_{to~source} = n_{1~end~of~year} - N^{*} $$
+If the source population exceeds the site carrying capacity ($N^{*}$), any excess individuals will **disperse** to the sink site, where there is no upper limit on population size (i.e. no carrying capacity). 
+$$E_{\rm{from~sink}} = I_{\mathrm{to~source}} = n_{1\mathrm{~end~of~year}} - N^{*} $$
 At the **beginning of the next year**, the source and sink population will become:  
 
 - if source population has not reached carrying capacity:
-$$ n_{1~next~year~initial} =  P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
-$$n_{2~next~year~initial} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+$$ n_{1~\mathrm{next~year~initial}} =  P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
+$$n_{2~\mathrm{next~year~initial}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
 
-- or, if having reached carrying capacity ($n_{1}$ = $N^*$):
-$$ n_{1~next~year~initial} = N^{*} $$
-$$n_{2~next~year~initial} = n_{2~end~of~year} + I_{to~source}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
+- or, if the source population size exceeds the carrying capacity ($n_{1}$ = $N^*$):
+$$ n_{1\mathrm{~next~year~initial}} = N^{*} $$
+$$n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~source}}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
 
 From there, the annual cycle begins again.
 
