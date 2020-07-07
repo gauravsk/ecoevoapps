@@ -59,6 +59,24 @@ $$n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~
 
 From there, the annual cycle begins again.
 
+## Table of model parameters
+
+```{r paramtable, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+paramTable <- data.frame(
+  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{1}$", "$\\beta_{2}$", "$\\lambda_{1}$", "$\\lambda_{2}$", "$n_{1}$", "$n_{2}$", "$N_{1}$ or $N^{*}$"),
+  
+  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{1}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{2}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
+  
+  Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
+
+kable(paramTable) %>%
+  kable_styling(bootstrap_options = c("striped"))
+```
+
 # Simulation of the populations
 
 ## Interactive simulation plot
@@ -298,27 +316,6 @@ shinyApp( #to embed shiny app into the html document
     
 ) # end of shiny app
 ```
-
-
-## Table of model parameters
-<details>
-  <summary>Click to show the Parameter Table </summary>
-```{r paramtable, echo=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(knitr)
-library(kableExtra)
-
-paramTable <- data.frame(
-  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{1}$", "$\\beta_{2}$", "$\\lambda_{1}$", "$\\lambda_{2}$", "$n_{1}$", "$n_{2}$", "$N_{1}$ or $N^{*}$"),
-  
-  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{1}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{2}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
-  
-  Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
-
-kable(paramTable) %>%
-  kable_styling(bootstrap_options = c("striped"))
-```
-</details> 
 
 
 # Population equilibirium
