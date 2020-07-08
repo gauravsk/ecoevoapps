@@ -14,10 +14,35 @@ library(purrr)
 library(deSolve)
 library(ecoevoapps)
 library(patchwork)
+library(knitr)
+library(kableExtra)
 ```
 
-```{r}
+```{r, echo = F}
 includeMarkdown("single_population_overview.md")
+```
+
+Here we simulate the growth of a single population with a continuous time model. 
+
+Exponential growth model: 
+$$\frac{dN_i}{dt} = r_iN_i$$
+
+Logistic growth model:  
+$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+
+```{r parameter descriptions, echo = F}
+pars_vars <- c("$r_i$", 
+               "$K_i$", 
+               "$N_i$")
+descriptions <- c("Intrinsic growth rate of Species $i$",
+                 "Carrying capacity of Species $i$",
+                 "Population size of Species $i$")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
 ```
 
 ## Interactive application
