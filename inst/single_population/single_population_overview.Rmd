@@ -1,0 +1,39 @@
+Let us consider the population dynamics of a single species. For simplicity we begin by considering a *closed population*, i.e. one in which there is no immigration or emigration. The population only grows when there are births, and shrinks with deaths. In an exponentially growing population, there is no check on population growth; the birth and death rates remain constant no matter the size of the population. Given that $b$ is the per-capita birth rate, and $d$ is the per-capita death rate, the change in population size $N$ is as follows:
+
+$$\frac{dN}{dT} = bN - dN = (b-d)N$$
+
+Given that $(b-d)$ is a constant that can be expressed simply as $r$, we can write the exponential growth equation as follows:
+
+$$\frac{dN}{dT} = rN$$
+
+The trajectory of a population that is experiencing exponential growth has a characteristic "J" shaped curve when plotting population size against time, with the $r$ term controling the shape of the J. Scroll down to the app to explore how the value of $r$ influences the population tajectory.
+
+### Introducing some limits to population growth
+The exponential growth model above is very straightforward, and predicts that in the long-term, any population experiencing such growth will reach an infinitely large size. Given that populations never grow without limits in nature, we can improve on this model. 
+
+Let us re-examine the assumptions of the exponential growth model-- namely, that there is a per-capita birth rate $b$ and a per-capita death rate $d$ that stays constant at all times. We can simply relax this assumption by examining what happens when the net growth rate ($r$) declines linearly as a population reaches an environmentally-determined carrying capacit ($K$). The dynamics of such a population can be described by the logistic growth equation: 
+
+$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+
+Populations experience logistic growth can grow (i.e., have a positive population growth rate) until the population size is equal to the carrying capacity ($N_i = K_i$). When a population exceeds its carrying capacity, the population will have a negative growth rate, and shrink back to the carrying capacity. 
+
+### Lagged logistic growth 
+
+*Descriptive text to be written*
+
+### Parameter table
+```{r parameter descriptions, echo = F}
+pars_vars <- c("$r_i$", 
+               "$K_i$", 
+               "$N_i$")
+descriptions <- c("Intrinsic growth rate of Species $i$",
+                 "Carrying capacity of Species $i$",
+                 "Population size of Species $i$")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
