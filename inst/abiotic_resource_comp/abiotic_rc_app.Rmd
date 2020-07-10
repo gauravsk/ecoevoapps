@@ -20,19 +20,12 @@ library(ecoevoapps)
 library(patchwork)
 ```
 
-**Resource dynamics equations**  
 
-$$\frac{dR_1}{dt} = a_1(S_1-R_1) - N_1c_{11}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{21}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
-$$\frac{dR_2}{dt} = a_2(S_2-R_2) - N_2c_{12}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{22}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
+```{r}
+includeMarkdown("abiotic_rc_overview.Rmd")
+```
 
-**Consumer dynamics equations**  
-$$\frac{1}{N_1}\frac{dN_1}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{11}} - m_1 ,\frac{r_2R_2}{R_2 + k_{12}} - m_1\right)$$
-
-$$\frac{1}{N_2}\frac{dN_2}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{21}} - m_2 ,\frac{r_2R_2}{R_2 + k_{22}} - m_2\right)$$
-
-
-
-```{r parameter descriptions}
+```{r parameter descriptions, echo = F}
 pars_vars <- c("$N_i$",
                "$R_j$",
                "$r_i$",
@@ -56,7 +49,6 @@ kable(x = param_df, format = "html",
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
-
 
 
 
