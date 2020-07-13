@@ -27,6 +27,39 @@ library(kableExtra)
 
 ```{r consumer resource functions, include=FALSE}
 
+# Nicholson-Bailey Model
+
+# Host equation
+  # description of parameters:
+  # lambda = Reproductive rate of Host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_H <- function(Ht, lambda, a, Pt) Ht*lambda*exp(-a*Pt)
+
+# Parasitoid equation
+  # description of parameters:
+  # c = Number of parasitoid offspring produced per host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_P <- function(Ht, c, a, Pt) Ht*c*(1-exp(-a*Pt))
+
+# NB model
+  
+nb_model <- function(H0, P0, lambda, a, c, t_sim) {
+  return_df <- data.frame(time=integer(t_sim),H=double(t_sim),P=double(t_sim))
+  return_df[,1] <- seq(1:t_sim)
+  return_df[1,2] <- H0
+  return_df[1,3] <- P0
+  for(timestep in 2:t_sim) {
+    Ht <- return_df[timestep-1,2]
+    Pt <- return_df[timestep-1,3]
+    return_df[timestep,2] <- nb_eq_H (Ht, lambda, a, Pt)
+    return_df[timestep,3] <- nb_eq_P (Ht, c, a, Pt)
+  }
+  return(return_df)
+}
+
+
 ## EQUATIONS FOR DESOLVE -------
 # Type I Functional Response
 
@@ -241,30 +274,27 @@ vector_field <- function(sim_df, vector_field_input_data) {
 
 ### Nicholson-Bailey Model (Discrete Time)
 
-This is a classic host-parasitoid model in discrete time
+This is a classic host-parasitoid model in discrete time:
 
-**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
 \[
 \begin{align}
-\frac{dH}{dt} &= rH - aHP\\
+H_{(t+1)} = \lambda H_{t}e^{-aP_t}
 \\
-\frac{dP}{dt} &= eaHP - dP
+P_{(t+1)} = c P_{t}(1-e^{-aP_t})
 \end{align}
 \]
 
 ```{r params nic-bai, echo=F}
 pars_vars <- c("$H$", 
                "$P$", 
-               "$r$", 
+               "$\\lambda$", 
                "$a$", 
-               "$e$", 
-               "$d$")
-descriptions <- c("Population size of the prey",
-                 "Population size of the predator",
-                 "Per capita growth rate of the prey",
-                 "Attack rate of the predator",
-                 "Conversion efficiency of the predator",
-                 "Death rate of the predator")
+               "$c$")
+descriptions <- c("Population size of host",
+                 "Population size of parasitoids",
+                 "Reproductive rate of host",
+                 "Searching efficiency of parasitoids",
+                 "Number of parasidoid offspring produced per host")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
       col.names = c("Parameter/Variable", "Description")) %>%
@@ -272,6 +302,79 @@ kable(x = param_df, format = "html",
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
+
+
+```{r nicholson bailey, echo=FALSE}
+
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## lambda, a, c
+    
+    sliderInput("lambda_nb", label = "Reproductive rate of host", min = 1, max = 10, value = 2),
+    sliderInput("a_nb", label = "Searching efficiency of parasitoid", min = .001, max = 1.0, value = .005),
+    sliderInput("c_nb", label = "Number of parasitoid offspring produced per host", min = 0.1, max = 2, value = 1),
+    
+    ### Ask users for initial conditions -----
+    #N0, P0
+    
+    numericInput("H0_nb", label = "Initial population size of Host", min = 1, value = 300),
+    numericInput("P0_nb", label = "Initial population size of Parasitoid", min = 1, value = 50),
+    
+    ### Ask users for time to simulate ----
+    
+    numericInput("t_nb", label = "Timesteps", min = 1, value = 30)
+
+  ),  
+  
+  mainPanel(renderPlot(plot_nb()),
+            renderPlot(plot_nb_hvp()))
+
+)
+
+#Running the model:
+
+
+# Use the nb_model function above 
+
+out_nb <- reactive({nb_model(input$H0_nb, input$P0_nb, input$lambda_nb, input$a_nb, input$c_nb, input$t_nb)})
+
+
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+
+out_long_nb <- reactive(out_nb() %>%
+  pivot_longer(-time, names_to = "Population", values_to = "Count"))
+
+# Plots ------
+
+## make abundance thru time plot
+
+plot_nb <-reactive({ggplot(out_long_nb()) +
+  geom_line(aes(x=time, y= Count, col= Population), size= 1)+
+  geom_point(aes(x=time, y=Count, col=Population))+
+  xlab("Time")+
+  ylab("Population size")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+plot_nb_hvp <-reactive({ggplot(out_nb()) +
+  geom_path(aes(x=H, y= P), size= 1)+
+  xlab("Number of Hosts")+
+  ylab("Number of Parasitoids")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+
+```
+
+
+
+
+
 
 ### Intraguild Predation
 
