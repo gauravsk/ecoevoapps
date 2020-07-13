@@ -60,6 +60,40 @@ nb_model <- function(H0, P0, lambda, a, c, t_sim) {
 }
 
 
+#Nicholson - Bailey Model with Density Dependence:
+
+#Host equation
+  # description of parameters:
+  # lambda = Reproductive rate of Host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_H_d <- function(Ht, r, K, a, Pt) Ht*exp((r*(1-Ht/K))-a*Pt)
+
+#Parasitoid equation
+  # description of parameters:
+  # c = Number of parasitoid offspring produced per host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_P_d <-function(Ht, a, c, Pt) c*Ht*(1-exp(-a*Pt))
+
+#NB model
+  
+nb_model_d <- function(H0, P0, r, K, a, c, t_sim) {
+  return_df_d <- data.frame(time=integer(t_sim),H=double(t_sim),P=double(t_sim))
+  return_df_d[,1] <- seq(1:t_sim)
+  return_df_d[1,2] <- H0
+  return_df_d[1,3] <- P0
+  for(timestep in 2:t_sim) {
+    Ht <- return_df_d[timestep-1,2]
+    Pt <- return_df_d[timestep-1,3]
+    return_df_d[timestep,2] <- nb_eq_H_d (Ht, r, K, a, Pt)
+    return_df_d[timestep,3] <- nb_eq_P_d (Ht, a, c, Pt)
+  }
+  return(return_df_d)
+}
+
+
+
 ## EQUATIONS FOR DESOLVE -------
 # Type I Functional Response
 
@@ -280,7 +314,7 @@ This is a classic host-parasitoid model in discrete time:
 \begin{align}
 H_{(t+1)} = \lambda H_{t}e^{-aP_t}
 \\
-P_{(t+1)} = c P_{t}(1-e^{-aP_t})
+P_{(t+1)} = c H_{t}(1-e^{-aP_t})
 \end{align}
 \]
 
@@ -371,7 +405,105 @@ plot_nb_hvp <-reactive({ggplot(out_nb()) +
 
 ```
 
+### Nicholson-Bailey Model with density dependence
 
+This is a classic host-parasitoid model in discrete time:
+
+\[
+\begin{align}
+H_{(t+1)} = H_{t}e^{r(1-H_t/K)-aP_t}
+\\
+P_{(t+1)} = c H_{t}(1-e^{-aP_t})
+\end{align}
+\]
+
+```{r params nic-bai-d, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$",
+               "$K$",
+               "$a$", 
+               "$c$")
+descriptions <- c("Population size of host",
+                 "Population size of parasitoids",
+                 "Intrinsic growth rate of host",
+                 "Carrying capacity of host",
+                 "Searching efficiency of parasitoids",
+                 "Number of parasidoid offspring produced per host")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r NB density dependence, echo=FALSE}
+
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, K, a,c 
+    
+    sliderInput("r_nbd", label = "Intrinsic growth rate of host", min = 0.001, max = 1, value = 0.8),
+    numericInput("K_nbd", label = "Carrying capacity of host", min = 1, value = 3),
+    sliderInput("a_nbd", label = "Searching efficiency of parasitoid", min = 0.001, max = 1, value = 1.0),
+    sliderInput("c_nbd", label = "Number of parasitoid offspring produced per host", min = 0.1, max = 3, value = 1.0),
+    
+    ### Ask users for initial conditions -----
+    #N0, P0
+    
+    numericInput("H0_nbd", label = "Initial population size of Host", min = 1, value = 3),
+    numericInput("P0_nbd", label = "Initial population size of Parasitoid", min = 1, value = 1),
+    
+    ### Ask users for time to simulate ----
+    
+    numericInput("t_nbd", label = "Timesteps", min = 1, value = 80)
+
+  ),  
+  
+  mainPanel(renderPlot(plot_nbd()),
+            renderPlot(plot_nbd_hvp()))
+
+)
+
+#Running the model:
+
+# Use the nb_model function above 
+
+out_nbd <- reactive({nb_model_d(input$H0_nbd, input$P0_nbd, input$r_nbd, input$K_nbd, input$a_nbd, input$c_nbd, input$t_nbd)})
+
+
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+
+out_long_nbd <- reactive(out_nbd() %>%
+  pivot_longer(-time, names_to = "Population", values_to = "Count"))
+
+# Plots ------
+
+## make abundance thru time plot
+
+plot_nbd <-reactive({ggplot(out_long_nbd()) +
+  geom_line(aes(x=time, y= Count, col= Population), size= 1)+
+  geom_point(aes(x=time, y=Count, col=Population))+
+  xlab("Time")+
+  ylab("Population size")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+plot_nbd_hvp <-reactive({ggplot(out_nbd()) +
+  geom_path(aes(x=H, y= P), size= 1)+
+  xlab("Number of Hosts")+
+  ylab("Number of Parasitoids")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+```
 
 
 
