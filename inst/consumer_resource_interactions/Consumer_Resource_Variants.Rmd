@@ -1,0 +1,575 @@
+---
+title: "Additional Consumer Resource Scenarios"
+author: "Madeline Cowen"
+date: "July 6, 2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+library(kableExtra)
+```
+
+
+## Consumer-Resource Variants and Scenarios {.tabset}
+
+
+
+```{r consumer resource functions, include=FALSE}
+
+# Nicholson-Bailey Model
+
+# Host equation
+  # description of parameters:
+  # lambda = Reproductive rate of Host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_H <- function(Ht, lambda, a, Pt) Ht*lambda*exp(-a*Pt)
+
+# Parasitoid equation
+  # description of parameters:
+  # c = Number of parasitoid offspring produced per host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_P <- function(Ht, c, a, Pt) Ht*c*(1-exp(-a*Pt))
+
+# NB model
+  
+nb_model <- function(H0, P0, lambda, a, c, t_sim) {
+  return_df <- data.frame(time=integer(t_sim),H=double(t_sim),P=double(t_sim))
+  return_df[,1] <- seq(1:t_sim)
+  return_df[1,2] <- H0
+  return_df[1,3] <- P0
+  for(timestep in 2:t_sim) {
+    Ht <- return_df[timestep-1,2]
+    Pt <- return_df[timestep-1,3]
+    return_df[timestep,2] <- nb_eq_H (Ht, lambda, a, Pt)
+    return_df[timestep,3] <- nb_eq_P (Ht, c, a, Pt)
+  }
+  return(return_df)
+}
+
+
+#Nicholson - Bailey Model with Density Dependence:
+
+#Host equation
+  # description of parameters:
+  # lambda = Reproductive rate of Host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_H_d <- function(Ht, r, K, a, Pt) Ht*exp((r*(1-Ht/K))-a*Pt)
+
+#Parasitoid equation
+  # description of parameters:
+  # c = Number of parasitoid offspring produced per host
+  # a = searching efficiency of Parasitoid
+
+nb_eq_P_d <-function(Ht, a, c, Pt) c*Ht*(1-exp(-a*Pt))
+
+#NB model
+  
+nb_model_d <- function(H0, P0, r, K, a, c, t_sim) {
+  return_df_d <- data.frame(time=integer(t_sim),H=double(t_sim),P=double(t_sim))
+  return_df_d[,1] <- seq(1:t_sim)
+  return_df_d[1,2] <- H0
+  return_df_d[1,3] <- P0
+  for(timestep in 2:t_sim) {
+    Ht <- return_df_d[timestep-1,2]
+    Pt <- return_df_d[timestep-1,3]
+    return_df_d[timestep,2] <- nb_eq_H_d (Ht, r, K, a, Pt)
+    return_df_d[timestep,3] <- nb_eq_P_d (Ht, a, c, Pt)
+  }
+  return(return_df_d)
+}
+
+
+
+## EQUATIONS FOR DESOLVE -------
+# Type I Functional Response
+
+lv_pred1 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Logistic prey
+
+logprey <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation <-function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+    
+  })
+}
+
+## EQ FOR SINGLE TIMESTEP CALCULATIONS -------
+
+# exponential growth, type I
+lv_pred1_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Logistic prey
+
+logprey_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2_eq <- function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation_eq <-function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+    
+  })
+}
+
+## make function to generate data for vector field/phase plane -------
+
+vector_field_input <- function(sim_df, eq_func, pars_for_eq_func, vec_density = 20) {
+
+  # INPUTS
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # eq_func is the function with the system of equations that calculate dH and dP for one time step
+  # pars_for_eq_func is the vector of named parameters to use in the eq_func
+  # vec_density determines the number of arrows (vec_density^2)
+
+  # OUTPUT:
+  # a df with Hstart, Hend, Pstart, Pend (and dH, dP) for drawing vectors
+
+  # BODY:
+  # add error checks here
+
+  # determine the min and max of the number of prey and predators
+  lowH <- round(min(sim_df$H), 0)
+  hiH <- round(max(sim_df$H), 0)
+  lowP <- round(min(sim_df$P), 0)
+  hiP <- round(max(sim_df$P), 0)
+
+  # select a sequence of points between (and a little beyond) those values
+  seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
+  seqP <- seq(0.9*lowP, 1.4*hiP, length.out = vec_density)
+
+  # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
+  hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+
+  # use those values to solve dP and dH and calculate pend and hend
+  hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, eq_func, pars_for_eq_func))
+  hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+
+  return(hpcoords)
+}
+
+
+# function to make the vector field with ggplot ------
+vector_field <- function(sim_df, vector_field_input_data) {
+
+  # INPUT
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # vector_field_input_data has the output from vector_field_input, which is a list of start and end coordinates for each vector segment
+
+  # OUTPUT
+  # is a ggplot
+
+  ggplot(sim_df) +
+
+    # vector field
+    geom_segment(data = vector_field_input_data,
+                 aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
+                 arrow = arrow(length = unit(0.02, "npc")),
+                 color = "light gray")
+
+}
+
+
+```
+
+### Nicholson-Bailey Model (Discrete Time)
+
+This is a classic host-parasitoid model in discrete time:
+
+\[
+\begin{align}
+H_{(t+1)} = \lambda H_{t}e^{-aP_t}
+\\
+P_{(t+1)} = c H_{t}(1-e^{-aP_t})
+\end{align}
+\]
+
+```{r params nic-bai, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$\\lambda$", 
+               "$a$", 
+               "$c$")
+descriptions <- c("Population size of host",
+                 "Population size of parasitoids",
+                 "Reproductive rate of host",
+                 "Searching efficiency of parasitoids",
+                 "Number of parasidoid offspring produced per host")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r nicholson bailey, echo=FALSE}
+
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## lambda, a, c
+    
+    sliderInput("lambda_nb", label = "Reproductive rate of host", min = 1, max = 10, value = 2),
+    sliderInput("a_nb", label = "Searching efficiency of parasitoid", min = .001, max = 1.0, value = .005),
+    sliderInput("c_nb", label = "Number of parasitoid offspring produced per host", min = 0.1, max = 2, value = 1),
+    
+    ### Ask users for initial conditions -----
+    #N0, P0
+    
+    numericInput("H0_nb", label = "Initial population size of Host", min = 1, value = 300),
+    numericInput("P0_nb", label = "Initial population size of Parasitoid", min = 1, value = 50),
+    
+    ### Ask users for time to simulate ----
+    
+    numericInput("t_nb", label = "Timesteps", min = 1, value = 30)
+
+  ),  
+  
+  mainPanel(renderPlot(plot_nb()),
+            renderPlot(plot_nb_hvp()))
+
+)
+
+#Running the model:
+
+
+# Use the nb_model function above 
+
+out_nb <- reactive({nb_model(input$H0_nb, input$P0_nb, input$lambda_nb, input$a_nb, input$c_nb, input$t_nb)})
+
+
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+
+out_long_nb <- reactive(out_nb() %>%
+  pivot_longer(-time, names_to = "Population", values_to = "Count"))
+
+# Plots ------
+
+## make abundance thru time plot
+
+plot_nb <-reactive({ggplot(out_long_nb()) +
+  geom_line(aes(x=time, y= Count, col= Population), size= 1)+
+  geom_point(aes(x=time, y=Count, col=Population))+
+  xlab("Time")+
+  ylab("Population size")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+plot_nb_hvp <-reactive({ggplot(out_nb()) +
+  geom_path(aes(x=H, y= P), size= 1)+
+  xlab("Number of Hosts")+
+  ylab("Number of Parasitoids")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+
+```
+
+### Nicholson-Bailey Model with density dependence
+
+This is a classic host-parasitoid model in discrete time:
+
+\[
+\begin{align}
+H_{(t+1)} = H_{t}e^{r(1-H_t/K)-aP_t}
+\\
+P_{(t+1)} = c H_{t}(1-e^{-aP_t})
+\end{align}
+\]
+
+```{r params nic-bai-d, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$",
+               "$K$",
+               "$a$", 
+               "$c$")
+descriptions <- c("Population size of host",
+                 "Population size of parasitoids",
+                 "Intrinsic growth rate of host",
+                 "Carrying capacity of host",
+                 "Searching efficiency of parasitoids",
+                 "Number of parasidoid offspring produced per host")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r NB density dependence, echo=FALSE}
+
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, K, a,c 
+    
+    sliderInput("r_nbd", label = "Intrinsic growth rate of host", min = 0.001, max = 1, value = 0.8),
+    numericInput("K_nbd", label = "Carrying capacity of host", min = 1, value = 3),
+    sliderInput("a_nbd", label = "Searching efficiency of parasitoid", min = 0.001, max = 1, value = 1.0),
+    sliderInput("c_nbd", label = "Number of parasitoid offspring produced per host", min = 0.1, max = 3, value = 1.0),
+    
+    ### Ask users for initial conditions -----
+    #N0, P0
+    
+    numericInput("H0_nbd", label = "Initial population size of Host", min = 1, value = 3),
+    numericInput("P0_nbd", label = "Initial population size of Parasitoid", min = 1, value = 1),
+    
+    ### Ask users for time to simulate ----
+    
+    numericInput("t_nbd", label = "Timesteps", min = 1, value = 80)
+
+  ),  
+  
+  mainPanel(renderPlot(plot_nbd()),
+            renderPlot(plot_nbd_hvp()))
+
+)
+
+#Running the model:
+
+# Use the nb_model function above 
+
+out_nbd <- reactive({nb_model_d(input$H0_nbd, input$P0_nbd, input$r_nbd, input$K_nbd, input$a_nbd, input$c_nbd, input$t_nbd)})
+
+
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+
+out_long_nbd <- reactive(out_nbd() %>%
+  pivot_longer(-time, names_to = "Population", values_to = "Count"))
+
+# Plots ------
+
+## make abundance thru time plot
+
+plot_nbd <-reactive({ggplot(out_long_nbd()) +
+  geom_line(aes(x=time, y= Count, col= Population), size= 1)+
+  geom_point(aes(x=time, y=Count, col=Population))+
+  xlab("Time")+
+  ylab("Population size")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+plot_nbd_hvp <-reactive({ggplot(out_nbd()) +
+  geom_path(aes(x=H, y= P), size= 1)+
+  xlab("Number of Hosts")+
+  ylab("Number of Parasitoids")+
+  scale_color_brewer(palette = "Set1")+
+  ecoevoapps::theme_apps()})
+
+```
+
+
+
+
+### Intraguild Predation
+
+Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
+
+**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params intraguild-pred, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+### Apparent Competition
+
+**NOT THE CORRECT EQUATIONS, jUST LEAVING THEM HERE AS PLACEHOLDER**
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params apparent-comp, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  

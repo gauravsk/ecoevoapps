@@ -15,7 +15,7 @@ runtime: shiny
 ---
 <div style="margin-bottom:10%;">
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 </div>
 

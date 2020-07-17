@@ -1,0 +1,1228 @@
+---
+title: "Consumer-Resource Dynamics"
+author: "Madeline Cowen and Rosa M. McGuire"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+library(kableExtra)
+```
+
+
+## Consumer-Resource Dynamics in Continuous Time {.tabset}
+
+Consumer-resource models can model the interactions of predator-prey, parasitoid-host, herbivore-plant, etc. Here we refer to the resource as prey and the consumer as predator.
+
+```{r consumer resource functions, include=FALSE}
+
+## EQUATIONS FOR DESOLVE -------
+# Type I Functional Response
+
+lv_pred1 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Logistic prey
+
+logprey <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2 <- function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation <-function(time,init,pars) {
+  with (as.list(c(time,init,pars)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(list(c(dH = dH_dt, dP = dP_dt)))
+    
+  })
+}
+
+## EQ FOR SINGLE TIMESTEP CALCULATIONS -------
+
+# exponential growth, type I
+lv_pred1_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Logistic prey
+
+logprey_eq <- function(H, P, pars) {
+  
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+    # K = carrying capacity of the prey
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Type II Functional Response
+
+lv_pred2_eq <- function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  
+  })
+}
+
+# Rosenzweig-MacArthur Model
+
+rm_predation_eq <-function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+    
+  })
+}
+
+## make function to generate data for vector field/phase plane -------
+
+vector_field_input <- function(sim_df, eq_func, pars_for_eq_func, vec_density = 20) {
+
+  # INPUTS
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # eq_func is the function with the system of equations that calculate dH and dP for one time step
+  # pars_for_eq_func is the vector of named parameters to use in the eq_func
+  # vec_density determines the number of arrows (vec_density^2)
+
+  # OUTPUT:
+  # a df with Hstart, Hend, Pstart, Pend (and dH, dP) for drawing vectors
+
+  # BODY:
+  # add error checks here
+
+  # determine the min and max of the number of prey and predators
+  lowH <- round(min(sim_df$H), 0)
+  hiH <- round(max(sim_df$H), 0)
+  lowP <- round(min(sim_df$P), 0)
+  hiP <- round(max(sim_df$P), 0)
+
+  # select a sequence of points between (and a little beyond) those values
+  seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
+  seqP <- seq(0.9*lowP, 1.4*hiP, length.out = vec_density)
+
+  # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
+  hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+
+  # use those values to solve dP and dH and calculate pend and hend
+  hpcoords <- bind_cols(hpcoords, map2_df(hpcoords$Hstart, hpcoords$Pstart, eq_func, pars_for_eq_func))
+  hpcoords <- hpcoords %>% mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+
+  return(hpcoords)
+}
+
+
+# function to make the vector field with ggplot ------
+vector_field <- function(sim_df, vector_field_input_data) {
+
+  # INPUT
+  # sim_df is a df with the simulated values of H & P in separate columns
+  # vector_field_input_data has the output from vector_field_input, which is a list of start and end coordinates for each vector segment
+
+  # OUTPUT
+  # is a ggplot
+
+  ggplot(sim_df) +
+
+    # vector field
+    geom_segment(data = vector_field_input_data,
+                 aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
+                 arrow = arrow(length = unit(0.02, "npc")),
+                 color = "light gray")
+
+}
+
+
+```
+
+### Type I Functional Response
+
+Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params type 1, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\\
+\\
+H^* &= \frac{d}{ea} 
+\end{align}
+\]
+
+
+```{r type 1 pred prey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_lv_pred1", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred1", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
+    sliderInput("e_lv_pred1", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.2),
+    sliderInput("d_lv_pred1", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_lv_pred1", label = "Initial population size of Prey", min = 1, value = 10),
+    numericInput("P_lv_pred1", label = "Initial population size of Predator", min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    
+    
+    numericInput("t_lv_pred1", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred1", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred1()),
+            renderPlot(np_lvpred1())
+            # renderPlot(dabund_plot_lv_pred1())
+            )
+
+)
+
+ # Set the initial population sizes
+
+init_lv_pred1 <- reactive({c(H = input$H_lv_pred1 , P = input$P_lv_pred1)})
+
+# Set the parameter values
+
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+
+pars_lv_pred1 <- reactive({c(r = input$r_lv_pred1, a = input$a_lv_pred1 , e = input$e_lv_pred1, d = input$d_lv_pred1)})
+
+# Time over which to simulate model dynamics
+time_lv_pred1 <- reactive({seq(0, input$t_lv_pred1, by = .1)})
+
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out_lv_pred1 <- reactive({data.frame(deSolve::ode(func = lv_pred1, 
+                                                  y = init_lv_pred1(), parms = pars_lv_pred1(), times = time_lv_pred1()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long_lv_pred1 <- reactive({pivot_longer(out_lv_pred1(), c(H,P), "Population")})
+
+
+# Plots ------
+
+## make abundance thru time plot
+plot_lvpred1 <- reactive({ggplot(out_long_lv_pred1()) + 
+                             geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+                             scale_color_brewer(palette = "Set1") +
+                             ylab("Population size") + 
+    ecoevoapps::theme_apps()})
+
+## make isocline plot and add vector field depending on user input
+vec_input_lv_pred1 <- reactive({vector_field_input(sim_df = out_lv_pred1(), eq_func = lv_pred1_eq, pars_for_eq_func = pars_lv_pred1())})
+
+np_lvpred1 <- reactive({
+  
+  if("Yes" %in% input$vectors_lv_pred1) {
+    vector_field(out_lv_pred1(), vec_input_lv_pred1()) +
+      
+      # the isoclines
+      geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      
+      # the trace of the simulation and arrow for direction of the trace
+      geom_path(aes(x = H, y = P), size = 2) +
+      geom_segment(x = out_lv_pred1()$H[min(5, round(length(time_lv_pred1()))/50)], #did this min thing in case someone asks for very few timesteps
+                   y = out_lv_pred1()$P[min(5, round(length(time_lv_pred1()))/50)],
+                   xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   arrow = arrow(length = unit(0.1, "npc")),
+                   cex = 2) +
+      
+      # plot appearance
+      xlab("Number of Prey") +
+      ylab("Number of Predators") +
+      coord_cartesian(xlim = c(min(out_lv_pred1()$H), max(out_lv_pred1()$H) + 1), ylim = c(min(out_lv_pred1()$P), max(out_lv_pred1()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+      ecoevoapps::theme_apps()
+    
+  } else {
+    
+    ggplot(out_lv_pred1()) +
+      # the isoclines
+      geom_hline(yintercept = input$r_lv_pred1/input$a_lv_pred1, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = input$d_lv_pred1/(input$e_lv_pred1*input$a_lv_pred1), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      
+      # the trace of the simulation and arrow for direction of the trace
+      geom_path(aes(x = H, y = P), size = 2) +
+      geom_segment(x = out_lv_pred1()$H[min(5, round(length(time_lv_pred1()))/50)], #did this min thing in case someone asks for very few timesteps
+                   y = out_lv_pred1()$P[min(5, round(length(time_lv_pred1()))/50)],
+                   xend = out_lv_pred1()$H[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   yend = out_lv_pred1()$P[min(5 + 1, round(length(time_lv_pred1())/50) + 1)],
+                   arrow = arrow(length = unit(0.1, "npc")),
+                   cex = 2) +
+      
+      # plot appearance
+      xlab("Number of Prey") +
+      ylab("Number of Predators") +
+      coord_cartesian(xlim = c(min(out_lv_pred1()$H), max(out_lv_pred1()$H) + 1), ylim = c(min(out_lv_pred1()$P), max(out_lv_pred1()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+      ecoevoapps::theme_apps()
+  }
+  
+})
+
+
+# 
+# pop_out_lv_pred1 <- reactive({
+#   pop_out <- out_lv_pred1()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_lv_pred1 <- reactive({ pop_out_lv_pred1() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_lv_pred1 <- reactive({ ggplot(pop_out_long_lv_pred1()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+
+   
+```
+
+### Logistic Prey
+ 
+Equations describing prey that grows logistically and predators that consume the prey following a Type I functional response:
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params logistic growth, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of predator",
+                 "Conversion efficiency of predator",
+                 "Death rate of predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+\\
+H^* &= \frac{d}{ea} \\
+\end{align}
+\]
+
+```{r logprey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, e, d, K
+    
+    sliderInput("r_logprey", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
+    numericInput("K_logprey", label = "Carrying capacity of Prey", min = 1, value = 100),
+    sliderInput("a_logprey", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
+    sliderInput("e_logprey", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.5),
+    sliderInput("d_logprey", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_logprey", label = "Initial population size of Prey", min = 1, value = 10),
+    numericInput("P_logprey", label = "Initial population size of Predator", min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    
+    
+    numericInput("t_logprey", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_logprey", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_logprey()), 
+            renderPlot(np_logprey())
+            # renderPlot(dabund_plot_logprey())
+            )
+  
+  #mainPanel(renderPlot(lvpred2_np()))
+)
+
+ # Set the initial population sizes
+
+init_logprey <- reactive({c(H = input$H_logprey, P = input$P_logprey)})
+
+# Set the parameter values
+
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # K = carrying capacity of prey
+    # a = attack rate 
+    # e = conversion efficiency
+    # d = predator death rate 
+
+pars_logprey <- reactive({c(r = input$r_logprey, K = input$K_logprey, a = input$a_logprey, e = input$e_logprey, d = input$d_logprey)})
+
+# Time over which to simulate model dynamics
+time_logprey <- reactive({seq(0, input$t_logprey, by = .1)})
+
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out_logprey <- reactive({data.frame(deSolve::ode(func = logprey, y = init_logprey(), parms = pars_logprey(), times = time_logprey()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long_logprey <- reactive({pivot_longer(out_logprey(), c(H,P), "Population")})
+
+
+# Plots ------
+
+## make abundance thru time plot
+plot_logprey <- reactive({ggplot(out_long_logprey()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+  ecoevoapps::theme_apps()})
+
+## make isocline plot and add vector field depending on user input
+vec_input_logprey <- reactive({vector_field_input(sim_df = out_logprey(), eq_func = logprey_eq, pars_for_eq_func = pars_logprey(), vec_density = 15)})
+
+np_logprey <- reactive({
+  
+  if("Yes" %in% input$vectors_logprey) {
+  vector_field(out_logprey(), vec_input_logprey()) +
+    
+    # the isoclines
+    geom_abline(intercept = input$r_logprey/input$a_logprey, 
+                slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), 
+                col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), 
+               col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_logprey()$H[min(5, round(length(time_logprey()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_logprey()$P[min(5, round(length(time_logprey()))/50)],
+                 xend = out_logprey()$H[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 yend = out_logprey()$P[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_logprey()$H), max(out_logprey()$H) + 1), ylim = c(min(out_logprey()$P), max(out_logprey()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  } else {
+    
+    ggplot(out_logprey()) +
+    # the isoclines
+    geom_abline(intercept = input$r_logprey/input$a_logprey, 
+                slope = (-1 * input$r_logprey)/(input$a_logprey * input$K_logprey), 
+                col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_logprey/(input$e_logprey*input$a_logprey), 
+               col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_logprey()$H[min(5, round(length(time_logprey()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_logprey()$P[min(5, round(length(time_logprey()))/50)],
+                 xend = out_logprey()$H[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 yend = out_logprey()$P[min(5 + 1, round(length(time_logprey())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_logprey()$H), max(out_logprey()$H) + 1), ylim = c(min(out_logprey()$P), max(out_logprey()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+  }
+  
+})
+
+# pop_out_logprey <- reactive({
+#   pop_out <- out_logprey()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_logprey <- reactive({ pop_out_logprey() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_logprey <- reactive({ ggplot(pop_out_long_logprey()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+   
+```
+
+### Type II Functional Response
+
+Equations describing prey that grows exponentially and predators that consume the prey following a Type II functional response:
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - \frac{aH}{1+aT_hH} P\\
+\\
+\frac{dP}{dt} &= eP \frac{aH}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params type ii, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{align}
+P^* &= \frac{r}{a} +rT_hH\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r eruptions, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_lv_pred2", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred2", label = "Predator attack rate", min = .001, max = 1.0, value = .1),
+    sliderInput("T_h_lv_pred2", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.2),
+    sliderInput("e_lv_pred2", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.7),
+    sliderInput("d_lv_pred2", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .3),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_lv_pred2", label = "Initial population size of Prey", min = 1, value = 10),
+    numericInput("P_lv_pred2", label = "Initial population size of Predator", min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    
+    
+    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred2", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred2()),
+            renderPlot(np_lvpred2())
+            # renderPlot(dabund_plot_lv_pred2())
+            )
+  
+
+)
+
+ # Set the initial population sizes
+
+init_lv_pred2 <- reactive({c(H = input$H_lv_pred2 , P = input$P_lv_pred2)})
+
+# Set the parameter values
+
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+
+pars_lv_pred2 <- reactive({c(r = input$r_lv_pred2, a = input$a_lv_pred2 , T_h = input$T_h_lv_pred2 , e = input$e_lv_pred2 , d = input$d_lv_pred2 )})
+
+# Time over which to simulate model dynamics
+time_lv_pred2 <- reactive({seq(0,input$t_lv_pred2,by = .1)})
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out_lv_pred2 <- reactive({data.frame(deSolve::ode(func = lv_pred2, y = init_lv_pred2(), parms = pars_lv_pred2(), times = time_lv_pred2()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long_lv_pred2 <- reactive({pivot_longer(out_lv_pred2(), c(H,P), "Population")})
+
+
+# Plots ------
+
+## make abundance thru time plot
+plot_lvpred2 <- reactive({ggplot(out_long_lv_pred2()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+  ecoevoapps::theme_apps()})
+
+## make isocline plot and add vector field depending on user input
+vec_input_lv_pred2 <- reactive({vector_field_input(sim_df = out_lv_pred2(), eq_func = lv_pred2_eq, pars_for_eq_func = pars_lv_pred2())})
+
+np_lvpred2 <- reactive({
+  
+  if("Yes" %in% input$vectors_lv_pred2) {
+  vector_field(out_lv_pred2(), vec_input_lv_pred2()) +
+    
+    # the isoclines
+    geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_lv_pred2()$H[min(5, round(length(time_lv_pred2()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_lv_pred2()$P[min(5, round(length(time_lv_pred2()))/50)],
+                 xend = out_lv_pred2()$H[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 yend = out_lv_pred2()$P[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_lv_pred2()$H), max(out_lv_pred2()$H) + 1), ylim = c(min(out_lv_pred2()$P), max(out_lv_pred2()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  } else {
+    
+    ggplot(out_lv_pred2()) +
+    # the isoclines
+    geom_abline(intercept = input$r_lv_pred2/input$a_lv_pred2, slope = input$r_lv_pred2*input$T_h_lv_pred2, col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_lv_pred2/(input$e_lv_pred2*input$a_lv_pred2 - input$a_lv_pred2*input$d_lv_pred2*input$T_h_lv_pred2), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_lv_pred2()$H[min(5, round(length(time_lv_pred2()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_lv_pred2()$P[min(5, round(length(time_lv_pred2()))/50)],
+                 xend = out_lv_pred2()$H[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 yend = out_lv_pred2()$P[min(5 + 1, round(length(time_lv_pred2())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_lv_pred2()$H), max(out_lv_pred2()$H) + 1), ylim = c(min(out_lv_pred2()$P), max(out_lv_pred2()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  }
+  
+})
+
+
+# pop_out_lv_pred2 <- reactive({
+#   pop_out <- out_lv_pred2()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_lv_pred2 <- reactive({ pop_out_lv_pred2() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_lv_pred2 <- reactive({ ggplot(pop_out_long_lv_pred2()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+   
+```
+
+### Rosenzweig-MacArthur Model 
+
+Equations describing prey that grows logistically and predators that consume the prey following a Type II functional response:
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
+\\
+\frac{dP}{dt} &= e \frac{aHP}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params rosen-mac, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Equations for the zero net growth isoclines:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r rosenzweig-macarthur, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_rm", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
+    numericInput("K_rm", label = "Prey carrying capacity", min = 1, value = 150),
+    sliderInput("a_rm", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("T_h_rm", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.3),
+    sliderInput("e_rm", label = "Predator conversion efficiency", min = .001, max = 1.0, value = 0.6),
+    sliderInput("d_rm", label = "Per capita death rate of Predator", min = .0001, max = 1.0, value = .4),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_rm", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("P_rm", label = "Initial population size of Predator", min = 1, value = 25),
+    
+    ### Ask users for time to simulate ----
+    
+    
+    numericInput("t_rm", label = "Timesteps", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_rm", label = "Display vector field?", choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_rm()),
+            renderPlot(np_rm())
+            # renderPlot(dabund_plot_rm())
+            )
+  
+  #mainPanel(renderPlot(lvpred2_np()))
+)
+
+ # Set the initial population sizes
+
+init_rm <- reactive({c(H = input$H_rm , P = input$P_rm)})
+
+# Set the parameter values
+
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+
+pars_rm <- reactive({c(r = input$r_rm, K = input$K_rm, a = input$a_rm , T_h = input$T_h_rm , e = input$e_rm , d = input$d_rm )})
+
+# Time over which to simulate model dynamics
+time_rm <- reactive({seq(0,input$t_rm,by = .1)})
+
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out_rm <- reactive({data.frame(deSolve::ode(func = rm_predation, y = init_rm(), parms = pars_rm(), times = time_rm()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long_rm <- reactive({pivot_longer(out_rm(), c(H,P), "Population")})
+
+
+# Plots ------
+
+## make abundance thru time plot
+plot_rm <- reactive({ggplot(out_long_rm()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") + 
+  ecoevoapps::theme_apps()})
+
+## make isocline plot and add vector field depending on user input
+vec_input_rm <- reactive({vector_field_input(sim_df = out_rm(), eq_func = rm_predation_eq, pars_for_eq_func = pars_rm())})
+
+np_rm <- reactive({
+  
+  if("Yes" %in% input$vectors_rm) {
+  vector_field(out_rm(), vec_input_rm()) +
+    
+    # the isoclines
+    stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_rm()$H[min(5, round(length(time_rm()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_rm()$P[min(5, round(length(time_rm()))/50)],
+                 xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_rm()$H), max(out_rm()$H) + 1), ylim = c(min(out_rm()$P), max(out_rm()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+  
+  } else {
+    
+    ggplot(out_rm()) +
+    # the isoclines
+    stat_function(fun = function(x) (input$r_rm/input$a_rm)*(1 - x/input$K_rm)*(1 + input$a_rm * input$T_h_rm * x), col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+    geom_vline(xintercept = input$d_rm/(input$e_rm*input$a_rm - input$a_rm*input$d_rm*input$T_h_rm), col = brewer.pal(n = 3, name = "Set1")[2], size = 2) + 
+    
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(aes(x = H, y = P), size = 2) +
+    geom_segment(x = out_rm()$H[min(5, round(length(time_rm()))/50)], #did this min thing in case someone asks for very few timesteps
+                 y = out_rm()$P[min(5, round(length(time_rm()))/50)],
+                 xend = out_rm()$H[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 yend = out_rm()$P[min(5 + 1, round(length(time_rm())/50) + 1)],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+    
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(out_rm()$H), max(out_rm()$H) + 1), ylim = c(min(out_rm()$P), max(out_rm()$P) + 1)) + #need this line to show all vectors that go beyond plot limits
+    ecoevoapps::theme_apps()
+    
+  }
+  
+})
+
+
+# pop_out_rm <- reactive({
+#   pop_out <- out_rm()
+#   pop_out$dH <- c(NA, diff(pop_out$H))
+#   pop_out$dP <- c(NA, diff(pop_out$P))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
+#   pop_out
+# })
+# 
+# pop_out_long_rm <- reactive({ pop_out_rm() %>%
+#   select(time, pgrH, pgrP) %>%
+#   pivot_longer(c(pgrH, pgrP), "group") %>%
+#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
+# })
+# 
+# 
+# # Plot dS, dI, dR over time
+# dabund_plot_rm <- reactive({ ggplot(pop_out_long_rm()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") +
+#     ecoevoapps::theme_apps()
+# })
+   
+```
+
+## Consumer Functional Response {.tabset}
+
+Represents the relationship between consumer intake rate as a function of resource density
+
+```{r functional response functions, echo=FALSE}
+
+
+type1_fr <- function (H_init, H_final, a){
+  to_return <- c(a*(H_init:H_final))
+  return(to_return)
+}
+
+type2_fr <- function (H_init, H_final, a, Th){
+  to_return <- c((a*(H_init:H_final)/(1+a*Th*(H_init:H_final))))
+  return(to_return)
+}
+
+```
+
+### Type I
+
+Linear increase in intake rate with resource density, as shown by the equation:
+
+
+\begin{align}
+
+f(H) = aH
+
+\end{align}
+
+
+```{r params type 1 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 1 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a
+    
+    sliderInput("a_fr_type1", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type1", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("H_final_fr_type1", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type1())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type1 <- reactive({type1_fr(H_init = input$H_init_fr_type1, 
+                                   H_final = input$H_final_fr_type1,
+                                   a = input$a_fr_type1)})
+
+type1_fr_df <- reactive({data.frame(H = input$H_init_fr_type1:input$H_final_fr_type1,
+                                    f_rate = out_fr_type1())})
+
+#Plot
+
+plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
+                            ylim(0,50)+
+                            ecoevoapps::theme_apps()})
+   
+```
+
+### Type II
+
+Decelerating intake rate, where the plateau represents consumer saturation:
+
+
+\begin{align}
+
+g(H) = \frac {aH}{1+aT_hH}
+
+\end{align}
+
+
+```{r params type 2 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$", 
+               "$T_h$")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 2 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a, Th
+    
+    sliderInput("a_fr_type2", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("T_h_fr_type2", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.3),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type2", label = "Initial population size of Prey", min = 1, value = 30),
+    numericInput("H_final_fr_type2", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type2())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type2 <- reactive({type2_fr(H_init = input$H_init_fr_type2, 
+                                   H_final = input$H_final_fr_type2,
+                                   a = input$a_fr_type2,
+                                   Th = input$T_h_fr_type2)})
+
+type2_fr_df <- reactive({data.frame(H = input$H_init_fr_type2:input$H_final_fr_type2,
+                                    f_rate = out_fr_type2())})
+
+#Plot
+
+plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
+                            ylim(0,4)+
+                            ecoevoapps::theme_apps()})
+   
+```

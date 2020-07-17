@@ -1,0 +1,234 @@
+---
+title: "Competition with Explicit Resource Dynamics"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+library(kableExtra)
+```
+
+
+System of equations describing the most complex version of this model:  
+
+```{r competition, include=FALSE}
+
+# competition
+
+competition <- function(time, init, params) {
+  with (as.list(c(time, init, params)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # q = 1/prey carrying capacity
+    # a = attack rate 
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate 
+    
+    dH_dt = r*H*(1 - q*H) - (a1*H*P1)/(1 + a1*T_h1*H) - (a2*H*P2)/(1 + a2*T_h2*H)
+    dP1_dt = e1*(a1*H*P1)/(1 + a1*T_h1*H) - d1*P1
+    dP2_dt = e2*(a2*H*P2)/(1 + a2*T_h2*H) - d2*P2
+    return(list(c(dH = dH_dt, dP1 = dP1_dt, dP2 = dP2_dt)))
+    
+  })
+}
+```  
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
+\\
+\frac{dP_1}{dt} &= e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
+\\
+\\
+\frac{dP2}{dt} &= e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
+\end{align}
+\]
+
+
+```{r parameter descriptions, echo=F}
+pars_vars <- c("$H$", 
+               "$P_i$", 
+               "$r$", 
+               "$q$", 
+               "$a_i$", 
+               "$T_{h_i}$", 
+               "$e_i$", 
+               "$d_i$")
+descriptions <- c("Population size of the prey",
+                 "Population size of predator $i$",
+                 "Per capita growth rate of prey",
+                 "Per capita prey self-limitation",
+                 "Attack rate of predator $i$",
+                 "Handling time of predator $i$",
+                 "Conversion efficiency of predator $i$",
+                 "Death rate of predator $i$")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+- Note that if $q =0$, prey has exponential growth. If $q>0$, then prey has logistic growth with carrying capacity $K = \frac{1}{q}$.  
+- Also note that if $T_{h_{i}} = 0$, predator $i$ has a Type 1 functional response.  
+
+```{r rosenzweig-macarthur, echo=FALSE}
+wellPanel(
+  fluidRow(
+    column(4, 
+           ### Ask users for parameter values ----
+           ## start with Prey params
+           numericInput("H", label = "Initial population size of Prey", min = 1, value = 30),
+           sliderInput("r", label = "Per capita growth rate of Prey", min = .0001, max = 1.0, value = .2),
+           sliderInput("q", label = "Inverse of prey carrying capacity", min = 0, max = 0.10, step = 0.0001, value = .0066),
+           br(),
+           hr(),
+           numericInput("t", label = "Timesteps", min = 1, value = 1000),
+           checkboxGroupInput("fxnrep", 
+                              label = "Display plot of functional responses?",
+                              choices = c("Yes" = "Yes"),
+                              selected = NULL)
+           
+    ),
+    
+    column(4,
+           ## now pred1 params + initial conditions
+           numericInput("P1", label = "Initial population size of Predator 1", min = 1, value = 25),
+           sliderInput("a1", label = "Predator 1 attack rate", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h1", label = "Predator 1 handling time", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e1", label = "Predator 1 conversion efficiency", min = .001, max = 1.0, value = 0.4),
+           sliderInput("d1", label = "Per capita death rate of Predator 1", min = .0001, max = 1.0, value = .1)
+    ),
+    
+    column(4,
+           ## now pred2 params + initial conditions
+           numericInput("P2", label = "Initial population size of Predator 2", min = 1, value = 25),
+           sliderInput("a2", label = "Predator 2 attack rate", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h2", label = "Predator 2 handling time", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e2", label = "Predator 2 conversion efficiency", min = .001, max = 1.0, value = 0.39),
+           sliderInput("d2", label = "Per capita death rate of Predator 2", min = .0001, max = 1.0, value = .1)
+    )
+  ))
+
+
+fluidRow(
+  column(12,
+         renderPlot(plots_to_print())
+         # renderPlot(np())
+         # renderPlot(dabund_plot())
+  ))
+
+
+# Set the initial population sizes
+
+init <- reactive({c(H = input$H , P1 = input$P1, P2 = input$P2)})
+
+# Set the parameter values
+
+# description of parameters:
+# r = per capita growth rate (prey)
+# a = attack rate 
+# T_h = handling time
+# e = conversion efficiency
+# d = predator death rate 
+
+params <- reactive({c(r = input$r, q = input$q, a1 = input$a1 , T_h1 = input$T_h1 , e1 = input$e1 , d1 = input$d1, 
+                      a2 = input$a2 , T_h2 = input$T_h2 , e2 = input$e2 , d2 = input$d2)})
+
+# Time over which to simulate model dynamics
+time <- reactive({seq(0,input$t,by = .1)})
+
+
+
+# Use the lv_competition function above to run 
+# the lotka-volterra competition model using the 
+# parameter estimates defined above
+
+out <- reactive({data.frame(deSolve::ode(func = competition, y = init(), parms = params(), times = time()))})
+  
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+
+out_long <- reactive({pivot_longer(out(), c(H, P1, P2), "Population")})
+
+
+# Plots --------
+## abundance through time
+abund_plot <- reactive({(ggplot(out_long()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+  ecoevoapps::theme_apps()) %>% originator() 
+  })
+
+## functional responses of sp1 and sp2
+
+fr_df <- reactive({
+  fr_df <- data.frame(prey = 1:2000)
+  fr_df <- fr_df %>% mutate(y1 = (input$a1 * prey)/(1 + input$a1 * input$T_h1 * prey),
+                            y2 = (input$a2 * prey)/(1 + input$a2 * input$T_h2 * prey))
+  fr_df
+})
+
+plot_fxnrep_sp1 <- reactive({
+  if("Yes" %in% input$fxnrep){
+    (ggplot(fr_df(), aes(x = prey, y = y1)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      ecoevoapps::theme_apps()) %>% originator()
+  }
+})
+
+plot_fxnrep_sp2 <- reactive({
+  if("Yes" %in% input$fxnrep){
+    (ggplot(fr_df(), aes(x = prey, y = y2)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[3], size = 2) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      ecoevoapps::theme_apps()) %>% originator()
+  }
+})
+
+plot_fxnreps <- reactive({
+  if("Yes" %in% input$fxnrep){
+  wrap_plots(plot_fxnrep_sp1(), plot_fxnrep_sp2(), nrow = 2)
+  }
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+# plot_list <- reactive({
+#   list(abund_plot(), plot_fxnreps()) %>%
+#     discard(is.null)
+#   })
+
+plots_to_print <- reactive({
+  if("Yes" %in% input$fxnrep){
+    wrap_plots(abund_plot(), plot_fxnreps(), design = "AAB")
+  } else {
+    wrap_plots(abund_plot(), ncol = 1)
+  }
+  
+})
+
+   
+```
+
+
+
+
