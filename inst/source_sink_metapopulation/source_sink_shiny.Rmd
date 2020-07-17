@@ -1,22 +1,92 @@
 ---
-title: "Pulliam source-sink metapopulation model"
+title: "Pulliam's Source-Sink Metapopulation Model"
 author: "Xinyi Yan"
-date: "May 17, 2020"
-output: html_document
+date: "June 28, 2020"
+output: 
+  html_document:
+    css: bg.css
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    number_sections: true
 runtime: shiny
 ---
-
+<div style="margin-bottom:10%;">
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+</div>
 
-```{r}
+# Model overview
+A metapopulation is a collection of spatially separated populations of a given species.  
+The source-sink metapopulation model focuses on the "impact of **habitat-specific demographic rates** on population growth and regulation." (Pulliam 1988).   
+
+In the simplified model scenario, the two populations differ in their fecundity due to different habitat quality. The **source** population has a high-quality habitat, in which it achieves high fecundity and overall positive population growth rate until it reaches a carrying capacity. The **sink** population has a low-quality habitat in which the population cannot sustain itself. 
+
+The two populations are linked via emmigration/immigration, and their population growths are described in the next section. 
+
+# Annual cycle & population growth
+The population size at the **beginning of a year** is denoted $n$.  
+During the summer breeding season, each adult produces $\beta$ offspring.  
+Therefore, the **end-of-summer** population size is given by:
+$$n_{\mathrm{end~of~summer}} = \mathrm{adults} + \mathrm{newborn~juveniles} = n + \beta n $$
+  
+The annual survival rate of adults is denoted $P_{A}$, and that of juveniles is denoted $P_{J}$. 
+
+Therefore, the **end-of-year** population size is:
+$$n_{\mathrm{end~of~year}} = \mathrm{survived~adults} + \mathrm{survived~juveniles} = P_{A}n + P_{J} \beta n $$
+  
+Thus, we can respectively write the end-of-year size of the source population (1) and sink population (2) as: 
+$$n_{1\mathrm{~end~of~year}} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
+$$n_{2\mathrm{~end~of~year}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+where the $\lambda_i = (P_A + P_J\beta_i)$ represents the net annual growth rates of the respective population.  Populations can grow provided that $\lambda > 1$. 
+
+Note that the Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). The source population by definition has a positive population growth rate ($\lambda_1$ > 1) and the sink population by definition has a negative population growth rate ($\lambda$ < 1).     
+  
+If the source population exceeds the site carrying capacity ($N^{*}$), any excess individuals will **disperse** to the sink site, where there is no upper limit on population size (i.e. no carrying capacity). 
+$$E_{\rm{from~sink}} = I_{\mathrm{to~source}} = n_{1\mathrm{~end~of~year}} - N^{*} $$
+At the **beginning of the next year**, the source and sink population will become:  
+
+- if source population has not reached carrying capacity:
+$$ n_{1~\mathrm{next~year~initial}} =  P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
+$$n_{2~\mathrm{next~year~initial}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+
+- or, if the source population size exceeds the carrying capacity ($n_{1}$ = $N^*$):
+$$ n_{1\mathrm{~next~year~initial}} = N^{*} $$
+$$n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~source}}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
+
+From there, the annual cycle begins again.
+
+## Table of model parameters
+
+```{r paramtable, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+paramTable <- data.frame(
+  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{1}$", "$\\beta_{2}$", "$\\lambda_{1}$", "$\\lambda_{2}$", "$n_{1}$", "$n_{2}$", "$N_{1}$ or $N^{*}$"),
+  
+  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{1}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{2}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
+  
+  Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
+
+kable(paramTable) %>%
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+# Simulation of the populations
+
+## Interactive simulation plot
+```{r, include=FALSE}
 # Pulliam source-sink metapopulation model
-#library(deSolve)
-library(ggplot2)
-library(tidyr)
-#library(phaseR)
+library(tidyverse)
+library(shiny) # need the (newest as of July 2020) version 1.5.0
+```
 
+```{r, include=FALSE}
 # Write a function to calculate Nt+1 for both populations, using DISCRETE time
 source_sink <- function(endtime,init,params) {
   with (as.list(c(endtime,init,params)), {
@@ -65,61 +135,244 @@ source_sink <- function(endtime,init,params) {
 
 ```
 
-Extra feature: double check if labmda 1 > 1 and labmda 2 < 1
-```{r eruptions, echo=FALSE}
+```{r UIModules, echo=FALSE}
+# use UI modeules for separate input for desktop vs mobile devices
+# later each one will be under their own NameSpace
+ssinputUI <- function(id) {
+    tagList(
+        ### ask for params (model parameters)
+        ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+        sliderInput(NS(id, "pa"), label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
+        sliderInput(NS(id, "pj"), label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
+        sliderInput(NS(id, "beta1"), label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
+        textOutput(NS(id, "suggest_beta1")), # suggested beta1 range given pa and pj
+        sliderInput(NS(id, "beta2"), label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
+        textOutput(NS(id, "suggest_beta2")), # suggested beta2 range given pa and pj
+        numericInput(NS(id, "N1"), label = "maximum breeding sites at source", min = 1, value = 300),
+        
+        ### ask for init (inital conditions)
+        ### init <- c(N = 20, P = 2)
+        numericInput(NS(id, "n10"), label = "initial population at source (n1)", min = 0, value = 110),
+        numericInput(NS(id, "n20"), label = "initial population at sink (n2)", min = 0, value = 100),
+        
+        ### ask for time (time to simulate)
+        numericInput(NS(id, "endtime"), label = "years to simulate", min = 2, value = 50)
+    ) # end of taglist (input)
+}
 
-sidebarLayout(
-  sidebarPanel(
-    ### ask for params (model parameters)
-    ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
-    sliderInput("pa", label = "Probability of adults surviving winter", min = 0, max = 1, value = .7),
-    sliderInput("pj", label = "Probability of juveniles surviving winter", min = 0, max = 1, value = .2),
-    sliderInput("beta1", label = "Fecundity at the source site", min = 0, max = 100, value = 3),
-    sliderInput("beta2", label = "Fecundity at the sink site", min = 0, max = 50, value = 1),
-    numericInput("N1", label = "maximum breeding sites at source", min = 1, value = 300),
-    
-    ### ask for init (inital conditions)
-    ### init <- c(N = 20, P = 2)
-    numericInput("n10",label = "initial population at source", min = 0, value = 110),
-    numericInput("n20",label = "initial population at sink", min = 0, value = 100),
-    
-    ### ask for time (time to simulate)
-    numericInput("endtime", label = "years to simulate", min = 2, value = 50)
-  ),
-  
-  mainPanel(renderPlot({ss_plot()}, width = 500))
-)
+# use UI modeules for separate simulation plots
+sssimuUI <- function(id){
+    tagList(
+        plotOutput(NS(id, "simulation"))
+    )
+}
 
-
-# Set the initial population sizes
-#init <- c(n10 = 110, n20 = 100)
-#any time it's reactive, it has to be {} in ()
-init <- reactive({ c(n10 = input$n10, n20 = input$n20)}) 
-
-# Set the parameter values
-#params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
-params <- reactive({ c(pa = input$pa, pj = input$pj, 
-                       beta1 = input$beta1, beta2 = input$beta2, N1 = input$N1) })
-# Time over which to simulate model dynamics
-time <- reactive({ endtime = input$endtime })
-
-#now init and params are reactive, use them like functions "xx()"
-ss_df <- reactive({ data.frame(year = 1:time(), 
-                              source_sink(endtime = time(), init = init(), 
-                                            params = params())) })
-ss_out <- reactive({
-   out <- ss_df()
-   colnames(out) <- c("year", "source", "sink")
-   out
- })
-
-ss_out_long <- reactive({ pivot_longer(ss_out(), c(source,sink), "population") })
-
-# Plot
-ss_plot <- reactive({ ggplot(ss_out_long()) + 
-  geom_line(aes(x = year, y = value, color = population), size = 2) + 
-  scale_color_brewer(palette = "Set1") +
-    ecoevoapps::theme_apps() + 
-  ylab("Population size")  })
-
+# use UI modeules for separate equilibirum output
+ssequiUI <- function(id){
+    tagList(
+        actionButton(NS(id, "showAnswer"), "Show/update sink equilibirum", style = "color: rgb(201, 18, 18);"),
+        textOutput(NS(id, "equilibrium"))
+    ) # end of taglist
+}
 ```
+
+```{r serverModules, echo=FALSE}
+# server modules for separate output based on respectve inputs (desktop vs mobile tabs)
+ssServer <- function(id) {
+    moduleServer(id, function(input, output, session) {
+      
+        ### first check if beta1 is valid for source population
+        observeEvent(input$beta1, # check this input spot
+          shinyFeedback::feedbackWarning( # gives warning if:
+            "beta1", # this variable (beta1)
+            input$pa + input$pj * input$beta1 <= 1, # if satisefy this condition
+            "pa + pj * beta1 should >1 for source polulation, view suggestion.  
+            Note that the violation does not stop the simulation. It just no longer satisefies the definition of a Pulliam source population" 
+            # this warning message will show up
+            # but simlulation will continue even with warning
+            # if want simulation ONLY with valid input, use REQUIRE statement
+          )  
+        )
+        ### suggested beta1 value based on pa and pj
+        output$suggest_beta1 <- renderText(paste("Suggested input: beta1 >", round((1-input$pa) / input$pj, digits = 1)) )
+        
+        ### then check if beta2 is valid for sink population
+        observeEvent(input$beta2,
+          shinyFeedback::feedbackWarning(
+            "beta2", 
+            input$pa + input$pj * input$beta2 >= 1,
+            "pa + pj * beta2 should <1 for sink polulation, view suggestion.  
+            Note that the violation does not stop the simulation. It just no longer satisefies the definition of a Pulliam sink population"
+          )  
+        )
+        ### suggested beta1 value based on pa and pj
+        output$suggest_beta2 <- renderText(paste("Suggested input: beta2 <", round((1-input$pa) / input$pj, digits = 1)) )
+        
+        
+        ### Set the initial population sizes
+        #init <- c(n10 = 110, n20 = 100)
+        #code tip: any time it's reactive, it has to be {} in ()
+        init <- reactive({ c(n10 = input$n10, n20 = input$n20)}) 
+        
+        ### Set the parameter values
+        #params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+        params <- reactive({ c(pa = input$pa, pj = input$pj, 
+                               beta1 = input$beta1, beta2 = input$beta2, N1 = input$N1) })
+        ### Time over which to simulate model dynamics
+        time <- reactive({ endtime = input$endtime })
+        
+        #code tip: now init and params are reactive, use them like functions "xx()"
+        ss_df <- reactive({ data.frame(year = 1:time(), 
+                                      source_sink(endtime = time(), init = init(), 
+                                                    params = params())) })
+        ss_out <- reactive({
+           out <- ss_df()
+           colnames(out) <- c("year", "source", "sink")
+           out
+         })
+        
+        ss_out_long <- reactive({ pivot_longer(ss_out(), c(source,sink), "population") })
+        
+        ### Plot
+        ss_plot <- reactive({ ggplot(ss_out_long()) + 
+          geom_line(aes(x = year, y = value, color = population), size = 2) + 
+            ecoevoapps::theme_apps() + 
+            scale_x_continuous(expand = c(0, 0, .1, 0)) +
+            scale_y_continuous(expand = c(0, 0, .1, 0)) + 
+            scale_color_brewer(palette = "Set1") +
+            ylab("Population size")  })    
+        
+        output$simulation <- renderPlot(ss_plot(), height = 300)
+        
+        ### calculate equilibrium for sink population, display on click
+        equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$beta1 - 1)*input$N1/(input$pa + input$pj*input$beta2 - 1), digits = 0)})
+        output$equilibrium <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
+  })
+}
+```
+
+```{r ssApp, echo=FALSE}
+shinyApp( #to embed shiny app into the html document
+  
+    ### user interface part, ask for parameters and present the final outputs(suggested input, graph)
+  ui = fluidPage(
+    #withMathJax(), # not working so far -- for displaying special characters
+    shinyFeedback::useShinyFeedback(), # feedback to ui
+    
+    # have two tabs for desktop vs mobile users, with different plot display format (fixed vs fluid)
+    tabsetPanel(
+      tabPanel("desktop full screen",
+        fluidRow(
+            column(4,
+                wellPanel(width = "100%",
+                ### ask for params (model parameters)
+                # use UI module under NS "desktop"
+                ssinputUI("desktop")
+                )
+            ), # end of left/input column
+            
+            column(8, 
+                fixedPanel(right = 5, top = 30, width = "65%", sssimuUI("desktop") ) 
+                # use UI module under NS "desktop" to give the plot
+            ) # end of right/plot column
+        ), # end of the first fluid row
+        
+        fixedRow(
+          column(12, 
+                 ### show calculated sink population equilibrium
+                fixedPanel(right = 5, bottom = 15, width = "60%", height = 40,  
+                  ssequiUI("desktop")
+                ) # end of fixed panel
+          ) # end of this column
+        ) # end of the second fluid row
+    ), # end of tab "desktop" 
+    
+    tabPanel("mobile devices",
+        fluidRow(
+          column(4,
+              wellPanel(width = "100%",
+              ### ask for params (model parameters)
+              # use UI module under NS "mobile"
+                ssinputUI("mobile")
+              )
+          ), # end of left/input column
+          
+          column(8, 
+                 fluidRow(sssimuUI("mobile")),  # gives the plot
+                 fluidRow(
+                   wellPanel( 
+                    ssequiUI("mobile")
+                   ) # end of wellpanel
+                 ) #end of equilibirium row
+          ) # end of right/plot column
+        )
+      ) # end of tab "mobile"
+    ) #end of tabset
+  ), # end of ui
+
+  ### server part, check validity of the input, generate output (graph) from the input
+  server =  function(input, output, session) {
+    # create modularized(separate) output from respective input for desktop vs mobile
+    ssServer("desktop")
+    ssServer("mobile")
+  } # end of server
+    
+) # end of shiny app
+```
+
+
+# Population equilibirium
+
+## Source population
+Clearly, the equilibrium is the carrying capacity of the source site.
+$$n_{1}^{*} = N^{*} $$
+
+## Sink population
+Recall that when the source population reaches equilibrium, the sink population annual increase can be written as:
+$$n_{2~next~year~initial} =  (P_{A} + P_{J} \beta_{2}) n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
+The above is a discrete time model, but if we consider a really long time, it becomes continuous. We represent the rate of change of sink population as the time deriative:
+$$n_{2}^{'} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2} + (\lambda_{1} n_{1} - N^{*}) = (\lambda_{2} - 1) n_{2} + (\lambda_{1} - 1)N^{*}$$
+At equilibrium, the rate of change is 0 and we can solve for $n_{2}^{*}$:
+$$0 = n_{2}^{'} = (\lambda_{2}-1) n_{2}^{*} + (\lambda_{1} - 1)N^{*} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2}^{*} + (P_{A} + P_{J} \beta_{1} - 1)N^{*} $$
+$$ n_{2}^{*} = -\frac{(P_{A} + P_{J} \beta_{1} - 1)N^{*}}{(P_{A} + P_{J} \beta_{2} - 1)}  $$
+Calculate the equilibirum of your sink population based on your input and verify your answer using the simulation plot.  
+
+
+# Reference & helpful resources:  
+1. [Original Paper (Pulliam 1988)](https://www.journals.uchicago.edu/doi/abs/10.1086/284880)  
+2. [Colorado State University Lecture Notes](https://sites.warnercnr.colostate.edu/gwhite/wp-content/uploads/sites/73/2017/06/Winkelman-Lecture-8.pdf)  
+3. [UCLA Lecture Notes](https://faculty.eeb.ucla.edu/Sork/Env121Sork/SorkLec4_Metapop/Metapop.html#IV)
+
+
+# DEV NOTES (will delete)
+
+- require newest version of shiny package (1.5.0)
+
+Possible additional features:   
+
+ACTIVE/POSSIBLE:
+
+- display greek letters (beta etc) inside shiny app
+
+- make other metapoluation models and collect them together under tabs...
+
+DONE:
+
+- modularization of the simulation on different advice (due to fixed vs fluid layout) DONE
+
+- currently the side bar style doesn't work due to adding the action button CANNOT, see next line for alternative
+
+- ALTERNATIVE, use a different tab DONE
+
+- model description DONE
+
+- parameter table DONE
+
+- click to show answer/ask for answer&check for equilibrium question. DONE, needs to fix position though  
+
+- click to show equations (default collased)? NO NEED TO currently  
+
+- Add some diagram (the one from the paper is great but copyright hmmm) or illustration (I have some drawings that's VAGUELY related to the topic) DONE  
+
+- content list/tabs for the sections DONE  
+

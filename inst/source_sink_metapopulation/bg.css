@@ -1,0 +1,28 @@
+body {
+  background-image: url('bg.jpg');
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+div {
+  background-color: rgba(255, 255, 255, 0.25)   /* 25% opaque white */;
+  padding: 0.2em;
+}
+
+h1.title {
+  font-size: 38px;
+  color: Black;
+  margin-top: 8%;
+  margin-bottom: 8%;
+}
+h1 { /* Header 1 */
+  font-size: 26px;
+  color: rgb(5, 67, 122);
+}
+h2 { /* Header 2 */
+    font-size: 20px;
+  color: Black;
+}
+h3 { /* Header 3 */
+  font-size: 16px;
+  color: Black;
+}
