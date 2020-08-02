@@ -1,4 +1,21 @@
-library(shiny); library(diagram)
+---
+title: "Structured Populations"
+author: "Marcel Vaz"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_depth: 3
+runtime: shiny
+---
+
+
+```{r, include = F}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+library(diagram) # package to plot diagram
+```
+
+```{r}
 
 # Define UI for application that draws a histogram
 ui = fluidPage(
@@ -165,5 +182,4 @@ server = function(input, output) {
 # Run the application 
 shinyApp(ui = ui, server = server)
 
-
-
+```

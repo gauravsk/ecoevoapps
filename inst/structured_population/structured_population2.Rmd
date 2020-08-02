@@ -1,0 +1,170 @@
+---
+title: "Structured Populations"
+author: "Marcel Vaz"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_depth: 3
+runtime: shiny
+---
+
+```{r, include = F}
+
+# Set default parameters for R chunks in Rmd
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# Required packages and functions
+library(diagram) # plot diagrams
+library(gridExtra) # arrange outpupt plots into a grid
+library(ggplot2) # produce nice graphics
+library(reshape2) # help with matrix to data frame conversion 
+library(ggplotify) # convert base plots into graphic objects
+library(cowplot) # arrange plots into a grid
+source("struct_pop_function.R")
+
+```
+
+## Intro
+Sometimes populations are best modeled as a collection of age or size classes ([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/)). The growth of such structured populations depends on the transition rates from one class to another. By wiggling the values of these rates we can start finding what are the transitions that impact the most the growth of the whole population (sensitivity analysis).
+
+### The Leslie matrix
+This is a convenient way of organizing age transition rates, plus it has interesting properties: 1) to simulate what the population strucure will look like one step ahead in time, one simply needs to  multiply the Leslie matrix by the matrix with the initial population sizes; 2) the largest eigenvalue of the Leslie matrix is $\lambda$, the asymptotic growth rate for the whole population ($\lambda<1$ it declines, $\lambda>1$ it grows, $\lambda=1$ it stays the same); 3) the eigenvector that corresponds to the largest eigenvalue gives the stable population structure, i.e., the proportions of each age class after the population reached equilibrium.
+
+```{r}
+
+### APP
+sidebarLayout(
+  ## INPUT
+  sidebarPanel(
+      
+    # Initial sizes
+    numericInput(inputId = "N1",
+                  label = "Initial number of individuals at age 1",
+                  min = 0,
+                  max = NA,
+                  value = 100),
+    numericInput(inputId = "N2",
+                   label = "Initial number of individuals at age 2",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+    numericInput(inputId = "N3",
+                   label = "Initial number of individuals at age 3",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+      
+    # Leslie matrix
+    numericInput(inputId = "F1",
+                  label = "Fecundity at age 1",
+                  min = 0,
+                  max = NA,
+                  value = 0),
+    numericInput(inputId = "F2",
+                  label = "Fecundity at age 2",
+                  min = 0,
+                  max = NA,
+                  value = 8),          
+    numericInput(inputId = "F3",
+                  label = "Fecundity at age 3",
+                  min = 0,
+                  max = NA,
+                  value = 1),
+    sliderInput(inputId = "S12",
+                  label = "Survival from age 1 to 2 (%)",
+                  min = 1,
+                  max = 100,
+                  value = 10),
+    sliderInput(inputId = "S23",
+                  label = "Survival from age 2 to 3 (%)",
+                  min = 0,
+                  max = 100,
+                  value = 80),
+    width=4),
+  
+  ## OUTPUT
+  mainPanel(
+    renderPlot({ diagr() }, width=500),
+    
+    p("Leslie matrix"), 
+    renderTable({ Leslie() }),
+    p("_____________________"),
+    
+    p("Asymptotic population growth rate"),
+    renderText({ eigenval() }),
+    p("_____________________"), 
+    
+    p("Stable population structure"),
+    renderTable({ eigenvec() }),
+    
+    renderPlot({ plots() }),
+    
+    width=8
+    )
+  
+  )
+
+
+## Leslie matrix
+L = reactive({
+  matrix(
+      c(input$F1     ,      input$F2, input$F3,
+        input$S12/100,             0,        0,
+                    0, input$S23/100,        0),
+      ncol = 3, byrow = T
+      )
+  })
+
+Leslie = reactive({
+  matrix(
+      c("Age 1", input$F1     ,      input$F2, input$F3,
+        "Age 2", input$S12/100,             0,        0,
+        "Age 3",             0, input$S23/100,        0),
+      ncol = 4, byrow = T, 
+      dimnames = list(NULL, c(" ","Age 1","Age 2", "Age 3"))
+      )
+  })
+
+
+## Largest eigenvalue
+eigenval = reactive({
+  paste0("Eigenvalue = ",round(eigen(L())$values,2)[1])
+  })
+
+## Eigenvector corresponding to largest eigenvalue
+tmp = reactive({
+  round(eigen(L())$vectors[,1]*100/
+          sum(eigen(L())$vectors[,1]))
+  })
+eigenvec = reactive({
+  matrix(
+    c("Eigenvector", round(eigen(L())$vectors[,1],2),
+      "%", tmp()[1], tmp()[2], tmp()[3]),
+    ncol=4, byrow=T,
+    dimnames = list(NULL, c(" ","Age 1","Age 2", "Age 3"))
+    )
+  
+  })
+
+## Plots
+# Life cycle diagram
+diagr = reactive({
+  plotmat(A = L(), pos = 3, curve = 0.5, lwd = 1.5, my = -0.1,
+             name = c(expression(Age[1]),
+                      expression(Age[2]),
+                      expression(Age[3])), 
+             arr.len = 0.2, arr.width = 0.25, arr.lwd = 2, 
+             arr.type = "simple", self.lwd = 2, self.shiftx = 0.115, 
+             self.shifty = 0.1, self.cex = .5, box.size = 0.1, 
+             dtext = 0.2, box.lwd = 3.5, main="Life cycle diagram"
+             )
+  })
+
+# Simulation plots
+plots = reactive({
+  strpop(leslie=L(),init=c(input$N1,input$N2,input$N3),tt=1000)
+  })
+
+
+```
