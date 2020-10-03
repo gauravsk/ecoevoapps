@@ -1,0 +1,537 @@
+---
+title: "Lotka-Volterra Competition"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(ecoevoapps)
+library(deSolve)
+library(tidyverse)
+library(patchwork)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+knitr::opts_chunk$set(echo=FALSE)
+theme_set(ecoevoapps::theme_apps())
+```
+
+<!--
+# {.tabset}
+
+## Use carrying capacity
+-->
+Equations for Lotka-Volterra Competition expressed with carrying capacities:
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
+
+```{r parameter descriptions}
+pars_vars <- c("$r_1$", 
+               "$r_2$", 
+               "$N_1$", 
+               "$N_2$", 
+               "$K_1$", 
+               "$K_2$", 
+               "$\\alpha$", 
+               "$\\beta$")
+descriptions <- c("Intrinsic growth rate of Species 1",
+                 "Intrinsic growth rate of Species 2",
+                 "Population size of Species 1",
+                 "Population size of Species 2",
+                 "Carrying capacity of Species 1",
+                 "Carrying capacity of Species 2",
+                 "Relative per capita effect of Species 2 on Species 1",
+                 "Relative per capita effect of Species 1 on Species 2")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+<!--
+Zero net growth isoclines (solved for $N_2$):
+$$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
+$$N_2 = -\beta N_1 + K_2$$
+--> 
+
+---
+
+```{r Lotka-Volterra Competition with carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow user to select which plots to display
+    # checkboxGroupInput(inputId = "plots_to_show",
+    #                    label = "Select plots to diplay",
+    #                    choices = c("N vs. Time" = "N_vs_Time", 
+    #                                "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+    #                    selected = c("N_vs_Time")),
+    # 
+    # hr(),
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1", 
+                label = HTML("r<sub>1</sub>: Intrinsic growth rate of Species 1"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2", 
+                label = HTML("r<sub>2</sub>: Intrinsic growth rate of Species 2"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    numericInput(inputId = "K1", 
+                 label = HTML("K<sub>1</sub>: Carrying capacity of Species 1"),
+                 min = 1, value = 300),
+    numericInput(inputId = "K2", 
+                 label = HTML("K<sub>2</sub>: Carrying capacity of Species 2"),
+                 min = 1, value = 200),
+    sliderInput(inputId = "alpha", 
+                label = HTML("&alpha;: Relative effect of Species 2 on Species 1"),
+                min = 0.01, max = 2, value = 0.3, step = 0.01),
+    sliderInput(inputId = "beta", 
+                label = HTML("&beta;: Relative effect of Species 1 on Species 2"),
+                min = 0.01, max = 2, value = 0.2, step = 0.01),
+    # User-defined initial values
+    numericInput(inputId = "N1", 
+                 label = "Initial population size of Species 1",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2", 
+                 label = "Initial population size of Species 2",
+                 min = 1, value = 70),
+    
+    # Radio buttons for chossing simulation length
+    radioButtons(inputId = "run_time", 
+                 label = "Select whether to:", 
+                 choices = c("Run for specified time" = "run_spec",
+                             "Run until equilibrium" = "run_to_eq"),
+                 selected = "run_spec"),
+    
+    # Conditional panel for inputting simulation length
+    conditionalPanel(
+      condition = "input.run_time == 'run_spec'",
+      # User-defined length of simulation
+      numericInput(inputId = "max_time", 
+                   label = "Length of simulation",
+                   min = 1, value = 100)
+    )
+  ),
+  
+  # Panel of plots
+  mainPanel(renderPlot(plots_to_print(), width = 600, height = 500))
+)
+
+# Get user-defined parameters
+init <- reactive({
+  c(N1 = input$N1, N2 = input$N2)
+})
+time <- reactive({
+  seq(from = 0, to = input$max_time, by = 0.1)
+})
+params <- reactive({
+  c(r1 = input$r1, r2 = input$r2, K1 = input$K1, K2 = input$K2, 
+    a = input$alpha, b = input$beta)
+})
+
+# Compute equilibria
+sp1_equilibria <- reactive({
+  c((input$K1 - input$alpha*input$K2)/(1 - input$alpha*input$beta),
+    0, input$K1) %>%
+    round()
+})
+sp2_equilibria <- reactive({
+  c((input$K2 - input$beta*input$K1)/(1 - input$alpha*input$beta),
+    0, input$K2) %>%
+    round()
+})
+
+# Run lotka_volterra_competition function
+lvcomp_out <- reactive({
+  if (input$run_time == "run_spec") {
+    ode(func = lotka_volterra_competition, y = init(), 
+        times = time(), parms = params()) %>%
+    data.frame()
+  } else if (input$run_time == "run_to_eq") {
+    runs <- 100
+    run_seq <- seq(from = 0, to = runs, by = 0.1)
+    lvcomp_iter <-
+      ode(func = lotka_volterra_competition, y = init(), 
+          times = run_seq, parms = params()) %>%
+      data.frame()
+    if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
+        round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
+      equilibrium <- TRUE
+    } else {
+      equilibrium <- FALSE
+      runs <- runs + 100
+      run_seq <- seq(from = 0, to = runs, by = 0.1)
+    }
+    while (equilibrium == FALSE) {
+      lvcomp_iter <- 
+        ode(func = lotka_volterra_competition, y = init(), 
+            times = run_seq, parms = params()) %>%
+        data.frame()
+      if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
+          round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
+        equilibrium <- TRUE
+      } else {
+          runs <- runs + 100
+          run_seq <- seq(from = 0, to = runs, by = 0.1)
+        }
+    }
+    lvcomp_iter
+  }
+})
+
+# Convert data to long format
+lvcomp_out_long <- reactive({
+  pivot_longer(data = lvcomp_out(), cols = c(N1, N2), names_to = "species")
+})
+
+# Plot N vs time for both species
+N_vs_Time <- reactive({ 
+  # if ("N_vs_Time" %in% input$plots_to_show) {
+    ggplot(data = lvcomp_out_long()) +
+      geom_line(aes(x = time, y = value, color = species), size = 2) +
+      scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
+      labs(x = "Time", y = "Population size (N)", color = "Species") +
+      coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
+                      expand = FALSE,
+                      clip = "off")
+  # }
+})
+
+# Plot ZNGIs with population trajectories
+# First create data frames for ZNGI starting/ending points
+ZNGI_sp1 <- reactive({ 
+  data.frame(x1 = 0, y1 = input$K1/input$alpha, xend1 = input$K1, yend1 = 0) 
+})
+ZNGI_sp2 <- reactive({ 
+  data.frame(x2 = 0, y2 = input$K2, xend2 = input$K2/input$beta, yend2 = 0) 
+})
+
+# Now create plot
+# ZNGI <- reactive({
+#   # if ("ZNGI" %in% input$plots_to_show) {
+#     ggplot(data = lvcomp_out()) +
+#       geom_segment(data = ZNGI_sp1(),
+#                    aes(x = x1, y = y1, xend = xend1, yend = yend1,
+#                        color = "Species 1"), size = 2) +
+#       geom_segment(data = ZNGI_sp2(),
+#                    aes(x = x2, y = y2, xend = xend2, yend = yend2,
+#                        color = "Species 2"), size = 2) +
+#       scale_color_manual(values = brewer.pal(3, name = "Set1"),
+#                          labels = c("Species 1", "Species 2")) +
+#       geom_path(aes(x = N1, y = N2), size = 1) +
+#       geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
+#       geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2),
+#                  pch = 21, size = 3, fill = "white", stroke = 1) +
+#       geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
+#                    y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
+#                    xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
+#                    yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
+#                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
+#       labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+#       coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
+#                       ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
+#                       expand = FALSE,
+#                       clip = "off")
+# }
+# })
+
+# Make a list of plots to print based on user request
+# plot_list <- reactive({
+#   list(N_vs_Time(), ZNGI()) %>%
+#     discard(is.null)
+#   })
+
+plots_to_print <- reactive({ 
+  # wrap_plots(plot_list(), ncol = 1)
+  N_vs_Time()
+  })
+```
+
+
+<!--
+## Don't use carrying capacity
+
+Equations for Lotka-Volterra Competition expressed without carrying capacities:
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \alpha_{22}N_2 - \alpha_{21}N_1\right)$$
+
+```{r parameter descriptions w/o carrying capacity}
+pars_vars_wo_K <- c("$r_1$",
+                    "$r_2$",
+                    "$N_1$",
+                    "$N_2$",
+                    "$\\alpha_{11}$",
+                    "$\\alpha_{12}$",
+                    "$\\alpha_{22}$",
+                    "$\\alpha_{21}$")
+descriptions_wo_K <- c("Intrinsic growth rate of Species 1",
+                       "Intrinsic growth rate of Species 2",
+                       "Population size of Species 1",
+                       "Population size of Species 2",
+                       "Per capita effect of Species 1 on itself",
+                       "Per capita effect of Species 2 on Species 1",
+                       "Per capita effect of Species 2 on itself",
+                       "Per capita effect of Species 1 on Species 2")
+param_df_wo_K <- data.frame(pars_vars_wo_K, descriptions_wo_K)
+kable(x = param_df_wo_K, format = "html",
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+Zero net growth isoclines (solved for $N_2$):
+$$N_2 = -\frac{\alpha_{11}}{\alpha_{12}}N_1 + \frac{1}{\alpha_{12}}$$
+$$N_2 = -\frac{\alpha_{21}}{\alpha_{22}}N_1 + \frac{1}{\alpha_{22}}$$
+
+---
+
+```{r Lotka-Volterra Competition without carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow users to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show_wo_K",
+                       label = "Select plots to display",
+                       choices = c("N vs. Time" = "N_vs_Time_wo_K",
+                                   "Zero net growth isoclines (ZNGIs)" = "ZNGI_wo_K"),
+                       selected = c("N_vs_Time_wo_K")),
+    
+    hr(),
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1_wo_K",
+                label = HTML("r<sub>1</sub>: Intrinsic growth rate of Species 1"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2_wo_K",
+                label = HTML("r<sub>2</sub>: Intrinsic growth rate of Species 2"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    
+    # Allow user to choose input method for competition coefficients
+    radioButtons(inputId = "alpha_input_wo_K",
+                 label = "Input method for competition coefficients:",
+                 choices = c("Slider" = "slider", "Manual" = "manual"),
+                 selected = "slider"),
+    
+    # Conditional panel for slider input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'slider'",
+      sliderInput(inputId = "alpha11_slider",
+                  label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                  min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
+      sliderInput(inputId = "alpha12_slider",
+                  label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL),
+      sliderInput(inputId = "alpha22_slider",
+                  label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                  min = 0.0001, max = 0.01, value = 0.005, step = NULL),
+      sliderInput(inputId = "alpha21_slider",
+                  label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL)
+    ),
+    
+    # Conditional panel for manual input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'manual'",
+      numericInput(inputId = "alpha11_manual",
+                   label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                   min = 0.0001, max = 1, value = 0.0033, step = 0.0001),
+      numericInput(inputId = "alpha12_manual",
+                   label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001),
+      numericInput(inputId = "alpha22_manual",
+                   label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                   min = 0.0001, max = 1, value = 0.005, step = 0.0001),
+      numericInput(inputId = "alpha21_manual",
+                   label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001)
+    ),
+    
+    # User-defined initial values
+    numericInput(inputId = "N1_wo_K",
+                 label = "Initial population size of Species 1",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2_wo_K",
+                 label = "Initial population size of Species 2",
+                 min = 1, value = 70),
+    
+    # Radio buttons for choosing simulation length
+    radioButtons(inputId = "run_time_wo_K",
+                 label = "Select whether to:",
+                 choices = c("Run for specified time" = "run_spec",
+                             "Run until equilibrium" = "run_to_eq"),
+                 selected = "run_spec"),
+    
+    # Conditional panel for inputting simulation length
+    conditionalPanel(
+      condition = "input.run_time_wo_K == 'run_spec'",
+      # User-defined length of simulation
+      numericInput(inputId = "max_time_wo_K",
+                   label = "Length of simulation",
+                   min = 1, value = 100)
+    )
+  ),
+  
+  # Panel of plots
+  mainPanel(renderPlot(plots_to_print_wo_K(), width = 600, height = 500))
+)
+
+# Store inputted competition coefficients as new reactive objects
+alpha11_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha11_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha11_manual
+  }
+})
+alpha12_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha12_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha12_manual
+  }
+})
+alpha22_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha22_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha22_manual
+  }
+})
+alpha21_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha21_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha21_manual
+  }
+})
+
+# Get user-defined parameters
+init_wo_K <- reactive({
+  c(N1 = input$N1_wo_K, N2 = input$N2_wo_K)
+})
+time_wo_K <- reactive({
+  seq(from = 0, to = input$max_time_wo_K, by = 0.1)
+})
+params_wo_K <- reactive({
+  c(r1 = input$r1_wo_K, r2 = input$r2_wo_K,
+    a11 = alpha11_wo_K(), a12 = alpha12_wo_K(),
+    a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
+})
+
+# Compute equilibria
+sp1_equilibria_wo_K <- reactive({
+  c((alpha22_wo_K() - alpha12_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
+    0, 1/alpha11_wo_K()) %>%
+    round()
+})
+sp2_equilibria_wo_K <- reactive({
+  c((alpha11_wo_K() - alpha21_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
+    0, 1/alpha22_wo_K()) %>%
+    round()
+})
+
+# Run lotka_volterra_competition_wo_K function
+lvcomp_out_wo_K <- reactive({
+  if (input$run_time_wo_K == "run_spec") {
+    ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
+        times = time_wo_K(), parms = params_wo_K()) %>%
+      data.frame()
+  } else if (input$run_time_wo_K == "run_to_eq") {
+    runs_wo_K <- 100
+    run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
+    lvcomp_iter_wo_K <- 
+      ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
+          times = run_seq_wo_K, parms = params_wo_K()) %>%
+      data.frame()
+    if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
+        round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
+      equilibrium_wo_K <- TRUE
+    } else {
+          equilibrium_wo_K <- FALSE
+          runs_wo_K <- runs_wo_K + 100
+          run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
+    }
+    while (equilibrium_wo_K == FALSE) {
+      lvcomp_iter_wo_K <- 
+        ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
+            times = run_seq_wo_K, parms = params_wo_K()) %>%
+      data.frame()
+      if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
+          round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
+        equilibrium_wo_K <- TRUE
+      } else {
+        runs_wo_K <- runs_wo_K + 100
+        run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
+      }
+    }
+    lvcomp_iter_wo_K
+  }
+})
+
+# Convert data to long format
+lvcomp_out_long_wo_K <- reactive({
+  pivot_longer(data = lvcomp_out_wo_K(), cols = c(N1, N2), names_to = "species")
+})
+
+# Plot N vs time for both species
+N_vs_Time_wo_K <- reactive({
+  if ("N_vs_Time_wo_K" %in% input$plots_to_show_wo_K) {
+    ggplot(data = lvcomp_out_long_wo_K()) +
+      geom_line(aes(x = time, y = value, color = species), size = 2) +
+      scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
+      labs(x = "Time", y = "Population size (N)", color = "Species") +
+      coord_cartesian(ylim = c(0, 1.1*max(c(1/alpha11_wo_K(), 1/alpha22_wo_K(),
+                                        input$N1_wo_K, input$N2_wo_K))),
+                      expand = FALSE, clip = "off")
+  }
+})
+
+# Plot ZNGIs with population trajectories
+# First create data frames for ZNGI starting/ending points
+ZNGI_sp1_wo_K <- reactive({
+  data.frame(x1 = 0, y1 = 1/alpha12_wo_K(), xend1 = 1/alpha11_wo_K(), yend1 = 0)
+})
+ZNGI_sp2_wo_K <- reactive({
+  data.frame(x2 = 0, y2 = 1/alpha22_wo_K(), xend2 = 1/alpha21_wo_K(), yend2 = 0)
+})
+
+# Now create plot
+ZNGI_wo_K <- reactive({
+  if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
+    ggplot(data = lvcomp_out_wo_K()) +
+      geom_segment(data = ZNGI_sp1_wo_K(),
+                   aes(x = x1, y = y1, xend = xend1, yend = yend1,
+                       color = "Species 1"), size = 2) +
+      geom_segment(data = ZNGI_sp2_wo_K(),
+                   aes(x = x2, y = y2, xend = xend2, yend = yend2,
+                       color = "Species 2"), size = 2) +
+      scale_color_manual(values = brewer.pal(3, name = "Set1"),
+                         labels = c("Species 1", "Species 2")) +
+      geom_path(aes(x = N1, y = N2), size = 1) +
+      geom_point(x = input$N1_wo_K, y = input$N2_wo_K, pch = 21, size = 3, fill = "black") +
+      geom_point(x = last(lvcomp_out_wo_K()$N1), y = last(lvcomp_out_wo_K()$N2),
+                 pch = 21, size = 3, fill = "white", stroke = 1) +
+      geom_segment(x = lvcomp_out_wo_K()$N1[round(nrow(lvcomp_out_wo_K())/4)],
+                   y = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4)],
+                   xend = lvcomp_out_wo_K()$N1[round(nrow(lvcomp_out_wo_K())/4) + 1],
+                   yend = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4) + 1],
+                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
+      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+      coord_cartesian(xlim = c(0, 1.1*max(c(1/alpha11_wo_K(), input$N1_wo_K, 1/alpha21_wo_K()))),
+                      ylim = c(0, 1.1*max(c(1/alpha22_wo_K(), input$N2_wo_K, 1/alpha12_wo_K()))),
+                      expand = FALSE,
+                      clip = "off")
+  }
+})
+
+# Make a list of plots to print based on user request
+plot_list_wo_K <- reactive({
+  list(N_vs_Time_wo_K(), ZNGI_wo_K()) %>%
+    discard(is.null)
+})
+
+plots_to_print_wo_K <- reactive({
+  wrap_plots(plot_list_wo_K(), ncol = 1)
+})
+```
+-->
