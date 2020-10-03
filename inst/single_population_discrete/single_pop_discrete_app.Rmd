@@ -53,8 +53,8 @@ exponential_pop_traj <- reactive({discrete_exponential(N0 = input$N0,
 exponential_pop_df <- reactive({data.frame(time = 0:input$time,
                                  Nt= exponential_pop_traj(),
                                  popdiff = c(NA, diff(exponential_pop_traj())),
-                                 Ntm1 = c(lag(exponential_pop_traj())),
-                                 popratio = exponential_pop_traj()/lag(exponential_pop_traj()))})
+                                 Ntm1 = c(dplyr::lag(exponential_pop_traj())),
+                                 popratio = exponential_pop_traj()/dplyr::lag(exponential_pop_traj()))})
 
 
 # Make plot caption -------------
@@ -95,7 +95,7 @@ sidebarLayout(
     numericInput("N0_dl", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1),
     # User defined carrying capacity (K) ----------    
-    numericInput("K_dl", label = "Carrying capacity",
+    numericInput("K_dl", label = "Carrying capacity (K)",
                  min = 1, max = 1000, value = 100),
     # User defined time ---------
     numericInput("time_dl", label = "Number of time steps to project",
@@ -114,7 +114,7 @@ dl_pop_traj <- reactive({discrete_logistic(N0 = input$N0_dl, K = input$K_dl,
                                            rd = input$rd_dl, time = input$time_dl)})
 dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
                       time = 1:input$time_dl,
-                      Ntm1 = lag(dl_pop_traj()))})
+                      Ntm1 = dplyr::lag(dl_pop_traj()))})
 
 # Generate trajectories for discrete logistic --------
 trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
@@ -126,8 +126,11 @@ trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
     labs(title = "Population growth with the discrete logistic model")})
 
 # cobweb for standard discrete logistic model -----
-cobweb_dl <- reactive({ggplot(dl_df(), aes(x = Ntm1)) +
-    stat_function(fun = function(x) discretelogistic_eqn(x, input$rd_dl, input$K_dl)) +
+cobweb_dl <- reactive({ggplot(dl_df()) +
+    stat_function(fun = function(x) discretelogistic_eqn(x, input$rd_dl, input$K_dl),
+                  aes(x = seq(1, input$K_dl*1.05, length.out = input$time_dl))) +
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
     geom_hline(yintercept = input$K_dl, size = .2)+
     geom_vline(xintercept = input$K_dl, size = .2) +
     ylab(TeX("$N_{t+1}"))+
@@ -156,7 +159,7 @@ sidebarLayout(
     numericInput("N0_ricker", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1),
     # User defined carrying capacity (K) ----------    
-    numericInput("K_ricker", label = "Carrying capacity",
+    numericInput("K_ricker", label = "Carrying capacity (K)",
                  min = 1, max = 1000, value = 100),
     # User defined time ---------
     numericInput("time_ricker", label = "Number of time steps to project",
@@ -175,7 +178,7 @@ ricker_pop_traj <- reactive({ricker_model(N0 = input$N0_ricker, K = input$K_rick
                                                  r = input$r_ricker, time = input$time_ricker)})
 ricker_df <- reactive({data.frame(Nt = ricker_pop_traj(),
                       time = 1:input$time_ricker,
-                      Ntm1 = lag(ricker_pop_traj()))})
+                      Ntm1 = dplyr::lag(ricker_pop_traj()))})
 
 
 # Generate trajectories for discrete logistic --------
@@ -188,10 +191,13 @@ trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
     labs(title = "Population growth with the Ricker model")})
 
 # cobweb plot for ricker model -----
-cobweb_ricker <- reactive({ggplot(ricker_df(), aes(Ntm1)) + 
-    stat_function(fun = function(x) ricker_eqn(x, input$r_ricker, input$K_ricker)) + 
+cobweb_ricker <- reactive({ggplot(ricker_df()) + 
+    stat_function(fun = function(x) ricker_eqn(x, input$r_ricker, input$K_ricker),
+                  aes(x = seq(1, input$K_ricker*1.05, length.out = input$time_ricker))) + 
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
     geom_hline(yintercept = input$K_ricker, size = .2)+
-    geom_vline(xintercept = input$K_ricker, size = .2) + 
+    geom_vline(xintercept = input$K_ricker, size = .2) +
     ylab(TeX("$N_{t+1}"))+
     xlab(TeX("$N_t$")) +
     labs(title = "Cobweb plot")})
@@ -222,7 +228,7 @@ sidebarLayout(
     numericInput("N0_bh", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1),
     # User defined carrying capacity (K) ----------    
-    numericInput("K_bh", label = "Carrying capacity",
+    numericInput("K_bh", label = "Carrying capacity (K)",
                  min = 1, max = 1000, value = 100),
     # User defined time ---------
     numericInput("time_bh", label = "Number of time steps to project",
@@ -240,7 +246,7 @@ sidebarLayout(
 bh_pop_traj <- reactive({beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, Rd = input$r_bh, time = input$time_bh)})
 bh_df <- reactive({data.frame(Nt = bh_pop_traj(),
                       time = 1:input$time_bh,
-                      Ntm1 = lag(bh_pop_traj()))})
+                      Ntm1 = dplyr::lag(bh_pop_traj()))})
 
 # Generate trajectories for beverton-holt model --------
 trajaectory_plot_bh <- reactive({ggplot(bh_df()) +
@@ -252,8 +258,12 @@ trajaectory_plot_bh <- reactive({ggplot(bh_df()) +
     labs(title = "Population growth with the Beverton-Holt model")})
 
 # Generate cobweb for beverton-holt model --------
-cobweb_bh <- reactive({ggplot(bh_df(), aes(Ntm1)) + 
-    stat_function(fun = function(x) bevertonholt_eqn(x, input$r_bh, input$K_bh)) + 
+cobweb_bh <- reactive({ggplot(bh_df()) + 
+    stat_function(fun = function(x) bevertonholt_eqn(x, input$r_bh, input$K_bh),
+                  aes(x = seq(1, input$K_bh*1.05, length.out = input$time_bh))) + 
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
+
     geom_hline(yintercept = input$K_bh, size = .2)+
     geom_vline(xintercept = input$K_bh, size = .2) + 
     ylab(TeX("$N_{t+1}"))+
