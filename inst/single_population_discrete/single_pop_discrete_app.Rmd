@@ -126,10 +126,10 @@ trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
     labs(title = "Population growth with the discrete logistic model")})
 
 # cobweb for standard discrete logistic model -----
-cobweb_dl <- reactive({ggplot(dl_df(), aes(Ntm1)) + 
-    stat_function(fun = function(x) discretelogistic_eqn(x, input$r_ricker, input$K_ricker)) +
-    geom_hline(yintercept = input$K_ricker, size = .2)+
-    geom_vline(xintercept = input$K_ricker, size = .2) + 
+cobweb_dl <- reactive({ggplot(dl_df(), aes(x = Ntm1)) +
+    stat_function(fun = function(x) discretelogistic_eqn(x, input$rd_dl, input$K_dl)) +
+    geom_hline(yintercept = input$K_dl, size = .2)+
+    geom_vline(xintercept = input$K_dl, size = .2) +
     ylab(TeX("$N_{t+1}"))+
     xlab(TeX("$N_t$")) +
     labs(title = "Cobweb plot")})
