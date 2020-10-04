@@ -83,14 +83,18 @@ plots_to_print <- reactive({trajaectory_plot() +
 
 ### Standard discrete logistic model
 
-$N_{t+1} = r_dN_t\left(1-\frac{N_t}{K}\right)$
+One way to model logistic growth in a population with discrete growth is with the [logistic map](https://en.wikipedia.org/wiki/Logistic_map), which is a discrete time analog of the continuous logistic equation:  
+
+$$N_{t+1} = r_dN_t\left(1-\frac{N_t}{K}\right)$$
+
+This formulation was notably studied by Robert May in the classic 1976 paper "[Simple mathematical models with very complicated dynamics](http://abel.harvard.edu/archive/118r_spring_05/docs/may.pdf)", in which he showed the potential for this model to generate [chaotic](https://en.wikipedia.org/wiki/Logistic_map#Chaos_and_the_logistic_map) dynamics.
 
 ```{r discrete-logistic, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     # User defined lambda -------
     sliderInput("rd_dl", label = "Population growth rate (rd):",
-                min = 0.01, max = 3, value = 1.01, step = .01),
+                min = 0.01, max = 4.5, value = 1.01, step = .01),
     # User defined N0 -------
     numericInput("N0_dl", label = "Initial population size (N0)",
                 min = 1, max = 100, value = 1),
@@ -148,7 +152,12 @@ plots_to_print_dl <- reactive({{trajaectory_plot_dl()/cobweb_dl()} +
 
 ### Ricker model
 
-$N_{t+1} = N_t e^{(r (1 - N_t/K))}$
+Another way to model a population with discrete growth with a carrying capacity is with the Ricker model, originally described in a [1954 paper](https://www.nrcresearchpress.com/doi/abs/10.1139/f54-039) about stock and recruitment in fisheries.  
+
+
+
+$$N_{t+1} = N_t e^{(r (1 - N_t/K))}$$ 
+
 ```{r ricker-model, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
@@ -216,7 +225,9 @@ plots_to_print_ricker <- reactive({{trajaectory_plot_ricker()/cobweb_ricker()} +
 
 ### Beverton Holt model
 
-$N_{t+1} = \frac{RN_t}{1+\left(\frac{R-1}{K}\right)N_t}$
+A third classic model for population growth in discrete time is the Beverton-Holt model, which was also developed in the context of fisheries management:
+
+$$N_{t+1} = \frac{RN_t}{1+\left(\frac{R-1}{K}\right)N_t}$$
 
 ```{r beverton-holt, echo=FALSE}
 sidebarLayout(
@@ -282,6 +293,14 @@ plots_to_print_bh <- reactive({{trajaectory_plot_bh()/cobweb_bh()} +
 
 ```
 
+## References
 
+"[Simple mathematical models with very complicated dynamics](http://abel.harvard.edu/archive/118r_spring_05/docs/may.pdf)", Robert May, 1976.
 
+"[Stock and Recruitment](https://www.nrcresearchpress.com/doi/abs/10.1139/f54-039)", Bill Ricker, 1954.
 
+[Course notes on the Ricker model](http://courses.ecology.uga.edu/ecol4000-fall2018/wp-content/uploads/sites/22/2018/08/Chapter-3-complex-dynamics.pdf) from UGA course on population ecology 
+
+Dr. Sebastian Bonhoeffer's [lecture notes](https://ethz.ch/content/dam/ethz/special-interest/usys/ibz/theoreticalbiology/education/learningmaterials/701-1424-00L/lecture-script-eep_2011.pdf) on Ecology and Evolution (see Ch. 1) 
+
+Dr. Jan Engelstädter's [e-book on analysis of biological data](https://bookdown.org/janengelstaedter/biol3360modelling3/discrete-time-models-in-one-variable.html). 
