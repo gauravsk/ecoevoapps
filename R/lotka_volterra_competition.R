@@ -49,3 +49,23 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
     return(list(c(dN1, dN2)))
   })
 }
+
+#' Run the Lotka-Volterra competition model (with carrying capacity and relative effects)
+#' @param time vector of time units over which to run model
+#' @param init vector of initial population sizes for both species
+#' @param params vector of model parameters
+#' @export
+run_lvcomp <- function(time, init, params) {
+  deSolve::ode(func = lotka_volterra_competition,
+               y = init, times = time, parms = params)
+}
+
+#' Run the Lotka-Volterra competition model (with absolute competitive effects, no carrying capacity)
+#' @param time vector of time units over which to run model
+#' @param init vector of initial population sizes for both species
+#' @param params vector of model parameters
+#' @export
+run_lvcomp_wo_K <- function(time, init, params) {
+  deSolve::ode(func = lotka_volterra_competition_wo_K,
+               y = init, times = time, parms = params)
+}
