@@ -142,15 +142,13 @@ sp2_equilibria <- reactive({
 # Run lotka_volterra_competition function
 lvcomp_out <- reactive({
   if (input$run_time == "run_spec") {
-    ode(func = lotka_volterra_competition, y = init(), 
-        times = time(), parms = params()) %>%
+    ecoevoapps::run_lvcomp(time = time(), init = init(), params = params()) %>% 
     data.frame()
   } else if (input$run_time == "run_to_eq") {
     runs <- 100
     run_seq <- seq(from = 0, to = runs, by = 0.1)
     lvcomp_iter <-
-      ode(func = lotka_volterra_competition, y = init(), 
-          times = run_seq, parms = params()) %>%
+      ecoevoapps::run_lvcomp(time = run_seq, init = init(), params = params()) %>% 
       data.frame()
     if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
         round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
@@ -162,8 +160,7 @@ lvcomp_out <- reactive({
     }
     while (equilibrium == FALSE) {
       lvcomp_iter <- 
-        ode(func = lotka_volterra_competition, y = init(), 
-            times = run_seq, parms = params()) %>%
+        ecoevoapps::run_lvcomp(time = run_seq, init = init(), params = params()) %>% 
         data.frame()
       if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
           round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
@@ -428,15 +425,16 @@ sp2_equilibria_wo_K <- reactive({
 # Run lotka_volterra_competition_wo_K function
 lvcomp_out_wo_K <- reactive({
   if (input$run_time_wo_K == "run_spec") {
-    ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
-        times = time_wo_K(), parms = params_wo_K()) %>%
+    ecoevoapps::run_lvcomp_wo_K(time = time_wo_K(), 
+                                init = init_wo_K(), params = params_wo_K()) %>% 
       data.frame()
   } else if (input$run_time_wo_K == "run_to_eq") {
     runs_wo_K <- 100
     run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
     lvcomp_iter_wo_K <- 
-      ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
-          times = run_seq_wo_K, parms = params_wo_K()) %>%
+      ecoevoapps::run_lvcomp_wo_K(time = run_seq_wo_K, 
+                                  init = init_wo_K(), params = params_wo_K()) %>% 
+
       data.frame()
     if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
         round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
@@ -448,8 +446,8 @@ lvcomp_out_wo_K <- reactive({
     }
     while (equilibrium_wo_K == FALSE) {
       lvcomp_iter_wo_K <- 
-        ode(func = lotka_volterra_competition_wo_K, y = init_wo_K(),
-            times = run_seq_wo_K, parms = params_wo_K()) %>%
+        ecoevoapps::run_lvcomp_wo_K(time = run_seq_wo_K, 
+                                    init = init_wo_K(), params = params_wo_K()) %>% 
       data.frame()
       if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
           round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
