@@ -75,7 +75,7 @@ sidebarLayout(
                   label = "Survival from age 1 to 2 (%)",
                   min = 1,
                   max = 100,
-                  value = 10),
+                  value = 40),
     sliderInput(inputId = "S23",
                   label = "Survival from age 2 to 3 (%)",
                   min = 0,

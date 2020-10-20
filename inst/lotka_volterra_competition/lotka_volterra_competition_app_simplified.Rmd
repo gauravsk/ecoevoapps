@@ -16,14 +16,11 @@ knitr::opts_chunk$set(echo=FALSE)
 theme_set(ecoevoapps::theme_apps())
 ```
 
-The Lotka-Volterra competition equations explore the dynamics of two species that compete with each other for food, space, or other resources. The idea behind this model is that as a species grows in population, it starts being limited both by competition between individuals  within the same species (intra-specific competition), and also by competition from other species (inter-specific competition). Details of the model are available in many ecology texts and on various websites. 
-
-There are several ways of writing the classic Lotka-Volterra competition models. The primary way is to express competition in terms of each species' carrying capacity ($K_1$ and $K_2$) and the relative strength of interspecific competition $\alpha$ and $\beta$. This is the form of the model that is presented in the first tab below. In his classic 2000 paper ["Mechanisms of Maintenance of Speices Diversity"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf), Peter Chesson advocated for expression the Lotka-Volterra competition equations in terms of the absolute competition coefficients for each species; the second tab below allows users to explore that form of the Lotka-Volterra competition model. 
-
+<!--
 # {.tabset}
 
-## Model in terms of carrying capacity and relative competitive effects
-
+## Use carrying capacity
+-->
 Equations for Lotka-Volterra Competition expressed with carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
 $$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
@@ -52,10 +49,11 @@ kable(x = param_df, format = "html",
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
-
+<!--
 Zero net growth isoclines (solved for $N_2$):
 $$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
 $$N_2 = -\beta N_1 + K_2$$
+--> 
 
 ---
 
@@ -63,13 +61,13 @@ $$N_2 = -\beta N_1 + K_2$$
 sidebarLayout(
   sidebarPanel(
     # Allow user to select which plots to display
-    checkboxGroupInput(inputId = "plots_to_show",
-                       label = "Select plots to diplay",
-                       choices = c("N vs. Time" = "N_vs_Time", 
-                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
-                       selected = c("N_vs_Time")),
-    
-    hr(),
+    # checkboxGroupInput(inputId = "plots_to_show",
+    #                    label = "Select plots to diplay",
+    #                    choices = c("N vs. Time" = "N_vs_Time", 
+    #                                "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+    #                    selected = c("N_vs_Time")),
+    # 
+    # hr(),
     
     # User-defined parameter values
     sliderInput(inputId = "r1", 
@@ -188,7 +186,7 @@ lvcomp_out_long <- reactive({
 
 # Plot N vs time for both species
 N_vs_Time <- reactive({ 
-  if ("N_vs_Time" %in% input$plots_to_show) {
+  # if ("N_vs_Time" %in% input$plots_to_show) {
     ggplot(data = lvcomp_out_long()) +
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
@@ -196,7 +194,7 @@ N_vs_Time <- reactive({
       coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
                       expand = FALSE,
                       clip = "off")
-  }
+  # }
 })
 
 # Plot ZNGIs with population trajectories
@@ -209,46 +207,49 @@ ZNGI_sp2 <- reactive({
 })
 
 # Now create plot
-ZNGI <- reactive({ 
-  if ("ZNGI" %in% input$plots_to_show) {
-    ggplot(data = lvcomp_out()) +
-      geom_segment(data = ZNGI_sp1(),
-                   aes(x = x1, y = y1, xend = xend1, yend = yend1, 
-                       color = "Species 1"), size = 2) +
-      geom_segment(data = ZNGI_sp2(),
-                   aes(x = x2, y = y2, xend = xend2, yend = yend2, 
-                       color = "Species 2"), size = 2) +
-      scale_color_manual(values = brewer.pal(3, name = "Set1"), 
-                         labels = c("Species 1", "Species 2")) +
-      geom_path(aes(x = N1, y = N2), size = 1) +
-      geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
-      geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2), 
-                 pch = 21, size = 3, fill = "white", stroke = 1) +
-      geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
-                   y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
-                   xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
-                   yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
-                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
-      coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
-                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
-                      expand = FALSE,
-                      clip = "off")
-  }
-})
+# ZNGI <- reactive({
+#   # if ("ZNGI" %in% input$plots_to_show) {
+#     ggplot(data = lvcomp_out()) +
+#       geom_segment(data = ZNGI_sp1(),
+#                    aes(x = x1, y = y1, xend = xend1, yend = yend1,
+#                        color = "Species 1"), size = 2) +
+#       geom_segment(data = ZNGI_sp2(),
+#                    aes(x = x2, y = y2, xend = xend2, yend = yend2,
+#                        color = "Species 2"), size = 2) +
+#       scale_color_manual(values = brewer.pal(3, name = "Set1"),
+#                          labels = c("Species 1", "Species 2")) +
+#       geom_path(aes(x = N1, y = N2), size = 1) +
+#       geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
+#       geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2),
+#                  pch = 21, size = 3, fill = "white", stroke = 1) +
+#       geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
+#                    y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
+#                    xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
+#                    yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
+#                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
+#       labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+#       coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
+#                       ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
+#                       expand = FALSE,
+#                       clip = "off")
+# }
+# })
 
 # Make a list of plots to print based on user request
-plot_list <- reactive({ 
-  list(N_vs_Time(), ZNGI()) %>%
-    discard(is.null)
-  })
+# plot_list <- reactive({
+#   list(N_vs_Time(), ZNGI()) %>%
+#     discard(is.null)
+#   })
 
 plots_to_print <- reactive({ 
-  wrap_plots(plot_list(), ncol = 1)
+  # wrap_plots(plot_list(), ncol = 1)
+  N_vs_Time()
   })
 ```
 
-## Model in terms of absolute competition coefficients
+
+<!--
+## Don't use carrying capacity
 
 Equations for Lotka-Volterra Competition expressed without carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
@@ -533,12 +534,4 @@ plots_to_print_wo_K <- reactive({
   wrap_plots(plot_list_wo_K(), ncol = 1)
 })
 ```
-
-
-# References 
- 
-- Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
-
-- Vandermeer and Goldberg, 2013. [Population Ecology.](https://press.princeton.edu/books/paperback/9780691160313/population-ecology), Ch. 8. (Access to a digital copy of this textbook may be available through your library). 
-
-- Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
+-->

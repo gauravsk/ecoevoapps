@@ -19,16 +19,23 @@ Populations experience logistic growth can grow (i.e., have a positive populatio
 
 ### Lagged logistic growth 
 
-*Descriptive text to be written*
+In some circumstances, the growth rate of a population might depend on the population size at some time in the past. For example, the reproductive output of individuals may be limited by how much they had to compete for resources as juveniles. We can model such a scenario by making the population growth rate at time $t$ a function of some time $t-\tau$ in the past as follows:  
 
+$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
+You can explore the consequences of lagged logistic growth by choosing the "Lagged density dependence" option in the density dependent simulation. 
+
+
+$$
 ### Parameter table
 ```{r parameter descriptions, echo = F}
 pars_vars <- c("$r_i$", 
                "$K_i$", 
-               "$N_i$")
+               "$N_i$",
+               "$\\tau$")
 descriptions <- c("Intrinsic growth rate of Species $i$",
                  "Carrying capacity of Species $i$",
-                 "Population size of Species $i$")
+                 "Population size of Species $i$",
+                 "Lag time for lagged-logistic growth")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
       col.names = c("Parameter/Variable", "Description")) %>%

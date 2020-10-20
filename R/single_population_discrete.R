@@ -36,7 +36,7 @@ ricker_model <- function(N0, K, r, time) {
 #' @param rd Population growth rate
 #' @param K Carrying capacity
 #' @export
-discretelogistic_eqn <- function(Nt, rd, K) Nt+rd*Nt*(1-Nt/K)
+discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 
 #' Discrete logistic model
 #' @param N0 initial population size of population
