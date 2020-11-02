@@ -121,31 +121,20 @@ init2 <- reactive({c(N1 = input$N2_val)})
 # Generate trajectories for sp 1 --------
 pop_growth <- reactive({
   if(input$densdep == 'indep') {
-    data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
-                            y=init(), parms=params(), times = time()))
-  } else if (input$densdepLag == "nolag") { 
-    data.frame(ode(func = ecoevoapps::logistic_growth,
-                   y=init(), parms=params(), times = time()))
+    data.frame(ecoevoapps::run_exponential_model(time= time(), init = init(), params = params()))
   } else {
-        data.frame(dede(func = ecoevoapps::lagged_logistic_growth,
-                   y=init(), parms=params(), times = time()))
+    data.frame(ecoevoapps::run_logistic_model(time= time(), init = init(), params = params()))
   }
-  
 })
 
 # Generate trajectories for sp 2 --------
 pop_growth2 <- reactive({
   if(input$secondsp) {
     if(input$densdep2 == 'indep') {
-      data.frame(deSolve::ode(func = ecoevoapps::exponential_growth,
-                              y=init2(), parms=params2(), times = time()))
-  } else if (input$densdepLag2 == "nolag"){ 
-    data.frame(ode(func = ecoevoapps::logistic_growth,
-                   y=init2(), parms=params2(), times = time()))
-  } else {
-        data.frame(dede(func = ecoevoapps::lagged_logistic_growth,
-                   y=init2(), parms=params2(), times = time()))
-  }}
+      data.frame(ecoevoapps::run_exponential_model(time= time(), init = init2(), params = params2()))
+    } else {
+      data.frame(ecoevoapps::run_logistic_model(time= time(), init = init2(), params = params2()))
+    }}
 }) 
 
 pop_growth_mod <- reactive ({
