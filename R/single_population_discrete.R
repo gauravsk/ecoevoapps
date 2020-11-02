@@ -3,7 +3,7 @@
 #' @param lambda discrete population growth rate
 #' @param time Number of time steps over which to project the model
 #' @export
-discrete_exponential <- function(N0, lambda, time) {
+run_discrete_exponential <- function(N0, lambda, time) {
   to_return <-   c(N0,N0*(lambda^(1:time)))
   return(to_return)
 }
@@ -21,7 +21,7 @@ ricker_eqn <- function(Nt, r, K) Nt*exp(r*(1-Nt/K))
 #' @param r Population growth rate
 #' @param time Number of time steps over which to project the model
 #' @export
-ricker_model <- function(N0, K, r, time) {
+run_ricker_model <- function(N0, K, r, time) {
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {
@@ -44,7 +44,7 @@ discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 #' @param rd Discrete growth factor
 #' @param time Number of time steps over which to project the model
 #' @export
-discrete_logistic <- function(N0, K, rd, time) {
+run_discrete_logistic_model <- function(N0, K, rd, time) {
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {
@@ -68,7 +68,7 @@ bevertonholt_eqn <- function(Nt, Rd, K) (Rd*Nt)/(1+((Rd-1)/K)*Nt)
 #' @param Rd population growth rate
 #' @param time Number of time steps over which to project the model
 #' @export
-beverton_holt_model <- function(N0, K, Rd, time) {
+run_beverton_holt_model <- function(N0, K, Rd, time) {
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {

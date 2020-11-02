@@ -47,7 +47,7 @@ sidebarLayout(
 )
 
 # Generate trajectories for sp 1 --------
-exponential_pop_traj <- reactive({discrete_exponential(N0 = input$N0, 
+exponential_pop_traj <- reactive({run_discrete_exponential(N0 = input$N0, 
                                                        lambda = input$lambda,
                                                        time = input$time)})
 exponential_pop_df <- reactive({data.frame(time = 0:input$time,
@@ -114,7 +114,7 @@ sidebarLayout(
 )
 
 # Get user defined parameters for discrete logistic  ------
-dl_pop_traj <- reactive({discrete_logistic(N0 = input$N0_dl, K = input$K_dl, 
+dl_pop_traj <- reactive({run_discrete_logistic_model(N0 = input$N0_dl, K = input$K_dl, 
                                            rd = input$rd_dl, time = input$time_dl)})
 dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
                       time = 1:input$time_dl,
@@ -183,7 +183,7 @@ sidebarLayout(
 )
 
 # Get user defined parameters for discrete logistic  ------
-ricker_pop_traj <- reactive({ricker_model(N0 = input$N0_ricker, K = input$K_ricker, 
+ricker_pop_traj <- reactive({run_ricker_model(N0 = input$N0_ricker, K = input$K_ricker, 
                                                  r = input$r_ricker, time = input$time_ricker)})
 ricker_df <- reactive({data.frame(Nt = ricker_pop_traj(),
                       time = 1:input$time_ricker,
@@ -254,7 +254,7 @@ sidebarLayout(
 )
 
 # Get user defined parameters for discrete logistic  ------
-bh_pop_traj <- reactive({beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, Rd = input$r_bh, time = input$time_bh)})
+bh_pop_traj <- reactive({run_beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, Rd = input$r_bh, time = input$time_bh)})
 bh_df <- reactive({data.frame(Nt = bh_pop_traj(),
                       time = 1:input$time_bh,
                       Ntm1 = dplyr::lag(bh_pop_traj()))})
