@@ -2,7 +2,6 @@
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params intrinsic growth rate r
-#' @export
 exponential_growth <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -27,7 +26,6 @@ run_exponential_model <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of r (intrinsic growth rate) and K (carrying capacity)
-#' @export
 logistic_growth <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -44,7 +42,6 @@ logistic_growth <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of r (intrinsic growth rate), K (carrying capacity), and tau (time lag)
-#' @export
 lagged_logistic_growth <- function(time, init, params) {
   with (as.list(c(time,init,params)), {
     tlag <- time - tau
@@ -73,4 +70,3 @@ run_logistic_model <- function(time, init, params) {
                  y = init, times = time, parms = params)
   }
 }
-

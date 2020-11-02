@@ -111,11 +111,23 @@ sidebarLayout(
 )
 
 # Get user defined parameters for sp 1  ------
-params <- reactive({c(r = input$r_val, K = input$K_val, tau = input$tau)})
+params <- reactive({
+  if(input$densdepLag == 'lag') {
+    c(r = input$r_val, K = input$K_val, tau = input$tau) 
+  } else {
+    c(r = input$r_val, K = input$K_val) 
+  }
+  })
 init <- reactive({c(N1 = input$N1_val)})
 time <- reactive({seq(from = 0, to = input$max_time, by=1)})
 
-params2 <- reactive({c(r = input$r_val2, K = input$K_val2, tau = input$tau2)})
+params2 <- reactive({
+  if(input$densdepLag == 'lag') {
+    c(r = input$r_val2, K = input$K_val2, tau = input$tau2)
+  } else {
+    c(r = input$r_val2, K = input$K_val2)
+  }
+})
 init2 <- reactive({c(N1 = input$N2_val)})
 
 # Generate trajectories for sp 1 --------

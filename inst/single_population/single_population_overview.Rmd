@@ -25,7 +25,7 @@ $$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
 You can explore the consequences of lagged logistic growth by choosing the "Lagged density dependence" option in the density dependent simulation. 
 
 
-$$
+
 ### Parameter table
 ```{r parameter descriptions, echo = F}
 pars_vars <- c("$r_i$", 
