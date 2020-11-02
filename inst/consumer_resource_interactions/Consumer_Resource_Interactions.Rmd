@@ -17,6 +17,7 @@ library(ecoevoapps)
 library(patchwork)
 library(RColorBrewer)
 library(kableExtra)
+ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
 
@@ -25,79 +26,6 @@ library(kableExtra)
 Consumer-resource models can model the interactions of predator-prey, parasitoid-host, herbivore-plant, etc. Here we refer to the resource as prey and the consumer as predator.
 
 ```{r consumer resource functions, include=FALSE}
-
-## EQUATIONS FOR DESOLVE -------
-# Type I Functional Response
-
-lv_pred1 <- function(time,init,pars) {
-  with (as.list(c(time,init,pars)), {
-    # description of parameters:
-    # r = per capita growth rate (prey)
-    # a = attack rate 
-    # e = conversion efficiency
-    # d = predator death rate 
-    
-    dH_dt = r*H - (a*H*P)
-    dP_dt = e*(a*H*P) - d*P
-    return(list(c(dH = dH_dt, dP = dP_dt)))
-  
-  })
-}
-
-# Logistic prey
-
-logprey <- function(time,init,pars) {
-  with (as.list(c(time,init,pars)), {
-    # description of parameters:
-    # r = per capita growth rate (prey)
-    # a = attack rate 
-    # e = conversion efficiency
-    # d = predator death rate 
-    # K = carrying capacity of the prey
-    
-    dH_dt = r*H*(1 - H/K) - (a*H*P)
-    dP_dt = e*(a*H*P) - d*P
-    return(list(c(dH = dH_dt, dP = dP_dt)))
-  
-  })
-}
-
-# Type II Functional Response
-
-lv_pred2 <- function(time,init,pars) {
-  with (as.list(c(time,init,pars)), {
-    # description of parameters:
-    # r = per capita growth rate (prey)
-    # a = attack rate 
-    # T_h = handling time
-    # e = conversion efficiency
-    # d = predator death rate 
-    
-    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
-    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
-    return(list(c(dH = dH_dt, dP = dP_dt)))
-  
-  })
-}
-
-# Rosenzweig-MacArthur Model
-
-rm_predation <-function(time,init,pars) {
-  with (as.list(c(time,init,pars)), {
-    # description of parameters:
-    # r = per capita growth rate (prey)
-    # K = prey carrying capacity
-    # a = attack rate 
-    # T_h = handling time
-    # e = conversion efficiency
-    # d = predator death rate 
-    
-    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
-    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
-    return(list(c(dH = dH_dt, dP = dP_dt)))
-    
-  })
-}
 
 ## EQ FOR SINGLE TIMESTEP CALCULATIONS -------
 
@@ -330,39 +258,43 @@ init_lv_pred1 <- reactive({c(H = input$H_lv_pred1 , P = input$P_lv_pred1)})
     # e = conversion efficiency
     # d = predator death rate 
 
-pars_lv_pred1 <- reactive({c(r = input$r_lv_pred1, a = input$a_lv_pred1 , e = input$e_lv_pred1, d = input$d_lv_pred1)})
+pars_lv_pred1 <- reactive({
+  c(r = input$r_lv_pred1, a = input$a_lv_pred1 , e = input$e_lv_pred1, d = input$d_lv_pred1)
+})
 
 # Time over which to simulate model dynamics
 time_lv_pred1 <- reactive({seq(0, input$t_lv_pred1, by = .1)})
-
-
-
-# Use the lv_competition function above to run 
-# the lotka-volterra competition model using the 
-# parameter estimates defined above
-
-out_lv_pred1 <- reactive({data.frame(deSolve::ode(func = lv_pred1, 
-                                                  y = init_lv_pred1(), parms = pars_lv_pred1(), times = time_lv_pred1()))})
+# simulate model dynamics
+out_lv_pred1 <- reactive({
+  data.frame(ecoevoapps::run_predprey_model(
+    time = time_lv_pred1(),
+    init = init_lv_pred1(),
+    params = pars_lv_pred1()
+  ))
+})
   
-
 # Reshape the data so that population sizes of both 
 # species are in one column, and an extra column to define
 # species name. This helps with the plotting...
 
-out_long_lv_pred1 <- reactive({pivot_longer(out_lv_pred1(), c(H,P), "Population")})
-
+out_long_lv_pred1 <- reactive({
+  pivot_longer(out_lv_pred1(), c(H,P), "Population")
+})
 
 # Plots ------
 
 ## make abundance thru time plot
-plot_lvpred1 <- reactive({ggplot(out_long_lv_pred1()) + 
-                             geom_line(aes(x = time, y = value, color = Population), size = 2) + 
-                             scale_color_brewer(palette = "Set1") +
-                             ylab("Population size") + 
-    ecoevoapps::theme_apps()})
+plot_lvpred1 <- reactive({
+  ggplot(out_long_lv_pred1()) + 
+    geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") 
+})
 
 ## make isocline plot and add vector field depending on user input
-vec_input_lv_pred1 <- reactive({vector_field_input(sim_df = out_lv_pred1(), eq_func = lv_pred1_eq, pars_for_eq_func = pars_lv_pred1())})
+vec_input_lv_pred1 <- reactive({
+  vector_field_input(sim_df = out_lv_pred1(), eq_func = lv_pred1_eq, pars_for_eq_func = pars_lv_pred1())
+})
 
 np_lvpred1 <- reactive({
   
@@ -413,33 +345,6 @@ np_lvpred1 <- reactive({
   
 })
 
-
-# 
-# pop_out_lv_pred1 <- reactive({
-#   pop_out <- out_lv_pred1()
-#   pop_out$dH <- c(NA, diff(pop_out$H))
-#   pop_out$dP <- c(NA, diff(pop_out$P))
-#   # not using pgrs right now but could be useful to calculate
-#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
-#   pop_out
-# })
-# 
-# pop_out_long_lv_pred1 <- reactive({ pop_out_lv_pred1() %>%
-#   select(time, pgrH, pgrP) %>%
-#   pivot_longer(c(pgrH, pgrP), "group") %>%
-#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
-# })
-# 
-# 
-# # Plot dS, dI, dR over time
-# dabund_plot_lv_pred1 <- reactive({ ggplot(pop_out_long_lv_pred1()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") +
-#     ecoevoapps::theme_apps()
-# })
-
-   
 ```
 
 ### Logistic Prey
@@ -527,7 +432,9 @@ sidebarLayout(
 
  # Set the initial population sizes
 
-init_logprey <- reactive({c(H = input$H_logprey, P = input$P_logprey)})
+init_logprey <- reactive({
+  c(H = input$H_logprey, P = input$P_logprey)
+})
 
 # Set the parameter values
 
@@ -538,7 +445,10 @@ init_logprey <- reactive({c(H = input$H_logprey, P = input$P_logprey)})
     # e = conversion efficiency
     # d = predator death rate 
 
-pars_logprey <- reactive({c(r = input$r_logprey, K = input$K_logprey, a = input$a_logprey, e = input$e_logprey, d = input$d_logprey)})
+pars_logprey <- reactive({
+  c(r = input$r_logprey, K = input$K_logprey, 
+    a = input$a_logprey, e = input$e_logprey, d = input$d_logprey)
+  })
 
 # Time over which to simulate model dynamics
 time_logprey <- reactive({seq(0, input$t_logprey, by = .1)})
@@ -549,27 +459,41 @@ time_logprey <- reactive({seq(0, input$t_logprey, by = .1)})
 # the lotka-volterra competition model using the 
 # parameter estimates defined above
 
-out_logprey <- reactive({data.frame(deSolve::ode(func = logprey, y = init_logprey(), parms = pars_logprey(), times = time_logprey()))})
+out_logprey <- reactive({
+    data.frame(ecoevoapps::run_predprey_model(
+    time = time_logprey(),
+    init = init_logprey(),
+    params = pars_logprey()
+  ))
+})
   
 
 # Reshape the data so that population sizes of both 
 # species are in one column, and an extra column to define
 # species name. This helps with the plotting...
 
-out_long_logprey <- reactive({pivot_longer(out_logprey(), c(H,P), "Population")})
+out_long_logprey <- reactive({
+  pivot_longer(out_logprey(), c(H,P), "Population")
+})
 
 
 # Plots ------
 
 ## make abundance thru time plot
-plot_logprey <- reactive({ggplot(out_long_logprey()) + 
-  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
-  scale_color_brewer(palette = "Set1") +
-  ylab("Population size") +
-  ecoevoapps::theme_apps()})
+plot_logprey <- reactive({
+  ggplot(out_long_logprey()) + 
+    geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") 
+})
 
 ## make isocline plot and add vector field depending on user input
-vec_input_logprey <- reactive({vector_field_input(sim_df = out_logprey(), eq_func = logprey_eq, pars_for_eq_func = pars_logprey(), vec_density = 15)})
+vec_input_logprey <- reactive({
+  vector_field_input(sim_df = out_logprey(), 
+                     eq_func = logprey_eq, 
+                     pars_for_eq_func = pars_logprey(),
+                     vec_density = 15)
+})
 
 np_logprey <- reactive({
   
@@ -626,30 +550,6 @@ np_logprey <- reactive({
   
 })
 
-# pop_out_logprey <- reactive({
-#   pop_out <- out_logprey()
-#   pop_out$dH <- c(NA, diff(pop_out$H))
-#   pop_out$dP <- c(NA, diff(pop_out$P))
-#   # not using pgrs right now but could be useful to calculate
-#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
-#   pop_out
-# })
-# 
-# pop_out_long_logprey <- reactive({ pop_out_logprey() %>%
-#   select(time, pgrH, pgrP) %>%
-#   pivot_longer(c(pgrH, pgrP), "group") %>%
-#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
-# })
-# 
-# 
-# # Plot dS, dI, dR over time
-# dabund_plot_logprey <- reactive({ ggplot(pop_out_long_logprey()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") +
-#     ecoevoapps::theme_apps()
-# })
-   
 ```
 
 ### Type II Functional Response
@@ -737,8 +637,9 @@ sidebarLayout(
 )
 
  # Set the initial population sizes
-
-init_lv_pred2 <- reactive({c(H = input$H_lv_pred2 , P = input$P_lv_pred2)})
+init_lv_pred2 <- reactive({
+  c(H = input$H_lv_pred2 , P = input$P_lv_pred2)
+})
 
 # Set the parameter values
 
@@ -749,7 +650,10 @@ init_lv_pred2 <- reactive({c(H = input$H_lv_pred2 , P = input$P_lv_pred2)})
     # e = conversion efficiency
     # d = predator death rate 
 
-pars_lv_pred2 <- reactive({c(r = input$r_lv_pred2, a = input$a_lv_pred2 , T_h = input$T_h_lv_pred2 , e = input$e_lv_pred2 , d = input$d_lv_pred2 )})
+pars_lv_pred2 <- reactive({
+  c(r = input$r_lv_pred2, a = input$a_lv_pred2, 
+    T_h = input$T_h_lv_pred2 , e = input$e_lv_pred2, 
+    d = input$d_lv_pred2 )})
 
 # Time over which to simulate model dynamics
 time_lv_pred2 <- reactive({seq(0,input$t_lv_pred2,by = .1)})
@@ -759,30 +663,40 @@ time_lv_pred2 <- reactive({seq(0,input$t_lv_pred2,by = .1)})
 # the lotka-volterra competition model using the 
 # parameter estimates defined above
 
-out_lv_pred2 <- reactive({data.frame(deSolve::ode(func = lv_pred2, y = init_lv_pred2(), parms = pars_lv_pred2(), times = time_lv_pred2()))})
+out_lv_pred2 <- reactive({
+  data.frame(ecoevoapps::run_predprey_model(
+    time = time_lv_pred2(),
+    init = init_lv_pred2(),
+    params = pars_lv_pred2()
+  ))
+})
   
 
 # Reshape the data so that population sizes of both 
 # species are in one column, and an extra column to define
 # species name. This helps with the plotting...
 
-out_long_lv_pred2 <- reactive({pivot_longer(out_lv_pred2(), c(H,P), "Population")})
-
+out_long_lv_pred2 <- reactive({
+  pivot_longer(out_lv_pred2(), c(H,P), "Population")
+})
 
 # Plots ------
 
 ## make abundance thru time plot
-plot_lvpred2 <- reactive({ggplot(out_long_lv_pred2()) + 
+plot_lvpred2 <- reactive({
+  ggplot(out_long_lv_pred2()) + 
   geom_line(aes(x = time, y = value, color = Population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
-  ylab("Population size") +
-  ecoevoapps::theme_apps()})
+    ylab("Population size")
+})
 
 ## make isocline plot and add vector field depending on user input
-vec_input_lv_pred2 <- reactive({vector_field_input(sim_df = out_lv_pred2(), eq_func = lv_pred2_eq, pars_for_eq_func = pars_lv_pred2())})
+vec_input_lv_pred2 <- reactive({
+  vector_field_input(sim_df = out_lv_pred2(), 
+                     eq_func = lv_pred2_eq, 
+                     pars_for_eq_func = pars_lv_pred2())})
 
 np_lvpred2 <- reactive({
-  
   if("Yes" %in% input$vectors_lv_pred2) {
   vector_field(out_lv_pred2(), vec_input_lv_pred2()) +
     
@@ -831,31 +745,6 @@ np_lvpred2 <- reactive({
   
 })
 
-
-# pop_out_lv_pred2 <- reactive({
-#   pop_out <- out_lv_pred2()
-#   pop_out$dH <- c(NA, diff(pop_out$H))
-#   pop_out$dP <- c(NA, diff(pop_out$P))
-#   # not using pgrs right now but could be useful to calculate
-#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
-#   pop_out
-# })
-# 
-# pop_out_long_lv_pred2 <- reactive({ pop_out_lv_pred2() %>%
-#   select(time, pgrH, pgrP) %>%
-#   pivot_longer(c(pgrH, pgrP), "group") %>%
-#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
-# })
-# 
-# 
-# # Plot dS, dI, dR over time
-# dabund_plot_lv_pred2 <- reactive({ ggplot(pop_out_long_lv_pred2()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") +
-#     ecoevoapps::theme_apps()
-# })
-   
 ```
 
 ### Rosenzweig-MacArthur Model 
@@ -939,10 +828,8 @@ sidebarLayout(
  
   mainPanel(renderPlot(plot_rm()),
             renderPlot(np_rm())
-            # renderPlot(dabund_plot_rm())
             )
   
-  #mainPanel(renderPlot(lvpred2_np()))
 )
 
  # Set the initial population sizes
@@ -958,25 +845,27 @@ init_rm <- reactive({c(H = input$H_rm , P = input$P_rm)})
     # e = conversion efficiency
     # d = predator death rate 
 
-pars_rm <- reactive({c(r = input$r_rm, K = input$K_rm, a = input$a_rm , T_h = input$T_h_rm , e = input$e_rm , d = input$d_rm )})
+pars_rm <- reactive({
+  c(r = input$r_rm, K = input$K_rm, 
+    a = input$a_rm, T_h = input$T_h_rm, 
+    e = input$e_rm, d = input$d_rm )})
 
 # Time over which to simulate model dynamics
 time_rm <- reactive({seq(0,input$t_rm,by = .1)})
 
-
-
-# Use the lv_competition function above to run 
-# the lotka-volterra competition model using the 
-# parameter estimates defined above
-
-out_rm <- reactive({data.frame(deSolve::ode(func = rm_predation, y = init_rm(), parms = pars_rm(), times = time_rm()))})
+out_rm <- reactive({
+    data.frame(ecoevoapps::run_predprey_model(
+    time = time_rm(),
+    init = init_rm(),
+    params = pars_rm()
+  ))
+  })
   
 
 # Reshape the data so that population sizes of both 
-# species are in one column, and an extra column to define
-# species name. This helps with the plotting...
-
-out_long_rm <- reactive({pivot_longer(out_rm(), c(H,P), "Population")})
+out_long_rm <- reactive({
+  pivot_longer(out_rm(), c(H,P), "Population")
+})
 
 
 # Plots ------
@@ -985,11 +874,13 @@ out_long_rm <- reactive({pivot_longer(out_rm(), c(H,P), "Population")})
 plot_rm <- reactive({ggplot(out_long_rm()) + 
   geom_line(aes(x = time, y = value, color = Population), size = 2) + 
   scale_color_brewer(palette = "Set1") +
-  ylab("Population size") + 
-  ecoevoapps::theme_apps()})
+    ylab("Population size") 
+})
 
 ## make isocline plot and add vector field depending on user input
-vec_input_rm <- reactive({vector_field_input(sim_df = out_rm(), eq_func = rm_predation_eq, pars_for_eq_func = pars_rm())})
+vec_input_rm <- reactive({
+  vector_field_input(sim_df = out_rm(), eq_func = rm_predation_eq, pars_for_eq_func = pars_rm())
+  })
 
 np_rm <- reactive({
   
@@ -1041,31 +932,6 @@ np_rm <- reactive({
   
 })
 
-
-# pop_out_rm <- reactive({
-#   pop_out <- out_rm()
-#   pop_out$dH <- c(NA, diff(pop_out$H))
-#   pop_out$dP <- c(NA, diff(pop_out$P))
-#   # not using pgrs right now but could be useful to calculate
-#   pop_out <- pop_out %>% mutate(pgrH = dH/H, pgrP = dP/P)
-#   pop_out
-# })
-# 
-# pop_out_long_rm <- reactive({ pop_out_rm() %>%
-#   select(time, pgrH, pgrP) %>%
-#   pivot_longer(c(pgrH, pgrP), "group") %>%
-#   mutate(group = factor(group, levels = c("pgrH", "pgrP")))
-# })
-# 
-# 
-# # Plot dS, dI, dR over time
-# dabund_plot_rm <- reactive({ ggplot(pop_out_long_rm()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") +
-#     ecoevoapps::theme_apps()
-# })
-   
 ```
 
 ## Consumer Functional Response {.tabset}
