@@ -55,17 +55,13 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' @param init vector of initial population sizes for both species
 #' @param params vector of model parameters
 #' @export
-run_lvcomp <- function(time, init, params) {
-  deSolve::ode(func = lotka_volterra_competition,
-               y = init, times = time, parms = params)
-}
+run_lvcomp_model <- function(time, init, params) {
 
-#' Run the Lotka-Volterra competition model (with absolute competitive effects, no carrying capacity)
-#' @param time vector of time units over which to run model
-#' @param init vector of initial population sizes for both species
-#' @param params vector of model parameters
-#' @export
-run_lvcomp_wo_K <- function(time, init, params) {
-  deSolve::ode(func = lotka_volterra_competition_wo_K,
-               y = init, times = time, parms = params)
+  if("K1" %in% names(params)) {
+    deSolve::ode(func = lotka_volterra_competition,
+                 y = init, times = time, parms = params)
+  } else {
+    deSolve::ode(func = lotka_volterra_competition_wo_K,
+                 y = init, times = time, parms = params)
+  }
 }
