@@ -70,18 +70,14 @@ sidebarLayout(
 
 Dvec <- reactive({c(input$D1, input$D2)})
 Avec <- reactive({c(input$A1, input$A2)})
-map <- reactive({
-  # generate "map" of islands
-  make_islands_map(tx = tx, ty = ty, txa = txa, tya = tya,
-                   txb = txb, tyb = tyb, D = Dvec(), 
-                   A = Avec(), M=input$M, k=0.015)
-  
+plots <- reactive({
+  ecoevoapps::run_ibiogeo_model(tx = tx, ty = ty, txa = txa, tya = tya,
+                                txb = txb, tyb = tyb, D = Dvec(), 
+                                A = Avec(), M=input$M, k=0.015)
 })
 
-eq_plot <- reactive({
-  # generate plot that shows equilibrium species number
-  make_equilibrium_plot(D = Dvec(), A = Avec(), M = input$M, k = k)
-})
+map <- reactive({plots()$map})
+eq_plot <- reactive({plots()$eq_plot})
 
 plot_to_print <- reactive({
   map() / eq_plot()
