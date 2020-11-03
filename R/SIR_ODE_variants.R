@@ -2,7 +2,6 @@
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), and v(vaccination rate)
-#' @export
 SIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -21,7 +20,6 @@ SIR <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), and v(vaccination rate)
-#' @export
 SIR_no_vitals <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -39,7 +37,6 @@ SIR_no_vitals <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), v (vaccination rate), and a (inverse of incubation period)
-#' @export
 SEIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -60,7 +57,6 @@ SEIR <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m (natural birth/death rate), v (vaccination rate), a (inverse of incubation period), and mu (death to infections)
-#' @export
 SIRD <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -81,7 +77,6 @@ SIRD <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
-#' @export
 SIS <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -98,7 +93,6 @@ SIS <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), and v(vaccination rate)
-#' @export
 SIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -118,7 +112,6 @@ SIR_ft <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), v (vaccination rate), and a (inverse of incubation period)
-#' @export
 SEIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -139,7 +132,6 @@ SEIR_ft <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate), m (natural birth/death rate), v (vaccination rate), a (inverse of incubation period), and mu (death to infections)
-#' @export
 SIRD_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -160,7 +152,6 @@ SIRD_ft <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
-#' @export
 SIS_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -174,3 +165,36 @@ SIS_ft <- function(time,init,params) {
 }
 
 
+#' Run infectious disease models models
+#' @param time vector of time units over which to run model
+#' @param init initial population size of population
+#' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
+#' @export
+run_infectiousdisease_model <- function(time, init, params, model_type) {
+  if(model_type == "SIR") {
+    data.frame(deSolve::ode(func = SIR, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SIR_ft") {
+    data.frame(deSolve::ode(func = SIR_ft, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SEIR") {
+    data.frame(deSolve::ode(func = SEIR, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SEIR_ft") {
+    data.frame(deSolve::ode(func = SEIR_ft, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SIRD") {
+    data.frame(deSolve::ode(func = SIRD, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SIRD_ft") {
+    data.frame(deSolve::ode(func = SIRD_ft, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SIS") {
+    data.frame(deSolve::ode(func = SIS, y = init,
+                            parms = params, times = time))
+  } else if(model_type == "SIS_ft") {
+    data.frame(deSolve::ode(func = SIS_ft, y = init,
+                            parms = params, times = time))
+  }
+
+}

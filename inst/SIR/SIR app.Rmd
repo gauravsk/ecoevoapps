@@ -63,15 +63,12 @@ kable(x = param_df, format = "html",
 
 ```{r SIR app, echo=FALSE}
 sidebarLayout(
-  
   sidebarPanel(
     
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #gamma - recovery rate
-    #v - vaccination rate
+    # m - death/birth rate; beta - infection rate
+    # gamma - recovery rate; v - vaccination rate
     
     sliderInput("m", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -92,13 +89,10 @@ sidebarLayout(
     
     ### Ask user for time to simulate ----
     numericInput("time", label = "Time to simulate", min = 10, value = 100)
-    
-    
   ),
   
   # Render plots -----------------
   mainPanel(renderPlot({plots_to_render_SIR()}, width = 600, height = 800))
-  
 )
 
 
@@ -111,13 +105,17 @@ params <- reactive({c(m = input$m, beta = input$beta, v = input$v, gamma = input
 # Time over which to simulate model dynamics
 time <- reactive({seq(0,input$time,by = .1)})
 
-# Use the SIR function above to run  the SIR model 
-out <- reactive({data.frame(deSolve::ode(func = SIR,
-                               y=init(), parms=params(), times = time()))})
+# Simulate model dynamics 
+out <- reactive({
+  data.frame(run_infectiousdisease_model(time = time(), params = params(),
+                                         init = init(), model_type = "SIR"))
+  })
 
 # Reshape the data for plotting
-out_long <- reactive({pivot_longer(out(), c(S, I, R), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I", "R")))})
+out_long <- reactive({
+  pivot_longer(out(), c(S, I, R), "group") %>% 
+  mutate(group = factor(group, levels = c("S", "I", "R")))
+})
 
 # use out to create dS, dI, dR, and the per capita changes in population
 pop_out <- reactive({
@@ -138,7 +136,8 @@ pop_out_long <- reactive({ pop_out() %>%
 
 # Make plots -------------------
 # Plot abundance through time ----------
-abund_plot_SIR <- reactive({ggplot(out_long()) + 
+abund_plot_SIR <- reactive({
+  ggplot(out_long()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size")
@@ -152,7 +151,8 @@ abund_plot_SIR <- reactive({ggplot(out_long()) +
 # })
 
 # Plot S vs I ---------
-SIplot <- reactive({ggplot(out()) +
+SIplot <- reactive({
+  ggplot(out()) +
     geom_segment(x = out()$S[round(length(time()))/25], 
                  y = out()$I[round(length(time()))/25], 
                  xend = out()$S[round(length(time())/25) + 1], 
@@ -162,9 +162,11 @@ SIplot <- reactive({ggplot(out()) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
     xlab("S size")
+})
 
 # Plot I vs R --------------
-RIplot <- reactive({ggplot(out()) +
+RIplot <- reactive({
+  ggplot(out()) +
     geom_segment(x = out()$R[round(length(time()))/25], 
                  y = out()$I[round(length(time()))/25], 
                  xend = out()$R[round(length(time())/25) + 1], 
@@ -173,10 +175,12 @@ RIplot <- reactive({ggplot(out()) +
   geom_path(aes(x = R, y = I), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("I size") +
-  xlab("R size") })
+  xlab("R size") 
+})
 
 # Plot S vs R ------------
-SRplot <- reactive({ggplot(out()) +
+SRplot <- reactive({
+  ggplot(out()) +
     geom_segment(x = out()$S[round(length(time()))/25], 
                  y = out()$R[round(length(time()))/25], 
                  xend = out()$S[round(length(time())/25) + 1], 
@@ -185,7 +189,8 @@ SRplot <- reactive({ggplot(out()) +
   geom_path(aes(x = S, y = R), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("R size") +
-  xlab("S size")})
+  xlab("S size")
+})
 
 # combine 2d plots -----
 SIR_2d_plots <- reactive({
@@ -244,9 +249,7 @@ sidebarLayout(
     
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #gamma - recovery rate
+    # m - death/birth rate; beta - infection rate; gamma - recovery rate
     
     sliderInput("m_sis", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -276,14 +279,14 @@ init_sis <- reactive({c(S = input$S0_sis, I = input$I0_sis)})
 # Set the parameter values
 params_sis <- reactive({
   c(m = input$m_sis, beta = input$beta_sis, gamma = input$gamma_sis)
-  })
+})
 # Time over which to simulate model dynamics
 time_sis <- reactive({seq(0, input$time_sis, by = .1)})
 
-# Use the SIS function to simulate dynamics
+# Simulate model dynamics 
 out_sis <- reactive({
-  data.frame(deSolve::ode(func = SIS, y = init_sis(),
-                          parms = params_sis(), times = time_sis()))
+  data.frame(run_infectiousdisease_model(time = time_sis(), params = params_sis(),
+                                         init = init_sis(), model_type = "SIS"))
 })
 
 # Reshape the data so for plotting
@@ -302,7 +305,8 @@ pop_out_sis <- reactive({
   pop_out
 })
 
-pop_out_long_sis <- reactive({ pop_out_sis() %>%
+pop_out_long_sis <- reactive({
+  pop_out_sis() %>%
   select(time, dS, dI) %>%
   pivot_longer(c(dS, dI), "group") %>%
   mutate(group = factor(group, levels = c("dS", "dI")))
@@ -310,7 +314,8 @@ pop_out_long_sis <- reactive({ pop_out_sis() %>%
 
 # Make plots --------------------
 # Plot abundance through time
-abund_plot_sis <- reactive({ggplot(out_long_sis()) + 
+abund_plot_sis <- reactive({
+  ggplot(out_long_sis()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size")
@@ -324,7 +329,8 @@ abund_plot_sis <- reactive({ggplot(out_long_sis()) +
 # })
 
 # Plot S vs I
-SIplot_sis <- reactive({ggplot(out_sis()) +
+SIplot_sis <- reactive({
+  ggplot(out_sis()) +
     geom_segment(x = out_sis()$S[round(length(time_sis()))/25], 
                  y = out_sis()$I[round(length(time_sis()))/25], 
                  xend = out_sis()$S[round(length(time_sis())/25) + 1], 
@@ -333,9 +339,8 @@ SIplot_sis <- reactive({ggplot(out_sis()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size") })
-
-
+    xlab("S size") 
+})
 
 # Make a list of plots and print out plots based on which ones were requested ----
 
@@ -344,7 +349,6 @@ plots_to_render_sis <- reactive({
              # dabund_plot_sis(), 
              SIplot_sis(), nrow = 2) 
 })
-
 
 ```
 
@@ -395,11 +399,8 @@ sidebarLayout(
     
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #a - inverse of incubation period
-    #gamma - recovery rate
-    #v - vaccination rate
+    #m - death/birth rate; beta - infection rate; a - inverse of incubation period
+    #gamma - recovery rate; v - vaccination rate
     
     sliderInput("m_seir", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -445,12 +446,10 @@ params_seir <- reactive({
 # Time over which to simulate model dynamics
 time_seir <- reactive({seq(0, input$time_seir, by = .1)})
 
-# Use the SEIR function above to run 
-# the SEIR model using the 
-# parameter estimates defined above
+# Simulate model dynamics 
 out_seir <- reactive({
-  data.frame(deSolve::ode(func = SEIR, y = init_seir(), 
-                          parms = params_seir(), times = time_seir()))
+  data.frame(run_infectiousdisease_model(time = time_seir(), params = params_seir(),
+                                         init = init_seir(), model_type = "SEIR"))
 })
 
 # Reshape the data for plotting
@@ -481,7 +480,8 @@ pop_out_long_seir <- reactive({
 # Make plots --------------------
 
 # Plot abundance through time ----------
-abund_plot_seir <- reactive({ggplot(out_long_seir()) + 
+abund_plot_seir <- reactive({
+  ggplot(out_long_seir()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") 
@@ -495,7 +495,8 @@ abund_plot_seir <- reactive({ggplot(out_long_seir()) +
 # })
 
 # Plot S vs E ---------
-SEplot_seir <- reactive({ggplot(out_seir()) +
+SEplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$E[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -507,7 +508,8 @@ SEplot_seir <- reactive({ggplot(out_seir()) +
     xlab("S size")})
 
 # Plot S vs I ---------
-SIplot_seir <- reactive({ggplot(out_seir()) +
+SIplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -519,7 +521,8 @@ SIplot_seir <- reactive({ggplot(out_seir()) +
     xlab("S size")})
 
 # Plot S vs R ---------
-SRplot_seir <- reactive({ggplot(out_seir()) +
+SRplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$S[round(length(time_seir()))/25], 
                  y = out_seir()$R[round(length(time_seir()))/25], 
                  xend = out_seir()$S[round(length(time_seir())/25) + 1], 
@@ -531,7 +534,8 @@ SRplot_seir <- reactive({ggplot(out_seir()) +
     xlab("S size") })
 
 # Plot E vs I ---------
-EIplot_seir <- reactive({ggplot(out_seir()) +
+EIplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$E[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$E[round(length(time_seir())/25) + 1], 
@@ -543,7 +547,8 @@ EIplot_seir <- reactive({ggplot(out_seir()) +
     xlab("E size")})
 
 # Plot E vs R ---------
-ERplot_seir <- reactive({ggplot(out_seir()) +
+ERplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$E[round(length(time_seir()))/25], 
                  y = out_seir()$R[round(length(time_seir()))/25], 
                  xend = out_seir()$E[round(length(time_seir())/25) + 1], 
@@ -555,7 +560,8 @@ ERplot_seir <- reactive({ggplot(out_seir()) +
     xlab("E size")})
 
 # Plot R vs I ---------
-RIplot_seir <- reactive({ggplot(out_seir()) +
+RIplot_seir <- reactive({
+  ggplot(out_seir()) +
     geom_segment(x = out_seir()$R[round(length(time_seir()))/25], 
                  y = out_seir()$I[round(length(time_seir()))/25], 
                  xend = out_seir()$R[round(length(time_seir())/25) + 1], 
@@ -623,16 +629,11 @@ kable(x = param_df, format = "html",
 
 ```{r sird app, echo=FALSE}
 sidebarLayout(
-  
   sidebarPanel(
-    
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #mu - death rate due to infection
-    #gamma - recovery rate
-    #v - vaccination rate
+    #m - death/birth rate; beta - infection rate; mu - death rate due to infection
+    #gamma - recovery rate; v - vaccination rate
     
     sliderInput("m_sird", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -668,17 +669,22 @@ sidebarLayout(
 # Run the simulation -------------------
 
 # Set the initial population sizes
-init_sird <- reactive({c(S = input$S0_sird, I = input$I0_sird, R = input$S0_sird, D = input$D0_sird)})
+init_sird <- reactive({
+  c(S = input$S0_sird, I = input$I0_sird, R = input$S0_sird, D = input$D0_sird)
+  })
 # Set the parameter values
-params_sird <- reactive({c(m = input$m_sird, beta = input$beta_sird, mu = input$mu_sird, gamma = input$gamma_sird, v = input$v_sird)})
+params_sird <- reactive({
+  c(m = input$m_sird, beta = input$beta_sird, mu = input$mu_sird, 
+    gamma = input$gamma_sird, v = input$v_sird)
+  })
 # Time over which to simulate model dynamics
 time_sird <- reactive({seq(0, input$time_sird, by = .1)})
 
-# Use the sird function to simulate
+# Simulate model dynamics 
 out_sird <- reactive({
-  data.frame(deSolve::ode(func = SIRD, y = init_sird(), 
-                          parms = params_sird(), times = time_sird()))
-  })
+  data.frame(run_infectiousdisease_model(time = time_sird(), params = params_sird(),
+                                         init = init_sird(), model_type = "SIRD"))
+})
 
 # Reshape the data for plotting
 out_long_sird <- reactive({
@@ -707,7 +713,8 @@ pop_out_long_sird <- reactive({
 
 # Make plots --------------------
 # Plot abundance through time ----------
-abund_plot_sird <- reactive({ggplot(out_long_sird()) + 
+abund_plot_sird <- reactive({
+  ggplot(out_long_sird()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size")
@@ -721,7 +728,8 @@ abund_plot_sird <- reactive({ggplot(out_long_sird()) +
 # })
 
 # Plot S vs D ---------
-SDplot_sird <- reactive({ggplot(out_sird()) +
+SDplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$D[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -730,10 +738,12 @@ SDplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = S, y = D), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("D size") +
-    xlab("S size") })
+    xlab("S size") 
+})
 
 # Plot S vs I ---------
-SIplot_sird <- reactive({ggplot(out_sird()) +
+SIplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -742,10 +752,12 @@ SIplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")})
+    xlab("S size")
+})
 
 # Plot S vs R ---------
-SRplot_sird <- reactive({ggplot(out_sird()) +
+SRplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$S[round(length(time_sird()))/25], 
                  y = out_sird()$R[round(length(time_sird()))/25], 
                  xend = out_sird()$S[round(length(time_sird())/25) + 1], 
@@ -754,10 +766,12 @@ SRplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = S, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("S size")})
+    xlab("S size")
+})
 
 # Plot D vs I ---------
-DIplot_sird <- reactive({ggplot(out_sird()) +
+DIplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$D[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$D[round(length(time_sird())/25) + 1], 
@@ -766,10 +780,12 @@ DIplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = D, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("D size") })
+    xlab("D size") 
+})
 
 # Plot D vs R ---------
-DRplot_sird <- reactive({ggplot(out_sird()) +
+DRplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$D[round(length(time_sird()))/25], 
                  y = out_sird()$R[round(length(time_sird()))/25], 
                  xend = out_sird()$D[round(length(time_sird())/25) + 1], 
@@ -778,10 +794,12 @@ DRplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = D, y = R), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("R size") +
-    xlab("D size") })
+    xlab("D size") 
+})
 
 # Plot R vs I ---------
-RIplot_sird <- reactive({ggplot(out_sird()) +
+RIplot_sird <- reactive({
+  ggplot(out_sird()) +
     geom_segment(x = out_sird()$R[round(length(time_sird()))/25], 
                  y = out_sird()$I[round(length(time_sird()))/25], 
                  xend = out_sird()$R[round(length(time_sird())/25) + 1], 
@@ -790,7 +808,8 @@ RIplot_sird <- reactive({ggplot(out_sird()) +
     geom_path(aes(x = R, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("R size")})
+    xlab("R size")
+})
 
 # combine 2d plots -----
 SIRD_2d_plots <- reactive({
@@ -807,6 +826,8 @@ plots_to_render_sird <- reactive({
 
 
 ```
+
+
 
 ## Models Assuming Frequency-Dependent Transmission {.tabset}
 
@@ -854,10 +875,8 @@ sidebarLayout(
     
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #gamma - recovery rate
-    #v - vaccination rate
+    #m - death/birth rate; beta - infection rate
+    #gamma - recovery rate; v - vaccination rate
     
     sliderInput("m_ft", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -898,13 +917,11 @@ params_ft <- reactive({
 # Time over which to simulate model dynamics
 time_ft <- reactive({seq(0,input$time_ft,by = .1)})
 
-# Use the SIR function above to run 
-# the SIR model using the 
-# parameter estimates defined above
+# Simulate model dynamics 
 out_ft <- reactive({
-  data.frame(deSolve::ode(func = SIR_ft, y=init_ft(), 
-                          parms=params_ft(), times = time_ft()))
-  })
+    data.frame(run_infectiousdisease_model(time = time_ft(), params = params_ft(),
+                                         init = init_ft(), model_type = "SIR_ft"))
+})
 
 # Reshape the data for plotting 
 out_long_ft <- reactive({
@@ -932,7 +949,8 @@ pop_out_long_ft <- reactive({
 
 # Make plots --------------------
 # Plot abundance through time ----------
-abund_plot_SIR_ft <- reactive({ggplot(out_long_ft()) + 
+abund_plot_SIR_ft <- reactive({
+  ggplot(out_long_ft()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") 
@@ -946,7 +964,8 @@ abund_plot_SIR_ft <- reactive({ggplot(out_long_ft()) +
 # })
 
 # Plot S vs I ---------
-SIplot_ft <- reactive({ggplot(out_ft()) +
+SIplot_ft <- reactive({
+  ggplot(out_ft()) +
     geom_segment(x = out_ft()$S[round(length(time_ft()))/25], 
                  y = out_ft()$I[round(length(time_ft()))/25], 
                  xend = out_ft()$S[round(length(time_ft())/25) + 1], 
@@ -955,10 +974,12 @@ SIplot_ft <- reactive({ggplot(out_ft()) +
     geom_path(aes(x = S, y = I), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("I size") +
-    xlab("S size")})
+    xlab("S size")
+})
 
 # Plot I vs R --------------
-RIplot_ft <- reactive({ggplot(out_ft()) +
+RIplot_ft <- reactive({
+  ggplot(out_ft()) +
     geom_segment(x = out_ft()$R[round(length(time_ft()))/25], 
                  y = out_ft()$I[round(length(time_ft()))/25], 
                  xend = out_ft()$R[round(length(time_ft())/25) + 1], 
@@ -967,10 +988,12 @@ RIplot_ft <- reactive({ggplot(out_ft()) +
   geom_path(aes(x = R, y = I), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("I size") +
-  xlab("R size") })
+  xlab("R size") 
+})
 
 # Plot S vs R ------------
-SRplot_ft <- reactive({ggplot(out_ft()) +
+SRplot_ft <- reactive({
+  ggplot(out_ft()) +
     geom_segment(x = out_ft()$S[round(length(time_ft()))/25], 
                  y = out_ft()$R[round(length(time_ft()))/25], 
                  xend = out_ft()$S[round(length(time_ft())/25) + 1], 
@@ -979,7 +1002,8 @@ SRplot_ft <- reactive({ggplot(out_ft()) +
   geom_path(aes(x = S, y = R), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("R size") +
-  xlab("S size") })
+  xlab("S size") 
+})
 
 # combine 2d plots -----
 SIR_2d_plots_ft <- reactive({
@@ -1038,9 +1062,7 @@ sidebarLayout(
     
     ### Ask user for parameter values ----
     
-    #m - death/birth rate
-    #beta - infection rate
-    #gamma - recovery rate
+    #m - death/birth rate; beta - infection rate; gamma - recovery rate
     
     sliderInput("m_sis_ft", label = "Birth/Death rate:",
                 min = 0, max = 1, value = .1, step = 0.1),
@@ -1070,17 +1092,17 @@ sidebarLayout(
 # Set the initial population sizes
 init_sis_ft <- reactive({c(S = input$S0_sis_ft, I = input$I0_sis_ft)})
 # Set the parameter values
-params_sis_ft <- reactive({c(m = input$m_sis_ft, beta = input$beta_sis_ft, gamma = input$gamma_sis_ft)})
+params_sis_ft <- reactive({
+  c(m = input$m_sis_ft, beta = input$beta_sis_ft, gamma = input$gamma_sis_ft)
+})
 # Time over which to simulate model dynamics
 time_sis_ft <- reactive({seq(0, input$time_sis_ft, by = .1)})
 
-# Use the SIR function above to run 
-# the SIR model using the 
-# parameter estimates defined above
+# Simulate model dynamics 
 out_sis_ft <- reactive({
-  data.frame(deSolve::ode(func = SIS_ft, y = init_sis_ft(), 
-                          parms = params_sis_ft(), times = time_sis_ft()))
-  })
+  data.frame(run_infectiousdisease_model(time = time_sis_ft(), params = params_sis_ft(),
+                                         init = init_sis_ft(), model_type = "SIS_ft"))
+})
 
 # Reshape the data so for plotting
 out_long_sis_ft <- reactive({
@@ -1244,10 +1266,10 @@ params_seir_ft <- reactive({
 # Time over which to simulate model dynamics
 time_seir_ft <- reactive({seq(0, input$time_seir_ft, by = .1)})
 
-# Use the SEIR function above to simulate dynamics
+# Simulate model dynamics 
 out_seir_ft <- reactive({
-  data.frame(deSolve::ode(func = SEIR_ft, y = init_seir_ft(), 
-                          parms = params_seir_ft(), times = time_seir_ft()))
+  data.frame(run_infectiousdisease_model(time = time_seir_ft(), params = params_seir_ft(),
+                                         init = init_seir_ft(), model_type = "SEIR_ft"))
 })
 
 # Reshape the data so that population sizes of both 
@@ -1473,17 +1495,13 @@ params_sird_ft <- reactive({
 # Time over which to simulate model dynamics
 time_sird_ft <- reactive({seq(0, input$time_sird_ft, by = .1)})
 
-# Use the sird function above to run 
-# the sird model using the 
-# parameter estimates defined above
+# Simulate model dynamics 
 out_sird_ft <- reactive({
-  data.frame(deSolve::ode(func = SIRD_ft, y = init_sird_ft(), 
-                          parms = params_sird_ft(), times = time_sird_ft()))
+  data.frame(run_infectiousdisease_model(time = time_sird_ft(), params = params_sird_ft(),
+                                         init = init_sird_ft(), model_type = "SIRD_ft"))
 })
 
-# Reshape the data so that population sizes of both 
-# species are in one column, and an extra column to define
-# species name. This helps with the plotting...
+# Reshape the data for plotting
 out_long_sird_ft <- reactive({
   pivot_longer(out_sird_ft(), c(S, I, R, D), "group") %>% 
   mutate(group = factor(group, levels = c("S", "I", "R", "D")))
@@ -1607,6 +1625,4 @@ plots_to_render_sird_ft <- reactive({
              SIRD_2d_plots_ft(), nrow = 2) 
 })
 ```
-
-
 
