@@ -13,3 +13,4 @@ Imports:
     deSolve,
     ggplot2,
     tidyr
+RoxygenNote: 7.0.2
