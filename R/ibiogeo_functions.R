@@ -38,15 +38,19 @@ ibiogeo_Ex <- function(D,A,M,k){
   exp(k*A*ibiogeo_Sx(D,A,M,k))-1
 }
 
+#' make map for ibiogeo model
+#' @param D distance from mainland (km)
+#' @param A size of island (km^2)
+#' @import ggplot2
 make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
                              D, A, k, M) {
   colorpal <- RColorBrewer::brewer.pal(3, "Set1")
 
-  ggplot() +
+  ggplot2::ggplot() +
     geom_polygon(aes(x = c(tx, rev(tx)), y = c(ty, rep(-3,length(ty)))), fill = "grey90",
-                 color = "grey10") +
+        color = "grey10") +
     geom_polygon(aes(x = sqrt(A[1])*txa+4, y = sqrt(A[1])*tya+D[1]-sqrt(A[1])*min(tya)),
-                 color = colorpal[1], fill = "transparent") +
+        color = colorpal[1], fill = "transparent") +
     geom_polygon(aes(x = sqrt(A[2])*txb+12, y = sqrt(A[2])*tyb+D[2]-sqrt(A[2])*min(tyb)),
                  color = colorpal[2], fill = "transparent") +
     annotate("text", x = 4, y = D[1]-sqrt(A[1])*min(tya), label = "island\nA",
@@ -61,43 +65,50 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
     scale_x_continuous(expand = c(0,0)) +
     theme_apps()+
     scale_y_continuous(expand = c(0,0)) +
-    theme(axis.text.x= element_blank(), axis.ticks.x = element_blank())
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()
+    )
 
 }
 
+#' make equilibrium plot for ibiogeo model
+#' @param D distance from mainland (km)
+#' @param A size of island (km^2)
+#' @param M Mainland species richness
+#' @param k scaling constant
+#' @importFrom magrittr "%>%"
 make_equilibrium_plot <- function(D, A, M, k) {
   colorpal <- RColorBrewer::brewer.pal(3, "Set1")
 
-  (ggplot(data.frame(x = c(0, M)), aes(x)) +
-     stat_function(fun = ibiogeo_I, args = list(D = D[1], M = M, k = k),
+  (ggplot2::ggplot(data.frame(x = c(0, M)), aes(x)) +
+      ggplot2::stat_function(fun = ibiogeo_I, args = list(D = D[1], M = M, k = k),
                    aes(color = "colorpal[1]", linetype = "1")) +
-     stat_function(fun = ibiogeo_I, args = list(D = D[2], M = M, k = k),
+      ggplot2::stat_function(fun = ibiogeo_I, args = list(D = D[2], M = M, k = k),
                    aes(color = "colorpal[2]", linetype = "1")) +
-     stat_function(fun = ibiogeo_E, args = list(A = A[1], k = k),
+      ggplot2::stat_function(fun = ibiogeo_E, args = list(A = A[1], k = k),
                    aes(color = "colorpal[1]", linetype = "2")) +
-     stat_function(fun = ibiogeo_E, args = list(A = A[2], k = k),
+      ggplot2::stat_function(fun = ibiogeo_E, args = list(A = A[2], k = k),
                    aes(color = "colorpal[2]", linetype = "2")) +
-     ylab("Immigration or Extinction Rate\n(species/year)") +
-     xlab("\nNumber of species on island") +
-     geom_segment(aes(x = ibiogeo_Sx(D[1],A[1], M = M, k = k),
+      ggplot2::ylab("Immigration or Extinction Rate\n(species/year)") +
+      ggplot2::xlab("\nNumber of species on island") +
+      ggplot2::geom_segment(aes(x = ibiogeo_Sx(D[1],A[1], M = M, k = k),
                       xend = ibiogeo_Sx(D[1],A[1], M = M, k = k),
                       y = 0, yend = ibiogeo_Ex(D = D[1], A = A[1], M = M, k = k)),
                   color = colorpal[1], linetype = 3) +
-     geom_text(x = ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k), y = 0, vjust = 3,
+      ggplot2::geom_text(x = ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k), y = 0, vjust = 3,
                label = floor(ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k)), color = colorpal[1]) +
-     geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3,
+      ggplot2::geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3,
                label = floor(ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2]) +
-     coord_cartesian(clip = "off") +
-     scale_color_manual(name = " ", guide = "legend", values = colorpal,
+      ggplot2::coord_cartesian(clip = "off") +
+      ggplot2::scale_color_manual(name = " ", guide = "legend", values = colorpal,
                         labels = c("Island A", "Island B")) +
-     scale_linetype_manual(name = "", values = c(1,2),
+      ggplot2::scale_linetype_manual(name = "", values = c(1,2),
                            labels = c("Immigration\nrate", "Extinction\nrate")) +
-     geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
+      ggplot2::geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
                       xend = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
                       y = 0, yend = ibiogeo_Ex(D = D[2], A = A[2], M = M, k = k)),
                   color = colorpal[2], linetype = 3) +
      theme_apps() +
-     theme(legend.position = "top", legend.text = element_text(size = 12)))  %>%
+      ggplot2::theme(legend.position = "top", legend.text = element_text(size = 12)))  %>%
     originator
 }
 
@@ -105,6 +116,8 @@ make_equilibrium_plot <- function(D, A, M, k) {
 #' equilibrium extinction rate for Island Biogeography model
 #' @param D distance from mainland (km)
 #' @param A size of island (km^2)
+#' @param k scaling parameter (defaults to 0.015)
+#' @param M species richness of mainland
 #' @export
 run_ibiogeo_model <- function(D = c(1,4), A = c(1,0.5), k = 0.015, M = 100) {
   # set some values to make plots

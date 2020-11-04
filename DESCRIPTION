@@ -12,5 +12,6 @@ LazyData: true
 Imports: 
     deSolve,
     ggplot2,
-    tidyr
+    tidyr,
+    magrittr
 RoxygenNote: 7.0.2

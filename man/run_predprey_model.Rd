@@ -7,12 +7,27 @@
 run_predprey_model(time, init, params)
 }
 \arguments{
-\item{time}{vector of time units over which to run model}
+\item{time}{vector of time units over which to run model, starting from 0.
+`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
 
-\item{init}{initial population size of population}
+\item{init}{vector of initial population sizes for both species, with names H and P}
 
-\item{pars}{intrinsic growth rate r, a, e, d, T_h, K}
+\item{params}{vector of parameters. Minimum requirements are r, a, e, d. If K supplied, then prey has logistic growth; if T_h supplied, Type II functional response of predator; if both K and T_h, R-M model}
 }
 \description{
 Run predator-prey model
+}
+\examples{
+# Classic Lotka-Volterra model
+run_predprey_model(200, init = c(H = 10, P = 5),
+params = c(r = .1, a = .01, e = .01, d = .001))
+# Lotka-Volterra model with logistic growth of prey
+run_predprey_model(200, init = c(H = 10, P = 5),
+params = c(r = .1, a = .01, e = .01, d = .001, K = 1000))
+# Lotka-Volterra model with Type 2 functional response
+run_predprey_model(200, init = c(H = 10, P = 5),
+params = c(r = .1, a = .01, e = .01, d = .001, T_h = .1))
+# Rosenzweig-Macarthur model (logistic prey and Type 2 FR predator)
+run_predprey_model(200, init = c(H = 10, P = 5),
+params = c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1))
 }

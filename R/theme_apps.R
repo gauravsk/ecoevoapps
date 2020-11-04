@@ -1,3 +1,4 @@
+# standard ggplot2 theme to use throughout the package
 #' @export
 theme_apps <- function() {
   ggplot2::theme_minimal() +
@@ -12,8 +13,9 @@ theme_apps <- function() {
 }
 
 
+#' Set origin of ggplot objects to 0,0
+#' @param plot ggplot object
 #' @export
-#'
 originator <- function(plot) {
   plot +
     ggplot2::scale_x_continuous(expand = c(0, 0)) +

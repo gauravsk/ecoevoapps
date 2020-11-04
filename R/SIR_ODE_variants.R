@@ -169,6 +169,8 @@ SIS_ft <- function(time,init,params) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
+#' @param model_type which type of model to run? (should be one of
+#' `SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)
 #' @export
 run_infectiousdisease_model <- function(time, init, params, model_type) {
   if(model_type == "SIR") {
