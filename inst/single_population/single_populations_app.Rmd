@@ -112,7 +112,9 @@ sidebarLayout(
 
 # Get user defined parameters for sp 1  ------
 params <- reactive({
-  if(input$densdepLag == 'lag') {
+  if(input$densdep == "indep") {
+    c(r = input$r_val) 
+  } else if(input$densdepLag == 'lag') {
     c(r = input$r_val, K = input$K_val, tau = input$tau) 
   } else {
     c(r = input$r_val, K = input$K_val) 
