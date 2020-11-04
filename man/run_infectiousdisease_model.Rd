@@ -12,6 +12,9 @@ run_infectiousdisease_model(time, init, params, model_type)
 \item{init}{initial population size of population}
 
 \item{params}{vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)}
+
+\item{model_type}{which type of model to run? (should be one of
+`SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)}
 }
 \description{
 Run infectious disease models models

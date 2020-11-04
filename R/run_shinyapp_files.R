@@ -1,3 +1,4 @@
+#'Launch the single population dynamics in continuous time app
 #' @export
 shiny_singlepop_continuous <- function() {
   rmarkdown::run(
@@ -10,6 +11,7 @@ shiny_singlepop_continuous <- function() {
   )
 }
 
+#'Launch the single population dynamics in discrete time app
 #' @export
 shiny_singlepop_discrete <- function() {
   rmarkdown::run(
@@ -22,6 +24,7 @@ shiny_singlepop_discrete <- function() {
   )
 }
 
+#'Launch the Lotka-Voterra competition app
 #' @export
 shiny_lvcompetition <- function() {
   rmarkdown::run(
@@ -34,6 +37,7 @@ shiny_lvcompetition <- function() {
   )
 }
 
+#'Launch the consumer-resource dynamics app
 #' @export
 shiny_consumer_resource <- function() {
   rmarkdown::run(
@@ -46,6 +50,7 @@ shiny_consumer_resource <- function() {
   )
 }
 
+#'Launch the biotic resource competition app
 #' @export
 shiny_consumer_resource <- function() {
   rmarkdown::run(
@@ -58,10 +63,11 @@ shiny_consumer_resource <- function() {
   )
 }
 
+#'Launch the island biogeography app
 #' @export
-shiny_biotic_resource_comp <- function() {
+shiny_consumer_resource <- function() {
   rmarkdown::run(
-    file = system.file("biotic_resource_competition/biotic_resource_competition.Rmd",
+    file = system.file("consumer_resource_interactions/consumer_resource_interactions.Rmd",
                        package =  "ecoevoapps"),
     default_file = NULL,
     auto_reload = TRUE,
@@ -70,20 +76,9 @@ shiny_biotic_resource_comp <- function() {
   )
 }
 
+#'Launch the infectious diseases models app
 #' @export
-shiny_island_biogeography <- function() {
-  rmarkdown::run(
-    file = system.file("ibiogeo/island_biogeo_app.Rmd",
-                       package =  "ecoevoapps"),
-    default_file = NULL,
-    auto_reload = TRUE,
-    shiny_args = NULL,
-    render_args = NULL
-  )
-}
-
-#' @export
-shiny_sir <- function() {
+shiny_infectious_disease <- function() {
   rmarkdown::run(
     file = system.file("SIR/SIR_app.Rmd",
                        package =  "ecoevoapps"),
@@ -94,6 +89,7 @@ shiny_sir <- function() {
   )
 }
 
+#'Launch the metapopulation dynamics app
 #' @export
 shiny_metapopulation <- function() {
   rmarkdown::run(
@@ -106,6 +102,7 @@ shiny_metapopulation <- function() {
   )
 }
 
+#' Launch the structured population growth app
 #' @export
 shiny_structured_pop <- function() {
   rmarkdown::run(

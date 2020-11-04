@@ -49,16 +49,50 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 }
 
 #' Run the Lotka-Volterra competition model (with carrying capacity and relative effects)
-#' @param time vector of time units over which to run model
-#' @param init vector of initial population sizes for both species
+#' @param time vector of time units over which to run model, starting from 0.
+#' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
+#' @param init vector of initial population sizes for both species, with names N1 and N2
 #' @param params vector of model parameters
+#' Note that carrying capacity for both species can be defined in `params`
+#' either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
+#' If carrying capacities are defined as `K1` and `K2`, interspecific competition
+#' should be defined as `a` and `b`; otherwise, `a12` and `a21`.
+#' @examples
+#' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
+#' params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05))
+#' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
+#' params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
+#' run_lvcomp_model(time = 5, init = c(N1 = 1, N2 = 5),
+#' params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05))
 #' @export
 run_lvcomp_model <- function(time, init, params) {
 
+  # Check how time has been defined (if just Tmax, then make vector)
+  # and if vector was supplied, check that it starts at t = 0
+  if(length(time) == 1) {
+    tmax <- time
+    time <- seq(0, tmax)
+  } else if(time[1] != 0) {
+    stop("The time vector should start at 0.")
+  }
+
+  # Check that init has been defined properly
+  if(!(is.numeric(init))) stop("init should be a numeric vector of length 2, e.g. c(N1 = 10, N2 = 20)")
+  if(length(init) != 2) stop("init should be a numeric vector of length 2, e.g. c(N1 = 10, N2 = 20)")
+  if(!(all(names(init) %in% c("N1","N2")))) stop("init should be a numeric vector of length 2, e.g. c(N1 = 10, N2 = 20)")
+
+  # Check that params is correctly defined (just r)
+  if(!(is.numeric(params))) stop("params should be a numeric vector")
+  if(!(all(c("r1", "r2", "K1", "K2", "a", "b") %in% names(params)) |
+       all(c("r1", "r2", "a11", "a12", "a22", "a21") %in% names(params)))) {
+    stop("paramaters vector should be defined either in terms of carrying capacity and relative interspecific effects (r1, r2, K1, K2, a, b), or absolute intra and interspecific competition effects (r1, r2, a11, a12, a22, a21)")
+  }
+
+  # If carrying capacity defined in terms of K1 and K2, use the lotka_volterra_competition fnc
   if("K1" %in% names(params)) {
     deSolve::ode(func = lotka_volterra_competition,
                  y = init, times = time, parms = params)
-  } else {
+  } else { # use the lotka_volterra_competition_wo_K fnc
     deSolve::ode(func = lotka_volterra_competition_wo_K,
                  y = init, times = time, parms = params)
   }
