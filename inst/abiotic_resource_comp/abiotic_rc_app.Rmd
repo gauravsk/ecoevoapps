@@ -1,15 +1,12 @@
 ---
-title: "Competition for two essential resources"
+title: "Competition for abiotic resources"
 author: "Gaurav Kandlikar"
-date: "4/12/2020"
-output:
-  html_document:
-    theme: united
-    toc: false
+output: html_document
 runtime: shiny
 ---
 
 ```{r, include = FALSE}
+developer <- "Gaurav Kandlikar (gaurav.kandlikar@gmail.com)"
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyr)
 library(kableExtra)
@@ -121,14 +118,15 @@ sidebarLayout(
                 min = 1, max = 100, value = 20)),
     # User defined time ---------
     numericInput("time", label = "Number of time steps to project",
-                min = 1, max = 5000, value = 2500)
+                min = 1, max = 5000, value = 500)
     ),
 
   # Panel of plots -----
   mainPanel(
     renderPlot({plot_out()}, width = 600,
                height = 300),
-    renderTable(Rstar_df())
+    hr(),
+    renderTable(Rstar_df()),
   )
 )
 
@@ -149,8 +147,8 @@ Rstar_vec <- reactive({ecoevoapps::Rstar_essential(tilman_params())})
 Rstar_df <- reactive({
   Rstar_vec <- Rstar_vec()
   data.frame(species = c("N1", "N2"),
-             R1star = c(Rstar_vec["R11"], Rstar_vec["R12"]),
-             R2star = c(Rstar_vec["R21"], Rstar_vec["R22"]))
+             R1star = c(Rstar_vec["R11"], Rstar_vec["R21"]),
+             R2star = c(Rstar_vec["R12"], Rstar_vec["R22"]))
   })
 
 tilman_out <- reactive({
@@ -192,3 +190,16 @@ plot_out <- reactive({
 
 
 ```
+
+
+## References  
+
+Tilman, D. 1980. [Resources: A graphical-mechanistic approach to competition and predation](http://max2.ese.u-psud.fr/epc/conservation/PDFs/HIPE/Tilman1980.pdf). The American Naturalist.
+
+Tilman, D. 1982. Resource Competition and Community Structure. Princeton University Press, Princeton, New Jersey. 296 pages. 
+
+Miller, T., et al. 2005. [A Critical Review of Twenty Years’ Use of the Resource‐Ratio Theory](https://www.jstor.org/stable/10.1086/428681?seq=1). The American Naturalist. 
+
+------------
+ 
+App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com)

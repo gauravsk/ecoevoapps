@@ -9,9 +9,15 @@ library(ggplot2)
 init <- c(N1 = 10, N2 = 10, R1 = 20, R2 = 20)
 
 # Set the parameter values
-params <- c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1, k11 = 18, k12 = 4,
-            k21 = 2, k22 = 14, m1 = .2, m2 = .2, c11 = .25,
+# params <- c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1, k11 = 18, k12 = 4,
+#             k21 = 2, k22 = 14, m1 = .2, m2 = .2, c11 = .25,
+#             c12 = .08, c21 = .1, c22 = .2, a1 = .5, a2 = .5)
+#
+params <- c(S1 = 12, S2 = 12, r1 = 1, r2 = 1,
+            k11 = 5, k12 = 4, k21 = 4, k22 = 5,
+            m1 = .2, m2 = .2, c11 = .25,
             c12 = .08, c21 = .1, c22 = .2, a1 = .5, a2 = .5)
+
 # Time over which to simulate model dynamics
 time <- seq(0,5000,by = .5)
 
