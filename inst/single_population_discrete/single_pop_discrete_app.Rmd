@@ -304,3 +304,8 @@ plots_to_print_bh <- reactive({{trajaectory_plot_bh()/cobweb_bh()} +
 Dr. Sebastian Bonhoeffer's [lecture notes](https://ethz.ch/content/dam/ethz/special-interest/usys/ibz/theoreticalbiology/education/learningmaterials/701-1424-00L/lecture-script-eep_2011.pdf) on Ecology and Evolution (see Ch. 1) 
 
 Dr. Jan Engelstädter's [e-book on analysis of biological data](https://bookdown.org/janengelstaedter/biol3360modelling3/discrete-time-models-in-one-variable.html). 
+
+-------
+
+App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com)
+

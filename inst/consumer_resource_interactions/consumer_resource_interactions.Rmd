@@ -1016,3 +1016,7 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 - [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
 - [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+---------
+
+App maintained by Maddi Cowen (mcowen@g.ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)

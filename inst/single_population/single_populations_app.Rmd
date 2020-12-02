@@ -295,3 +295,8 @@ plots_to_print <- reactive({
 "[How populations grow: the Exponential and the logistic](https://www.nature.com/scitable/knowledge/library/how-populations-grow-the-exponential-and-logistic-13240157/)", John Vandermeer, Nature Education Knowledge. 
 
 "[Exponential & logistic growth](https://www.khanacademy.org/science/biology/ecology/population-growth-and-regulation/a/exponential-logistic-growth)" at Khan Academy. 
+
+-------
+
+App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com)
+

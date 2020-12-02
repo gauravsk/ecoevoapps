@@ -343,6 +343,10 @@ Calculate the equilibirum of your sink population based on your input and verify
 2. [Colorado State University Lecture Notes](https://sites.warnercnr.colostate.edu/gwhite/wp-content/uploads/sites/73/2017/06/Winkelman-Lecture-8.pdf)  
 3. [UCLA Lecture Notes](https://faculty.eeb.ucla.edu/Sork/Env121Sork/SorkLec4_Metapop/Metapop.html#IV)
 
+------------
+
+App maintained by Xinyi Yan (yan.xinyi@outlook.com)
+
 <!--
 # DEV NOTES (will delete)
 

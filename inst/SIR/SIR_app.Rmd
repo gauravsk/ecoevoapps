@@ -1626,3 +1626,6 @@ plots_to_render_sird_ft <- reactive({
 })
 ```
 
+------------
+
+App maintained by Maddi Cowen (mcowen@g.ucla.edu)

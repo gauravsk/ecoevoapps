@@ -97,3 +97,7 @@ plot_to_print <- reactive({
 "[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+---------------
+
+App maintained by Marcel Vaz (marcelcvaz@gmail.com)

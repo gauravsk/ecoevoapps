@@ -116,7 +116,9 @@ sidebarLayout(
   ),
   
   # Panel of plots
-  mainPanel(renderPlot(plots_to_print(), width = 600, height = 500))
+  mainPanel(
+    renderPlot(N_vs_Time(), width = 600, height = 500),
+      renderPlot(ZNGI(), width = 600, height = 500))
 )
 
 # Get user-defined parameters
@@ -367,8 +369,9 @@ sidebarLayout(
     )
   ),
   
-  # Panel of plots
-  mainPanel(renderPlot(plots_to_print_wo_K(), width = 600, height = 500))
+  # Panel of plots 
+  mainPanel(renderPlot(N_vs_Time_wo_K(), width = 600, height = 500),
+            renderPlot(ZNGI_wo_K(), width = 600, height = 500))
 )
 
 # Store inputted competition coefficients as new reactive objects
@@ -532,11 +535,16 @@ plots_to_print_wo_K <- reactive({
 })
 ```
 
+#
 
-# References 
+## References 
  
 - Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
 
 - Vandermeer and Goldberg, 2013. [Population Ecology.](https://press.princeton.edu/books/paperback/9780691160313/population-ecology), Ch. 8. (Access to a digital copy of this textbook may be available through your library). 
 
 - Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
+
+------------
+
+App maintained by Kenji Hayashi (kthayashi@ucla.edu)
