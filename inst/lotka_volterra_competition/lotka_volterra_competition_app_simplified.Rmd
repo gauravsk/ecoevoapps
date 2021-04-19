@@ -60,14 +60,14 @@ $$N_2 = -\beta N_1 + K_2$$
 ```{r Lotka-Volterra Competition with carrying capacities}
 sidebarLayout(
   sidebarPanel(
-    # Allow user to select which plots to display
-    # checkboxGroupInput(inputId = "plots_to_show",
-    #                    label = "Select plots to diplay",
-    #                    choices = c("N vs. Time" = "N_vs_Time", 
-    #                                "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
-    #                    selected = c("N_vs_Time")),
-    # 
-    # hr(),
+    Allow user to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show",
+                       label = "Select plots to diplay",
+                       choices = c("N vs. Time" = "N_vs_Time",
+                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+                       selected = c("N_vs_Time")),
+
+    hr(),
     
     # User-defined parameter values
     sliderInput(inputId = "r1", 
@@ -114,7 +114,8 @@ sidebarLayout(
   ),
   
   # Panel of plots
-  mainPanel(renderPlot(plots_to_print(), width = 600, height = 500))
+  mainPanel(renderPlot(plots_to_print(), 
+                       width = 600, height = plot_height()))
 )
 
 # Get user-defined parameters
@@ -186,7 +187,7 @@ lvcomp_out_long <- reactive({
 
 # Plot N vs time for both species
 N_vs_Time <- reactive({ 
-  # if ("N_vs_Time" %in% input$plots_to_show) {
+  if ("N_vs_Time" %in% input$plots_to_show) {
     ggplot(data = lvcomp_out_long()) +
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
@@ -194,7 +195,7 @@ N_vs_Time <- reactive({
       coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
                       expand = FALSE,
                       clip = "off")
-  # }
+  }
 })
 
 # Plot ZNGIs with population trajectories
@@ -207,43 +208,51 @@ ZNGI_sp2 <- reactive({
 })
 
 # Now create plot
-# ZNGI <- reactive({
-#   # if ("ZNGI" %in% input$plots_to_show) {
-#     ggplot(data = lvcomp_out()) +
-#       geom_segment(data = ZNGI_sp1(),
-#                    aes(x = x1, y = y1, xend = xend1, yend = yend1,
-#                        color = "Species 1"), size = 2) +
-#       geom_segment(data = ZNGI_sp2(),
-#                    aes(x = x2, y = y2, xend = xend2, yend = yend2,
-#                        color = "Species 2"), size = 2) +
-#       scale_color_manual(values = brewer.pal(3, name = "Set1"),
-#                          labels = c("Species 1", "Species 2")) +
-#       geom_path(aes(x = N1, y = N2), size = 1) +
-#       geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
-#       geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2),
-#                  pch = 21, size = 3, fill = "white", stroke = 1) +
-#       geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
-#                    y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
-#                    xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
-#                    yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
-#                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-#       labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
-#       coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
-#                       ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
-#                       expand = FALSE,
-#                       clip = "off")
-# }
-# })
+ZNGI <- reactive({
+  if ("ZNGI" %in% input$plots_to_show) {
+    ggplot(data = lvcomp_out()) +
+      geom_segment(data = ZNGI_sp1(),
+                   aes(x = x1, y = y1, xend = xend1, yend = yend1,
+                       color = "Species 1"), size = 2) +
+      geom_segment(data = ZNGI_sp2(),
+                   aes(x = x2, y = y2, xend = xend2, yend = yend2,
+                       color = "Species 2"), size = 2) +
+      scale_color_manual(values = brewer.pal(3, name = "Set1"),
+                         labels = c("Species 1", "Species 2")) +
+      geom_path(aes(x = N1, y = N2), size = 1) +
+      geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
+      geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2),
+                 pch = 21, size = 3, fill = "white", stroke = 1) +
+      geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
+                   y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
+                   xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
+                   yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
+                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
+      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+      coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
+                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
+                      expand = FALSE,
+                      clip = "off")
+}
+})
 
 # Make a list of plots to print based on user request
-# plot_list <- reactive({
-#   list(N_vs_Time(), ZNGI()) %>%
-#     discard(is.null)
-#   })
+plot_list <- reactive({
+  list(N_vs_Time(), ZNGI()) %>%
+    discard(is.null)
+  })
+
+plot_height <- reactive({ 
+  if(length(plot_list) < 2){
+    600
+  } else {
+    1200
+  }
+})
 
 plots_to_print <- reactive({ 
-  # wrap_plots(plot_list(), ncol = 1)
-  N_vs_Time()
+  wrap_plots(plot_list(), ncol = 1)
+  # N_vs_Time()
   })
 ```
 
