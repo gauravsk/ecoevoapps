@@ -13,7 +13,7 @@ init <- c(N1 = 10, N2 = 10, R1 = 20, R2 = 20)
 #             k21 = 2, k22 = 14, m1 = .2, m2 = .2, c11 = .25,
 #             c12 = .08, c21 = .1, c22 = .2, a1 = .5, a2 = .5)
 #
-params <- c(S1 = 12, S2 = 12, r1 = 1, r2 = 1,
+params <- c(S1 = 12, S2 = 12, r1 = 1, r2 = 1.6,
             k11 = 5, k12 = 4, k21 = 4, k22 = 5,
             m1 = .2, m2 = .2, c11 = .25,
             c12 = .08, c21 = .1, c22 = .2, a1 = .5, a2 = .5)
@@ -51,8 +51,8 @@ Rstar_df <- data.frame(species = c("N1", "N1", "N2", "N2"),
                        resource = c("R1", "R2", "R1", "R2"),
                        Rstar = Rstar_vec)
 Rstar_df2 <- data.frame(species = c("N1", "N2"),
-                        R1star = c(R11, R12),
-                        R2star = c(R21, R22))
+                        R1star = c(R11, R21),
+                        R2star = c(R12, R22))
 ggplot(tilman_out) +
   geom_path(aes(x = R1, y = R2)) +
   geom_segment(data = Rstar_df2, aes(x = R1star, xend = R1star, y = R2star, yend = Inf, color = species)) +
