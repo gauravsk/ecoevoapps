@@ -1,3 +1,5 @@
+# Genetic drift and fixation
+# App developed by Chris Muir
 library(dplyr)
 library(shiny)
 library(plotly)
@@ -5,7 +7,7 @@ library(stringr)
 library(tidyr)
 
 ## adjustable via sliders
-##
+
 initial_p <- 0.5
 initial_N <- 10
 initial_n_pops <- 5
@@ -42,6 +44,11 @@ ui <- fluidPage(
                   value = initial_n_pops),
       actionButton("go", "Simulate Genetic Drift!", icon("refresh")),
       helpText("When you click the button above, the figure to the right will update with new simulations using the parameters you entered above."),
+      helpText(
+        a("This Shiny app was developed by Dr. Chris Muir, U. Hawaii",
+          target = "_blank",
+          cex = 0.5,
+          href = "https://cdmuir.netlify.app/"))
     ),
 
     ## Show a plot of the simulated change in allele frequencies
@@ -69,11 +76,11 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  url_1 <- a("https://forms.gle/JXmRExuNmo42HRQm6",
-             href="https://forms.gle/JXmRExuNmo42HRQm6")
-  output$google <- renderUI({
-    tagList("", url_1)
-  })
+  # url_1 <- a("https://forms.gle/JXmRExuNmo42HRQm6",
+  #            href="https://forms.gle/JXmRExuNmo42HRQm6")
+  # output$google <- renderUI({
+  #   tagList("", url_1)
+  # })
   url_2 <- a("https://kholsinger.github.io/PopGen-Shiny/",
              href="https://kholsinger.github.io/PopGen-Shiny/")
   output$github <- renderUI({

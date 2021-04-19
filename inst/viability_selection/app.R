@@ -1,3 +1,5 @@
+# Viability selection
+# App developed by Chris Muir
 library(dplyr)
 library(ggplot2)
 library(shiny)
@@ -17,43 +19,43 @@ initial_n_gen <- 250
 ## dynamics of viability selection in one population
 ##
 calc_wbar <- function(p, s, h) {
-  
+
   # Equation in class
   # p ^ 2 + 2 * p * (1 - p) * (1 - s * h) + (1 - p) ^ 2 * (1 - s)
-  
+
   # More compact equation (identical)
   1 - 2 * p * (1 - p) * s * h - (1 - p) ^ 2 * s
-  
+
 }
 
 calc_deltap <- function(p, s, h, wbar) {
-  
+
   # Equation in class (for h = 0.5)
   # wbar <- calc_wbar(p, s, h)
   # w_11 <- 1 / wbar
   # w_12 <- (1 - h * s) / wbar
   # p ^ 2 * w_11 + p * (1 - p) * w_12 - p
-  
+
   # equation for any h
   p * (1 - p) * (p * h * s + (1 - p) * s * (1 - h)) / wbar
-  
+
 }
 
 # Variance in fitness for one-allele, two-locus model
 calc_varw <- function(p, s, h, wbar) {
-  
-  p ^ 2 * (1 - wbar) ^ 2 + 
+
+  p ^ 2 * (1 - wbar) ^ 2 +
     2 * p * (1 - p) * ((1 - s * h) - wbar) ^ 2 +
-    (1 - p) ^ 2 * ((1 - s) - wbar) ^ 2 
-  
+    (1 - p) ^ 2 * ((1 - s) - wbar) ^ 2
+
 }
 
 simulate_selection <- function(p, s, h, n_gen) {
-  
+
   wbar <- calc_wbar(p, s, h)
   deltap <- calc_deltap(p, s, h, wbar)
   varw <- calc_varw(p, s, h, wbar)
-  
+
   ret <- data.frame(
     t = 0:n_gen,
     p = c(p, numeric(n_gen)),
@@ -61,9 +63,9 @@ simulate_selection <- function(p, s, h, n_gen) {
     deltap = c(deltap, numeric(n_gen)),
     varw = c(varw, numeric(n_gen))
   )
-  
+
   for (i in 1:n_gen) {
-    
+
     p <- p + deltap
     wbar <- calc_wbar(p, s, h)
     deltap <- calc_deltap(p, s, h, wbar)
@@ -72,11 +74,11 @@ simulate_selection <- function(p, s, h, n_gen) {
     ret$wbar[i + 1] <- wbar
     ret$deltap[i + 1] <- deltap
     ret$varw[i + 1] <- varw
-    
+
   }
-  
+
   ret
-  
+
 }
 
 ## Define UI
@@ -108,6 +110,11 @@ ui <- fluidPage(
                   max = 10000,
                   value = initial_n_gen),
       actionButton("go", "Simulate Selection!", icon("play")),
+      helpText(
+        a("This Shiny app was developed by Dr. Chris Muir, U. Hawaii",
+          target = "_blank",
+          cex = 0.5,
+          href = "https://cdmuir.netlify.app/"))
     ),
     mainPanel(
       h4("Allele frequency dynamics"),
@@ -144,16 +151,16 @@ server <- function(input, output) {
     df <- simulate_selection(input$p, input$s, input$h, input$n_gen)
     df
   })
-  
+
   output$dynamic_plot1 <- renderPlotly({
-    
+
     ## generate allele frequencies
     ##
     df <- simulate()
     n_gen <- max(df$t)
-    
+
     max_deltap <- max(df$deltap)
-    
+
     ## construct data frame for plot
     ##
     d <- df %>%
@@ -165,13 +172,13 @@ server <- function(input, output) {
       filter(frame >= t) %>%
       filter(name %in% c("p", "Average fitness")) %>%
       mutate(name = factor(name, levels = c("p", "Average fitness")))
-    
+
     if (n_gen > 100) {
       x <- round(seq(0, n_gen, length.out = 100))
     } else {
       x <- 0:n_gen
     }
-    
+
     gp <- ggplot(filter(d, frame %in% x), aes(x = t, y = value, color = name, frame = frame)) +
       geom_line(size = 2) +
       scale_y_continuous(limits = c(0, 1), sec.axis = sec_axis(~ . * max_deltap)) +
@@ -179,7 +186,7 @@ server <- function(input, output) {
       xlab("Time (generations)") +
       ylab("Allele Frequency, p") +
       theme_cowplot()
-    
+
     ## plot it
     ##
     p_plot <- gp %>%
@@ -195,12 +202,12 @@ server <- function(input, output) {
   })
 
   output$dynamic_plot2 <- renderPlotly({
-    
+
     ## generate allele frequencies
     ##
     df <- simulate()
     n_gen <- max(df$t)
-    
+
     ## construct data frame for plot
     ##
     d <- df %>%
@@ -210,20 +217,20 @@ server <- function(input, output) {
       filter(frame >= t) %>%
       filter(name %in% c("Change in p", "Var(W)")) %>%
       mutate(name = factor(name, levels = c("Change in p", "Var(W)")))
-    
+
     if (n_gen > 100) {
       x <- round(seq(0, n_gen, length.out = 100))
     } else {
       x <- 0:n_gen
     }
-    
+
     gp <- ggplot(filter(d, frame %in% x), aes(x = t, y = value, color = name, frame = frame)) +
       geom_line(size = 2) +
       scale_color_brewer("Variable", palette = "Set2") +
       xlab("Time (generations)") +
       ylab("Value") +
       theme_cowplot()
-    
+
     ## plot it
     ##
     p_plot <- gp %>%
@@ -237,7 +244,7 @@ server <- function(input, output) {
         hide = FALSE
       )
   })
-  
+
 }
 
 ## Run the application
