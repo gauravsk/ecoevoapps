@@ -9,94 +9,17 @@ output:
 runtime: shiny
 ---
 
-The theory of Island Biogeography, first articulated by Robert Macarthur and E.O. Wilson in the 1964 paper "[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", presents a quantitative and predictive approach to understanding biodiversity on island systems. The theory is built around the idea that immigration and extinction -- two core processes that determine species diversity on islands -- vary predictably. Specifically, species are expected to immigrate at higher rates from the mainland to islands closer by than to islands further away, and extinction rates are expected to be higher in smaller islands than larger islands. The balance of these two processes determine an island's equilibrium species richness. Macarthur and Wilson expanded on this theory in their classic 1967 book "[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)". Daniel Simberloff [notably conducted experimental tests](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) of this theory using mangrove islands in Florida, and island biogeography has also been hugely influential in [conservation biology](https://www.jstor.org/stable/1742652). For a recent review of island biogeography's influence, see [this 2017 review](https://science.sciencemag.org/content/357/6354/eaam8326).
+# {.tabset}
 
-Extinction rate on island:
-$$E = e^{\frac{kS}{A}}-1$$
-Immigration rate from mainland to island:
-$$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
-Equilibrium number of species on the island:  
-$$S_{eq} = \frac{AM}{D+A}$$
+## English
 
-where:
-
-- $D$ is the distance from the mainland to the island (km);  
-- $A$ is the area of the island (km^2);  
-- $M$ is the number of species on the mainland;  
-- $k$ is the scaling constant (set to $k=0.15$ in this app).
-```{r, include = F}
-library(ggplot2)
-library(dplyr)
-library(ecoevoapps)
-library(patchwork)
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
-# source("functions.R")
-source("ibiogeo_constants.R")
+```{r child='ibiogeo_app_english.Rmd'}
 ```
 
-```{r}
-sidebarLayout(
-        sidebarPanel(
-            sliderInput(inputId = "D1",
-                        label = HTML("D<sub>A</sub> (Distance from mainland to Island A)"),
-                        min = 1,
-                        max = 8,
-                        value = 1),
-            sliderInput(inputId = "D2",
-                        label = HTML("D<sub>B</sub> (Distance from mainland to Island B)"),
-                        min = 1,
-                        max = 8,
-                        value = 4),            
-            sliderInput(inputId = "A1",
-                        label = HTML("A<sub>A</sub> (Area of island A)"),
-                        min = .1,
-                        max = 4,
-                        value = 1),
-            sliderInput(inputId = "A2",
-                        label = HTML("A<sub>B</sub> (Area of island B)"),
-                        min = .1,
-                        max = 4,
-                        value = .5),
-            sliderInput(inputId = "M",
-                        label = "M (Number of species in the mainland)",
-                        min = 1,
-                        max = 100,
-                        value = 100),
-            width=4),
-        mainPanel(
-            renderPlot({plot_to_print()}, width = 400, height = 600)
-        )
-)
-
-Dvec <- reactive({c(input$D1, input$D2)})
-Avec <- reactive({c(input$A1, input$A2)})
-plots <- reactive({
-  ecoevoapps::run_ibiogeo_model(tx = tx, ty = ty, txa = txa, tya = tya,
-                                txb = txb, tyb = tyb, D = Dvec(), 
-                                A = Avec(), M=input$M, k=0.015)
-})
-
-map <- reactive({plots()$map})
-eq_plot <- reactive({plots()$eq_plot})
-
-plot_to_print <- reactive({
-  map() / eq_plot()
-})
-
+## 中文
+```{r child='ibiogeo_app_chinese.Rmd'}
 ```
 
-
-## References 
-
-"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", Macarthur and Wilson 1964.  
-
-"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)", Macarthur and Wilson 1967. 
-
-"[Experimental Zoogeography of Islands: The Colonization of Empty Islands](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)", Simberloff and Wilson 1969.  
-
-"[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
-
-"[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
 
 ---------------
 
