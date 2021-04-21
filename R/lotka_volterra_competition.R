@@ -69,8 +69,10 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
 #'
 #' # Give only the final time step rather than full time series
-#' run_lvcomp_model(time = 5, init = c(N1 = 1, N2 = 5),
+#' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
 #' params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05))
+#' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
+#' params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
 #' @export
 run_lvcomp_model <- function(time, init, params) {
 
