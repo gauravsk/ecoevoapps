@@ -114,3 +114,30 @@ shiny_structured_pop <- function() {
     render_args = NULL
   )
 }
+
+
+#' Launch the island biogeography app
+#' @export
+shiny_island_biogeo <- function() {
+  rmarkdown::run(
+    file = system.file("ibiogeo/island_biogeo_app.Rmd",
+                       package =  "ecoevoapps"),
+    default_file = NULL,
+    auto_reload = TRUE,
+    shiny_args = NULL,
+    render_args = NULL
+  )
+}
+
+#' Launch the abiotic resource competition app
+#' @export
+shiny_abiotic_comp <- function() {
+  rmarkdown::run(
+    file = system.file("abiotic_resource_comp/abiotic_rc_app.Rmd",
+                       package =  "ecoevoapps"),
+    default_file = NULL,
+    auto_reload = TRUE,
+    shiny_args = NULL,
+    render_args = NULL
+  )
+}
