@@ -20,6 +20,9 @@ runtime: shiny
 ```{r child='ibiogeo_app_chinese.Rmd'}
 ```
 
+## português
+```{r child='ibiogeo_app_portuguese.Rmd'}
+```
 
 ---------------
 
