@@ -1,0 +1,169 @@
+---
+title: "Smith-Fretwell model of optimal seed size"
+author: ""
+output: html_document
+runtime: shiny
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+library(ggtext)
+library(ecoevoapps)
+```
+
+
+```{r Define useful functions}
+# Smith-Fretwell Function
+Wo = function(Iy,Iymin=Iymin,Iymax=Ip,Womax=Womax,shapeval = .02) {
+  (Womax*(Iy-Iymin)) / (shapeval*(Iymax + Iymin)/2+Iy)
+}
+
+
+df2 <- data.frame(xval = 0:25)
+
+Ip <- 1000 # Total amount of energy plant has to invest into offspring
+Wp <- c(20, 20)
+# Variables to help with plotting
+xmax <- 25
+xlabs <- seq(0,xmax, length.out = 6)
+xlabn <- round(Ip/xlabs)
+xlabvec <- paste0(xlabs, "\n\n", xlabn)
+
+(fitness_isoclines <- 
+  ggplot(data = df2) +
+  scale_x_continuous(limits = c(0, 25*1.05), expand = c(0,0), 
+                     breaks = xlabs, 
+                     labels = xlabvec) +
+  scale_y_continuous(limits = c(0, .5), expand = c(0,0)) +
+  coord_cartesian(clip = 'off') +
+  geom_abline(aes(intercept = 0, slope = Wp[1]/Ip), color = "grey") + 
+  annotate("text", x = -Inf, y = -Inf, hjust = 1.1, vjust = 1.75,
+           label = "Seed size (s)", size = 3.25) +
+  annotate("text", x = -Inf, y = -Inf, hjust = 1.08, vjust = 4.5,
+           label = "Offspring number (N)", size = 3.25) +
+  annotate("text", x = 18, y = 0.2, 
+           label = paste0(Wp[1], " successful\noffspring")) + 
+  ylab("Offspring Fitness (Wo)") +
+  xlab("") + 
+  ecoevoapps::theme_apps() + 
+  theme(axis.text = element_text(size = 9, color = "black"),
+        axis.title = element_text(size = 10),
+        plot.margin = margin(l =100, r = 20, t = 5, unit = "pt")) +
+  NULL
+)
+
+# Define the variables for the particular curve
+Iymin <- 3
+Womax <- 0.6
+Iymax <- Ip
+aval <- .02*(Iymin+Iymax)/2
+xopt <- Iymin + sqrt(Iymin^2 + aval*Iymin)
+yopt <- Wo(xopt, Iymin = Iymin, Iymax = Iymax, Womax = Womax)
+lineslope <- (Womax*(aval+Iymin))/(aval+Iymin+sqrt(Iymin^2+aval*Iymin))^2 
+
+offspring_fitness_max <- 
+  ggplot(data = df2) +
+  coord_cartesian(clip = "off") +
+  geom_function(fun = Wo,
+                args = list(Iymin = Iymin, Iymax = Iymax, Womax = Womax),
+                n = 1000) +
+  geom_point(aes(x = Iymin, y = 0), color = 2) +
+  ylab("Offspring Fitness (Wo)") +
+  xlab("Seed size") +
+  scale_x_continuous(lim = c(0, Ip*0.25), expand = c(0,0)) +
+  scale_y_continuous(lim = c(-.1, 0.65), expand = c(0,0)) + 
+  annotate("text", x = 3, y = 0, 
+           label = paste0("Minimum offspring size (S_min)"),
+           hjust = -.05, vjust = -.8, color = 2) +
+  geom_hline(yintercept = 0, linetype = 1) + 
+  ecoevoapps::theme_apps() + 
+  theme(axis.text = element_text(size = 10, color = "black"),
+        axis.title = element_text(size = 12),
+        plot.margin = margin(l =100, r = 20, t = 5, unit = "pt"),
+        axis.line.x = element_blank()) +
+  NULL
+
+
+offspring_fitness <- make_sf_plot(Iymin = Iymin, Womax = Womax, Ip = Ip)
+
+  
+```
+
+
+The [Smith-Fretwell](https://www.jstor.org/stable/2459681) model captures a fundamental trade-off that plants face in their reproductive strategy. Jump to the [interactive app](#interactive), or read on for a brief overview of the model.
+
+The model assumes that each adult plant has some defined amount of energy $M$ that it can invest into making offspring (seeds). It can divide this energy $M$ into any $N$ number of seeds, with each seed of size $s$:
+
+$$M = N*s$$
+
+The fitness of the parent ($W_p$) is calculated as the product of $N$ and offspring fitness, $W_o$: $W_p = W_O*N$
+
+Given that $N = M/s$, we can re-write adult fitness as follows:
+
+$$W_p = \frac{W_o M}{s} $$
+
+Given that each plant has a set amount of energy $M$ that it can invest into offspring, parental fitness is maximized when $W_o/s$ is maximized. For example, consider a plant with 1000 units of energy to invest into offspring ($M = 1000$). This plant can make 1000 seeds of size 1 each, 1 seed of size 1000, or any linear combination of numbers in between, with $N*s = 1000$:
+
+
+```{r, warning = F, fig.height = 3, fig.width = 5, fig.align = "center"}
+fitness_isoclines
+```
+
+Note that steeper lines in this graph result in higher numbers of successful offspring (higher $W_p$).
+
+
+**Next**, the model also assumes that the fitness of each offspring ($W_o$) is determined by the size of the seed. There is some minimum size $s_{min}$ below which seeds cannot survive ($W_o < 0$ if $s < s_{min}$). Moreover, larger seeds lead to seedlings with higher fitness $W_o$, but there is a diminishing marginal benefit to increasing seed size. When we combine both of these assumptions, the relationship between seed size and fitness looks something like this:
+
+```{r, warning = F, fig.height = 3, fig.width = 5, fig.align = "center"}
+offspring_fitness_max
+```
+
+Putting this all together, the optimum seed size $s_{opt}$ that maximizes parental fitness $W_p$ can be identified by drawing a tangent line to the seed size-offspring fitness curve:
+
+```{r, fig.height = 3, fig.width = 5, fig.align = "center", warning = F}
+offspring_fitness
+```
+
+--------------------------------
+
+### Interactive app {#interactive}
+
+The key insight from this model is that the optimum seed size ($s_{opt}$) that maximizes parental fitness ($W_p$) depends on two factors: (1) the minimum size required for a viable seed ($s_{min}$), and (2) the shape of the relationship between $s$ and $W_o$.  Explore the dynamics of the model using the app below:
+
+```{r}
+
+sidebarLayout(
+  sidebarPanel(
+    h4("Set the parameter for the blue species:"),
+    sliderInput("Iymin2", label = "s_min", value = 5,
+                min = 1, max = 15, step = 1, 
+                animate = animationOptions(interval = 1000, loop = T)),
+    
+    sliderInput("Womax2", #label = "Shape of s-Wo relationship",
+                label = div(style='width:250px;', 
+                            div(style='float:center;', 'Shape of s-Wo relationship'), 
+                            div(style='float:left;', 'shallower'), 
+                            div(style='float:right;', 'steeper')), 
+                min = 0, max = 1, value = 0.6, step = 0.05, 
+                animate = animationOptions(interval = 1000, loop = T))
+  ),
+  mainPanel(
+    renderPlot(pp(), width = 400, height = 400)
+  )
+)
+  
+shapeval <- reactive({0.02 * input$Womax2/0.6})
+
+pp <- reactive({
+  add_to_sf_plot(offspring_fitness, Iymin = input$Iymin2, Womax = input$Womax2, Ip = Ip, shapeval = 0.02 * input$Womax2/0.6) + 
+    labs(caption =  paste0("Iymin = 3, Womax = 0.6 <br> 
+       <span style = 'color:#619cff;'> Iymin = ", input$Iymin2,", Womax =  ", input$Womax2,"</span>")) +
+    theme(plot.caption = element_textbox(size = 12),
+          plot.margin = margin(b =10, r = 0, t = 5, unit = "pt"),
+    )
+})
+
+```
+

@@ -141,3 +141,17 @@ shiny_abiotic_comp <- function() {
     render_args = NULL
   )
 }
+
+#' Launch the Smith-Fretwell app
+#' @export
+shiny_abiotic_comp <- function() {
+  rmarkdown::run(
+    file = system.file("smith_fretwell_model/smith_fretwell_app.Rmd",
+                       package =  "ecoevoapps"),
+    default_file = NULL,
+    auto_reload = TRUE,
+    shiny_args = NULL,
+    render_args = NULL
+  )
+}
+
