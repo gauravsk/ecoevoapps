@@ -5,11 +5,7 @@
 \title{Launch the abiotic resource competition app}
 \usage{
 shiny_abiotic_comp()
-
-shiny_abiotic_comp()
 }
 \description{
 Launch the abiotic resource competition app
-
-Launch the Smith-Fretwell app
 }

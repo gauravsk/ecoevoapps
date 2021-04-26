@@ -5,15 +5,7 @@
 \title{Launch the consumer-resource dynamics app}
 \usage{
 shiny_consumer_resource()
-
-shiny_consumer_resource()
-
-shiny_consumer_resource()
 }
 \description{
 Launch the consumer-resource dynamics app
-
-Launch the biotic resource competition app
-
-Launch the island biogeography app
 }

@@ -52,9 +52,9 @@ shiny_consumer_resource <- function() {
 
 #'Launch the biotic resource competition app
 #' @export
-shiny_consumer_resource <- function() {
+shiny_biotic_comp <- function() {
   rmarkdown::run(
-    file = system.file("consumer_resource_interactions/consumer_resource_interactions.Rmd",
+    file = system.file("biotic_resource_competition/biotic_resource_competition.Rmd",
                        package =  "ecoevoapps"),
     default_file = NULL,
     auto_reload = TRUE,
@@ -63,18 +63,7 @@ shiny_consumer_resource <- function() {
   )
 }
 
-#'Launch the island biogeography app
-#' @export
-shiny_consumer_resource <- function() {
-  rmarkdown::run(
-    file = system.file("consumer_resource_interactions/consumer_resource_interactions.Rmd",
-                       package =  "ecoevoapps"),
-    default_file = NULL,
-    auto_reload = TRUE,
-    shiny_args = NULL,
-    render_args = NULL
-  )
-}
+
 
 #'Launch the infectious diseases models app
 #' @export
@@ -144,7 +133,7 @@ shiny_abiotic_comp <- function() {
 
 #' Launch the Smith-Fretwell app
 #' @export
-shiny_abiotic_comp <- function() {
+shiny_smith_fretwell <- function() {
   rmarkdown::run(
     file = system.file("smith_fretwell_model/smith_fretwell_app.Rmd",
                        package =  "ecoevoapps"),
