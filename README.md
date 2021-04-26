@@ -1,92 +1,92 @@
-## Interactive apps for theoretical ecology and evolution models
+## Welcome to the EcoEvoApps R package
 
 Our goal with this project is to make a compilation of interactive (shiny) apps to help teach ecology and evolution models.
 
-**Priority models:**
+## Shiny apps
 
-1. single population continuous time (exponential + logistic growth) [Gaurav]
-2. single population discrete time (geometric + logistic growth) [Gaurav]
-3. (st)age structured discrete time [Marcel]
-4. lotka-volterra competition [Kenji + Gaurav]
-5. abiotic resource competition model [Kenji + Gaurav]
-6. biotic resource competition/predator-prey model [Maddi + Rosa]
-7. Nicholson-Bailey host-parasitoid [Rosa]
-8. SIR [Maddi] [get someone from Jamie's lab? Andrew?]
-9. levin's spatial model [Kenji]
-10. island biogeography [Marcel]
+The package currently includes 11 shiny apps, the code for which is found in `inst/`:
 
-(See end of this document for a comprehensive list of apps we have been thinking about)
+1. Population growth in continuous time: https://ecoevoapps.shinyapps.io/single-population-continuous/
+Users can simulate the dynamics of continuously growing populations with either exponential or logistic growth. Users can optionally introduce a lag in the logistic growth model.  
 
-### Overview of logistics
+2. Population growth in discrete time: https://ecoevoapps.shinyapps.io/single-population-discrete/
+Users can simulate the dynamics of a population with discrete exponential growth, or discrete growth with a carrying capacity. Users can choose between a standard discrete logistic model, the Beverton-Holt model, or the Ricker model.  
 
-Our goal for now is to pick a list of ~10 models that we can target to finish somewhat quickly, and get a beta version of the package out by mid Summer.
+3. Stage-structred population growth: https://ecoevoapps.shinyapps.io/structured_population/  
+This app simulates the dynamics of a stage-structured population. Users can set the survival and fecundity rates of populations with up to three life stages.  
 
-To make a model:
-	1. understand the biology (including model assumptions);  
- 	2. write a brief explanation of this biology (maybe follow a template??);  
-      	Template outline:  
-      	1. Model parameters  
-      	2. Model assumptions  
-           	1. what happens if these are broken? e.g. introduce carrying capacity to exponential growth model  
-      	3. Model equations  
-      	4. Relevant analyses, e.g. equilibrium points for the populations   
-      	5. References (including papers where this model was developed, papers where this model has been used well)  
- 	3. write R-code to implement the model;  
- 	4. develop shiny code to build off of the R code (including which plots to show for the model you are working on);   
- 	5. share it with our group to get feedback, and later share it with others to get feedback.
+4. Metapopulation dynamics model:  https://ecoevoapps.shinyapps.io/source-sink-dynamics/  
+Users can explore the dynamics of a population that grows in a favorable habitat ("source"), but can also immigrate to a less suitable "sink" habitat. This is an implementation of the classic metapopulation model of Pulliam (1988).  
 
-write an R function to generate a model template(!)
+5. Offspring size-fitness tradeoff: https://ecoevoapps.shinyapps.io/smith_fretwell_app/ 
+Users can explore the life history tradeoff between making many small offspring with low survival, vs. fewer large offspring with higher survival rate. It implements the classic model of Smith and Fretwell (1974).  
 
-### More comprehensive preliminary list of apps
+6. Consumer-resource dynamics: https://ecoevoapps.shinyapps.io/consumer-resource-dynamics/  
+Users can explore the dynamics between a consumer and resource. The consumer can either have a Type I or Type II functional response, and the resource can either experience exponential or logistic growth.  
 
-Single population:   
-- Exponential & logistic growth  
-- Continuous time and discrete time  
-- logistic growth with time lag  
-- (st)age structured populations
+7. Lotka-Volterra competition: https://ecoevoapps.shinyapps.io/lotka-volterra-competition/  
+Users can explore the classic Lotka-Volterra competition model. The model can either be simulated in terms of absolute inter- and intra-specific competition coefficients (as advocated by Chesson (2000)), or in terms of the relative strength of intra vs. interspecific competition (as is presented in most texts).  
 
-Competition:  
-- LV competition  
-- Tilman R* stuff  
-- Macarthur mechanistic competition model 
+8. Competition for a biotic resource: https://ecoevoapps.shinyapps.io/biotic-resource-competition/  
+Users can evaluate the outcome of competition between two species that compete for the same biotic resource (e.g. two predators that compete for the same prey species). This app can be used to illustrate how relative nonlinearities of competition can promote species coexistence. 
 
-Consumer-resource  
-- LV predator-prey  
-  - various derivations of this, e.g. Macarthur-Rosenzwig, include Type II functional response, etc.  
-- host-parasitoid interactions  
-- temperature dependent interactions
+9. Competition for abiotic resources: https://ecoevoapps.shinyapps.io/abiotic_resource_competition/  
+Users can evaluate the outcome of competition between two species that compete for the same abiotic resources (e.g. two plant species that compete for the same limiting resource). This app can be used to illustrate the classic R* rule of Tilman (1980). 
 
-Disease models  
-- SIR, etc.  
-  - modifications to this, e.g. SIRD  
+10. SIR dynamics models: https://ecoevoapps.shinyapps.io/infectious-disease-dynamics/  
+Users can explore various "compartment models" of disease dynamics, which illustrate how various key parameters like disease transmission rate, survival, and recovery rate affect the spread of a disease through a population. This app can also be used to illustrate how vaccination alters the rate of disease spread.   
 
-Metapopulation models  
-- patch occupancy  
-- source-sink dynamics  
-- competition colonization tradeoff
+11. Island biogeography: https://ecoevoapps.shinyapps.io/island-biogeography/  
+Users can evaluate how variation in island size and distance from a mainland source influence the equilibrium diversity of different islands in this app, which implements the classic models of Macarthur and Wilson (1964). 
 
-Other quantitative relationships   
-- Species area curve  
-- Species abundance distributions  
-- island biogeography  
-- Resource allocation tradeoff  
-- Janzen-connell  
-- optimal seed size  
+## Installation and using EcoEvoApps directly from `R`
 
-Evolution  
-- Hardy Weinberg  
-- genetic drift  
-- ESS in game theory  
-- other eco-evo model  
-- mark's model (trait-based speciation/extinction)   
-- red queen  
-- phylogenetic independent contrasts  
+In addition to directly accessing the shiny apps at the links above, the package also includes a variety of functions with which users can directly simulate model dynamics through `R`, or can launch the shiny apps locally from their own machines. 
 
-Behavior  
-- switch point theorem  
-- optimal foraging theory  
+#### Installation
 
-medium-term wishlist  
-- integrating stochasticity  
-- food web stuff  
-- network stuff?  
+`ecoevoapps` can be installed directly from Gitlab (or its mirror on Github), as follows:
+
+```
+if (!requireNamespace("devtools", quietly = TRUE))
+      install.packages('devtools')
+devtools::install_gitlab("gauravsk/ecoevoapps")
+
+# Or, install from github
+# (This can be helpful if you plan on deploying the shiny apps to your own
+# shinyapps.io account, as packages installed from gitlab don't automatically
+# get installed during the shinyapps.io deployment.)
+# devtools::install_github("gauravsk/ecoevoapps-mirrior")
+```
+
+#### Launching apps from R 
+
+The shiny apps in `ecoevoapps` can be launched directly from the R console using one of the `run_XXX()` functions used in the package. For example, the island biogeography package can be run using `ecoevoapps::shiny_island_biogeo()`.  The full list of such functions is:
+
+```
+"shiny_abiotic_comp"         "shiny_biotic_comp"          "shiny_consumer_resource"    "shiny_infectious_disease"  
+"shiny_island_biogeo"        "shiny_lvcompetition"        "shiny_metapopulation"       "shiny_singlepop_continuous"
+"shiny_singlepop_discrete"   "shiny_smith_fretwell"       "shiny_structured_pop"      
+```
+
+#### Running models from the R command line
+
+The models listed above can also be run directly from the `R` command line using functions built into `ecoevoapps`. For example, the Lotka-Volterra competition model can be run using `run_lvcomp_model()`:
+
+```
+ecoevoapps::run_lvcomp_model(time = 100, params = c(K1 = 500, K2 = 500, a = .07, 
+                                                      b = .07, r1 = .6, r2 = .8), 
+                               init = c(N1 = 100, N2 = 50))
+```
+
+The following functions are available to run the models from `R`:
+
+```
+"run_beverton_holt_model"     "run_discrete_exponential"    "run_discrete_logistic_model" "run_exponential_model"      
+"run_ibiogeo_model"           "run_infectiousdisease_model" "run_logistic_model"          "run_lvcomp_model"           
+"run_predprey_model"          "run_ricker_model"           
+```
+
+## Contributing
+
+<pending> 
