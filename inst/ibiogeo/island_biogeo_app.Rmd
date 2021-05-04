@@ -16,6 +16,11 @@ runtime: shiny
 ```{r child='ibiogeo_app_english.Rmd'}
 ```
 
+## Español
+
+```{r child='ibiogeo_app_spanish.Rmd'}
+```
+
 ## 中文
 ```{r child='ibiogeo_app_chinese.Rmd'}
 ```
