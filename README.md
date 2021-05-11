@@ -48,15 +48,15 @@ In addition to directly accessing the shiny apps at the links above, the package
 `ecoevoapps` can be installed directly from Gitlab (or its mirror on Github), as follows:
 
 ```
-if (!requireNamespace("devtools", quietly = TRUE))
-      install.packages('devtools')
-devtools::install_gitlab("gauravsk/ecoevoapps")
+if (!requireNamespace("remotes", quietly = TRUE))
+      install.packages('remotes')
+remotes::install_gitlab("ecoevoapps/ecoevoapps")
 
 # Or, install from github
 # (This can be helpful if you plan on deploying the shiny apps to your own
 # shinyapps.io account, as packages installed from gitlab don't automatically
 # get installed during the shinyapps.io deployment.)
-# devtools::install_github("gauravsk/ecoevoapps-mirrior")
+# remotes::install_github("gauravsk/ecoevoapps-mirror")
 ```
 
 #### Launching apps from R 
