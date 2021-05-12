@@ -1,6 +1,6 @@
 ## Welcome to the EcoEvoApps R package
 
-Our goal with this project is to make a compilation of interactive (shiny) apps to help teach ecology and evolution models.
+Our goal with this project is to make a compilation of interactive ([shiny](https://shiny.rstudio.com/)) apps to help teach ecology and evolution models.
 
 ## Shiny apps
 
