@@ -1,6 +1,6 @@
 ## Welcome to the EcoEvoApps R package
 
-Our goal with this project is to make a compilation of interactive (shiny) apps to help teach ecology and evolution models.
+Our goal with this project is to make a compilation of interactive ([shiny](https://shiny.rstudio.com/)) apps to help teach ecology and evolution models.
 
 ## Shiny apps
 
@@ -89,4 +89,4 @@ The following functions are available to run the models from `R`:
 
 ## Contributing
 
-*Text pending. In the mean while, if you'd like to contribute, please check out our [website](https://ecoevoapps.gitlab.io/contribute/)*
+If you'd like to contribute to this project, please check out our contribution guidelines available [here](https://docs.google.com/document/d/1fZh7mi4A9SmSblcwlMrRllV4ZMl5-E9PzJ0wtNIMkZ4/edit?usp=sharing). You can also get started by visiting the contribution page of our [website](https://ecoevoapps.gitlab.io/contribute/).
