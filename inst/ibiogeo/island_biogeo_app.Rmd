@@ -29,6 +29,10 @@ runtime: shiny
 ```{r child='ibiogeo_app_portuguese.Rmd'}
 ```
 
+## Turkish
+```{r child='ibiogeo_app_turkish.Rmd'}
+```
+
 ---------------
 
 App maintained by Marcel Vaz (marcelcvaz@gmail.com)

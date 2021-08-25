@@ -70,6 +70,7 @@ plot_to_print_es <- reactive({
 
 ```
 
+*Translated into Español by Rosa McGuire*
 
 ### Referencias:
 

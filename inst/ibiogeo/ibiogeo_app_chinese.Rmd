@@ -67,6 +67,9 @@ plot_to_print_cn <- reactive({
 
 ```
 
+*Translated into Chinese by Xinyi Yan*
+
+
 ### 参考文献 
 
 "[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", Macarthur and Wilson 1964.  
