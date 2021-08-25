@@ -124,10 +124,12 @@ init <- reactive({c(N1 = input$N1_val)})
 time <- reactive({seq(from = 0, to = input$max_time, by=1)})
 
 params2 <- reactive({
-  if(input$densdepLag == 'lag') {
-    c(r = input$r_val2, K = input$K_val2, tau = input$tau2)
+  if(input$densdep == "indep") {
+    c(r = input$r_val2) 
+  } else if(input$densdepLag == 'lag') {
+    c(r = input$r_val2, K = input$K_val2, tau = input$tau2) 
   } else {
-    c(r = input$r_val2, K = input$K_val2)
+    c(r = input$r_val2, K = input$K_val2) 
   }
 })
 init2 <- reactive({c(N1 = input$N2_val)})
@@ -268,7 +270,7 @@ n1n_over_n <- reactive({
       ylab("per-capita population growth rate\n(dN/Ndt)") + 
       scale_color_brewer("Species", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
-      scale_y_continuous(expand = c(0, 0, .1, 0)) +
+      scale_y_continuous(limits = c(0, max(pops_combined()$N1Ndiff)*2), expand = c(0, 0, .1, 0)) +
       theme_apps() 
     }
 })
