@@ -1,6 +1,5 @@
 ---
 title: "Growth of a single population in continuous time"
-author: "Gaurav Kandlikar"
 output: html_document
 runtime: shiny
 ---
@@ -38,9 +37,16 @@ dnNdt <- function(params) {
 
 ```
 
+*This is an entry in the EcoEvoApps project, a collection of freely available apps to simulate canonical models from theoretical ecology and evolution. For more apps in this collection, please visit the project website: https://ecoevoapps.gitlab.io.*
+
+## Model description and interactive app
 
 ```{r child = 'single_population_overview.Rmd'}
 ```
+
+## Model dynamics
+
+# {.tabset}
 
 ## Interactive application
 
@@ -318,7 +324,13 @@ plots_to_print <- reactive({
 ```
 
 
-## References  
+## Simulating model dynamics in `R`
+
+```{r child = 'single_populations_in_R.Rmd'}
+```
+
+
+# Further reading  
 
 "[How populations grow: the Exponential and the logistic](https://www.nature.com/scitable/knowledge/library/how-populations-grow-the-exponential-and-logistic-13240157/)", John Vandermeer, Nature Education Knowledge. 
 

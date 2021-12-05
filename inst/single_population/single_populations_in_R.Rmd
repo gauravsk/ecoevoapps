@@ -1,0 +1,111 @@
+
+#### Exponential growth
+The following code simulates the dynamics of a population with exponential growth in continuous time. 
+
+```{r, eval = F}
+# Import libraries
+library(deSolve)
+
+# Define a function for exponential growth
+exponential_growth <- function(time,init,params) {
+  with (as.list(c(time,init,params)), {
+    # description of parameters:
+    # r = per-capita growth rate of the focal species
+    # N1 = population size of the focal species
+    dN1 <- (r*N1)
+    return(list(c(dN1)))
+  })
+}
+
+# Define initial values
+init <- c(N1 = 10)
+params <- (r = 0.15)
+
+# Define the time series over which to simulate dynamics
+time <- 0:100
+
+# Use deSolve::ode to run the model using defined parameters
+population_dynamics <- 
+  data.frame(deSolve::ode(func = exponential_growth,
+                          y = init, times = time, parms = params))
+
+# Make a simple plot of population size over time
+plot(population_dynamics$N1~population_dynamics$time, type = "l")
+```
+
+#### Logistic growth 
+
+To simulate the logistic model, we simply need to modify the function and define the new parameter `K`:
+
+```{r, eval = F}
+# Import libraries
+library(deSolve)
+
+# Define a function for logistic growth
+logistic_growth <- function(time,init,params) {
+  with (as.list(c(time,init,params)), {
+    # description of parameters:
+    # r = per-capita growth rate of the focal species
+    # N1 = population size of the focal species
+    # K = carrying capacity of the focal species
+    dN1 <- (r*N1)*(1-N1/K)
+    return(list(c(dN1)))
+  })
+}
+
+# Define initial values
+init <- c(N1 = 10)
+params <- c(r = 0.1, K = 500)
+
+# Define the time series over which to simulate dynamics
+time <- 0:100
+
+# Use deSolve::ode to run the model using defined parameters
+population_dynamics <- 
+  data.frame(deSolve::ode(func = logistic_growth,
+                          y = init, times = time, parms = params))
+
+# Make a simple plot of population size over time
+plot(population_dynamics$N1~population_dynamics$time, type = "l")
+```
+
+#### Lagged logistic growth
+
+Running the lagged-logistic model  requires the use of the function ``deSove::lagvalue`, which gives access to past (lagged) values of state variables, and the function `deSolve::dede` which, unlike `deSolve::ode` allows us to simulate delayed-differential equations:
+
+```{r, eval = F}
+lagged_logistic_growth <- function(time, init, params) {
+  with (as.list(c(time,init,params)), {
+    # description of parameters:
+    # r = per-capita growth rate of the focal species
+    # N1 = population size of the focal species
+    # K = carrying capacity of the focal species
+    # tau = time lag of density dependence
+    
+    tlag <- time - tau
+    if (tlag < 0) {
+      Nlag <- N1
+    } else {
+      Nlag <- deSolve::lagvalue(tlag)
+    }
+    dN1 <- r * N1 * (1-(Nlag/K))
+    return(list(c(dN1)))
+  })
+}
+
+init <- c(N1 = 50)
+params <- c(r = 0.7, K = 500, tau = 2.2)
+
+# Define the time series over which to simulate dynamics
+time <- 0:200
+
+# Use deSolve::ode to run the model using defined parameters
+population_dynamics <- 
+    data.frame(deSolve::dede(func = lagged_logistic_growth,
+                 y = init, times = time, parms = params))
+
+# Make a simple plot of population size over time
+plot(population_dynamics$N1~population_dynamics$time, type = "l")
+
+
+```
