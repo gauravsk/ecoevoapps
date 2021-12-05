@@ -1,7 +1,6 @@
 ---
-title: "Single population models"
+title: "Growth of a single population in continuous time"
 author: "Gaurav Kandlikar"
-date: "4/12/2020"
 output: html_document
 runtime: shiny
 ---
@@ -16,6 +15,27 @@ library(ecoevoapps)
 library(patchwork)
 library(knitr)
 library(kableExtra)
+
+dndt <- function(params) {
+  r <- params["r"]
+  if(!is.na(params["K"])) {
+    K <- params["K"]
+    (1:K)*r*(1-(1:K)/K)
+  } else {
+    r*1:10000
+  }
+}
+
+dnNdt <- function(params) {
+  r <- params["r"]
+  if(!is.na(params["K"])) {
+    K <- params["K"]
+    r*(1-seq(1:K)/K)
+  } else {
+    rep(r,10000)
+  }
+}
+
 ```
 
 
@@ -119,14 +139,14 @@ params <- reactive({
   } else {
     c(r = input$r_val, K = input$K_val) 
   }
-  })
+})
 init <- reactive({c(N1 = input$N1_val)})
 time <- reactive({seq(from = 0, to = input$max_time, by=1)})
 
 params2 <- reactive({
-  if(input$densdep == "indep") {
+  if(input$densdep2 == "indep") {
     c(r = input$r_val2) 
-  } else if(input$densdepLag == 'lag') {
+  } else if(input$densdepLag2 == 'lag') {
     c(r = input$r_val2, K = input$K_val2, tau = input$tau2) 
   } else {
     c(r = input$r_val2, K = input$K_val2) 
@@ -150,35 +170,16 @@ pop_growth2 <- reactive({
       data.frame(ecoevoapps::run_exponential_model(time= time(), init = init2(), params = params2()))
     } else {
       data.frame(ecoevoapps::run_logistic_model(time= time(), init = init2(), params = params2()))
-    }}
+    }
+  }
 }) 
-
-pop_growth_mod <- reactive ({
-  pop_out <- pop_growth()
-  pop_out$N1diff <- c(NA, diff(pop_out$N1))
-  pop_out$N1Ndiff <- c(NA, diff(pop_out$N1))/pop_out$N1
-  if(input$densdep == 'indep') {
-    pop_out$N1Ndiff <- input$r_val
-  }
-  pop_out
-})
-
-pop_growth2_mod <- reactive ({
-  pop_out2 <- pop_growth2()
-  pop_out2$N1diff <- c(NA, diff(pop_out2$N1))
-  pop_out2$N1Ndiff <- c(NA, diff(pop_out2$N1))/pop_out2$N1
-  if(input$densdep2 == 'indep'){
-    pop_out2$N1Ndiff <- input$r_val2
-  }
-  pop_out2
-})
 
 pops_combined <- reactive({
   if(input$secondsp) {
-    dplyr::bind_rows(pop_growth_mod(), pop_growth2_mod(),
+    dplyr::bind_rows(pop_growth(), pop_growth2(),
                      .id = "which_pop")
   } else {
-    pg <- pop_growth_mod()
+    pg <- pop_growth()
     pg$which_pop = "1"
     pg
   }
@@ -240,7 +241,6 @@ trajectory_log <- reactive({
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-
       ylab("ln(Population size)") 
     }
 })
@@ -249,14 +249,25 @@ trajectory_log <- reactive({
 n1_over_n <- reactive({
   if("n1overn" %in% input$plots_to_show) {
     
-    ggplot(pops_combined() %>% na.omit) +
-      geom_line(aes(x = N1, y = N1diff, color = which_pop), size = 2) + 
+    dndt_out <- data.frame(dndt = dndt(params()), which_pop = "1")
+    dndt_out$x <- 1:nrow(dndt_out)
+    
+    dndt_out_for_plot <-
+      if(input$secondsp) {
+        dn2dt_out <- data.frame(dndt = dndt(params2()), which_pop = "2")
+        dn2dt_out$x <- 1:nrow(dn2dt_out)
+        dplyr::bind_rows(dndt_out, dn2dt_out)
+      } else {
+        dndt_out
+      }
+    
+    ggplot(dndt_out_for_plot) +
+      geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
       xlab("Population Size") + 
       ylab("Population growth rate (dN/dt)") + 
       scale_color_brewer("Species", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
-
       theme_apps() 
     }
 })
@@ -264,13 +275,28 @@ n1_over_n <- reactive({
 # 4. dN/Ndt vs. N -----------
 n1n_over_n <- reactive({
   if("n1novern" %in% input$plots_to_show) {
-    ggplot(pops_combined() %>% na.omit) +
-      geom_line(aes(x = N1, y = N1Ndiff, color = which_pop), size = 2) + 
+    
+    dnNdt_out <- data.frame(dnNdt = dnNdt(params()), which_pop = "1")
+    dnNdt_out$x <- 1:nrow(dnNdt_out)
+    
+    dnNdt_out_for_plot <-
+      if(input$secondsp) {
+        dnN2dt_out <- data.frame(dnNdt = dnNdt(params2()), which_pop = "2")
+        dnN2dt_out$x <- 1:nrow(dnN2dt_out)
+        dplyr::bind_rows(dnNdt_out, dnN2dt_out)
+      } else {
+        dnNdt_out
+      }
+    
+    ggplot(dnNdt_out_for_plot) +
+      geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
       xlab("Population Size") + 
       ylab("per-capita population growth rate\n(dN/Ndt)") + 
       scale_color_brewer("Species", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
-      scale_y_continuous(limits = c(0, max(pops_combined()$N1Ndiff)*2), expand = c(0, 0, .1, 0)) +
+      # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
+      scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
+                         expand = c(0, 0, .1, 0)) +
       theme_apps() 
     }
 })
