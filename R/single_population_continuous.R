@@ -71,6 +71,11 @@ logistic_growth <- function(time,init,params) {
 #' @param params vector of r (intrinsic growth rate), K (carrying capacity), and tau (time lag)
 lagged_logistic_growth <- function(time, init, params) {
   with (as.list(c(time,init,params)), {
+    # description of parameters:
+    # r = per-capita growth rate of Sp. 1
+    # N1 = population size of Sp. 1
+    # K = carrying capacity of Sp 1
+    # tau = time lag of density dependence
     tlag <- time - tau
     if (tlag < 0) {
       Nlag <- N1
@@ -114,7 +119,7 @@ run_logistic_model <- function(time, init, params) {
   if(length(init) != 1) stop("init should be a numeric vector of length 1, e.g. c(N1 = 10)")
   if(names(init) != "N1") names(init) <- "N1"
 
-  # Check that params is correctly defined (just r)
+  # Check that params is correctly defined (r, K, and maybe tau)
   if(!(is.numeric(params))) stop("params should be a numeric vector")
   if(!(length(params) %in% c(2,3))) stop("params should be of length 2 or 3 (if simulating lagged-logistic growth)")
   if(!(all(c("r","K") %in% names(params)))) stop("params should have elements named `r` and `K`")
