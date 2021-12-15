@@ -41,17 +41,27 @@ dnNdt <- function(params) {
 
 ## Model description and interactive app
 
-```{r child = 'single_population_overview.Rmd'}
+# {.tabset}
+
+## English
+
+```{r child = 'single_population_overview_english.Rmd'}
 ```
 
-## Model dynamics
+## Turkish
+
+
+```{r child = 'single_population_overview_turkish.Rmd'}
+```
+
+# Model dynamics
 
 # {.tabset}
 
 ## Interactive application
 
 
-```{r eruptions, echo=FALSE}
+```{r app-english, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     # User defined density dependent or independent growth ----
