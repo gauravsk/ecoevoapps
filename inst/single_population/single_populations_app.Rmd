@@ -54,6 +54,11 @@ dnNdt <- function(params) {
 ```{r child = 'single_population_overview_turkish.Rmd'}
 ```
 
+## 中文
+
+```{r child = 'single_population_overview_chinese.Rmd'}
+```
+
 # Model dynamics
 
 # {.tabset}

@@ -6,12 +6,12 @@ Given that $(b-d)$ is a constant that can be expressed simply as $r$, we can wri
 
 $$\frac{dN}{dT} = rN$$
 
-The trajectory of a population that is experiencing exponential growth has a characteristic "J" shaped curve when plotting population size against time, with the $r$ term controling the shape of the J. Scroll down to the app to explore how the value of $r$ influences the population tajectory.
+The trajectory of a population that is experiencing exponential growth has a characteristic "J" shaped curve when plotting population size against time, with the $r$ term controling the shape of the J. Scroll down to the app to explore how the value of $r$ influences the population trajectory.
 
 #### *Introducing some limits to population growth*
 The exponential growth model above is very straightforward, and predicts that in the long-term, any population experiencing such growth will reach an infinitely large size. Given that populations never grow without limits in nature, we can improve on this model. 
 
-Let us re-examine the assumptions of the exponential growth model-- namely, that there is a per-capita birth rate $b$ and a per-capita death rate $d$ that stays constant at all times. We can simply relax this assumption by examining what happens when the net growth rate ($rD$) declines linearly as a population reaches an environmentally-determined carrying capacit ($K$). The dynamics of such a population can be described by the logistic growth equation: 
+Let us re-examine the assumptions of the exponential growth model-- namely, that there is a per-capita birth rate $b$ and a per-capita death rate $d$ that stays constant at all times. We can simply relax this assumption by examining what happens when the net growth rate ($rD$) declines linearly as a population reaches an environmentally-determined carrying capacity ($K$). The dynamics of such a population can be described by the logistic growth equation: 
 
 $$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
 
