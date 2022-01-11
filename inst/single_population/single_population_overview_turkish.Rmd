@@ -8,7 +8,7 @@ $$\frac{dN}{dT} = rN$$
 
 Geometrik büyüyen bir popülasyon karakteristik bir J tipi büyüme gosterir. Bu üstel büyüme modelinde popülasyon boyutu zamana karşı grafiklendiğinde, $r$ sabiti J tipi büyümenin şeklini kontrol eder. $r$ sabitinin popülasyon boyutunun zamanda değişimini nasil etkilediğini gözlemlemek icin aşağıya inin!
 
-### Popülasyon büyümesine limitler
+#### *Popülasyon büyümesine limitler*
 Geometrik artış modeli temel bir şekilde, uzun vadede popülasyonların sonsuz bir boyuta ulaşacağını öngörür. Doğada, popülasyonların sonsuz boyuta ulaşmadığını rahatlıkla gözlemliyoruz ve bu gerçeklik geometrik modelimizi geliştirmemiz gerektiğini gösteriyor. 
 
 Geometrik modelin varsayımlarını tekrar gözden geçirelim: özellikle, b ($b$) ve d ($d$) oranlarının sürekli olarak sabit kaldığı temel varsayamını. Bu varsayımdan ödün vererek, net popülasyon büyüme oranının ($r$) popülasyon boyutunun taşıma kapasitesine ($K$) yaklaştığında lineer olarak azalmasına izin vererek (çevre direncini göze alarak) popülasyon modelimizi daha gerçekçi hale getirebiliriz. Sonucunda ortaya çıkan S tipi büyüme, lojistik popülasyon büyüme modeli, şu şekilde tanımlanır:
@@ -17,7 +17,7 @@ $$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
 
 S tipi büyüme gösteren popülasyonlar popülasyon boyutu taşıma kapasitesine eşit olana kadar büyürler ($N_i = K_i$) (pozitif popülasyon büyüme oranına sahip olabilirler). Popülasyon boyutu taşıma kapasitesini geçtiği anda, popülasyon büyüme oranı negatif olur, ve popülasyon boyutu taşıma kapasitesine geri düşer. 
 
-### Gecikmeli lojistik büyüme
+#### *Gecikmeli lojistik büyüme*
 
 Bazı durumlarda, popülasyonun büyüme oranı geçmiş zamandaki popülasyon boyutuna bağlı olabilir. Örnek olarak, popülasyonların doğum kapasitesi yetişkin olmayan fertlerin doğal kaynaklar için ne kadar rekabet etmesi gerektiğine bağlıdır. Böyle bir senaryoyu $t$ zamanındaki popülasyon büyüme oranını $t-\tau$ nın fonksiyonu halinde belirtebiliriz: 
 
@@ -26,7 +26,7 @@ Gecikmeli lojistik büyümenin sonuçlarını S tipi büyüme simülasyonunun �
 
 
 
-### Parametre tablosu
+#### *Parametre tablosu*
 ```{r parameter descriptions turkish, echo = F}
 pars_vars <- c("$r_i$", 
                "$K_i$", 

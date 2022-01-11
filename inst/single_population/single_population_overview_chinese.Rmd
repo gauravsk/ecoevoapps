@@ -26,7 +26,7 @@ $$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
 
 
 #### *参数表*
-```{r parameter descriptions, echo = F}
+```{r parameter descriptions ch, echo = F}
 pars_vars <- c("$r_i$", 
                "$K_i$", 
                "$N_i$",
