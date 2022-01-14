@@ -1,11 +1,8 @@
 ---
-title: "Lotka-Volterra Competition"
+title: "Competencia Lotka-Volterra"
 output: html_document
 runtime: shiny
 ---
-
-***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | Español | English | Turkish | português ***
-
 
 ```{r setup, include=FALSE}
 library(ecoevoapps)
@@ -19,15 +16,16 @@ knitr::opts_chunk$set(echo=FALSE)
 theme_set(ecoevoapps::theme_apps())
 ```
 
-The Lotka-Volterra competition equations explore the dynamics of two species that compete with each other for food, space, or other resources. The idea behind this model is that as a species grows in population, it starts being limited both by competition between individuals  within the same species (intra-specific competition), and also by competition from other species (inter-specific competition). Details of the model are available in many ecology texts and on various websites. 
+Las ecuaciones de competencia Lotka-Volterra exploran la dinámica entre dos especies que compiten por alimento, espacio u otros recursos. La idea detrás de este modelo es que a medida que la población de una especie crece, esta empieza a ser limitada tanto por la competencia entre individuos de la misma especie (competencia intraespecífica) como por la competencia con otras especies (competencia interespecífica). Los detalles del modelo están disponibles en múltiples textos de ecología y en varios sitios web.  
 
-There are several ways of writing the classic Lotka-Volterra competition models. The primary way is to express competition in terms of each species' carrying capacity ($K_1$ and $K_2$) and the relative strength of interspecific competition $\alpha$ and $\beta$. This is the form of the model that is presented in the first tab below. In his classic 2000 paper ["Mechanisms of Maintenance of Species Diversity"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf), Peter Chesson advocated for expression the Lotka-Volterra competition equations in terms of the absolute competition coefficients for each species; the second tab below allows users to explore that form of the Lotka-Volterra competition model. 
+Hay múltiples formas de escribir el clásico modelo de competencia Lotka-Volterra. La manera principal consiste en expresar la competencia en términos de la capacidad de carga de cada especie ($K_1$ and $K_2$) y en términos de la fuerza relativa de competencia interespecifica $\alpha$ y $\beta$. Esta es la forma del modelo que está presentada en la primera pestaña abajo. En el clásico articulo del año 2000, ["Mecanismos de mantenimiento de la diversidad de especies"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf), Peter Chesson advocó por la expresión de las ecuaciones de competencia Lotka-Volterra en términos de coeficientes de competencia absolutos para cada especie. La segunda pestaña permite a los usuarios explorar esa versión del modelo de competencia Lotka-Volterra. 
+
 
 # {.tabset}
 
-## Model in terms of carrying capacity and relative competitive effects
+## Modelo en términos de capacidad de carga y efectos relativos de competencia
 
-Equations for Lotka-Volterra Competition expressed with carrying capacities:
+Ecuaciones de Competencia Lotka-Volterra expresadas usando capacidades de carga: 
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
 $$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
 
@@ -40,23 +38,23 @@ pars_vars <- c("$r_1$",
                "$K_2$", 
                "$\\alpha$", 
                "$\\beta$")
-descriptions <- c("Intrinsic growth rate of Species 1",
-                 "Intrinsic growth rate of Species 2",
-                 "Population size of Species 1",
-                 "Population size of Species 2",
-                 "Carrying capacity of Species 1",
-                 "Carrying capacity of Species 2",
-                 "Relative per capita effect of Species 2 on Species 1",
-                 "Relative per capita effect of Species 1 on Species 2")
+descriptions <- c("Tasa intrínsica de crecimiento de la Especie 1",
+                 "Tasa intrínsica de crecimiento de la Especie 2",
+                 "Tamaño de la población de la Especie 1",
+                 "Tamaño de la población de la Especie 2",
+                 "Capacidad de carga de la Especie 1",
+                 "Capacidad de carga de la Especie 2",
+                 "Efecto relativo per cápita de la Especie 2 sobre la Especie 1",
+                 "Efecto relativo per cápita de la Especie 1 sobre la Especie 2")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
 
-Zero net growth isoclines (solved for $N_2$):
+Isoclinas de crecimiento neto cero (resuelto para $N_2$):
 $$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
 $$N_2 = -\beta N_1 + K_2$$
 
@@ -67,45 +65,45 @@ sidebarLayout(
   sidebarPanel(
     # Allow user to select which plots to display
     checkboxGroupInput(inputId = "plots_to_show",
-                       label = "Select plots to diplay",
-                       choices = c("N vs. Time" = "N_vs_Time", 
-                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+                       label = "Seleccionar gráficos a mostrar",
+                       choices = c("N vs. Tiempo" = "N_vs_Time", 
+                                   "Isoclina de crecimiento neto cero (ICNC)" = "ZNGI"),
                        selected = c("N_vs_Time")),
     
     hr(),
     
     # User-defined parameter values
     sliderInput(inputId = "r1", 
-                label = HTML("r<sub>1</sub>: Intrinsic growth rate of Species 1"),
+                label = HTML("r<sub>1</sub>: Tasa intrínsica de crecimiento de la Especie 1"),
                 min = 0.01, max = 1, value = 0.2, step = 0.01),
     sliderInput(inputId = "r2", 
-                label = HTML("r<sub>2</sub>: Intrinsic growth rate of Species 2"),
+                label = HTML("r<sub>2</sub>: Tasa intrínsica de crecimiento de la Especie 2"),
                 min = 0.01, max = 1, value = 0.5, step = 0.01),
     numericInput(inputId = "K1", 
-                 label = HTML("K<sub>1</sub>: Carrying capacity of Species 1"),
+                 label = HTML("K<sub>1</sub>: Capacidad de carga de la Especie 1"),
                  min = 1, value = 300),
     numericInput(inputId = "K2", 
-                 label = HTML("K<sub>2</sub>: Carrying capacity of Species 2"),
+                 label = HTML("K<sub>2</sub>: Capacidad de carga de la Especie 2"),
                  min = 1, value = 200),
     sliderInput(inputId = "alpha", 
-                label = HTML("&alpha;: Relative effect of Species 2 on Species 1"),
+                label = HTML("&alpha;: Efecto relativo de la Especie 2 sobre la Especie 1"),
                 min = 0.01, max = 2, value = 0.3, step = 0.01),
     sliderInput(inputId = "beta", 
-                label = HTML("&beta;: Relative effect of Species 1 on Species 2"),
+                label = HTML("&beta;: Efecto relativo de la Especie 1 sobre la Especie 2"),
                 min = 0.01, max = 2, value = 0.2, step = 0.01),
     # User-defined initial values
     numericInput(inputId = "N1", 
-                 label = "Initial population size of Species 1",
+                 label = "Tamaño inicial de la población de la Especie 1",
                  min = 1, value = 50),
     numericInput(inputId = "N2", 
-                 label = "Initial population size of Species 2",
+                 label = "Tamaño inicial de la población de la Especie 2",
                  min = 1, value = 70),
     
-    # Radio buttons for chossing simulation length
+    # Radio buttons for choosing simulation length
     radioButtons(inputId = "run_time", 
-                 label = "Select whether to:", 
-                 choices = c("Run for specified time" = "run_spec",
-                             "Run until equilibrium" = "run_to_eq"),
+                 label = "Seleccionar:", 
+                 choices = c("Simular por un tiempo específico" = "run_spec",
+                             "Simular hasta equilibrio" = "run_to_eq"),
                  selected = "run_spec"),
     
     # Conditional panel for inputting simulation length
@@ -113,7 +111,7 @@ sidebarLayout(
       condition = "input.run_time == 'run_spec'",
       # User-defined length of simulation
       numericInput(inputId = "max_time", 
-                   label = "Length of simulation",
+                   label = "Duración de la simulación",
                    min = 1, value = 100)
     )
   ),
@@ -194,7 +192,7 @@ N_vs_Time <- reactive({
     ggplot(data = lvcomp_out_long()) +
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
-      labs(x = "Time", y = "Population size (N)", color = "Species") +
+      labs(x = "Tiempo", y = "Tamaño de la población (N)", color = "Especie") +
       coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
                       expand = FALSE,
                       clip = "off")
@@ -216,12 +214,12 @@ ZNGI <- reactive({
     ggplot(data = lvcomp_out()) +
       geom_segment(data = ZNGI_sp1(),
                    aes(x = x1, y = y1, xend = xend1, yend = yend1, 
-                       color = "Species 1"), size = 2) +
+                       color = "Especie 1"), size = 2) +
       geom_segment(data = ZNGI_sp2(),
                    aes(x = x2, y = y2, xend = xend2, yend = yend2, 
-                       color = "Species 2"), size = 2) +
+                       color = "Especie 2"), size = 2) +
       scale_color_manual(values = brewer.pal(3, name = "Set1"), 
-                         labels = c("Species 1", "Species 2")) +
+                         labels = c("Especie 1", "Especie 2")) +
       geom_path(aes(x = N1, y = N2), size = 1) +
       geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
       geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2), 
@@ -231,7 +229,7 @@ ZNGI <- reactive({
                    xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
                    yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+      labs(x = expression(N[1]), y = expression(N[2]), color = "ICNC para") +
       coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
                       ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
                       expand = FALSE,
@@ -250,9 +248,9 @@ plots_to_print <- reactive({
   })
 ```
 
-## Model in terms of absolute competition coefficients
+## Modelo en términos de coeficientes de competencia absolutos
 
-Equations for Lotka-Volterra Competition expressed without carrying capacities:
+Ecuaciones de Competencia Lotka-Volterra expresadas sin capacidad de carga:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
 $$\frac{dN_2}{dt} = r_2N_2\left(1 - \alpha_{22}N_2 - \alpha_{21}N_1\right)$$
 
@@ -265,23 +263,24 @@ pars_vars_wo_K <- c("$r_1$",
                     "$\\alpha_{12}$",
                     "$\\alpha_{22}$",
                     "$\\alpha_{21}$")
-descriptions_wo_K <- c("Intrinsic growth rate of Species 1",
-                       "Intrinsic growth rate of Species 2",
-                       "Population size of Species 1",
-                       "Population size of Species 2",
-                       "Per capita effect of Species 1 on itself",
-                       "Per capita effect of Species 2 on Species 1",
-                       "Per capita effect of Species 2 on itself",
-                       "Per capita effect of Species 1 on Species 2")
+descriptions_wo_K <- c("Tasa intrínsica de crecimiento de la Especie 1",
+                       "Tasa intrínsica de crecimiento de la Especie 2",
+                       "Tamaño de la población de la Especie 1",
+                       "Tamaño de la población de la Especie 2",
+                       "Efecto per cápita de la Especie 1 sobre sí misma",
+                       "Efecto per cápita de la Especie 2 sobre la Especie 1",
+                       "Efecto per cápita de la Especie 2 sobre sí misma",
+                       "Efecto per cápita de la Especie 1 sobre la Especie 2")
 param_df_wo_K <- data.frame(pars_vars_wo_K, descriptions_wo_K)
 kable(x = param_df_wo_K, format = "html",
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
   kable_styling(full_width = FALSE,
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
 
-Zero net growth isoclines (solved for $N_2$):
+
+Isoclinas de crecimiento neto cero (resuelto para $N_2$):
 $$N_2 = -\frac{\alpha_{11}}{\alpha_{12}}N_1 + \frac{1}{\alpha_{12}}$$
 $$N_2 = -\frac{\alpha_{21}}{\alpha_{22}}N_1 + \frac{1}{\alpha_{22}}$$
 
@@ -292,41 +291,42 @@ sidebarLayout(
   sidebarPanel(
     # Allow users to select which plots to display
     checkboxGroupInput(inputId = "plots_to_show_wo_K",
-                       label = "Select plots to display",
-                       choices = c("N vs. Time" = "N_vs_Time_wo_K",
-                                   "Zero net growth isoclines (ZNGIs)" = "ZNGI_wo_K"),
+                       label = "Seleccionar gráficos a mostrar",
+                       choices = c("N vs. Tiempo" = "N_vs_Time_wo_K",
+                                   "Isoclina de crecimiento neto cero (ICNC)" = "ZNGI_wo_K"),
                        selected = c("N_vs_Time_wo_K")),
     
     hr(),
+  
     
     # User-defined parameter values
     sliderInput(inputId = "r1_wo_K",
-                label = HTML("r<sub>1</sub>: Intrinsic growth rate of Species 1"),
+                label = HTML("r<sub>1</sub>: Tasa intrínsica de crecimiento de la Especie 1"),
                 min = 0.01, max = 1, value = 0.2, step = 0.01),
     sliderInput(inputId = "r2_wo_K",
-                label = HTML("r<sub>2</sub>: Intrinsic growth rate of Species 2"),
+                label = HTML("r<sub>2</sub>: Tasa intrínsica de crecimiento de la Especie 2"),
                 min = 0.01, max = 1, value = 0.5, step = 0.01),
     
     # Allow user to choose input method for competition coefficients
     radioButtons(inputId = "alpha_input_wo_K",
-                 label = "Input method for competition coefficients:",
-                 choices = c("Slider" = "slider", "Manual" = "manual"),
+                 label = "Método de entrada de los coeficientes de competencia:",
+                 choices = c("Deslizador" = "slider", "Manual" = "manual"),
                  selected = "slider"),
     
     # Conditional panel for slider input of competition coefficients
     conditionalPanel(
       condition = "input.alpha_input_wo_K == 'slider'",
       sliderInput(inputId = "alpha11_slider",
-                  label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                  label = HTML("&alpha;<sub>11</sub>: Efecto per cápita de la Especie 1 sobre sí misma"),
                   min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
       sliderInput(inputId = "alpha12_slider",
-                  label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                  label = HTML("&alpha;<sub>12</sub>: Efecto per cápita de la Especie 2 sobre la Especie 1"),
                   min = 0.0001, max = 0.01, value = 0.001, step = NULL),
       sliderInput(inputId = "alpha22_slider",
-                  label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                  label = HTML("&alpha;<sub>22</sub>: Efecto per cápita de la Especie 2 sobre sí misma"),
                   min = 0.0001, max = 0.01, value = 0.005, step = NULL),
       sliderInput(inputId = "alpha21_slider",
-                  label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                  label = HTML("&alpha;<sub>21</sub>: Efecto per cápita de la Especie 1 sobre la Especie 2"),
                   min = 0.0001, max = 0.01, value = 0.001, step = NULL)
     ),
     
@@ -349,25 +349,26 @@ sidebarLayout(
     
     # User-defined initial values
     numericInput(inputId = "N1_wo_K",
-                 label = "Initial population size of Species 1",
+                 label = "Tamaño inicial de la población de la Especie 1",
                  min = 1, value = 50),
     numericInput(inputId = "N2_wo_K",
-                 label = "Initial population size of Species 2",
+                 label = "Tamaño inicial de la población de la Especie 2",
                  min = 1, value = 70),
     
     # Radio buttons for choosing simulation length
     radioButtons(inputId = "run_time_wo_K",
-                 label = "Select whether to:",
-                 choices = c("Run for specified time" = "run_spec",
-                             "Run until equilibrium" = "run_to_eq"),
+                 label = "Seleccionar:",
+                 choices = c("Simular por un tiempo específico" = "run_spec",
+                             "Simular hasta equilibrio" = "run_to_eq"),
                  selected = "run_spec"),
-    
+
+      
     # Conditional panel for inputting simulation length
     conditionalPanel(
       condition = "input.run_time_wo_K == 'run_spec'",
       # User-defined length of simulation
       numericInput(inputId = "max_time_wo_K",
-                   label = "Length of simulation",
+                   label = "Duración de la simulación",
                    min = 1, value = 100)
     )
   ),
@@ -482,7 +483,7 @@ N_vs_Time_wo_K <- reactive({
     ggplot(data = lvcomp_out_long_wo_K()) +
       geom_line(aes(x = time, y = value, color = species), size = 2) +
       scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
-      labs(x = "Time", y = "Population size (N)", color = "Species") +
+      labs(x = "Tiempo", y = "Tamaño de la población (N)", color = "Especie") +
       coord_cartesian(ylim = c(0, 1.1*max(c(1/alpha11_wo_K(), 1/alpha22_wo_K(),
                                         input$N1_wo_K, input$N2_wo_K))),
                       expand = FALSE, clip = "off")
@@ -504,12 +505,12 @@ ZNGI_wo_K <- reactive({
     ggplot(data = lvcomp_out_wo_K()) +
       geom_segment(data = ZNGI_sp1_wo_K(),
                    aes(x = x1, y = y1, xend = xend1, yend = yend1,
-                       color = "Species 1"), size = 2) +
+                       color = "Especie 1"), size = 2) +
       geom_segment(data = ZNGI_sp2_wo_K(),
                    aes(x = x2, y = y2, xend = xend2, yend = yend2,
-                       color = "Species 2"), size = 2) +
+                       color = "Especie 2"), size = 2) +
       scale_color_manual(values = brewer.pal(3, name = "Set1"),
-                         labels = c("Species 1", "Species 2")) +
+                         labels = c("Especie 1", "Especie 2")) +
       geom_path(aes(x = N1, y = N2), size = 1) +
       geom_point(x = input$N1_wo_K, y = input$N2_wo_K, pch = 21, size = 3, fill = "black") +
       geom_point(x = last(lvcomp_out_wo_K()$N1), y = last(lvcomp_out_wo_K()$N2),
@@ -519,7 +520,7 @@ ZNGI_wo_K <- reactive({
                    xend = lvcomp_out_wo_K()$N1[round(nrow(lvcomp_out_wo_K())/4) + 1],
                    yend = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4) + 1],
                    arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
+      labs(x = expression(N[1]), y = expression(N[2]), color = "ICNC para") +
       coord_cartesian(xlim = c(0, 1.1*max(c(1/alpha11_wo_K(), input$N1_wo_K, 1/alpha21_wo_K()))),
                       ylim = c(0, 1.1*max(c(1/alpha22_wo_K(), input$N2_wo_K, 1/alpha12_wo_K()))),
                       expand = FALSE,
@@ -540,7 +541,7 @@ plots_to_print_wo_K <- reactive({
 
 #
 
-## References 
+## Referencias
  
 - Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
 
