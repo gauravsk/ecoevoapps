@@ -4,6 +4,8 @@ output: html_document
 runtime: shiny
 ---
 
+***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | Español | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)*** *| Turkish | português *
+
 ```{r setup, include=FALSE}
 library(ecoevoapps)
 library(deSolve)
@@ -551,4 +553,4 @@ plots_to_print_wo_K <- reactive({
 
 ------------
 
-App maintained by Kenji Hayashi (kthayashi@ucla.edu)
+App maintained by Kenji Hayashi (kthayashi@ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)

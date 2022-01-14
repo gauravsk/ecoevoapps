@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | Español | [English]( https://ecoevoapps.shinyapps.io/lotka-volterra-competition/) | Turkish | português ***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)** | Turkish | português *
 
 
 ```{r setup, include=FALSE}
