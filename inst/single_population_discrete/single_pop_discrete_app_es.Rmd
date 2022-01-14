@@ -1,13 +1,10 @@
 ---
 title: "Modelos de crecimiento poblacional en tiempo discreto"
-author: "Alejandra Martínez Blancas y Gaurav Kandlikar"
-output:
-  html_document:
-    theme: united
-    toc: true
-    toc_depth: 3
+output: html_document
 runtime: shiny
 ---
+
+***[中文]() | Español | [English](https://ecoevoapps.shinyapps.io/single-population-discrete/) | [Turkish]() | [português]()***
 
 
 ```{r setup, include=FALSE}
@@ -96,7 +93,7 @@ sidebarLayout(
   sidebarPanel(
     # User defined lambda -------
     sliderInput("rd_dl", label = "Tasa de crecimiento poblacional (rd):",
-                min = 0.01, max = 4.5, value = 1.01, step = .01),
+                min = 0.01, max = 4.5, value = 1.05, step = .01),
     # User defined N0 -------
     numericInput("N0_dl", label = "Tamaño inicial de la población (N0)",
                 min = 1, max = 100, value = 1),
@@ -313,5 +310,5 @@ Dr. Jan Engelstädter's [e-book on analysis of biological data](https://bookdown
 
 -------
 
-App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com)
+App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com) & Alejandra Martínez Blancas()
 
