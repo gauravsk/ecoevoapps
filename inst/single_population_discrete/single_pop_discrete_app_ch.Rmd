@@ -1,10 +1,10 @@
 ---
-title: "Discrete population growth models"
+title: "离散型种群增长模型"
 output: html_document
 runtime: shiny
 ---
 
-***中文 | [Español](https://ecoevoapps.shinyapps.io/single_pop_discrete_app_es/) | [English](https://ecoevoapps.shinyapps.io/single-population-discrete/) | [Turkish]() | [português]()***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/single_population_discrete_es/) | [English](https://ecoevoapps.shinyapps.io/single_pop_discrete/)***
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -65,12 +65,12 @@ trajaectory_plot <- reactive({ggplot(data.frame(exponential_pop_df())) +
                fill = "white", stroke = 0) +
     geom_point(aes(y = Nt, x = time), size = 2, shape = 21,
                fill = "white", stroke = .8) +
-    ylab(latex2exp::TeX("在时间$t$时的种群大小 ($N_t$)"))})
+    ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)"))})
 
 # Make a list of plots  ----
 plots_to_print <- reactive({trajaectory_plot() +
     labs(caption = plot_caption_exp(),
-         title = "离散型指数增长模型下的种群动态")})
+         title = "Population growth with the discrete exponential model")})
 
 ```
 
@@ -122,7 +122,7 @@ trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
                fill = "white", stroke = 0) +
     geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
                fill = "white", stroke = .8 ) +
-    labs(title = "离散型逻辑斯蒂模型下的种群增长")})
+    labs(title = "Population growth with the discrete logistic model")})
 
 # cobweb for standard discrete logistic model -----
 cobweb_dl <- reactive({ggplot(dl_df()) +
@@ -190,7 +190,7 @@ trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
                fill = "white", stroke = 0) +
     geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
                fill = "white", stroke = .8 ) + 
-    labs(title = "Ricker模型下的种群增长")})
+    labs(title = "Population growth with the Ricker model")})
 
 # cobweb plot for ricker model -----
 cobweb_ricker <- reactive({ggplot(ricker_df()) + 
@@ -259,7 +259,7 @@ trajaectory_plot_bh <- reactive({ggplot(bh_df()) +
                fill = "white", stroke = 0) +
     geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
                fill = "white", stroke = .8 ) +
-    labs(title = "Beverton-Holt模型下的种群增长")})
+    labs(title = "Population growth with the Beverton-Holt model")})
 
 # Generate cobweb for beverton-holt model --------
 cobweb_bh <- reactive({ggplot(bh_df()) + 
