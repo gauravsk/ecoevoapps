@@ -1,3 +1,11 @@
+---
+title: "Island Biogeography"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | [English](https://ecoevoapps.shinyapps.io/island_biogeography)| [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) | Turkish  ***
+
 Ilk olarak Robert Macarthur ve E.O. Wilson tarafından 1964 yılında yayınladıkları "[Ada zoocoğrafyası denge kuramı](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)" makalesinde ortaya atılmış olan Ada Biyocoğrafyası kuramı adalardaki tür sayısını hesaplama hakkında sayısal ve öngörücü bir analiz sunar. Bu kuram adaya dışarıdan göç eden türler ve adada nesli tükenen türler -- adadaki tur sayısını belirleyen iki temel mekanizma -- arasında olan dengenin öngörülebileceği fikri üzerine kurulmuştur. Özellikle, adaya göç eden türler adaya yakın olan ana karadan daha hızlı göç etmekte ve adadaki türlerin neslinin tükenme hızı küçük adalarda daha hızlı olmaktadır. Göç etme ve nesil tükenme mekanizmalarının arasındaki denge adadaki denge noktası tür sayısını belirlemektedir. Macarthur ve Wilson bu kuramı 1967 yılında yayınladıkları klasik kitapları olan "[Ada Biyocoğrafyası Kuramı](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)"'nda daha da ileriye götürmüşlerdir. Daniel Simberloff bu kuram üzerinde [deneyesel çalışmalarını Florida’daki küçük mangrov adalarında sürdürmüştür](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) ve ada biyocoğrafyası kuramı çevre biyolojisindeki [sürdürülebilirlik stratejilerinde](https://www.jstor.org/stable/1742652) de oldukça etkili olmuştur. Ada biyocoğrafyasının ekoloji anadalındaki etkileri hakkında daha fazla bilgi edinmek için  [2017 yılında yayınlanan bu inceleme makalesini](https://science.sciencemag.org/content/357/6354/eaam8326) okuyabilirsiniz.
 
 Adadaki nesil tükenme hızı:
@@ -73,7 +81,6 @@ plot_to_print_tu <- reactive({
 })
 ```
 
-*Translated into Turkish by Damla Cinoglu*
 
 ### References 
 
@@ -86,3 +93,7 @@ plot_to_print_tu <- reactive({
 "[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+---------------
+
+App maintained by Marcel Vaz (marcelcvaz@gmail.com) and Damla Cinoglu (dcinoglu@utexas.edu)

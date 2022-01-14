@@ -1,4 +1,12 @@
-### Biogeografia de ilhas
+---
+title: "Biogeografia de ilhas"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | [English](https://ecoevoapps.shinyapps.io/island_biogeography) | português | [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_tk)  ***
+
+
 
 A teoria de biogeografia de ilhas (TBI) foi proposta inicialmente por [Robert MacArthur e E. O. Wilson em 1964](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x) e depois expandida com a publicação do livro "[A teoria de biogeografia de ilhas](https://pt.wikipedia.org/wiki/Biogeografia_insular)" em 1967. A TBI apresentou pela primeira vez uma abordagem quantitativa, e portanto preditiva, que busca explicar a biodiversidade em sistemas insulares. A TBI deriva da ideia de que imigração e extinção - dois processos fundamentais que determinam a diversidade de espécies em ilhas - variam de forma previsível nesse sistema. Isto é, assume-se que quanto mais próxima uma ilha estiver do continente (fonte de propágulos), maior será a probabilidade de uma espécie conseguir migrar para essa ilha, e portanto, maior a taxa de imigração para a ilha. De modo similar, a TBI assume que o tamanho da ilha influencia a taxa de extinção dentro da ilha: quanto maior a ilha, maiores as populações das espécies que lá vivem e, portanto, menores as chances de extinção dessas espécies. A combinação desses dois processos (imigração e extinção) levará a um equilíbrio dinâmico em que o número total de espécies na ilha se torna constante ao longo do tempo, embora a composição de espécies esteja sempre mudando. O número de espécies presentes em uma ilha em equilíbrio, portanto, pode ser predito tanto pelo tamanho da ilha, quanto pela distância entre essa ilha e o continente. Essa idéia pôde ser testada e corroborada já em 1969, através de experimentos com pequenas ilhas de manguezal na costa da Flórida ([Simberloff & Wilson, 1969](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)). Apesar de originalmente focar em ilhas oceânicas, a teoria pode ser aplicada a diversos sistemas descontínuos como lagoas, fragmentos florestais e até na propagação de doenças. A TBI foi particularmente importante no desenvolvimento de uma então incipiente disciplina: a Biologia da Conservação ([Diamond et al. 1976](https://www.jstor.org/stable/1742652)). Uma revisão mais recente foi lançada em comemoração aos 50 anos da TBI por [Whittaker e colaboradores (2017)](https://science.sciencemag.org/content/357/6354/eaam8326).
 
@@ -17,6 +25,17 @@ onde:
 - $M$ é o número total de espécies no continente;
 - $k$ é apenas uma constante escalar arbitrária (k = 0.15 neste aplicativo).
 
+
+
+```{r, include = F}
+library(ggplot2)
+library(dplyr)
+library(ecoevoapps)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+# source("functions.R")
+source("ibiogeo_constants.R")
+```
 
 ```{r app-pt}
 sidebarLayout(
@@ -71,7 +90,6 @@ plot_to_print_pt <- reactive({
 
 ```
 
-*Translated into português by Marcel Vaz*
 
 ### referências 
 
@@ -84,4 +102,8 @@ plot_to_print_pt <- reactive({
 "[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+---------------
+
+App maintained by Marcel Vaz (marcelcvaz@gmail.com)
 

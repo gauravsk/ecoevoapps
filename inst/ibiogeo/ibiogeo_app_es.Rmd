@@ -1,4 +1,12 @@
-### Biogeografía de Islas
+---
+title: "Biogeografía de Islas"
+output: html_document
+runtime: shiny
+---
+
+
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) | Español | [English](https://ecoevoapps.shinyapps.io/island_biogeography)| [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) | [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_tk)  ***
+
 
 La teoría de Biogeografía de Islas, articulada por primera vez por Robert MacArthur y E.O. Wilson en el artículo de 1964, "[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", presenta un enfoque cuantitativo y productivo hacia la comprensión de la biodiversidad en sistemas insulares. La teoría está construida en base a las ideas de inmigración y extinción, dos procesos centrales que determinan la diversidad de especie en islas y que varían de una manera predecible. Específicamente, se espera que la tasa de inmigración desde el continente sea mayor en islas cercanas, en comparación con la tasa de inmigración hacia islas lejanas, y que las tasas de extinción sean mayores en islas pequeñas, en comparación con islas de mayor tamaño. El balance entre estos dos procesos (inmigración y extinción) determina el equilibrio en la riqueza de especies. MacArthur y Wilson expandieron esta teoría en su libro clásico de 1967, "[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)". Daniel Simberloff [condujo tests experimentales notables](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) de esta teoría usando islas de manglares en Florida, y la teoría de biogeografía de islas también ha sido muy influyente en [biología de la conservación](https://www.jstor.org/stable/1742652). Para una revisión reciente de la influencia de la teoría de biogeografía de islas en el campo de la ecología, escrita por su 50 aniversario, ver [este artículo](https://science.sciencemag.org/content/357/6354/eaam8326).
 
@@ -16,6 +24,16 @@ donde:
 - $M$ es el número de especies en el continente; 
 - $k$ is un factor de escala arbitrario ($k=0.15$ en esta aplicación).
 
+
+```{r, include = F}
+library(ggplot2)
+library(dplyr)
+library(ecoevoapps)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+# source("functions.R")
+source("ibiogeo_constants.R")
+```
 
 ```{r app-es}
 sidebarLayout(
@@ -70,7 +88,6 @@ plot_to_print_es <- reactive({
 
 ```
 
-*Translated into Español by Rosa McGuire*
 
 ### Referencias:
 
@@ -83,3 +100,7 @@ plot_to_print_es <- reactive({
 "[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+---------------
+
+App maintained by Marcel Vaz (marcelcvaz@gmail.com) and Rosa McGuire (rmcguire1@ucla.edu)
