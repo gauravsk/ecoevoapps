@@ -15,4 +15,4 @@ Imports:
     ggplot2,
     tidyr,
     magrittr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
