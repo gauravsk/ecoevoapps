@@ -43,7 +43,7 @@ For most models, apps are available in at least
 three languages out of the following options:
 english (\code{language = "en"}), spanish (\code{language = "es"}),
 chinese (\code{language = "ch"}), turkish (\code{language = "tk"}),
-and portuguese (\code{language = "pt}).}
+and portuguese (\code{language = "pt"}).}
 }
 \description{
 Run the shiny apps for various models
