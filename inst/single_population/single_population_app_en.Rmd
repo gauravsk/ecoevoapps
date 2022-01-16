@@ -340,6 +340,7 @@ plots_to_print <- reactive({
 
 -------------
 
-```{r, child="../app_footer.md"}
 
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
 ```
