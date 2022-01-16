@@ -1,5 +1,5 @@
 # Smith-Fretwell Function
-Wo <- function(Iy,Iymin=Iymin,Iymax=Ip,Womax=Womax,shapeval = .02) {
+Wo <- function(Iy, Iymin = Iymin, Iymax = Ip, Womax = Womax, shapeval = .02) {
   (Womax*(Iy-Iymin)) / (shapeval*(Iymax + Iymin)/2+Iy)
 }
 
@@ -33,14 +33,10 @@ make_sf_plot <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = .02) {
     geom_abline(intercept = 0,
                 linetype = 2,
                 slope = lineslope) +
-    geom_segment(aes(x = xopt, xend = xopt, y = 0, yend = yopt), linetype = 2, size = 0.1) +
-    annotate("text", x = xopt, y = -0.03, label = paste0("S_opt = ", floor(xopt)),  vjust = 1) +
+    geom_segment(aes(x = xopt, xend = xopt, y = -0.04, yend = yopt), linetype = 2, size = 0.1) +
+    annotate("text", x = xopt, y = -0.05, label = paste0("S_opt = ", floor(xopt)),  vjust = 1) +
     annotate("text", x = xopt, y = yopt, label = paste0(" Wp = ", floor(yopt*(Ip/xopt))), hjust = 0, vjust = 1) +
     ecoevoapps::theme_apps() +
-    theme(axis.text = element_text(size = 10, color = "black"),
-          axis.title = element_text(size = 12),
-          plot.margin = margin(l = 100, r = 20, t = 5, unit = "pt"),
-          axis.line.x = element_blank()) +
     NULL
 
   return(smith_fretwell_plot)
