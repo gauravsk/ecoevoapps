@@ -4,7 +4,7 @@
 \alias{run_beverton_holt_model}
 \title{Beverton Holt model}
 \usage{
-run_beverton_holt_model(N0, K, Rd, time)
+run_beverton_holt_model(N0 = 1, K = 100, Rd = 1.01, time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}

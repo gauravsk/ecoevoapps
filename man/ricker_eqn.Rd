@@ -7,7 +7,7 @@
 ricker_eqn(Nt, r, K)
 }
 \arguments{
-\item{Nt}{Nt}
+\item{Nt}{Population size}
 
 \item{r}{Population growth rate}
 
