@@ -1,4 +1,11 @@
-#'Launch the single population dynamics in continuous time app
+#' Run the shiny apps for various models
+#'
+#' @param language Two-letter vector indicating the language
+#' @name shiny_XXX
+NULL
+#> NULL
+
+#' @rdname shiny_XXX
 #' @export
 shiny_singlepop_continuous <- function() {
   rmarkdown::run(
@@ -11,7 +18,7 @@ shiny_singlepop_continuous <- function() {
   )
 }
 
-#'Launch the single population dynamics in discrete time app
+#' @rdname shiny_XXX
 #' @export
 shiny_singlepop_discrete <- function() {
   rmarkdown::run(
@@ -24,7 +31,7 @@ shiny_singlepop_discrete <- function() {
   )
 }
 
-#'Launch the Lotka-Voterra competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_lvcompetition <- function() {
   rmarkdown::run(
@@ -37,7 +44,7 @@ shiny_lvcompetition <- function() {
   )
 }
 
-#'Launch the consumer-resource dynamics app
+#' @rdname shiny_XXX
 #' @export
 shiny_consumer_resource <- function() {
   rmarkdown::run(
@@ -50,7 +57,7 @@ shiny_consumer_resource <- function() {
   )
 }
 
-#'Launch the biotic resource competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_biotic_comp <- function() {
   rmarkdown::run(
@@ -65,7 +72,7 @@ shiny_biotic_comp <- function() {
 
 
 
-#'Launch the infectious diseases models app
+#' @rdname shiny_XXX
 #' @export
 shiny_infectious_disease <- function() {
   rmarkdown::run(
@@ -78,7 +85,7 @@ shiny_infectious_disease <- function() {
   )
 }
 
-#'Launch the metapopulation dynamics app
+#' @rdname shiny_XXX
 #' @export
 shiny_metapopulation <- function() {
   rmarkdown::run(
@@ -91,7 +98,7 @@ shiny_metapopulation <- function() {
   )
 }
 
-#' Launch the structured population growth app
+#' @rdname shiny_XXX
 #' @export
 shiny_structured_pop <- function() {
   rmarkdown::run(
@@ -105,7 +112,7 @@ shiny_structured_pop <- function() {
 }
 
 
-#' Launch the island biogeography app
+#' @rdname shiny_XXX
 #' @export
 shiny_island_biogeo <- function() {
   rmarkdown::run(
@@ -118,7 +125,7 @@ shiny_island_biogeo <- function() {
   )
 }
 
-#' Launch the abiotic resource competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_abiotic_comp <- function() {
   rmarkdown::run(
@@ -131,7 +138,7 @@ shiny_abiotic_comp <- function() {
   )
 }
 
-#' Launch the Smith-Fretwell app
+#' @rdname shiny_XXX
 #' @export
 shiny_smith_fretwell <- function() {
   rmarkdown::run(
