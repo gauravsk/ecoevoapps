@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) |** Español **| [English](https://ecoevoapps.shinyapps.io/population_growth)|** português **| Turkish  ***
+***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | [English](https://ecoevoapps.shinyapps.io/population_growth) | Turkish  ***
 
 
 ```{r setup, include=FALSE}
