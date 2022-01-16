@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | English | [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) | [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_tk)  ***
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) |  [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | English |  [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) |  [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_tk)  ***
 
 The theory of Island Biogeography, first articulated by Robert Macarthur and E.O. Wilson in the 1964 paper "[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", presents a quantitative and predictive approach to understanding biodiversity on island systems. The theory is built around the idea that immigration and extinction -- two core processes that determine species diversity on islands -- vary predictably. Specifically, species are expected to immigrate at higher rates from the mainland to islands closer by than to islands further away, and extinction rates are expected to be higher in smaller islands than larger islands. The balance of these two processes determine an island's equilibrium species richness. Macarthur and Wilson expanded on this theory in their classic 1967 book "[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)". Daniel Simberloff [notably conducted experimental tests](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) of this theory using mangrove islands in Florida, and island biogeography has also been hugely influential in [conservation biology](https://www.jstor.org/stable/1742652). For a recent review of island biogeography's influence, see [this 2017 review](https://science.sciencemag.org/content/357/6354/eaam8326).
 
@@ -96,6 +96,10 @@ plot_to_print <- reactive({
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
 
----------------
 
-App maintained by Marcel Vaz (marcelcvaz@gmail.com)
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```

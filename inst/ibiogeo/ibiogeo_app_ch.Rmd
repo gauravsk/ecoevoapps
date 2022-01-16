@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | [English](https://ecoevoapps.shinyapps.io/island_biogeography)| [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) | [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_ch)  ***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | [English](https://ecoevoapps.shinyapps.io/island_biogeography) |  [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) |  [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_ch)  ***
 
 Robert Macarthur和E.O. Wilson 在1964年提出了岛屿生物地理学理论"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)"，用于量化和预测岛屿系统的生物多样性。理论的基础在于， 岛屿上决定生物多样性的两个过程 --物种的迁入（immigration）和灭绝（extinction）--是可预测的。岛屿离大陆越近，物种迁入率越高；岛屿面积越大，灭绝率越低。而两者的平衡决定了岛屿上物种多样性的高低。  
 1967年，Macarthur和Wilson在著作"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)"中扩展了这个理论。Daniel Simberloff 通过[佛罗里达红树林岛屿的实验](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) 论证了这个理论；这个理论在[生物保育](https://www.jstor.org/stable/1742652)方面也非常重要。 更多关于岛屿生物地理学理论的影响，可详见这篇 [2017年的综述](https://science.sciencemag.org/content/357/6354/eaam8326).
@@ -98,6 +98,10 @@ plot_to_print_cn <- reactive({
 "[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
 
 "[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
----------------
 
-App maintained by Marcel Vaz (marcelcvaz@gmail.com) and Xinyi Yan (xinyiyan@utexas.edu)
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
