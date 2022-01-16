@@ -7,9 +7,15 @@
 make_islands_map(tx, ty, txa, tya, txb, tyb, D, A, k, M)
 }
 \arguments{
+\item{tx, ty, txa, tya, txb, tyb}{constants to draw islands on map}
+
 \item{D}{distance from mainland (km)}
 
 \item{A}{size of island (km^2)}
+
+\item{k}{scaling constant}
+
+\item{M}{Mainland species richness}
 }
 \description{
 make map for ibiogeo model
