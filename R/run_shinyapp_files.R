@@ -1,13 +1,17 @@
 #' Run the shiny apps for various models
 #'
 #' @param language Two-letter vector indicating the language
+#' For most models, apps are available in three languages:
+#' english (\code{language = "en"}), spanish (\code{language = "es"}),
+#' and chinese (\code{language = "ch"})
 #' @name shiny_XXX
 NULL
 #> NULL
 
 #' @rdname shiny_XXX
 #' @export
-shiny_singlepop_continuous <- function() {
+shiny_singlepop_continuous <- function(language = "en") {
+
   rmarkdown::run(
     file = system.file("single_population/single_populations_app.Rmd",
                        package =  "ecoevoapps"),
@@ -20,10 +24,20 @@ shiny_singlepop_continuous <- function() {
 
 #' @rdname shiny_XXX
 #' @export
-shiny_singlepop_discrete <- function() {
+shiny_singlepop_discrete <- function(language = "en") {
+
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+            (language %in% c("en", "es", "ch")))
+
+  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population_discrete/single_pop_discrete_app_en.Rmd",
+                                                         package =  "ecoevoapps"),
+                           language == "es" ~ system.file("single_population_discrete/single_pop_discrete_app_es.Rmd",
+                                                          package =  "ecoevoapps"),
+                           language == "ch" ~ system.file("single_population_discrete/single_pop_discrete_app_ch.Rmd",
+                                                          package =  "ecoevoapps"))
+
   rmarkdown::run(
-    file = system.file("single_population_discrete/single_pop_discrete_app.Rmd",
-                       package =  "ecoevoapps"),
+    file = file_path,
     default_file = NULL,
     auto_reload = TRUE,
     shiny_args = NULL,

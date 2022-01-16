@@ -15,9 +15,9 @@
 \alias{shiny_smith_fretwell}
 \title{Run the shiny apps for various models}
 \usage{
-shiny_singlepop_continuous()
+shiny_singlepop_continuous(language = "en")
 
-shiny_singlepop_discrete()
+shiny_singlepop_discrete(language = "en")
 
 shiny_lvcompetition()
 
@@ -38,7 +38,10 @@ shiny_abiotic_comp()
 shiny_smith_fretwell()
 }
 \arguments{
-\item{language}{Two-letter vector indicating the language}
+\item{language}{Two-letter vector indicating the language
+For most models, apps are available in three languages:
+english (\code{language = "en"}), spanish (\code{language = "es"}),
+and chinese (\code{language = "ch"})}
 }
 \description{
 Run the shiny apps for various models
