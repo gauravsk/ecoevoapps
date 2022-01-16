@@ -298,7 +298,9 @@ Dr. Sebastian Bonhoeffer's [lecture notes](https://ethz.ch/content/dam/ethz/spec
 
 Dr. Jan Engelstädter's [e-book on analysis of biological data](https://bookdown.org/janengelstaedter/biol3360modelling3/discrete-time-models-in-one-variable.html). 
 
--------
+-------------
 
-App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com) & Xinyi Yan ()
 
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
