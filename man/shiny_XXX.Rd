@@ -31,7 +31,7 @@ shiny_metapopulation()
 
 shiny_structured_pop()
 
-shiny_island_biogeo()
+shiny_island_biogeo(language = "en")
 
 shiny_abiotic_comp()
 
@@ -39,9 +39,11 @@ shiny_smith_fretwell()
 }
 \arguments{
 \item{language}{Two-letter vector indicating the language
-For most models, apps are available in three languages:
+For most models, apps are available in at least
+three languages out of the following options:
 english (\code{language = "en"}), spanish (\code{language = "es"}),
-and chinese (\code{language = "ch"})}
+chinese (\code{language = "ch"}), turkish (\code{language = "tk"}),
+and portuguese (\code{language = "pt}).}
 }
 \description{
 Run the shiny apps for various models
