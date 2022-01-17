@@ -1,11 +1,6 @@
 ---
 title: "Structured Populations"
-author: "Marcel Vaz"
-output:
-  html_document:
-    theme: united
-    toc: true
-    toc_depth: 3
+output: html_document
 runtime: shiny
 ---
 
@@ -15,13 +10,17 @@ runtime: shiny
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 # Required packages and functions
-library(diagram) # plot diagrams
-library(gridExtra) # arrange outpupt plots into a grid
-library(ggplot2) # produce nice graphics
-library(reshape2) # help with matrix to data frame conversion 
-library(ggplotify) # convert base plots into graphic objects
-library(cowplot) # arrange plots into a grid
-source("struct_pop_function.R")
+# library(diagram) # plot diagrams
+# library(gridExtra) # arrange outpupt plots into a grid
+# library(ggplot2) # produce nice graphics
+library(ecoevoapps)
+library(patchwork)
+# library(tidyr)
+# library(dplyr)
+# library(reshape2) # help with matrix to data frame conversion 
+# library(ggplotify) # convert base plots into graphic objects
+# library(cowplot) # arrange plots into a grid
+# source("struct_pop_function.R")
 
 ```
 
@@ -85,10 +84,10 @@ sidebarLayout(
   
   ## OUTPUT
   mainPanel(
-    renderPlot({ diagr() }, width=500),
+    # renderPlot({ diagr() }, width=500),
     
     p("Leslie matrix"), 
-    renderTable({ Leslie() }),
+    renderTable({ Leslie_matrix()}),
     p("_____________________"),
     
     p("Asymptotic population growth rate"),
@@ -107,7 +106,7 @@ sidebarLayout(
 
 
 ## Leslie matrix
-L = reactive({
+Leslie_matrix <- reactive({
   matrix(
       c(input$F1     ,      input$F2, input$F3,
         input$S12/100,             0,        0,
@@ -115,57 +114,66 @@ L = reactive({
       ncol = 3, byrow = T
       )
   })
-
-Leslie = reactive({
-  matrix(
-      c("Age 1", input$F1     ,      input$F2, input$F3,
-        "Age 2", input$S12/100,             0,        0,
-        "Age 3",             0, input$S23/100,        0),
-      ncol = 4, byrow = T, 
-      dimnames = list(NULL, c(" ","Age 1","Age 2", "Age 3"))
-      )
-  })
-
+init <- reactive({
+  c(input$N1,input$N2,input$N3)
+})
 
 ## Largest eigenvalue
-eigenval = reactive({
-  paste0("Eigenvalue = ",round(eigen(L())$values,2)[1])
+eigenval <- reactive({
+  paste0("Eigenvalue = ",round(eigen(Leslie_matrix())$values,2)[1])
   })
 
 ## Eigenvector corresponding to largest eigenvalue
-tmp = reactive({
-  round(eigen(L())$vectors[,1]*100/
-          sum(eigen(L())$vectors[,1]))
-  })
-eigenvec = reactive({
+tmp <- reactive({
+  round(eigen(Leslie_matrix())$vectors[,1]*100/
+          sum(eigen(Leslie_matrix())$vectors[,1]))
+})
+
+eigenvec <- reactive({
   matrix(
-    c("Eigenvector", round(eigen(L())$vectors[,1],2),
+    c("Eigenvector", round(eigen(Leslie_matrix())$vectors[,1],2),
       "%", tmp()[1], tmp()[2], tmp()[3]),
     ncol=4, byrow=T,
     dimnames = list(NULL, c(" ","Age 1","Age 2", "Age 3"))
-    )
-  
-  })
+  )
+})
 
 ## Plots
 # Life cycle diagram
-diagr = reactive({
-  plotmat(A = L(), pos = 3, curve = 0.5, lwd = 1.5, my = -0.1,
-             name = c(expression(Age[1]),
-                      expression(Age[2]),
-                      expression(Age[3])), 
-             arr.len = 0.2, arr.width = 0.25, arr.lwd = 2, 
-             arr.type = "simple", self.lwd = 2, self.shiftx = 0.115, 
-             self.shifty = 0.1, self.cex = .5, box.size = 0.1, 
-             dtext = 0.2, box.lwd = 3.5, main="Life cycle diagram"
-             )
-  })
+# diagr <- reactive({
+#   plotmat(A = Leslie_matrix(), pos = 3, curve = 0.5, lwd = 1.5, my = -0.1,
+#              name = c(expression(Age[1]),
+#                       expression(Age[2]),
+#                       expression(Age[3])), 
+#              arr.len = 0.2, arr.width = 0.25, arr.lwd = 2, 
+#              arr.type = "simple", self.lwd = 2, self.shiftx = 0.115, 
+#              self.shifty = 0.1, self.cex = .5, box.size = 0.1, 
+#              dtext = 0.2, box.lwd = 3.5, main="Life cycle diagram"
+#              )
+#   })
 
 # Simulation plots
-plots = reactive({
-  strpop(leslie=L(),init=c(input$N1,input$N2,input$N3),tt=1000)
-  })
 
+pop_trajectory <- reactive({
+  ecoevoapps::run_structured_population_simulation(leslie_mat = Leslie_matrix(), init = init(), time = 1000)
+})
+
+plot_pop_trajectory <- reactive({
+  ecoevoapps::plot_structured_population_size(pop_trajectory())
+})
+
+plot_pop_agedist <- reactive({
+  ecoevoapps::plot_structured_population_agedist(pop_trajectory(), leslie_mat = Leslie_matrix())
+})
+
+plot_pop_lambda <- reactive({
+  plot_structured_population_lambda(pop_trajectory(), leslie_mat = Leslie_matrix())
+})
+
+plots <- reactive({
+  plot_pop_trajectory() + plot_pop_agedist() + plot_pop_lambda() + guide_area() +
+    plot_layout(guides = "collect")
+})
 
 ```
 
