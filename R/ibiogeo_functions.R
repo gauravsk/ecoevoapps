@@ -50,7 +50,7 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
   # RColorBrewer::brewer.pdal(3, "Set1")
   colorpal <- c("#E41A1C", "#377EB8", "#4DAF4A")
 
-  ggplot2::ggplot() +
+  ggplot() +
     geom_polygon(aes(x = c(tx, rev(tx)), y = c(ty, rep(-3,length(ty)))), fill = "grey90",
         color = "grey10") +
     geom_polygon(aes(x = sqrt(A[1])*txa+4, y = sqrt(A[1])*tya+D[1]-sqrt(A[1])*min(tya)),

@@ -6,6 +6,7 @@
 #' english (\code{language = "en"}), spanish (\code{language = "es"}),
 #' chinese (\code{language = "ch"}), turkish (\code{language = "tk"}),
 #' and portuguese (\code{language = "pt"}).
+#' @import rmarkdown
 #' @name shiny_XXX
 NULL
 #> NULL

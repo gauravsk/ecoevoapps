@@ -11,7 +11,8 @@ SIR(time, init, params)
 
 \item{init}{initial population size of population}
 
-\item{params}{vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), and v(vaccination rate)}
+\item{params}{vector of beta (infection rate), gamma (recovery rate),
+m (natural birth/death rate), and v (vaccination rate)}
 }
 \description{
 SIR model with vital rates
