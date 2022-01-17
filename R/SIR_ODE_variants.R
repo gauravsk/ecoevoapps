@@ -1,7 +1,8 @@
 #' SIR model with vital rates
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), and v(vaccination rate)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), and v (vaccination rate)
 SIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -19,7 +20,8 @@ SIR <- function(time,init,params) {
 #' SIR model without vital rates
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), and v(vaccination rate)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' and v (vaccination rate)
 SIR_no_vitals <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -36,7 +38,9 @@ SIR_no_vitals <- function(time,init,params) {
 #' SEIR model with vital rates
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), v (vaccination rate), and a (inverse of incubation period)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), v (vaccination rate),
+#' and a (inverse of incubation period)
 SEIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -56,7 +60,9 @@ SEIR <- function(time,init,params) {
 #' SIRD model with vital rates
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m (natural birth/death rate), v (vaccination rate), a (inverse of incubation period), and mu (death to infections)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), v (vaccination rate),
+#' a (inverse of incubation period), and mu (death to infections)
 SIRD <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -76,7 +82,8 @@ SIRD <- function(time,init,params) {
 #' SIS model with vital rates
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
+#' @param params vector of beta (infection rate),
+#' m (natural birth/death rate), and gamma (recovery rate)
 SIS <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -92,7 +99,8 @@ SIS <- function(time,init,params) {
 #' SIR model with vital rates and frequency-dependent transmission
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), and v(vaccination rate)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), and v(vaccination rate)
 SIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -111,7 +119,9 @@ SIR_ft <- function(time,init,params) {
 #' SEIR model with vital rates and frequency-dependent transmission
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), v (vaccination rate), and a (inverse of incubation period)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), v (vaccination rate),
+#' and a (inverse of incubation period)
 SEIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -131,7 +141,9 @@ SEIR_ft <- function(time,init,params) {
 #' SIRD model with vital rates and frequency-dependent transmission
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), gamma (recovery rate), m (natural birth/death rate), v (vaccination rate), a (inverse of incubation period), and mu (death to infections)
+#' @param params vector of beta (infection rate), gamma (recovery rate),
+#' m (natural birth/death rate), v (vaccination rate),
+#' a (inverse of incubation period), and mu (death to infections)
 SIRD_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -151,7 +163,8 @@ SIRD_ft <- function(time,init,params) {
 #' SIS model with vital rates and frequency-dependent transmission
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
+#' @param params vector of beta (infection rate), m (natural birth/death rate),
+#' and gamma (recovery rate)
 SIS_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -168,7 +181,8 @@ SIS_ft <- function(time,init,params) {
 #' Run infectious disease models models
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
-#' @param params vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)
+#' @param params vector of beta (infection rate), m (natural birth/death rate),
+#' and gamma (recovery rate)
 #' @param model_type which type of model to run? (should be one of
 #' `SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)
 #' @export
