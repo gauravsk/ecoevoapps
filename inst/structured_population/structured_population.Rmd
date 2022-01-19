@@ -10,9 +10,9 @@ runtime: shiny
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 # Required packages and functions
-# library(diagram) # plot diagrams
+library(diagram) # plot diagrams
 # library(gridExtra) # arrange outpupt plots into a grid
-# library(ggplot2) # produce nice graphics
+library(ggplot2) # produce nice graphics
 library(ecoevoapps)
 library(patchwork)
 # library(tidyr)

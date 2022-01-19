@@ -6,10 +6,10 @@
 #' @return Returns a matrix with nrow = nrow(leslie_mat) and ncol = time
 #' @export
 run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1,
-                                                                 0.4,0,0,0,
-                                                                 0,0.8,0,0,
-                                                                 0,0,0.1,0),
-                                                               ncol = 4, byrow = T),
+                                                                       0.4,0,0,0,
+                                                                       0,0.8,0,0,
+                                                                       0,0,0.1,0),
+                                                                     ncol = 4, byrow = T),
                                            init = c(10,10,10,10),
                                            time = 100) {
   pop <- matrix(init, nrow = length(init), ncol = 1) # start the matrix with initial population sizes
@@ -164,4 +164,21 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
 
   }
   return(lambda_plot)
+}
+
+
+plot_leslie_diagram <- function(leslie_mat) {
+  n_ages <- nrow(leslie_mat)
+  name_vec <- parse(text = paste0("Age[",1:n_ages,"]"))
+  diagr <- diagram::plotmat(A = leslie_mat, pos = n_ages,
+                            curve = 0.5, lwd = 1.5, my = -0.1,
+               name = name_vec,
+               arr.len = 0.2, arr.width = 0.25, arr.lwd = 2,
+               arr.type = "simple", self.lwd = 2, self.shiftx = 0.115,
+               self.shifty = 0.1, self.cex = .5, box.size = 0.1,
+               dtext = 0.2, box.lwd = 3.5, main="Life cycle diagram"
+               )
+
+  return(diagr)
+
 }
