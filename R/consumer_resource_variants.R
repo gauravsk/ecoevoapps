@@ -275,9 +275,74 @@ plot_vector_field <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
 }
 
+#' Function for plotting trajectory of predator-prey model
+#' @param sim_df data frame generated from run_XXX
+#' @param pars_for_eq_func parameter values used to generate `sim_df`
+#' @param vectors_field set to TRUE to see the vector field under the trajectory
+#' @import ggplot2
+#' @export
+plot_predprey_trajectory <- function(sim_df, param_vec, vectors_field = F,...) {
 
-plot_predprey_trajectory <- function(sim_df, pars_for_eq_func, plot_vectors = F) {
+  if(vectors_field) {
+    base_plot <- plot_vector_field(sim_df, param_vec, ...)
+  } else {
+    base_plot <- ggplot(sim_df)
+  }
 
+  traj <-
+    base_plot +
+
+    # the trace of the simulation and arrow for direction of the trace
+    geom_path(data = sim_df, aes(x = H, y = P), size = 2) +
+    geom_segment(x = sim_df$H[5], y = sim_df$P[5],
+                 xend = sim_df$H[6], yend = sim_df$P[6],
+                 arrow = arrow(length = unit(0.1, "npc")),
+                 cex = 2) +
+
+    # plot appearance
+    xlab("Number of Prey") +
+    ylab("Number of Predators") +
+    coord_cartesian(xlim = c(min(sim_df$H), max(sim_df$H) + 1),
+                    ylim = c(min(sim_df$P), max(sim_df$P) + 1)) +  #need this line to show all vectors that go beyond plot limits
+    theme_apps()
+
+  # Add isoclines based on the model type
+
+  if(all(c("T_h", "K") %in% names(param_vec))) {
+    # R-M
+    traj <-
+      traj +
+      stat_function(fun = function(x) (param_vec["r"]/param_vec["a"])*
+                      (1 - x/param_vec["K"])*(1 + param_vec["a"] * param_vec["T_h"] * x),
+                    col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"] - param_vec["a"]*param_vec["d"]*param_vec["T_h"]),
+                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+
+  } else if ("T_h" %in% names(param_vec)) {
+    # Type II
+    traj <- traj +
+          geom_abline(intercept = param_vec["r"]/param_vec["a"],
+                      slope = param_vec["r"]*param_vec["T_h"],
+                      col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+          geom_vline(xintercept = param_vec["d"]/
+                       (param_vec["e"]*param_vec["a"] -
+                          param_vec["a"]*param_vec["d"]*param_vec["T_h"]),
+                     col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+  } else if ("K" %in% names(param_vec)) {
+    # logistic prey
+    traj <- traj +
+      geom_abline(intercept = param_vec["r"]/param_vec["a"],
+                  slope = (-1 * param_vec["r"])/(param_vec["a"] * param_vec["K"]),
+                  col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"]),
+                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+  } else {
+    # Type I + exponential prey
+    traj <- traj +
+      geom_hline(yintercept = param_vec["r"]/param_vec["a"],
+                 col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+      geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"]),
+                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+  }
+  return(traj)
 }
-
-
