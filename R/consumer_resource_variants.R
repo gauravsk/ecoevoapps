@@ -17,6 +17,19 @@ lv_predprey_t1 <- function(time,init,pars) {
   })
 }
 
+#' Internal function used for generating vector field
+#' @param H density of the prey
+#' @param P density of the predator
+#' @param pars vector of model parameters (r,a,e,d)
+#' @keywords internal
+lv_predprey_t1_1step <- function(H, P, pars) {
+  with (as.list(pars), {
+    dH_dt = r*H - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+  })
+}
+
 #' Run L-V Pred prey model, Type I FR + logistic prey
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
@@ -34,6 +47,20 @@ lv_predprey_logPrey <- function(time,init,pars) {
     dP_dt = e*(a*H*P) - d*P
     return(list(c(dH = dH_dt, dP = dP_dt)))
 
+  })
+}
+
+#' Internal function used for generating vector field
+#' @param H density of the prey
+#' @param P density of the predator
+#' @param pars vector of model parameters (r,a,e,d,K)
+#' @keywords internal
+lv_predprey_logPrey_1step <- function(H, P, pars) {
+
+  with (as.list(pars), {
+    dH_dt = r*H*(1 - H/K) - (a*H*P)
+    dP_dt = e*(a*H*P) - d*P
+    return(data.frame(dH = dH_dt, dP = dP_dt))
   })
 }
 
@@ -57,6 +84,28 @@ lv_predprey_t2 <- function(time,init,pars) {
 }
 
 
+#' Internal function used for generating vector field
+#' @param H density of the prey
+#' @param P density of the predator
+#' @param pars vector of model parameters (r,a,e,d,T_h)
+#' @keywords internal
+lv_predprey_t2_1step <- function(H, P, pars) {
+  with (as.list(pars), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # a = attack rate
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate
+
+    dH_dt = r*H - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+
+    return(data.frame(dH = dH_dt, dP = dP_dt))
+
+  })
+}
+
 #' Run Rosenzweig-MacArthur model
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
@@ -75,6 +124,19 @@ rm_predprey <- function(time,init,pars) {
     dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
     return(list(c(dH = dH_dt, dP = dP_dt)))
 
+  })
+}
+
+#' Internal function used for generating vector field
+#' @param H density of the prey
+#' @param P density of the predator
+#' @param pars vector of model parameters (r,a,e,d,T_h)
+#' @keywords internal
+rm_predprey_1step <-function(H, P, pars) {
+  with (as.list(pars), {
+    dH_dt = r*H*(1 - H/K) - (a*H*P)/(1 + a*T_h*H)
+    dP_dt = e*(a*H*P)/(1 + a*T_h*H) - d*P
+    return(data.frame(dH = dH_dt, dP = dP_dt))
   })
 }
 
@@ -136,3 +198,86 @@ run_predprey_model <- function(time, init, params) {
     deSolve::ode(lv_predprey_t1, y = init, times = time, parms = params)
   }
 }
+
+
+# FOR PLOTTING VECTOR FIELDS
+
+#' generates a grid for plotting a vector field
+#' @param sim_df data frame generated from run_XXX
+#' @param pars_for_eq_func parameter values used to generate `sim_df`
+#' @param vec_density density of grid to generate
+#' @return a data frame, with Hstart, Hend, Pstart, Pend,
+#' and corresponding values of dH and dP for drawing vectors
+vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
+
+  # determine the min and max of the number of prey and predators
+  lowH <- round(min(sim_df$H), 0)
+  hiH <- round(max(sim_df$H), 0)
+  lowP <- round(min(sim_df$P), 0)
+  hiP <- round(max(sim_df$P), 0)
+
+  # select a sequence of points between (and a little beyond) those values
+  seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
+  seqP <- seq(0.9*lowP, 1.4*hiP, length.out = vec_density)
+
+  # find all the combinations of those H and P coordinates, make that a df w/Hstart and Pstart
+  hpcoords <- expand.grid(Hstart = seqH, Pstart = seqP)
+
+
+  # identify model type
+  if(all(c("T_h", "K") %in% names(pars_for_eq_func))) {
+    # R-M
+    hpcoords <- bind_cols(hpcoords,
+                          map2_df(hpcoords$Hstart, hpcoords$Pstart,
+                                  ecoevoapps:::rm_predprey_1step, pars_for_eq_func))
+  } else if ("T_h" %in% names(pars_for_eq_func)) {
+    # Type II
+    hpcoords <- bind_cols(hpcoords,
+                          map2_df(hpcoords$Hstart, hpcoords$Pstart,
+                                  ecoevoapps:::lv_predprey_t2_1step, pars_for_eq_func))
+  } else if ("K" %in% names(pars_for_eq_func)) {
+    # logistic prey
+    hpcoords <- bind_cols(hpcoords,
+                          map2_df(hpcoords$Hstart, hpcoords$Pstart,
+                                  ecoevoapps:::lv_predprey_logPrey_1step, pars_for_eq_func))
+  } else {
+    # Type I + exponential prey
+    hpcoords <- bind_cols(hpcoords,
+                          map2_df(hpcoords$Hstart, hpcoords$Pstart,
+                                  ecoevoapps:::lv_predprey_t1_1step, pars_for_eq_func))
+  }
+
+  # use those values to solve dP and dH and calculate pend and hend
+  hpcoords <- hpcoords %>%
+    mutate(Hend = Hstart + dH, Pend = Pstart + dP)
+
+  return(hpcoords)
+}
+
+
+#' generates a vector field
+#' @param sim_df data frame generated from run_XXX
+#' @param pars_for_eq_func parameter values used to generate `sim_df`
+#' @param vec_density density of grid to generate
+#' @export
+#' @return a ggplot2 object
+plot_vector_field <- function(sim_df, pars_for_eq_func, vec_density = 20) {
+
+  vector_field_input_data <- vector_field_input(sim_df, pars_for_eq_func,
+                                                vec_density = vec_density)
+  ggplot(sim_df) +
+
+    # vector field
+    geom_segment(data = vector_field_input_data,
+                 aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
+                 arrow = arrow(length = unit(0.02, "npc")),
+                 color = "light gray")
+
+}
+
+
+plot_predprey_trajectory <- function(sim_df, pars_for_eq_func, plot_vectors = F) {
+
+}
+
+
