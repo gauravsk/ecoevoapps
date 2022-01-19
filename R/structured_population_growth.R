@@ -39,6 +39,7 @@ run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1
 #' For internal use only
 #' @param pop_growth_matrix matrix where each row is an age class and each column
 #' is a time step
+#' @import dplyr
 popmat_to_df <- function(pop_growth_matrix) {
   popgrowth_df <-
     pop_growth_matrix %>%
@@ -56,6 +57,7 @@ popmat_to_df <- function(pop_growth_matrix) {
 #' `run_structured_population_simulation` (each row is an age class and each column
 #' is a time step)
 #' @return ggplot object of population trajectory over time
+#' @import ggplot2
 #' @export
 plot_structured_population_size <- function(pop_growth_matrix) {
 
@@ -70,8 +72,6 @@ plot_structured_population_size <- function(pop_growth_matrix) {
     ylab("Number of individuals") +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_log10(expand = c(0, 0)) +
-    # scale_y_continuous(trans=scales::pseudo_log_trans(base = 10),
-    # expand = c(0, 0)) +
     ecoevoapps::theme_apps()
 
   return(trajs)
@@ -86,6 +86,7 @@ plot_structured_population_size <- function(pop_growth_matrix) {
 #' If the Leslie matrix is provided, the trajectory also includes lines indicating
 #' the stable age distribution
 #' @return ggplot of age distribution over time
+#' @import ggplot2
 #' @export
 plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = NULL) {
 
@@ -113,7 +114,7 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
                                 sum(Re(eigen(leslie_mat)$vec[,1]))),
                  linetype="dashed", show.legend=F) +
       labs(caption = "Dashed black lines show stable age distribution
-           calculated from the Eigenvalues of the Leslie matrix") +
+           calculated from the first eigenvector of the Leslie matrix") +
       theme(plot.caption = element_text(size = 8))
 
   }
@@ -129,6 +130,7 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
 #' @param leslie_mat Leslie matrix used to generate the population trajectory (optional).
 #' If the Leslie matrix is provided, the trajectory also includes lines indicating
 #' the stable age distribution
+#' @import ggplot2
 #' @return ggplot of total population size over time
 #' @export
 plot_structured_population_lambda <- function(pop_growth_matrix,
@@ -166,7 +168,11 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
   return(lambda_plot)
 }
 
-
+#' Generate diagram of population structure
+#'
+#' @param leslie_mat Leslie matrix from which to generate diagram
+#' @import diagram
+#' @export
 plot_leslie_diagram <- function(leslie_mat) {
   n_ages <- nrow(leslie_mat)
   name_vec <- parse(text = paste0("Age[",1:n_ages,"]"))
