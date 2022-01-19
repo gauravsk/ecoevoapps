@@ -3,6 +3,7 @@
 #' @param D distance from mainland (km)
 #' @param M number of species in the mainland
 #' @param k scaling constant
+#' @keywords internal
 ibiogeo_I <- function(S,D,M,k){
   exp(-(k/D)*(S-M))-1
 }
@@ -11,6 +12,7 @@ ibiogeo_I <- function(S,D,M,k){
 #' @param S number of species on island
 #' @param A size of island (km^2)
 #' @param k scaling constant
+#' @keywords internal
 ibiogeo_E <- function(S,A,k) {
   exp(k*S/A)-1
 }
@@ -20,6 +22,7 @@ ibiogeo_E <- function(S,A,k) {
 #' @param A size of island (km^2)
 #' @param M number of species in the mainland
 #' @param k scaling constant
+#' @keywords internal
 ibiogeo_Sx <- function(D,A,M,k){
   A*M/(D+A)
 }
@@ -27,6 +30,7 @@ ibiogeo_Sx <- function(D,A,M,k){
 #' equilibrium immigration rate for Island Biogeography model
 #' @param D distance from mainland (km)
 #' @param A size of island (km^2)
+#' @keywords internal
 ibiogeo_Ix <- function(D,A,M,k){
   exp(-(k/D)*(ibiogeo_Sx(D,A,M,k)-M))-1
 }
@@ -34,6 +38,7 @@ ibiogeo_Ix <- function(D,A,M,k){
 #' equilibrium extinction rate for Island Biogeography model
 #' @param D distance from mainland (km)
 #' @param A size of island (km^2)
+#' @keywords internal
 ibiogeo_Ex <- function(D,A,M,k){
   exp(k*A*ibiogeo_Sx(D,A,M,k))-1
 }
@@ -45,6 +50,7 @@ ibiogeo_Ex <- function(D,A,M,k){
 #' @param k scaling constant
 #' @param tx,ty,txa,tya,txb,tyb constants to draw islands on map
 #' @import ggplot2
+#' @keywords internal
 make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
                              D, A, k, M) {
   # RColorBrewer::brewer.pdal(3, "Set1")
@@ -80,6 +86,7 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
 #' @param M Mainland species richness
 #' @param k scaling constant
 #' @importFrom magrittr "%>%"
+#' @keywords internal
 make_equilibrium_plot <- function(D, A, M, k) {
   # RColorBrewer::brewer.pdal(3, "Set1")
   colorpal <- c("#E41A1C", "#377EB8", "#4DAF4A")

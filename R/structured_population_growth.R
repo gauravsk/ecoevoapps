@@ -40,6 +40,7 @@ run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1
 #' @param pop_growth_matrix matrix where each row is an age class and each column
 #' is a time step
 #' @import dplyr
+#' @keywords internal
 popmat_to_df <- function(pop_growth_matrix) {
   popgrowth_df <-
     pop_growth_matrix %>%

@@ -260,7 +260,7 @@ vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
 
 #' generates a vector field
-#' @param sim_df data frame generated from run_XXX
+#' @param sim_df data frame generated from run_predprey
 #' @param pars_for_eq_func parameter values used to generate `sim_df`
 #' @param vec_density density of grid to generate
 #' @import ggplot2

@@ -16,3 +16,4 @@ ricker_eqn(Nt, r, K)
 \description{
 Equation that returns Nt+1 from Nt for the Ricker model
 }
+\keyword{internal}

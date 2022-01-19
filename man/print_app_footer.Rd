@@ -9,3 +9,4 @@ print_app_footer()
 \description{
 This function is only intended for use in EcoEvoApps' shiny apps.
 }
+\keyword{internal}

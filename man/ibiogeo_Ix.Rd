@@ -14,3 +14,4 @@ ibiogeo_Ix(D, A, M, k)
 \description{
 equilibrium immigration rate for Island Biogeography model
 }
+\keyword{internal}

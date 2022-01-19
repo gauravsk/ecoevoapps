@@ -17,6 +17,7 @@ run_discrete_exponential <- function(N0 = 1, lambda = 1.1, time = 100) {
 #' @param Nt Population size
 #' @param r Population growth rate
 #' @param K Carrying capacity
+#' @keywords internal
 ricker_eqn <- function(Nt, r, K) Nt*exp(r*(1-Nt/K))
 
 #' Ricker model of discrete population growth with a carrying capacity
@@ -45,6 +46,7 @@ run_ricker_model <- function(N0 = 1, K = 100, r = 1.1, time = 100) {
 #' @param Nt Nt
 #' @param rd Population growth rate
 #' @param K Carrying capacity
+#' @keywords internal
 discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 
 #' Discrete logistic model
@@ -76,6 +78,7 @@ run_discrete_logistic_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
 #' @param x Nt
 #' @param r Population growth rate
 #' @param K Carrying capacity
+#' @keywords internal
 bevertonholt_eqn <- function(Nt, Rd, K) (Rd*Nt)/(1+((Rd-1)/K)*Nt)
 
 #' Beverton Holt model

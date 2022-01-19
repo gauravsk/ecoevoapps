@@ -16,3 +16,4 @@ bevertonholt_eqn(Nt, Rd, K)
 \description{
 Equation that returns Nt+1 from Nt for the Beverton-Holt model
 }
+\keyword{internal}

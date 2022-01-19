@@ -20,3 +20,4 @@ make_islands_map(tx, ty, txa, tya, txb, tyb, D, A, k, M)
 \description{
 make map for ibiogeo model
 }
+\keyword{internal}

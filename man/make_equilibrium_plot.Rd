@@ -18,3 +18,4 @@ make_equilibrium_plot(D, A, M, k)
 \description{
 make equilibrium plot for ibiogeo model
 }
+\keyword{internal}

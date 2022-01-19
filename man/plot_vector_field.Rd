@@ -7,7 +7,7 @@
 plot_vector_field(sim_df, pars_for_eq_func, vec_density = 20)
 }
 \arguments{
-\item{sim_df}{data frame generated from run_XXX}
+\item{sim_df}{data frame generated from run_predprey}
 
 \item{pars_for_eq_func}{parameter values used to generate `sim_df`}
 

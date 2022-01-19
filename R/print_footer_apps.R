@@ -2,6 +2,7 @@
 #'
 #' This function is only intended for use in EcoEvoApps' shiny apps.
 #' @export
+#' @keywords internal
 print_app_footer <- function(){
   cat("#### ***Explore more apps, provide feedback, or contribute!***
 
