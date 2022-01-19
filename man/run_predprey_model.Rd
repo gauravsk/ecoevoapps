@@ -12,7 +12,10 @@ run_predprey_model(time, init, params)
 
 \item{init}{vector of initial population sizes for both species, with names H and P}
 
-\item{params}{vector of parameters. Minimum requirements are r, a, e, d. If K supplied, then prey has logistic growth; if T_h supplied, Type II functional response of predator; if both K and T_h, R-M model}
+\item{params}{vector of parameters. Minimum requirements are r, a, e, d.
+If K supplied, then prey has logistic growth;
+if T_h supplied, Type II functional response of predator;
+if both K and T_h, this is the Rosenzweig-Macarthur  model}
 }
 \description{
 Run predator-prey model
