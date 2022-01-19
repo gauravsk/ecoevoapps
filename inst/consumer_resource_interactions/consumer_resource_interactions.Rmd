@@ -1,6 +1,5 @@
 ---
 title: "Consumer-Resource Dynamics"
-author: "Madeline Cowen and Rosa M. McGuire"
 output: html_document
 runtime: shiny
 ---
@@ -8,15 +7,10 @@ runtime: shiny
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(ggplot2)
-library(tidyr)
-library(purrr)
-library(dplyr)
-library(deSolve)
 library(ecoevoapps)
-library(patchwork)
-library(RColorBrewer)
 library(kableExtra)
+library(tidyr)
+library(ggplot2)
 ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
@@ -485,8 +479,10 @@ sidebarLayout(
       
     ### Ask users for initial conditions -----
     #N1, N2
-    numericInput("H_rm", label = "Initial population size of Prey", min = 1, value = 30),
-    numericInput("P_rm", label = "Initial population size of Predator", min = 1, value = 25),
+    numericInput("H_rm", label = "Initial population size of Prey",
+                 min = 1, value = 30),
+    numericInput("P_rm", label = "Initial population size of Predator", 
+                 min = 1, value = 25),
     
     ### Ask users for time to simulate ----
     numericInput("t_rm", label = "Timesteps", min = 1, value = 100),
@@ -587,13 +583,16 @@ sidebarLayout(
   sidebarPanel(
     ### Ask users for parameter values ----
     # a
-    sliderInput("a_fr_type1", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
+    sliderInput("a_fr_type1", label = "Predator attack rate", min = .001, 
+                max = 1.0, value = .02),
   
     ### Ask users for initial and final conditions -----
     #H_init, H_final
     
-    numericInput("H_init_fr_type1", label = "Initial population size of Prey", min = 1, value = 30),
-    numericInput("H_final_fr_type1", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    numericInput("H_init_fr_type1", label = "Initial population size of Prey", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type1", label = "Final population size of Prey", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
     
   ),  
   
@@ -651,14 +650,18 @@ sidebarLayout(
     ### Ask users for parameter values ----
     # a, Th
     
-    sliderInput("a_fr_type2", label = "Predator attack rate", min = .001, max = 1.0, value = .02),
-    sliderInput("T_h_fr_type2", label = "Predator handling time", min = 0.001, max = 1.0, value = 0.3),
+    sliderInput("a_fr_type2", label = "Predator attack rate", min = .001, 
+                max = 1.0, value = .02),
+    sliderInput("T_h_fr_type2", label = "Predator handling time", min = 0.001, 
+                max = 1.0, value = 0.3),
   
     ### Ask users for initial and final conditions -----
     #H_init, H_final
     
-    numericInput("H_init_fr_type2", label = "Initial population size of Prey", min = 1, value = 30),
-    numericInput("H_final_fr_type2", label = "Final population size of Prey", min = 1, value = 100), #Add warning: H_final>H_init 
+    numericInput("H_init_fr_type2", label = "Initial population size of Prey", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type2", label = "Final population size of Prey", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
     
   ),  
   
@@ -695,6 +698,9 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 - [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
 
----------
+-------------
 
-App maintained by Maddi Cowen (mcowen@g.ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+

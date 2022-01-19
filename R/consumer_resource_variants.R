@@ -145,7 +145,10 @@ rm_predprey_1step <-function(H, P, pars) {
 #' @param time vector of time units over which to run model, starting from 0.
 #' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
 #' @param init vector of initial population sizes for both species, with names H and P
-#' @param params vector of parameters. Minimum requirements are r, a, e, d. If K supplied, then prey has logistic growth; if T_h supplied, Type II functional response of predator; if both K and T_h, R-M model
+#' @param params vector of parameters. Minimum requirements are r, a, e, d.
+#' If K supplied, then prey has logistic growth;
+#' if T_h supplied, Type II functional response of predator;
+#' if both K and T_h, this is the Rosenzweig-Macarthur  model
 #' @examples
 #' # Classic Lotka-Volterra model
 #' run_predprey_model(200, init = c(H = 10, P = 5),
@@ -208,6 +211,7 @@ run_predprey_model <- function(time, init, params) {
 #' @param vec_density density of grid to generate
 #' @return a data frame, with Hstart, Hend, Pstart, Pend,
 #' and corresponding values of dH and dP for drawing vectors
+#' @importFrom purrr map2_df
 vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
   # determine the min and max of the number of prey and predators
@@ -259,7 +263,7 @@ vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 #' @param sim_df data frame generated from run_XXX
 #' @param pars_for_eq_func parameter values used to generate `sim_df`
 #' @param vec_density density of grid to generate
-#' @export
+#' @import ggplot2
 #' @return a ggplot2 object
 plot_vector_field <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
@@ -314,35 +318,35 @@ plot_predprey_trajectory <- function(sim_df, param_vec, vectors_field = F,...) {
       traj +
       stat_function(fun = function(x) (param_vec["r"]/param_vec["a"])*
                       (1 - x/param_vec["K"])*(1 + param_vec["a"] * param_vec["T_h"] * x),
-                    col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                    col = "#E41A1C", size = 2) +
       geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"] - param_vec["a"]*param_vec["d"]*param_vec["T_h"]),
-                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+                 col = "#377EB8", size = 2)
 
   } else if ("T_h" %in% names(param_vec)) {
     # Type II
     traj <- traj +
           geom_abline(intercept = param_vec["r"]/param_vec["a"],
                       slope = param_vec["r"]*param_vec["T_h"],
-                      col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                      col = "#E41A1C", size = 2) +
           geom_vline(xintercept = param_vec["d"]/
                        (param_vec["e"]*param_vec["a"] -
                           param_vec["a"]*param_vec["d"]*param_vec["T_h"]),
-                     col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+                     col = "#377EB8", size = 2)
   } else if ("K" %in% names(param_vec)) {
     # logistic prey
     traj <- traj +
       geom_abline(intercept = param_vec["r"]/param_vec["a"],
                   slope = (-1 * param_vec["r"])/(param_vec["a"] * param_vec["K"]),
-                  col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                  col = "#E41A1C", size = 2) +
       geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"]),
-                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+                 col = "#377EB8", size = 2)
   } else {
     # Type I + exponential prey
     traj <- traj +
       geom_hline(yintercept = param_vec["r"]/param_vec["a"],
-                 col = brewer.pal(n = 3, name = "Set1")[1], size = 2) +
+                 col = "#E41A1C", size = 2) +
       geom_vline(xintercept = param_vec["d"]/(param_vec["e"]*param_vec["a"]),
-                 col = brewer.pal(n = 3, name = "Set1")[2], size = 2)
+                 col = "#377EB8", size = 2)
   }
   return(traj)
 }
