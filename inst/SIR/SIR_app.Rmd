@@ -18,7 +18,6 @@ library(ecoevoapps)
 library(patchwork)
 library(kableExtra)
 theme_set(ecoevoapps::theme_apps())
-includeMarkdown("SIR_overview.md")
 ```
 
 ## Models Assuming Density-Dependent Transmission {.tabset}
@@ -83,9 +82,12 @@ sidebarLayout(
                 min = 0, max = 1, value = 0, step = 0.1),
     
     ### Ask user for initial conditions ----
-    numericInput("S0", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0", label = "Initial population size of I", min = 0, value = 1),
-    numericInput("R0", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("S0", label = "Initial population size of S", 
+                 min = 0, value = 100),
+    numericInput("I0", label = "Initial population size of I",
+                 min = 0, value = 1),
+    numericInput("R0", label = "Initial population size of R", 
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
     numericInput("time", label = "Time to simulate", min = 10, value = 100)
@@ -101,7 +103,8 @@ sidebarLayout(
 # Set the initial population sizes
 init <- reactive({c(S = input$S0, I = input$I0, R = input$R0)})
 # Set the parameter values
-params <- reactive({c(m = input$m, beta = input$beta, v = input$v, gamma = input$gamma)})
+params <- reactive({c(m = input$m, beta = input$beta, 
+                      v = input$v, gamma = input$gamma)})
 # Time over which to simulate model dynamics
 time <- reactive({seq(0,input$time,by = .1)})
 
@@ -128,7 +131,8 @@ pop_out <- reactive({
   pop_out
 })
 
-pop_out_long <- reactive({ pop_out() %>%
+pop_out_long <- reactive({
+  pop_out() %>%
   select(time, dS, dI, dR) %>%
   pivot_longer(c(dS, dI, dR), "group") %>%
   mutate(group = factor(group, levels = c("dS", "dI", "dR")))
@@ -261,8 +265,10 @@ sidebarLayout(
                 min = 0, max = 1, value = .2, step = 0.01),
   
     ### Ask user for initial conditions ----
-    numericInput("S0_sis", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0_sis", label = "Initial population size of I", min = 0, value = 1),
+    numericInput("S0_sis", label = "Initial population size of S", 
+                 min = 0, value = 100),
+    numericInput("I0_sis", label = "Initial population size of I", 
+                 min = 0, value = 1),
     
     ### Ask user for time to simulate ----
     numericInput("time_sis", label = "Time to simulate", min = 10, value = 100)
@@ -321,12 +327,7 @@ abund_plot_sis <- reactive({
     ylab("Population size")
 })
 
-# # Plot dS, dI, dR over time
-# dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
+
 
 # Plot S vs I
 SIplot_sis <- reactive({
@@ -419,10 +420,14 @@ sidebarLayout(
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_seir", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("E0_seir", label = "Initial population size of E", min = 0, value = 0),
-    numericInput("I0_seir", label = "Initial population size of I", min = 0, value = 1),
-    numericInput("R0_seir", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("S0_seir", label = "Initial population size of S",
+                 min = 0, value = 100),
+    numericInput("E0_seir", label = "Initial population size of E", 
+                 min = 0, value = 0),
+    numericInput("I0_seir", label = "Initial population size of I", 
+                 min = 0, value = 1),
+    numericInput("R0_seir", label = "Initial population size of R", 
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
     numericInput("time_seir", label = "Time to simulate", min = 10, value = 100)
@@ -437,7 +442,8 @@ sidebarLayout(
 
 # Set the initial population sizes
 init_seir <- reactive({
-  c(S = input$S0_seir, E = input$E0_seir, I = input$I0_seir, R = input$S0_seir)
+  c(S = input$S0_seir, E = input$E0_seir, 
+    I = input$I0_seir, R = input$R0_seir)
 })
 # Set the parameter values
 params_seir <- reactive({
@@ -448,8 +454,10 @@ time_seir <- reactive({seq(0, input$time_seir, by = .1)})
 
 # Simulate model dynamics 
 out_seir <- reactive({
-  data.frame(run_infectiousdisease_model(time = time_seir(), params = params_seir(),
-                                         init = init_seir(), model_type = "SEIR"))
+  data.frame(run_infectiousdisease_model(time = time_seir(),
+                                         params = params_seir(),
+                                         init = init_seir(), 
+                                         model_type = "SEIR"))
 })
 
 # Reshape the data for plotting
@@ -574,7 +582,8 @@ RIplot_seir <- reactive({
 
 # combine 2d plots -----
 SEIR_2d_plots <- reactive({
-  wrap_plots(SEplot_seir(), SIplot_seir(), SRplot_seir(), EIplot_seir(), ERplot_seir(), RIplot_seir(), ncol = 3)
+  wrap_plots(SEplot_seir(), SIplot_seir(), SRplot_seir(), 
+             EIplot_seir(), ERplot_seir(), RIplot_seir(), ncol = 3)
 })
 
 # Make a list of plots and print out plots based on which ones were requested ----
@@ -652,10 +661,14 @@ sidebarLayout(
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sird", label = "Initial population size of S", min = 0, value = 100),
-    numericInput("I0_sird", label = "Initial population size of I", min = 0, value = 1),
-    numericInput("R0_sird", label = "Initial population size of R", min = 0, value = 0),
-    numericInput("D0_sird", label = "Initial population size of D", min = 0, value = 0),
+    numericInput("S0_sird", label = "Initial population size of S",
+                 min = 0, value = 100),
+    numericInput("I0_sird", label = "Initial population size of I",
+                 min = 0, value = 1),
+    numericInput("R0_sird", label = "Initial population size of R",
+                 min = 0, value = 0),
+    numericInput("D0_sird", label = "Initial population size of D",
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
     numericInput("time_sird", label = "Time to simulate", min = 10, value = 100)
@@ -670,20 +683,22 @@ sidebarLayout(
 
 # Set the initial population sizes
 init_sird <- reactive({
-  c(S = input$S0_sird, I = input$I0_sird, R = input$S0_sird, D = input$D0_sird)
-  })
+  c(S = input$S0_sird, I = input$I0_sird, R = input$R0_sird, D = input$D0_sird)
+})
 # Set the parameter values
 params_sird <- reactive({
   c(m = input$m_sird, beta = input$beta_sird, mu = input$mu_sird, 
     gamma = input$gamma_sird, v = input$v_sird)
-  })
+})
 # Time over which to simulate model dynamics
 time_sird <- reactive({seq(0, input$time_sird, by = .1)})
 
 # Simulate model dynamics 
 out_sird <- reactive({
-  data.frame(run_infectiousdisease_model(time = time_sird(), params = params_sird(),
-                                         init = init_sird(), model_type = "SIRD"))
+  data.frame(run_infectiousdisease_model(time = time_sird(), 
+                                         params = params_sird(),
+                                         init = init_sird(), 
+                                         model_type = "SIRD"))
 })
 
 # Reshape the data for plotting
@@ -700,7 +715,8 @@ pop_out_sird <- reactive({
   pop_out$dR <- c(NA, diff(pop_out$R))
   pop_out$dD <- c(NA, diff(pop_out$D))
   # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+  pop_out <- pop_out %>% 
+    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
   pop_out
 })
 
@@ -720,12 +736,6 @@ abund_plot_sird <- reactive({
     ylab("Population size")
 })
 
-# # Plot dS, dD, dI, dR over time
-# dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
 
 # Plot S vs D ---------
 SDplot_sird <- reactive({
@@ -813,7 +823,8 @@ RIplot_sird <- reactive({
 
 # combine 2d plots -----
 SIRD_2d_plots <- reactive({
-  wrap_plots(SIplot_sird(), SRplot_sird(), SDplot_sird(), RIplot_sird(), DIplot_sird(), DRplot_sird(),  ncol = 3)
+  wrap_plots(SIplot_sird(), SRplot_sird(), SDplot_sird(),
+             RIplot_sird(), DIplot_sird(), DRplot_sird(),  ncol = 3)
 })
 
 # Make a list of plots and print out plots based on which ones were requested ----
@@ -891,9 +902,12 @@ sidebarLayout(
                 min = 0, max = 1, value = 0, step = 0.1),
     
     ### Ask user for initial conditions ----
-    numericInput("S0_ft", label = "Initial population size of S", min = 0, value = 50),
-    numericInput("I0_ft", label = "Initial population size of I", min = 0, value = 20),
-    numericInput("R0_ft", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("S0_ft", label = "Initial population size of S", 
+                 min = 0, value = 50),
+    numericInput("I0_ft", label = "Initial population size of I",
+                 min = 0, value = 20),
+    numericInput("R0_ft", label = "Initial population size of R",
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
     numericInput("time_ft", label = "Time to simulate", min = 10, value = 100)
@@ -919,8 +933,10 @@ time_ft <- reactive({seq(0,input$time_ft,by = .1)})
 
 # Simulate model dynamics 
 out_ft <- reactive({
-    data.frame(run_infectiousdisease_model(time = time_ft(), params = params_ft(),
-                                         init = init_ft(), model_type = "SIR_ft"))
+  data.frame(run_infectiousdisease_model(time = time_ft(),
+                                         params = params_ft(),
+                                         init = init_ft(),
+                                         model_type = "SIR_ft"))
 })
 
 # Reshape the data for plotting 
@@ -936,7 +952,8 @@ pop_out_ft <- reactive({
   pop_out$dI <- c(NA, diff(pop_out$I))
   pop_out$dR <- c(NA, diff(pop_out$R))
   # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+  pop_out <- pop_out %>% 
+    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
   pop_out
 })
 
@@ -956,12 +973,7 @@ abund_plot_SIR_ft <- reactive({
     ylab("Population size") 
 })
 
-# # Plot dS, dI, dR over time
-# dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
+
 
 # Plot S vs I ---------
 SIplot_ft <- reactive({
@@ -1075,11 +1087,14 @@ sidebarLayout(
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sis_ft", label = "Initial population size of S", min = 0, value = 50),
-    numericInput("I0_sis_ft", label = "Initial population size of I", min = 0, value = 20),
+    numericInput("S0_sis_ft", label = "Initial population size of S",
+                 min = 0, value = 50),
+    numericInput("I0_sis_ft", label = "Initial population size of I", 
+                 min = 0, value = 20),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sis_ft", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_sis_ft", label = "Time to simulate", 
+                 min = 10, value = 100)
 
   ),
   
@@ -1100,8 +1115,10 @@ time_sis_ft <- reactive({seq(0, input$time_sis_ft, by = .1)})
 
 # Simulate model dynamics 
 out_sis_ft <- reactive({
-  data.frame(run_infectiousdisease_model(time = time_sis_ft(), params = params_sis_ft(),
-                                         init = init_sis_ft(), model_type = "SIS_ft"))
+  data.frame(run_infectiousdisease_model(time = time_sis_ft(),
+                                         params = params_sis_ft(),
+                                         init = init_sis_ft(),
+                                         model_type = "SIS_ft"))
 })
 
 # Reshape the data so for plotting
@@ -1136,15 +1153,10 @@ abund_plot_sis_ft <- reactive({
     ylab("Population size")
 })
 
-# # Plot dS, dI, dR over time
-# dabund_plot_sis <- reactive({ ggplot(pop_out_long_sis()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
 
 # Plot S vs I ---------
-SIplot_sis_ft <- reactive({ggplot(out_sis_ft()) +
+SIplot_sis_ft <- reactive({
+  ggplot(out_sis_ft()) +
     geom_segment(x = out_sis_ft()$S[round(length(time_sis_ft()))/25], 
                  y = out_sis_ft()$I[round(length(time_sis_ft()))/25], 
                  xend = out_sis_ft()$S[round(length(time_sis_ft())/25) + 1], 
@@ -1236,13 +1248,18 @@ sidebarLayout(
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_seir_ft", label = "Initial population size of S", min = 0, value = 50),
-    numericInput("E0_seir_ft", label = "Initial population size of E", min = 0, value = 0),
-    numericInput("I0_seir_ft", label = "Initial population size of I", min = 0, value = 20),
-    numericInput("R0_seir_ft", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("S0_seir_ft", label = "Initial population size of S",
+                 min = 0, value = 50),
+    numericInput("E0_seir_ft", label = "Initial population size of E", 
+                 min = 0, value = 0),
+    numericInput("I0_seir_ft", label = "Initial population size of I", 
+                 min = 0, value = 20),
+    numericInput("R0_seir_ft", label = "Initial population size of R", 
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_seir_ft", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_seir_ft", label = "Time to simulate", 
+                 min = 10, value = 100)
 
   ),
   
@@ -1256,7 +1273,7 @@ sidebarLayout(
 # Set the initial population sizes
 init_seir_ft <- reactive({
   c(S = input$S0_seir_ft, E = input$E0_seir_ft, 
-    I = input$I0_seir_ft, R = input$S0_seir_ft)
+    I = input$I0_seir_ft, R = input$R0_seir_ft)
   })
 # Set the parameter values
 params_seir_ft <- reactive({
@@ -1268,8 +1285,10 @@ time_seir_ft <- reactive({seq(0, input$time_seir_ft, by = .1)})
 
 # Simulate model dynamics 
 out_seir_ft <- reactive({
-  data.frame(run_infectiousdisease_model(time = time_seir_ft(), params = params_seir_ft(),
-                                         init = init_seir_ft(), model_type = "SEIR_ft"))
+  data.frame(run_infectiousdisease_model(time = time_seir_ft(), 
+                                         params = params_seir_ft(),
+                                         init = init_seir_ft(), 
+                                         model_type = "SEIR_ft"))
 })
 
 # Reshape the data so that population sizes of both 
@@ -1288,7 +1307,8 @@ pop_out_seir_ft <- reactive({
   pop_out$dI <- c(NA, diff(pop_out$I))
   pop_out$dR <- c(NA, diff(pop_out$R))
   # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+  pop_out <- pop_out %>% 
+    mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
   pop_out
 })
 
@@ -1308,15 +1328,10 @@ abund_plot_seir_ft <- reactive({
     ylab("Population size") 
 })
 
-# # Plot dS, dE, dI, dR over time
-# dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
 
 # Plot S vs E ---------
-SEplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+SEplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
@@ -1328,7 +1343,8 @@ SEplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
     xlab("S size")})
 
 # Plot S vs I ---------
-SIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+SIplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
@@ -1340,7 +1356,8 @@ SIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
     xlab("S size") })
 
 # Plot S vs R ---------
-SRplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+SRplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$S[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$S[round(length(time_seir_ft())/25) + 1], 
@@ -1352,7 +1369,8 @@ SRplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
     xlab("S size")})
 
 # Plot E vs I ---------
-EIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+EIplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$E[round(length(time_seir_ft())/25) + 1], 
@@ -1364,7 +1382,8 @@ EIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
     xlab("E size") })
 
 # Plot E vs R ---------
-ERplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+ERplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$E[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$E[round(length(time_seir_ft())/25) + 1], 
@@ -1376,7 +1395,8 @@ ERplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
     xlab("E size") })
 
 # Plot R vs I ---------
-RIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
+RIplot_seir_ft <- reactive({
+  ggplot(out_seir_ft()) +
     geom_segment(x = out_seir_ft()$R[round(length(time_seir_ft()))/25], 
                  y = out_seir_ft()$I[round(length(time_seir_ft()))/25], 
                  xend = out_seir_ft()$R[round(length(time_seir_ft())/25) + 1], 
@@ -1389,7 +1409,8 @@ RIplot_seir_ft <- reactive({ggplot(out_seir_ft()) +
 
 # combine 2d plots -----
 SEIR_2d_plots_ft <- reactive({
-  wrap_plots(SEplot_seir_ft(), SIplot_seir_ft(), SRplot_seir_ft(), EIplot_seir_ft(), ERplot_seir_ft(), RIplot_seir_ft(), ncol = 3)
+  wrap_plots(SEplot_seir_ft(), SIplot_seir_ft(), SRplot_seir_ft(),
+             EIplot_seir_ft(), ERplot_seir_ft(), RIplot_seir_ft(), ncol = 3)
 })
 
 # Make a list of plots and print out plots based on which ones were requested ----
@@ -1470,12 +1491,16 @@ sidebarLayout(
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sird_ft", label = "Initial population size of S", min = 0, value = 50),
-    numericInput("I0_sird_ft", label = "Initial population size of I", min = 0, value = 20),
-    numericInput("R0_sird_ft", label = "Initial population size of R", min = 0, value = 0),
+    numericInput("S0_sird_ft", label = "Initial population size of S",
+                 min = 0, value = 50),
+    numericInput("I0_sird_ft", label = "Initial population size of I",
+                 min = 0, value = 20),
+    numericInput("R0_sird_ft", label = "Initial population size of R",
+                 min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sird_ft", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_sird_ft", label = "Time to simulate", 
+                 min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -1485,7 +1510,7 @@ sidebarLayout(
 # Run the simulation -------------------
 # Set the initial population sizes
 init_sird_ft <- reactive({
-  c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$S0_sird_ft, D = 0)
+  c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$R0_sird_ft, D = 0)
   })
 # Set the parameter values
 params_sird_ft <- reactive({
@@ -1497,8 +1522,10 @@ time_sird_ft <- reactive({seq(0, input$time_sird_ft, by = .1)})
 
 # Simulate model dynamics 
 out_sird_ft <- reactive({
-  data.frame(run_infectiousdisease_model(time = time_sird_ft(), params = params_sird_ft(),
-                                         init = init_sird_ft(), model_type = "SIRD_ft"))
+  data.frame(run_infectiousdisease_model(time = time_sird_ft(), 
+                                         params = params_sird_ft(),
+                                         init = init_sird_ft(),
+                                         model_type = "SIRD_ft"))
 })
 
 # Reshape the data for plotting
@@ -1515,11 +1542,13 @@ pop_out_sird_ft <- reactive({
   pop_out$dR <- c(NA, diff(pop_out$R))
   pop_out$dD <- c(NA, diff(pop_out$D))
   # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+  pop_out <- pop_out %>% 
+    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
   pop_out
 })
 
-pop_out_long_sird_ft <- reactive({ pop_out_sird_ft() %>%
+pop_out_long_sird_ft <- reactive({ 
+  pop_out_sird_ft() %>%
   select(time, dS, dI, dR, dD) %>%
   pivot_longer(c(dS, dI, dR, dD), "group") %>%
   mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
@@ -1527,21 +1556,17 @@ pop_out_long_sird_ft <- reactive({ pop_out_sird_ft() %>%
 
 # Make plots --------------------
 # Plot abundance through time ----------
-abund_plot_sird_ft <- reactive({ggplot(out_long_sird_ft()) + 
+abund_plot_sird_ft <- reactive({
+  ggplot(out_long_sird_ft()) + 
     geom_line(aes(x = time, y = value, color = group), size = 2) + 
     scale_color_brewer(palette = "Set1") +
     ylab("Population size")
 })
 
-# # Plot dS, dD, dI, dR over time
-# dabund_plot_sird <- reactive({ ggplot(pop_out_long_sird()) +
-#     geom_line(aes(x = time, y = value, color = group), size = 2) +
-#     scale_color_brewer(palette = "Set1") +
-#     ylab("Change in population size") 
-# })
 
 # Plot S vs D ---------
-SDplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+SDplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
@@ -1553,7 +1578,8 @@ SDplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
     xlab("S size") })
 
 # Plot S vs I ---------
-SIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+SIplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
@@ -1565,7 +1591,8 @@ SIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
     xlab("S size") })
 
 # Plot S vs R ---------
-SRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+SRplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$S[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$S[round(length(time_sird_ft())/25) + 1], 
@@ -1577,7 +1604,8 @@ SRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
     xlab("S size") })
 
 # Plot D vs I ---------
-DIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+DIplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$D[round(length(time_sird_ft())/25) + 1], 
@@ -1589,7 +1617,8 @@ DIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
     xlab("D size") })
 
 # Plot D vs R ---------
-DRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+DRplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$D[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$D[round(length(time_sird_ft())/25) + 1], 
@@ -1601,7 +1630,8 @@ DRplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
     xlab("D size") })
 
 # Plot R vs I ---------
-RIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
+RIplot_sird_ft <- reactive({
+  ggplot(out_sird_ft()) +
     geom_segment(x = out_sird_ft()$R[round(length(time_sird_ft()))/25], 
                  y = out_sird_ft()$I[round(length(time_sird_ft()))/25], 
                  xend = out_sird_ft()$R[round(length(time_sird_ft())/25) + 1], 
@@ -1614,7 +1644,8 @@ RIplot_sird_ft <- reactive({ggplot(out_sird_ft()) +
 
 # combine 2d plots -----
 SIRD_2d_plots_ft <- reactive({
-  wrap_plots(SIplot_sird_ft(), SRplot_sird_ft(), SDplot_sird_ft(), RIplot_sird_ft(), DIplot_sird_ft(), DRplot_sird_ft(),  ncol = 3)
+  wrap_plots(SIplot_sird_ft(), SRplot_sird_ft(), SDplot_sird_ft(),
+             RIplot_sird_ft(), DIplot_sird_ft(), DRplot_sird_ft(),  ncol = 3)
 })
 
 # Make a list of plots and print out plots based on which ones were requested ----
