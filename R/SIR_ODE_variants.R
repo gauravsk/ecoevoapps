@@ -185,6 +185,7 @@ SIS_ft <- function(time,init,params) {
 #' and gamma (recovery rate)
 #' @param model_type which type of model to run? (should be one of
 #' `SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)
+#' @import deSolve
 #' @export
 run_infectiousdisease_model <- function(time, init, params, model_type) {
   if(model_type == "SIR") {
@@ -211,6 +212,35 @@ run_infectiousdisease_model <- function(time, init, params, model_type) {
   } else if(model_type == "SIS_ft") {
     data.frame(deSolve::ode(func = SIS_ft, y = init,
                             parms = params, times = time))
+  } else {
+    stop("The specified model_type is not supported.")
   }
 
+}
+
+
+#' Plot trajectories for SIR model
+#' @param sim_df simulated data frame generated from run_infectiousdisease_model()
+#' @param x_axis name of the column in `sim_df` to plot on X-axis of trajectory
+#' @param y_axis name of the column in `sim_df` to plot on Y-axis of trajectory
+#' @import ggplot2
+#' @export
+plot_infectiousdisease_trajectories <- function(sim_df, x_axis, y_axis) {
+  if(!(x_axis %in% colnames(sim_df)) | !(y_axis %in% colnames(sim_df))) {
+    stop(paste0(x_axis," and/or ", y_axis, " are not column names in sim_df"))
+  }
+  nrows_df <- nrow(sim_df)
+  sim_df$x_axis <- sim_df[, x_axis]
+  sim_df$y_axis <- sim_df[, y_axis]
+  traj <-
+    ggplot(sim_df) +
+    geom_segment(x = sim_df$x_axis[round(nrows_df)/25],
+                 y = sim_df$y_axis[round(nrows_df)/25],
+                 xend = sim_df$x_axis[round(nrows_df/25) + 1],
+                 yend = sim_df$y_axis[round(nrows_df/25) + 1],
+                 arrow = arrow(length = unit(0.15, "npc"))) +
+    geom_path(aes(x = x_axis, y = y_axis), size = 2) +
+    ylab(paste0(y_axis, " size")) +
+    xlab(paste0(x_axis, " size"))
+  return(traj)
 }
