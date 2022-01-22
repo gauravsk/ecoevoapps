@@ -26,5 +26,9 @@ Imports:
     deSolve,
     ggplot2,
     tidyr,
-    magrittr
+    magrittr,
+    dplyr,
+    purrr,
+    rmarkdown,
+    diagram
 RoxygenNote: 7.1.2
