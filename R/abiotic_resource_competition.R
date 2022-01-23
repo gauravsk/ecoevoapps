@@ -26,9 +26,12 @@ tilman_comp_essential <- function(time,init,params) {
 #' @export
 run_abiotic_comp_rstar <- function(params) {
 
-  if(!(all(names(init) %in% c("k11", "k12", "k21", "k22",
-                              "r1", "r2", "m1", "m2")))) {
-    stop("init should be a numeric vector of length 4, e.g. c(N1 = 10, N2 = 20, R1 = 20, R2 = 20)")
+  if(!(is.numeric(params))) stop("params should be a numeric vector")
+  if(!(all(c("S1", "S2", "r1", "r2", "k11", "k12",
+             "k21", "k22", "m1", "m2", "c11", "c12",
+             "c21", "c22", "a1", "a1") %in%
+           names(params)))) {
+    stop("Please provide a complete parameter vector (see ?run_abiotic_comp_model for details)")
   }
 
 
@@ -94,6 +97,17 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
   }
 
   deSolve::ode(func = tilman_comp_essential,
-               y = init, parms=params, times = time)
+               y = init, parms = params, times = time)
 }
 
+
+plot_abiotic_comp_species <- function(sim_df) {
+  sim_df_long <- pivot_longer(sim_df, c(R1,R2,N1,N2), "species") %>%
+    filter(species %in% c("N1","N2"))
+  ggplot(sim_df_long) +
+    geom_line(aes(x = time, y = value, color = species), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") +
+    ecoevoapps::theme_apps()
+
+}
