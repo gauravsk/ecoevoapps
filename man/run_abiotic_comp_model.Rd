@@ -6,7 +6,7 @@
 \usage{
 run_abiotic_comp_model(
   time = seq(0, 100, 0.1),
-  init = c(R1 = 20, R2 = 20, N1 = 10, N2 = 10),
+  init = c(N1 = 10, N2 = 10, R1 = 20, R2 = 20),
   params = c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1, k11 = 18, k12 = 4, k21 = 2, k22 = 14,
     m1 = 0.2, m2 = 0.2, c11 = 0.25, c12 = 0.08, c21 = 0.1, c22 = 0.2, a1 = 0.5, a2 = 0.5)
 )
@@ -28,7 +28,7 @@ Run the Tilman abiotic resource competition model
 # Define full time series, and run model in terms of carrying capacities
 # and relative competitive effects
 run_abiotic_comp_model(time = seq(0,100,0.1),
- init = c(R1 = 20, R2 = 20,N1 = 10, N2 = 10),
+ init = c(N1 = 10, N2 = 10, R1 = 20, R2 = 20),
  params = c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1,
 k11 = 18, k12 = 4, k21 = 2, k22 = 14,
 m1 = .2, m2 = .2,c11 = .25, c12 = .08,

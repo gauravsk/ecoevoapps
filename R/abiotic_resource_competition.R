@@ -56,15 +56,15 @@ run_abiotic_comp_rstar <- function(params) {
 #' # Define full time series, and run model in terms of carrying capacities
 #' # and relative competitive effects
 #' run_abiotic_comp_model(time = seq(0,100,0.1),
-#'  init = c(R1 = 20, R2 = 20,N1 = 10, N2 = 10),
+#'  init = c(N1 = 10, N2 = 10, R1 = 20, R2 = 20),
 #'  params = c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1,
 #' k11 = 18, k12 = 4, k21 = 2, k22 = 14,
 #' m1 = .2, m2 = .2,c11 = .25, c12 = .08,
 #' c21 = .1, c22 = .2, a1 = .5, a2 = .5))
 #' @export
 run_abiotic_comp_model <- function(time = seq(0,100,0.1),
-                                   init = c(R1 = 20, R2 = 20,
-                                            N1 = 10, N2 = 10),
+                                   init = c(N1 = 10, N2 = 10,
+                                            R1 = 20, R2 = 20),
                                    params = c(S1 = 12, S2 = 12,
                                               r1 = 1.6, r2 = 1,
                                               k11 = 18, k12 = 4,
@@ -100,14 +100,3 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
                y = init, parms = params, times = time)
 }
 
-
-plot_abiotic_comp_species <- function(sim_df) {
-  sim_df_long <- pivot_longer(sim_df, c(R1,R2,N1,N2), "species") %>%
-    filter(species %in% c("N1","N2"))
-  ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = species), size = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size") +
-    ecoevoapps::theme_apps()
-
-}

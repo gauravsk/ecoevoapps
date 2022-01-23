@@ -158,31 +158,33 @@ tilman_out <- reactive({
   ))
 })
 
-tilman_out_long <- reactive({
-  pivot_longer(tilman_out(), c(R1,R2,N1,N2), "species")
-})
 
 tilman_out_R1R2 <- reactive({
   ggplot(tilman_out()) +
   geom_segment(data = Rstar_df(), 
-               aes(x = R1star, xend = R1star, y = R2star, yend = Inf, color = species), size = 1.5) +
+               aes(x = R1star, xend = R1star, y = R2star,
+                   yend = Inf, color = species), size = 1.5) +
   geom_segment(data = Rstar_df(), 
-               aes(x = R1star, xend = Inf, y = R2star, yend = R2star, color = species), size = 1.5) +
+               aes(x = R1star, xend = Inf, y = R2star, 
+                   yend = R2star, color = species), size = 1.5) +
   geom_path(aes(x = R1, y = R2), size = 1) +
-    geom_point(data = tail(tilman_out(), 1), aes(x = R1, y = R2), size = 4, stroke = 2, shape = 21) + 
+    geom_point(data = tail(tilman_out(), 1), aes(x = R1, y = R2), 
+               size = 4, stroke = 2, shape = 21) + 
     xlab("Resource 1") + ylab("Resource 2") + 
   scale_color_brewer(name = "Consumer\nspecies", palette = "Set1") +
-  ecoevoapps::theme_apps() +
+  theme_apps() +
     theme(legend.position = "none")
 })
 
 tilman_out_N1N2 <- reactive({
-  tilman_out_long <- tilman_out_long() %>% dplyr::filter(species %in% c("N1", "N2"))
+  tilman_out_long <-  
+    pivot_longer(tilman_out(), c(R1,R2,N1,N2), "species") %>%
+    dplyr::filter(species %in% c("N1", "N2"))
   ggplot(tilman_out_long) +
   geom_line(aes(x = time, y = value, color = species), size = 2) +
   scale_color_brewer(palette = "Set1") +
   ylab("Population size") +
-  ecoevoapps::theme_apps()
+  theme_apps()
 })
 
 plot_out <- reactive({
