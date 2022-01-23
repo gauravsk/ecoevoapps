@@ -6,7 +6,6 @@ runtime: shiny
 ---
 
 ```{r, include = FALSE}
-developer <- "Gaurav Kandlikar (gaurav.kandlikar@gmail.com)"
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyr)
 library(kableExtra)
@@ -143,7 +142,7 @@ tilman_init <- reactive({
 })
 time <- reactive({seq(from = 0, to = input$time, by=.1)})
 
-Rstar_vec <- reactive({ecoevoapps::Rstar_essential(tilman_params())})
+Rstar_vec <- reactive({ecoevoapps::run_abiotic_comp_rstar(tilman_params())})
 Rstar_df <- reactive({
   Rstar_vec <- Rstar_vec()
   data.frame(species = c("N1", "N2"),
@@ -153,7 +152,7 @@ Rstar_df <- reactive({
 
 tilman_out <- reactive({
   to <- data.frame(deSolve::ode(func = ecoevoapps::tilman_comp_essential,
-                          y=tilman_init(), parms=tilman_params(), times = time()))
+                          y = tilman_init(), parms=tilman_params(), times = time()))
   to %>% dplyr::mutate_if(is.numeric, round, digits = 3)
 })
 
