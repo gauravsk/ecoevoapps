@@ -1,7 +1,11 @@
-#' Competition between two species for two essential resources
+#' Internal function for running the abiotic resource
+#' competition between two species and two essential resources
 #' @param time vector of time units over which to run model
-#' @param init initial population size of population
-#' @param params vector of parameters: intrinsic growth rate r for the resource, d1 and d2 for intrinsic mortality rate of sp1 and sp2; a1 and a2 for resource uptake rate of sp1 and sp2
+#' @param init initial population size of both species and both resources
+#' @param params vector of parameters:
+#' intrinsic growth rate r for the resource,
+#' d1 and d2 for intrinsic mortality rate of sp1 and sp2;
+#' a1 and a2 for resource uptake rate of sp1 and sp2
 tilman_comp_essential <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters/state variables:
@@ -33,7 +37,6 @@ run_abiotic_comp_rstar <- function(params) {
            names(params)))) {
     stop("Please provide a complete parameter vector (see ?run_abiotic_comp_model for details)")
   }
-
 
   R11 = unname(params["k11"] * params["m1"])/(params["r1"] - params["m1"])
   R12 = unlist(params["k12"] * params["m1"])/(params["r1"] - params["m1"])

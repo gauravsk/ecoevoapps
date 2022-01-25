@@ -2,17 +2,22 @@
 % Please edit documentation in R/abiotic_resource_competition.R
 \name{tilman_comp_essential}
 \alias{tilman_comp_essential}
-\title{Competition between two species for two essential resources}
+\title{Internal function for running the abiotic resource
+competition between two species and two essential resources}
 \usage{
 tilman_comp_essential(time, init, params)
 }
 \arguments{
 \item{time}{vector of time units over which to run model}
 
-\item{init}{initial population size of population}
+\item{init}{initial population size of both species and both resources}
 
-\item{params}{vector of parameters: intrinsic growth rate r for the resource, d1 and d2 for intrinsic mortality rate of sp1 and sp2; a1 and a2 for resource uptake rate of sp1 and sp2}
+\item{params}{vector of parameters:
+intrinsic growth rate r for the resource,
+d1 and d2 for intrinsic mortality rate of sp1 and sp2;
+a1 and a2 for resource uptake rate of sp1 and sp2}
 }
 \description{
-Competition between two species for two essential resources
+Internal function for running the abiotic resource
+competition between two species and two essential resources
 }
