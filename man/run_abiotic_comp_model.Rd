@@ -15,7 +15,9 @@ run_abiotic_comp_model(
 \item{time}{vector of time units over which to run model, starting from 0.
 `time` can also be supplied as just the total length of the simulation (i.e. tmax)}
 
-\item{init}{vector of initial population sizes for both species, with names N1 and N2}
+\item{init}{vector of initial population sizes for both species,
+with names N1 and N2, AND initial resource pool sizes for both resources,
+with names R1 and R2}
 
 \item{params}{vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`, `k12`,
 `k21`, `k22`, `m1`, `m2`, `c11`, `c12`,

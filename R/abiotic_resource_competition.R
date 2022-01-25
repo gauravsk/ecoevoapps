@@ -48,7 +48,9 @@ run_abiotic_comp_rstar <- function(params) {
 #' Run the Tilman abiotic resource competition model
 #' @param time vector of time units over which to run model, starting from 0.
 #' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
-#' @param init vector of initial population sizes for both species, with names N1 and N2
+#' @param init vector of initial population sizes for both species,
+#' with names N1 and N2, AND initial resource pool sizes for both resources,
+#' with names R1 and R2
 #' @param params vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`, `k12`,
 #' `k21`, `k22`, `m1`, `m2`, `c11`, `c12`,
 #' `c21`, `c22`, `a1`, `a1`)
@@ -61,6 +63,7 @@ run_abiotic_comp_rstar <- function(params) {
 #' k11 = 18, k12 = 4, k21 = 2, k22 = 14,
 #' m1 = .2, m2 = .2,c11 = .25, c12 = .08,
 #' c21 = .1, c22 = .2, a1 = .5, a2 = .5))
+#' @import deSolve
 #' @export
 run_abiotic_comp_model <- function(time = seq(0,100,0.1),
                                    init = c(N1 = 10, N2 = 10,
@@ -96,7 +99,7 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
     stop("Please provide a complete parameter vector (see ?run_abiotic_comp_model for details)")
   }
 
-  deSolve::ode(func = tilman_comp_essential,
+  ode(func = tilman_comp_essential,
                y = init, parms = params, times = time)
 }
 
