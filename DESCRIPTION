@@ -11,10 +11,23 @@ Authors@R:
              family = "Cowen",
              role = "aut",
              email = "mcowen@ucla.edu"),
+      person(given = "Kenji",
+             family = "Hayashi",
+             role = "aut",
+             email = "kthayashi@ucla.edu"),
       person(given = "Rosa",
              family = "McGuire",
              role = "aut",
-             email = "rmcguire1@ucla.edu"))
+             email = "rmcguire1@ucla.edu"),
+      person(given = "Xinyi",
+             family = "Yan",
+             role = "aut",
+             email = "xinyiyan@utexas.edu"),
+      person(given = "Marcel",
+             family = "Vaz",
+             role = "aut",
+             email = "marcelvaz@gmail.com")
+      )
 Maintainer: Gaurav Kandlikar <gkandlikar@missouri.edu>
 Description: A collection of Shiny apps for common models in 
     ecology and evolution. The package also includes functions 
