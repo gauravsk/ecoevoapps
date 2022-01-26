@@ -123,17 +123,7 @@ params <- reactive({
     a = input$alpha, b = input$beta)
 })
 
-# Compute equilibria
-sp1_equilibria <- reactive({
-  c((input$K1 - input$alpha*input$K2)/(1 - input$alpha*input$beta),
-    0, input$K1) %>%
-    round()
-})
-sp2_equilibria <- reactive({
-  c((input$K2 - input$beta*input$K1)/(1 - input$alpha*input$beta),
-    0, input$K2) %>%
-    round()
-})
+
 
 # Run lotka_volterra_competition function
 lvcomp_out <- reactive({
@@ -149,7 +139,7 @@ N_vs_Time <- reactive({
 # Plot ZNGIs with population trajectories
 ZNGI <- reactive({
   if ("ZNGI" %in% input$plots_to_show) {
-    plot_lvcomp_trajectory(lvcomp_out(), params = params())
+    plot_lvcomp_portrait(lvcomp_out(), params = params())
   } 
 })
 
@@ -322,17 +312,7 @@ params_wo_K <- reactive({
     a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
 })
 
-# Compute equilibria
-sp1_equilibria_wo_K <- reactive({
-  c((alpha22_wo_K() - alpha12_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
-    0, 1/alpha11_wo_K()) %>%
-    round()
-})
-sp2_equilibria_wo_K <- reactive({
-  c((alpha11_wo_K() - alpha21_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
-    0, 1/alpha22_wo_K()) %>%
-    round()
-})
+
 
 # Run lotka_volterra_competition_wo_K function
 lvcomp_out_wo_K <- reactive({
@@ -349,7 +329,7 @@ N_vs_Time_wo_K <- reactive({
 # Plot ZNGIs with population trajectories
 ZNGI_wo_K <- reactive({
   if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
-    plot_lvcomp_trajectory(lvcomp_out_wo_K(), params = params_wo_K())
+    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K())
   } 
 })
 

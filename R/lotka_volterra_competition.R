@@ -57,6 +57,7 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
 #' If carrying capacities are defined as `K1` and `K2`, interspecific competition
 #' should be defined as `a` and `b`; otherwise, `a12` and `a21`.
+#' @import deSolve
 #' @examples
 #' # Define full time series, and run model in terms of carrying capacities
 #' # and relative competitive effects
@@ -100,17 +101,17 @@ run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
 
   # If carrying capacity defined in terms of K1 and K2, use the lotka_volterra_competition fnc
   if("K1" %in% names(params)) {
-    deSolve::ode(func = lotka_volterra_competition,
-                 y = init, times = time, parms = params)
+    ode(func = lotka_volterra_competition,
+        y = init, times = time, parms = params)
   } else { # use the lotka_volterra_competition_wo_K fnc
-    deSolve::ode(func = lotka_volterra_competition_wo_K,
-                 y = init, times = time, parms = params)
+    ode(func = lotka_volterra_competition_wo_K,
+        y = init, times = time, parms = params)
   }
 }
 
 
 
-#' Generate a trajectory (N1 vs N2) plot for the Lotka-Volterra model
+#' Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
 #' @param sim_df data frame of lokta-volterra model simulation
 #' (created by run_lvcomp_model())
 #' @param params vector of model parameters
@@ -121,11 +122,11 @@ run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
 #' @examples
 #' params_vec = c(r1 = .5, r2 = .6, K1 = 1000, K2 = 1050, a = 0.5, b = 0.7)
 #' sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params = params_vec)
-#' plot_lvcomp_trajectory(sim_df, params_vec)
+#' plot_lvcomp_portrait(sim_df, params_vec)
 #' @import ggplot2
 #' @import dplyr
 #' @export
-plot_lvcomp_trajectory <- function(sim_df, params) {
+plot_lvcomp_portrait <- function(sim_df, params) {
 
   if("K1" %in% names(params)) {
     ZNGI_sp1 <- data.frame(x1 = 0, y1 = params["K1"]/params["a"],
@@ -141,7 +142,7 @@ plot_lvcomp_trajectory <- function(sim_df, params) {
 
   sim_df <- data.frame(sim_df)
 
-  traj_plot <-
+  potrait_plot <-
     ggplot(data = sim_df) +
     geom_segment(data = ZNGI_sp1,
                  aes(x = x1, y = y1, xend = xend1, yend = yend1,
@@ -166,7 +167,7 @@ plot_lvcomp_trajectory <- function(sim_df, params) {
     scale_y_continuous(expand = c(0, 0)) +
     theme_apps()
 
-  return(traj_plot)
+  return(potrait_plot)
 }
 
 
