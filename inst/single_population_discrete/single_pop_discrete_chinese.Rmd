@@ -139,7 +139,7 @@ cobweb_dl <- reactive({ggplot(dl_df()) +
     geom_vline(xintercept = input$K_dl, size = .2) +
     ylab(TeX("$N_{t+1}"))+
     xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")})
+    labs(title = "迭代图/蛛网图")})
 
 # Make plot caption ----
 plot_caption_dl <- reactive({
@@ -207,7 +207,7 @@ cobweb_ricker <- reactive({ggplot(ricker_df()) +
     geom_vline(xintercept = input$K_ricker, size = .2) +
     ylab(TeX("$N_{t+1}"))+
     xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")})
+    labs(title = "迭代图/蛛网图")})
 
 # Make plot caption ----
 plot_caption_ricker <- reactive({
@@ -277,7 +277,7 @@ cobweb_bh <- reactive({ggplot(bh_df()) +
     geom_vline(xintercept = input$K_bh, size = .2) + 
     ylab(TeX("$N_{t+1}"))+
     xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")})
+    labs(title = "迭代图/蛛网图")})
 
 # Make plot caption ----
 plot_caption_bh <- reactive({
