@@ -67,7 +67,7 @@ discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 #' @param time Number of time steps over which to project the model
 #' @examples
 #' run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
-#' @return A data frame with colums time and Nt
+#' @return A data frame with columns time and Nt
 #' @export
 run_discrete_logistic_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
 
@@ -106,7 +106,7 @@ bevertonholt_eqn <- function(Nt, Rd, K) (Rd*Nt)/(1+((Rd-1)/K)*Nt)
 #' @param time Number of time steps over which to project the model
 #' @examples
 #' run_beverton_holt_model(N0 = 1, K = 100, Rd = 1.01, time = 100)
-#' @return A data frame with colums time and Nt
+#' @return A data frame with columns time and Nt
 #' @export
 run_beverton_holt_model <- function(N0 = 1, K = 100, Rd = 1.01, time = 100) {
 
@@ -146,3 +146,28 @@ plot_discrete_population_growth <- function(sim_df) {
                fill = "white", stroke = .8 ) +
     theme_apps()
 }
+
+#
+# plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
+#
+#   if(!(model_type %in% c("discrete_logistic", "beverton_holt", "ricker"))) {
+#     stop("model_type should be one of 'discrete_logstic', 'beverton_holt' or 'ricker'")
+#   }
+#
+#   sim_df$Ntm1 <- dplyr::lag(sim_df$Nt)
+#
+#   ggplot(sim_df)  +
+#     stat_function(fun = function(x)
+#       ecoevoapps:::bevertonholt_eqn(x, Rd = params["rd"], K = params["K"]),
+#                   aes(x = seq(1, max(Nt)*1.05, length.out = nrow(sim_df)))) +
+#     geom_segment(aes(x =   Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.5, color = "red") +
+#   geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.5, color = "red") +
+#   # geom_abline(size = 0.2) +
+#     # geom_hline(yintercept = 100, size = .2) +
+#   # geom_vline(xintercept = 100, size = .2) +
+#   # ylab(TeX("$N_{t+1}"))+
+#   # xlab(TeX("$N_t$")) +
+#   labs(title = "Cobweb plot")
+#
+# }
+#
