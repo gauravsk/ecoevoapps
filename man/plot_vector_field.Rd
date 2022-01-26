@@ -19,3 +19,4 @@ a ggplot2 object
 \description{
 generates a vector field
 }
+\keyword{internal}
