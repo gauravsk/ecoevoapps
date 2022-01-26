@@ -15,6 +15,12 @@ run_beverton_holt_model(N0 = 1, K = 100, Rd = 1.01, time = 100)
 
 \item{time}{Number of time steps over which to project the model}
 }
+\value{
+A data frame with colums time and Nt
+}
 \description{
 Beverton Holt model
+}
+\examples{
+run_beverton_holt_model(N0 = 1, K = 100, Rd = 1.01, time = 100)
 }

@@ -15,6 +15,12 @@ run_ricker_model(N0 = 1, K = 100, r = 1.1, time = 100)
 
 \item{time}{Number of time steps over which to project the model}
 }
+\value{
+A data frame with colums time and Nt
+}
 \description{
 Ricker model of discrete population growth with a carrying capacity
+}
+\examples{
+run_ricker_model(N0 = 1, K = 100, r = 1.1, time = 100)
 }

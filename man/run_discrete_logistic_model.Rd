@@ -15,6 +15,12 @@ run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
 
 \item{time}{Number of time steps over which to project the model}
 }
+\value{
+A data frame with colums time and Nt
+}
 \description{
 Discrete logistic model
+}
+\examples{
+run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
 }

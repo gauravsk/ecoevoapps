@@ -2,6 +2,9 @@
 #' @param N0 initial population size of population
 #' @param lambda discrete population growth rate
 #' @param time Number of time steps over which to project the model
+#' @examples
+#' run_discrete_exponential(N0 = 1, lambda = 1.1, time = 100)
+#' @return A data frame with colums time and Nt
 #' @export
 run_discrete_exponential <- function(N0 = 1, lambda = 1.1, time = 100) {
   # Check that N0, lambda, and time are all single numbers
@@ -10,7 +13,9 @@ run_discrete_exponential <- function(N0 = 1, lambda = 1.1, time = 100) {
   if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
 
   to_return <- c(N0,N0*(lambda^(1:time)))
-  return(to_return)
+  to_return_df <- data.frame(time = 0:time,
+                             Nt = to_return)
+  return(to_return_df)
 }
 
 #' Equation that returns Nt+1 from Nt for the Ricker model
@@ -25,6 +30,9 @@ ricker_eqn <- function(Nt, r, K) Nt*exp(r*(1-Nt/K))
 #' @param K Carrying capacity
 #' @param r Population growth rate
 #' @param time Number of time steps over which to project the model
+#' @examples
+#' run_ricker_model(N0 = 1, K = 100, r = 1.1, time = 100)
+#' @return A data frame with colums time and Nt
 #' @export
 run_ricker_model <- function(N0 = 1, K = 100, r = 1.1, time = 100) {
   # Check that N0, K, r, and time are all single numbers
@@ -39,6 +47,9 @@ run_ricker_model <- function(N0 = 1, K = 100, r = 1.1, time = 100) {
     Nt <- to_return[current_time-1]
     to_return[current_time] <- ricker_eqn(Nt, r, K)
   }
+  to_return_df <- data.frame(time = 1:time,
+                             Nt = to_return)
+  return(to_return_df)
   return(to_return)
 }
 
@@ -54,6 +65,9 @@ discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 #' @param K Carrying capacity
 #' @param rd Discrete growth factor
 #' @param time Number of time steps over which to project the model
+#' @examples
+#' run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
+#' @return A data frame with colums time and Nt
 #' @export
 run_discrete_logistic_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
 
@@ -70,6 +84,10 @@ run_discrete_logistic_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
     Nt <- to_return[current_time-1]
     to_return[current_time] <-discretelogistic_eqn(Nt, rd, K)
   }
+  to_return_df <- data.frame(time = 1:time,
+                             Nt = to_return)
+  return(to_return_df)
+
   return(to_return)
 
 }
@@ -86,6 +104,9 @@ bevertonholt_eqn <- function(Nt, Rd, K) (Rd*Nt)/(1+((Rd-1)/K)*Nt)
 #' @param K Carrying capacity
 #' @param Rd population growth rate
 #' @param time Number of time steps over which to project the model
+#' @examples
+#' run_beverton_holt_model(N0 = 1, K = 100, Rd = 1.01, time = 100)
+#' @return A data frame with colums time and Nt
 #' @export
 run_beverton_holt_model <- function(N0 = 1, K = 100, Rd = 1.01, time = 100) {
 
@@ -101,6 +122,8 @@ run_beverton_holt_model <- function(N0 = 1, K = 100, Rd = 1.01, time = 100) {
     Nt <- to_return[current_time-1]
     to_return[current_time] <- bevertonholt_eqn(Nt, Rd, K)
   }
-  return(to_return)
+  to_return_df <- data.frame(time = 1:time,
+                             Nt = to_return)
+  return(to_return_df)
 
 }
