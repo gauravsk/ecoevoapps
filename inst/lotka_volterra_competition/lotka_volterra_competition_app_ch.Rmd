@@ -100,22 +100,9 @@ sidebarLayout(
     numericInput(inputId = "N2", 
                  label = "物种2的起始种群规模",
                  min = 1, value = 70),
-    
-    # Radio buttons for chossing simulation length
-    radioButtons(inputId = "run_time", 
-                 label = "选择:", 
-                 choices = c("运行特定的时长" = "run_spec",
-                             "运行至平衡" = "run_to_eq"),
-                 selected = "run_spec"),
-    
-    # Conditional panel for inputting simulation length
-    conditionalPanel(
-      condition = "input.run_time == 'run_spec'",
-      # User-defined length of simulation
-      numericInput(inputId = "max_time", 
-                   label = "模拟时长",
-                   min = 1, value = 100)
-    )
+    numericInput(inputId = "max_time", 
+                 label = "模拟时长",
+                 min = 1, value = 100)
   ),
   
   # Panel of plots
@@ -136,107 +123,24 @@ params <- reactive({
     a = input$alpha, b = input$beta)
 })
 
-# Compute equilibria
-sp1_equilibria <- reactive({
-  c((input$K1 - input$alpha*input$K2)/(1 - input$alpha*input$beta),
-    0, input$K1) %>%
-    round()
-})
-sp2_equilibria <- reactive({
-  c((input$K2 - input$beta*input$K1)/(1 - input$alpha*input$beta),
-    0, input$K2) %>%
-    round()
-})
+
 
 # Run lotka_volterra_competition function
 lvcomp_out <- reactive({
-  if (input$run_time == "run_spec") {
-    ecoevoapps::run_lvcomp_model(time = time(), init = init(), params = params()) %>% 
+  run_lvcomp_model(time = time(), init = init(), params = params()) %>% 
     data.frame()
-  } else if (input$run_time == "run_to_eq") {
-    runs <- 100
-    run_seq <- seq(from = 0, to = runs, by = 0.1)
-    lvcomp_iter <-
-      ecoevoapps::run_lvcomp_model(time = run_seq, init = init(), params = params()) %>% 
-      data.frame()
-    if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
-        round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
-      equilibrium <- TRUE
-    } else {
-      equilibrium <- FALSE
-      runs <- runs + 100
-      run_seq <- seq(from = 0, to = runs, by = 0.1)
-    }
-    while (equilibrium == FALSE) {
-      lvcomp_iter <- 
-        ecoevoapps::run_lvcomp_model(time = run_seq, init = init(), params = params()) %>% 
-        data.frame()
-      if (round(last(lvcomp_iter$N1)) %in% sp1_equilibria() &
-          round(last(lvcomp_iter$N2)) %in% sp2_equilibria()) {
-        equilibrium <- TRUE
-      } else {
-          runs <- runs + 100
-          run_seq <- seq(from = 0, to = runs, by = 0.1)
-        }
-    }
-    lvcomp_iter
-  }
-})
-
-# Convert data to long format
-lvcomp_out_long <- reactive({
-  pivot_longer(data = lvcomp_out(), cols = c(N1, N2), names_to = "species")
 })
 
 # Plot N vs time for both species
-N_vs_Time <- reactive({ 
-  if ("N_vs_Time" %in% input$plots_to_show) {
-    ggplot(data = lvcomp_out_long()) +
-      geom_line(aes(x = time, y = value, color = species), size = 2) +
-      scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
-      labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, 1.1*max(c(input$K1, input$K2, input$N1, input$N2))),
-                      expand = FALSE,
-                      clip = "off")
-  }
+N_vs_Time <- reactive({
+  plot_lvcomp_time(lvcomp_out()) 
 })
 
 # Plot ZNGIs with population trajectories
-# First create data frames for ZNGI starting/ending points
-ZNGI_sp1 <- reactive({ 
-  data.frame(x1 = 0, y1 = input$K1/input$alpha, xend1 = input$K1, yend1 = 0) 
-})
-ZNGI_sp2 <- reactive({ 
-  data.frame(x2 = 0, y2 = input$K2, xend2 = input$K2/input$beta, yend2 = 0) 
-})
-
-# Now create plot
-ZNGI <- reactive({ 
+ZNGI <- reactive({
   if ("ZNGI" %in% input$plots_to_show) {
-    ggplot(data = lvcomp_out()) +
-      geom_segment(data = ZNGI_sp1(),
-                   aes(x = x1, y = y1, xend = xend1, yend = yend1, 
-                       color = "Species 1"), size = 2) +
-      geom_segment(data = ZNGI_sp2(),
-                   aes(x = x2, y = y2, xend = xend2, yend = yend2, 
-                       color = "Species 2"), size = 2) +
-      scale_color_manual(values = brewer.pal(3, name = "Set1"), 
-                         labels = c("Species 1", "Species 2")) +
-      geom_path(aes(x = N1, y = N2), size = 1) +
-      geom_point(x = input$N1, y = input$N2, pch = 21, size = 3, fill = "black") +
-      geom_point(x = last(lvcomp_out()$N1), y = last(lvcomp_out()$N2), 
-                 pch = 21, size = 3, fill = "white", stroke = 1) +
-      geom_segment(x = lvcomp_out()$N1[round(nrow(lvcomp_out())/4)],
-                   y = lvcomp_out()$N2[round(nrow(lvcomp_out())/4)],
-                   xend = lvcomp_out()$N1[round(nrow(lvcomp_out())/4) + 1],
-                   yend = lvcomp_out()$N2[round(nrow(lvcomp_out())/4) + 1],
-                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
-      coord_cartesian(xlim = c(0, 1.1*max(c(input$K1, input$N1, input$K2/input$beta))),
-                      ylim = c(0, 1.1*max(c(input$K2, input$N2, input$K1/input$alpha))),
-                      expand = FALSE,
-                      clip = "off")
-  }
+    plot_lvcomp_portrait(lvcomp_out(), params = params())
+  } 
 })
 
 # Make a list of plots to print based on user request
@@ -354,22 +258,10 @@ sidebarLayout(
     numericInput(inputId = "N2_wo_K",
                  label = "物种2的起始种群规模",
                  min = 1, value = 70),
-    
-    # Radio buttons for choosing simulation length
-    radioButtons(inputId = "run_time_wo_K",
-                 label = "选择:",
-                 choices = c("运行特定的时长" = "run_spec",
-                             "运行至平衡" = "run_to_eq"),
-                 selected = "run_spec"),
-    
-    # Conditional panel for inputting simulation length
-    conditionalPanel(
-      condition = "input.run_time_wo_K == 'run_spec'",
-      # User-defined length of simulation
-      numericInput(inputId = "max_time_wo_K",
-                   label = "模拟时长",
-                   min = 1, value = 100)
-    )
+
+    numericInput(inputId = "max_time_wo_K",
+                 label = "模拟时长",
+                 min = 1, value = 100)
   ),
   
   # Panel of plots 
@@ -420,111 +312,25 @@ params_wo_K <- reactive({
     a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
 })
 
-# Compute equilibria
-sp1_equilibria_wo_K <- reactive({
-  c((alpha22_wo_K() - alpha12_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
-    0, 1/alpha11_wo_K()) %>%
-    round()
-})
-sp2_equilibria_wo_K <- reactive({
-  c((alpha11_wo_K() - alpha21_wo_K())/(alpha11_wo_K()*alpha22_wo_K() - alpha12_wo_K()*alpha21_wo_K()),
-    0, 1/alpha22_wo_K()) %>%
-    round()
-})
+
 
 # Run lotka_volterra_competition_wo_K function
 lvcomp_out_wo_K <- reactive({
-  if (input$run_time_wo_K == "run_spec") {
-    ecoevoapps::run_lvcomp_model(time = time_wo_K(), 
-                                init = init_wo_K(), params = params_wo_K()) %>% 
-      data.frame()
-  } else if (input$run_time_wo_K == "run_to_eq") {
-    runs_wo_K <- 100
-    run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
-    lvcomp_iter_wo_K <- 
-      ecoevoapps::run_lvcomp_model(time = run_seq_wo_K, 
-                                  init = init_wo_K(), params = params_wo_K()) %>% 
-
-      data.frame()
-    if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
-        round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
-      equilibrium_wo_K <- TRUE
-    } else {
-          equilibrium_wo_K <- FALSE
-          runs_wo_K <- runs_wo_K + 100
-          run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
-    }
-    while (equilibrium_wo_K == FALSE) {
-      lvcomp_iter_wo_K <- 
-        ecoevoapps::run_lvcomp_model(time = run_seq_wo_K, 
-                                    init = init_wo_K(), params = params_wo_K()) %>% 
-      data.frame()
-      if (round(last(lvcomp_iter_wo_K$N1)) %in% sp1_equilibria_wo_K() &
-          round(last(lvcomp_iter_wo_K$N2)) %in% sp2_equilibria_wo_K()) {
-        equilibrium_wo_K <- TRUE
-      } else {
-        runs_wo_K <- runs_wo_K + 100
-        run_seq_wo_K <- seq(from = 0, to = runs_wo_K, by = 0.1)
-      }
-    }
-    lvcomp_iter_wo_K
-  }
-})
-
-# Convert data to long format
-lvcomp_out_long_wo_K <- reactive({
-  pivot_longer(data = lvcomp_out_wo_K(), cols = c(N1, N2), names_to = "species")
+  run_lvcomp_model(time = time_wo_K(), 
+                   init = init_wo_K(), params = params_wo_K()) %>% 
+    data.frame()
 })
 
 # Plot N vs time for both species
 N_vs_Time_wo_K <- reactive({
-  if ("N_vs_Time_wo_K" %in% input$plots_to_show_wo_K) {
-    ggplot(data = lvcomp_out_long_wo_K()) +
-      geom_line(aes(x = time, y = value, color = species), size = 2) +
-      scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
-      labs(x = "Time", y = "Population size (N)", color = "Species") +
-      coord_cartesian(ylim = c(0, 1.1*max(c(1/alpha11_wo_K(), 1/alpha22_wo_K(),
-                                        input$N1_wo_K, input$N2_wo_K))),
-                      expand = FALSE, clip = "off")
-  }
+  plot_lvcomp_time(lvcomp_out_wo_K()) 
 })
 
 # Plot ZNGIs with population trajectories
-# First create data frames for ZNGI starting/ending points
-ZNGI_sp1_wo_K <- reactive({
-  data.frame(x1 = 0, y1 = 1/alpha12_wo_K(), xend1 = 1/alpha11_wo_K(), yend1 = 0)
-})
-ZNGI_sp2_wo_K <- reactive({
-  data.frame(x2 = 0, y2 = 1/alpha22_wo_K(), xend2 = 1/alpha21_wo_K(), yend2 = 0)
-})
-
-# Now create plot
 ZNGI_wo_K <- reactive({
   if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
-    ggplot(data = lvcomp_out_wo_K()) +
-      geom_segment(data = ZNGI_sp1_wo_K(),
-                   aes(x = x1, y = y1, xend = xend1, yend = yend1,
-                       color = "Species 1"), size = 2) +
-      geom_segment(data = ZNGI_sp2_wo_K(),
-                   aes(x = x2, y = y2, xend = xend2, yend = yend2,
-                       color = "Species 2"), size = 2) +
-      scale_color_manual(values = brewer.pal(3, name = "Set1"),
-                         labels = c("Species 1", "Species 2")) +
-      geom_path(aes(x = N1, y = N2), size = 1) +
-      geom_point(x = input$N1_wo_K, y = input$N2_wo_K, pch = 21, size = 3, fill = "black") +
-      geom_point(x = last(lvcomp_out_wo_K()$N1), y = last(lvcomp_out_wo_K()$N2),
-                 pch = 21, size = 3, fill = "white", stroke = 1) +
-      geom_segment(x = lvcomp_out_wo_K()$N1[round(nrow(lvcomp_out_wo_K())/4)],
-                   y = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4)],
-                   xend = lvcomp_out_wo_K()$N1[round(nrow(lvcomp_out_wo_K())/4) + 1],
-                   yend = lvcomp_out_wo_K()$N2[round(nrow(lvcomp_out_wo_K())/4) + 1],
-                   arrow = arrow(length = unit(0.15, "inches"), type = "open")) +
-      labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
-      coord_cartesian(xlim = c(0, 1.1*max(c(1/alpha11_wo_K(), input$N1_wo_K, 1/alpha21_wo_K()))),
-                      ylim = c(0, 1.1*max(c(1/alpha22_wo_K(), input$N2_wo_K, 1/alpha12_wo_K()))),
-                      expand = FALSE,
-                      clip = "off")
-  }
+    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K())
+  } 
 })
 
 # Make a list of plots to print based on user request
