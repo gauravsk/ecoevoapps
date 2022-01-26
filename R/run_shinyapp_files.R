@@ -1,9 +1,32 @@
-#'Launch the single population dynamics in continuous time app
+#' Run the shiny apps for various models
+#'
+#' @param language Two-letter vector indicating the language
+#' For most models, apps are available in at least
+#' three languages out of the following options:
+#' english (\code{language = "en"}), spanish (\code{language = "es"}),
+#' chinese (\code{language = "ch"}), turkish (\code{language = "tk"}),
+#' and portuguese (\code{language = "pt"}).
+#' @import rmarkdown
+#' @name shiny_XXX
+NULL
+#> NULL
+
+#' @rdname shiny_XXX
 #' @export
-shiny_singlepop_continuous <- function() {
+shiny_singlepop_continuous <- function(language = "en") {
+
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+              (language %in% c("en", "tk", "ch")))
+
+  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population/single_population_app_en.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "tk" ~ system.file("single_population/single_population_app_tk.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "ch" ~ system.file("single_population/single_population_app_ch.Rmd",
+                                                               package =  "ecoevoapps"))
+
   rmarkdown::run(
-    file = system.file("single_population/single_populations_app.Rmd",
-                       package =  "ecoevoapps"),
+    file = file_path,
     default_file = NULL,
     auto_reload = TRUE,
     shiny_args = NULL,
@@ -11,12 +34,22 @@ shiny_singlepop_continuous <- function() {
   )
 }
 
-#'Launch the single population dynamics in discrete time app
+#' @rdname shiny_XXX
 #' @export
-shiny_singlepop_discrete <- function() {
+shiny_singlepop_discrete <- function(language = "en") {
+
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+            (language %in% c("en", "es", "ch")))
+
+  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population_discrete/single_pop_discrete_app_en.Rmd",
+                                                         package =  "ecoevoapps"),
+                           language == "es" ~ system.file("single_population_discrete/single_pop_discrete_app_es.Rmd",
+                                                          package =  "ecoevoapps"),
+                           language == "ch" ~ system.file("single_population_discrete/single_pop_discrete_app_ch.Rmd",
+                                                          package =  "ecoevoapps"))
+
   rmarkdown::run(
-    file = system.file("single_population_discrete/single_pop_discrete_app.Rmd",
-                       package =  "ecoevoapps"),
+    file = file_path,
     default_file = NULL,
     auto_reload = TRUE,
     shiny_args = NULL,
@@ -24,7 +57,7 @@ shiny_singlepop_discrete <- function() {
   )
 }
 
-#'Launch the Lotka-Voterra competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_lvcompetition <- function() {
   rmarkdown::run(
@@ -37,7 +70,7 @@ shiny_lvcompetition <- function() {
   )
 }
 
-#'Launch the consumer-resource dynamics app
+#' @rdname shiny_XXX
 #' @export
 shiny_consumer_resource <- function() {
   rmarkdown::run(
@@ -50,7 +83,7 @@ shiny_consumer_resource <- function() {
   )
 }
 
-#'Launch the biotic resource competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_biotic_comp <- function() {
   rmarkdown::run(
@@ -65,7 +98,7 @@ shiny_biotic_comp <- function() {
 
 
 
-#'Launch the infectious diseases models app
+#' @rdname shiny_XXX
 #' @export
 shiny_infectious_disease <- function() {
   rmarkdown::run(
@@ -78,7 +111,7 @@ shiny_infectious_disease <- function() {
   )
 }
 
-#'Launch the metapopulation dynamics app
+#' @rdname shiny_XXX
 #' @export
 shiny_metapopulation <- function() {
   rmarkdown::run(
@@ -91,7 +124,7 @@ shiny_metapopulation <- function() {
   )
 }
 
-#' Launch the structured population growth app
+#' @rdname shiny_XXX
 #' @export
 shiny_structured_pop <- function() {
   rmarkdown::run(
@@ -105,12 +138,26 @@ shiny_structured_pop <- function() {
 }
 
 
-#' Launch the island biogeography app
+#' @rdname shiny_XXX
 #' @export
-shiny_island_biogeo <- function() {
+shiny_island_biogeo <- function(language = "en") {
+
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+              (language %in% c("en", "es", "ch", "tk", "pt")))
+
+  file_path <- dplyr::case_when(language == "en" ~ system.file("ibiogeo/ibiogeo_app_en.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "es" ~ system.file("ibiogeo/ibiogeo_app_es.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "ch" ~ system.file("ibiogeo/ibiogeo_app_ch.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "pt" ~ system.file("ibiogeo/ibiogeo_app_pt.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "tk" ~ system.file("ibiogeo/ibiogeo_app_tk.Rmd",
+                                                               package =  "ecoevoapps"))
+
   rmarkdown::run(
-    file = system.file("ibiogeo/island_biogeo_app.Rmd",
-                       package =  "ecoevoapps"),
+    file = file_path,
     default_file = NULL,
     auto_reload = TRUE,
     shiny_args = NULL,
@@ -118,7 +165,7 @@ shiny_island_biogeo <- function() {
   )
 }
 
-#' Launch the abiotic resource competition app
+#' @rdname shiny_XXX
 #' @export
 shiny_abiotic_comp <- function() {
   rmarkdown::run(
@@ -131,7 +178,7 @@ shiny_abiotic_comp <- function() {
   )
 }
 
-#' Launch the Smith-Fretwell app
+#' @rdname shiny_XXX
 #' @export
 shiny_smith_fretwell <- function() {
   rmarkdown::run(

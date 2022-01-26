@@ -1,0 +1,113 @@
+---
+title: "Biogeografia de ilhas"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) |  [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) |  [English](https://ecoevoapps.shinyapps.io/island_biogeography) | português |  [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_tk)  ***
+
+
+
+A teoria de biogeografia de ilhas (TBI) foi proposta inicialmente por [Robert MacArthur e E. O. Wilson em 1964](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x) e depois expandida com a publicação do livro "[A teoria de biogeografia de ilhas](https://pt.wikipedia.org/wiki/Biogeografia_insular)" em 1967. A TBI apresentou pela primeira vez uma abordagem quantitativa, e portanto preditiva, que busca explicar a biodiversidade em sistemas insulares. A TBI deriva da ideia de que imigração e extinção - dois processos fundamentais que determinam a diversidade de espécies em ilhas - variam de forma previsível nesse sistema. Isto é, assume-se que quanto mais próxima uma ilha estiver do continente (fonte de propágulos), maior será a probabilidade de uma espécie conseguir migrar para essa ilha, e portanto, maior a taxa de imigração para a ilha. De modo similar, a TBI assume que o tamanho da ilha influencia a taxa de extinção dentro da ilha: quanto maior a ilha, maiores as populações das espécies que lá vivem e, portanto, menores as chances de extinção dessas espécies. A combinação desses dois processos (imigração e extinção) levará a um equilíbrio dinâmico em que o número total de espécies na ilha se torna constante ao longo do tempo, embora a composição de espécies esteja sempre mudando. O número de espécies presentes em uma ilha em equilíbrio, portanto, pode ser predito tanto pelo tamanho da ilha, quanto pela distância entre essa ilha e o continente. Essa idéia pôde ser testada e corroborada já em 1969, através de experimentos com pequenas ilhas de manguezal na costa da Flórida ([Simberloff & Wilson, 1969](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)). Apesar de originalmente focar em ilhas oceânicas, a teoria pode ser aplicada a diversos sistemas descontínuos como lagoas, fragmentos florestais e até na propagação de doenças. A TBI foi particularmente importante no desenvolvimento de uma então incipiente disciplina: a Biologia da Conservação ([Diamond et al. 1976](https://www.jstor.org/stable/1742652)). Uma revisão mais recente foi lançada em comemoração aos 50 anos da TBI por [Whittaker e colaboradores (2017)](https://science.sciencemag.org/content/357/6354/eaam8326).
+
+
+Taxa de extinção na ilha:
+$$E = e^{\frac{kS}{A}}-1$$
+Taxa de migração entre o continente e a ilha:
+$$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
+Número de espécies em uma ilha em equilíbrio:
+$$S_{eq} = \frac{AM}{D+A}$$
+
+onde:
+
+- $D$ é a distância entre a ilha e o continente, em km;  
+- $A$ é a área da ilha, em km^2;
+- $M$ é o número total de espécies no continente;
+- $k$ é apenas uma constante escalar arbitrária (k = 0.15 neste aplicativo).
+
+
+
+```{r, include = F}
+library(ggplot2)
+library(dplyr)
+library(ecoevoapps)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+# source("functions.R")
+source("ibiogeo_constants.R")
+```
+
+```{r app-pt}
+sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "D1_pt",
+                        label = HTML("D<sub>A</sub> (distância entre a ilha A e o continente)
+"),
+                        min = 1,
+                        max = 8,
+                        value = 1),
+            sliderInput(inputId = "D2_pt",
+                        label = HTML("D<sub>B</sub> (distância entre a ilha B e o continente)"),
+                        min = 1,
+                        max = 8,
+                        value = 4),            
+            sliderInput(inputId = "A1_pt",
+                        label = HTML("A<sub>A</sub> (área territorial da ilha A)"),
+                        min = .1,
+                        max = 4,
+                        value = 1),
+            sliderInput(inputId = "A2_pt",
+                        label = HTML("A<sub>B</sub> (área territorial da ilha B)"),
+                        min = .1,
+                        max = 4,
+                        value = .5),
+            sliderInput(inputId = "M_pt",
+                        label = "M (número de espécies no continente)",
+                        min = 1,
+                        max = 100,
+                        value = 100),
+            width=4),
+        mainPanel(
+            renderPlot({plot_to_print_pt()}, width = 400, height = 600)
+        )
+)
+
+Dvec_pt <- reactive({c(input$D1_pt, input$D2_pt)})
+Avec_pt <- reactive({c(input$A1_pt, input$A2_pt)})
+plots_pt <- reactive({
+  ecoevoapps::run_ibiogeo_model(D = Dvec_pt(), A = Avec_pt(), M=input$M_pt, k=0.015)
+})
+
+map_pt <- reactive({plots_pt()$map} + 
+  ylab("Distância entre ilha e continente (km)"))
+eq_plot_pt <- reactive({plots_pt()$eq_plot} +
+  ylab("Taxa de imigração/extinção (espécies por ano)") + 
+    xlab("\nNúmero de espécies na ilha")) 
+
+plot_to_print_pt <- reactive({
+  map_pt() / eq_plot_pt()
+})
+
+```
+
+
+### referências 
+
+"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", Macarthur and Wilson 1964.  
+
+"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)", Macarthur and Wilson 1967. 
+
+"[Experimental Zoogeography of Islands: The Colonization of Empty Islands](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)", Simberloff and Wilson 1969.  
+
+"[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
+
+"[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+

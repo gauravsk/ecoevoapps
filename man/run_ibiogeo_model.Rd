@@ -2,7 +2,7 @@
 % Please edit documentation in R/ibiogeo_functions.R
 \name{run_ibiogeo_model}
 \alias{run_ibiogeo_model}
-\title{equilibrium extinction rate for Island Biogeography model}
+\title{Runs the island biogeography model.}
 \usage{
 run_ibiogeo_model(D = c(1, 4), A = c(1, 0.5), k = 0.015, M = 100)
 }
@@ -15,6 +15,15 @@ run_ibiogeo_model(D = c(1, 4), A = c(1, 0.5), k = 0.015, M = 100)
 
 \item{M}{species richness of mainland}
 }
+\value{
+Two ggplot objects: first, plot showing the equilibrium diversity of each island;
+ second, a "map" illustrating island size and distance from mainland.
+}
 \description{
-equilibrium extinction rate for Island Biogeography model
+The function takes as inputs the size of two islands as well as their
+distance to the mainland, and uses these paramters to illustrate the equilibrium
+diversity of two islands.
+}
+\examples{
+run_ibiogeo_model(D = c(1,4), A = c(1,0.5))
 }

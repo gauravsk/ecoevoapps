@@ -14,3 +14,4 @@ ibiogeo_Ex(D, A, M, k)
 \description{
 equilibrium extinction rate for Island Biogeography model
 }
+\keyword{internal}

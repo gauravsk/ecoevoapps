@@ -102,7 +102,6 @@ lagged_logistic_growth <- function(time, init, params) {
 #' @export
 run_logistic_model <- function(time, init, params) {
 
-
   # Run checks on user inputs
 
   # Check how time has been defined (if just Tmax, then make vector)

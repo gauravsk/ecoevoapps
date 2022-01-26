@@ -18,3 +18,4 @@ ibiogeo_I(S, D, M, k)
 \description{
 Immigration rate for Island Biogeography model
 }
+\keyword{internal}

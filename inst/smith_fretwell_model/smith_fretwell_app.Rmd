@@ -31,7 +31,7 @@ xlabs <- seq(0,xmax, length.out = 6)
 xlabn <- round(Ip/xlabs)
 xlabvec <- paste0(xlabs, "\n\n", xlabn)
 
-(fitness_isoclines <- 
+fitness_isoclines <- 
   ggplot(data = df2) +
   scale_x_continuous(limits = c(0, 25*1.05), expand = c(0,0), 
                      breaks = xlabs, 
@@ -52,7 +52,7 @@ xlabvec <- paste0(xlabs, "\n\n", xlabn)
         axis.title = element_text(size = 10),
         plot.margin = margin(l =100, r = 20, t = 5, unit = "pt")) +
   NULL
-)
+
 
 # Define the variables for the particular curve
 Iymin <- 3

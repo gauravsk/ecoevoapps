@@ -4,7 +4,7 @@
 \alias{run_discrete_exponential}
 \title{Discrete exponential growth model}
 \usage{
-run_discrete_exponential(N0, lambda, time)
+run_discrete_exponential(N0 = 1, lambda = 1.1, time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}

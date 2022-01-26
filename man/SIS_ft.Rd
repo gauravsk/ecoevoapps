@@ -11,7 +11,8 @@ SIS_ft(time, init, params)
 
 \item{init}{initial population size of population}
 
-\item{params}{vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)}
+\item{params}{vector of beta (infection rate), m (natural birth/death rate),
+and gamma (recovery rate)}
 }
 \description{
 SIS model with vital rates and frequency-dependent transmission

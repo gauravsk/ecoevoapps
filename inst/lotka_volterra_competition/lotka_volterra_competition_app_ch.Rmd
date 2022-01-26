@@ -1,0 +1,359 @@
+---
+title: "Lotka-Volterra 种群竞争模型"
+output: html_document
+runtime: shiny
+---
+
+***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)** | Turkish | português *
+
+
+```{r setup, include=FALSE}
+library(ecoevoapps)
+library(deSolve)
+library(tidyverse)
+library(patchwork)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+knitr::opts_chunk$set(echo=FALSE)
+theme_set(ecoevoapps::theme_apps())
+```
+
+Lotka-Volterra 竞争方程描述了两个彼此竞争食物、空间、及其他资源的物种，和两者之间的动态。该模型基于以下理念：当一个物种的族群数量增加时，它会开始受限于同物种个体之间的竞争（种内竞争），以及其他物种的竞争（种间竞争）。许多生物学的教科书及网站都有该模型的详细描述。
+
+经典的Lotka-Volterra竞争模型有多种构建方法。其中的主要方法是用各物种的环境承载力($K_1$和$K_2$)和相对种间竞争强度（$\alpha$和$\beta$）来描述竞争。下文第一个选项卡中的模型即使用了这种构建。而Peter Chesson在他发表于2000年的经典论文["Mechanisms of Maintenance of Speices Diversity"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf)中则提倡使用各物种的绝对竞争系数来描述Lotka-Volterra竞争方程。该模型构建可详见下文的第二个选项卡。
+
+# {.tabset}
+
+## 使用环境承载力和相对种间竞争强度的模型
+
+使用环境承载力,Lotka-Volterra竞争方程可表述为：
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
+
+```{r parameter descriptions}
+pars_vars <- c("$r_1$", 
+               "$r_2$", 
+               "$N_1$", 
+               "$N_2$", 
+               "$K_1$", 
+               "$K_2$", 
+               "$\\alpha$", 
+               "$\\beta$")
+descriptions <- c("物种1的自然生长率（intrinsic growth rate）",
+                 "物种2的自然生长率",
+                 "物种1的族群规模",
+                 "物种2的族群规模",
+                 "物种1的环境承载力",
+                 "物种2的环境承载力",
+                 "物种2对于物种1的相对人均效应（relative per capita effect）",
+                 "物种1对于物种2的相对人均效应")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+零增长等斜线 (求解 $N_2$):
+$$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
+$$N_2 = -\beta N_1 + K_2$$
+
+---
+
+```{r Lotka-Volterra Competition with carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow user to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show",
+                       label = "勾选以展示图表",
+                       choices = c("N vs. Time" = "N_vs_Time", 
+                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
+                       selected = c("N_vs_Time")),
+    
+    hr(),
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1", 
+                label = HTML("r<sub>1</sub>: 物种1的自然增长率"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2", 
+                label = HTML("r<sub>2</sub>: 物种2的自然增长率"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    numericInput(inputId = "K1", 
+                 label = HTML("K<sub>1</sub>: 物种1的环境承载力"),
+                 min = 1, value = 300),
+    numericInput(inputId = "K2", 
+                 label = HTML("K<sub>2</sub>: 物种2的环境承载力"),
+                 min = 1, value = 200),
+    sliderInput(inputId = "alpha", 
+                label = HTML("&alpha;: 物种2对物种1的相对影响"),
+                min = 0.01, max = 2, value = 0.3, step = 0.01),
+    sliderInput(inputId = "beta", 
+                label = HTML("&beta;: 物种1对物种2的相对影响"),
+                min = 0.01, max = 2, value = 0.2, step = 0.01),
+    # User-defined initial values
+    numericInput(inputId = "N1", 
+                 label = "物种1的起始种群规模",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2", 
+                 label = "物种2的起始种群规模",
+                 min = 1, value = 70),
+    numericInput(inputId = "max_time", 
+                 label = "模拟时长",
+                 min = 1, value = 100)
+  ),
+  
+  # Panel of plots
+  mainPanel(
+    renderPlot(N_vs_Time(), width = 600, height = 500),
+      renderPlot(ZNGI(), width = 600, height = 500))
+)
+
+# Get user-defined parameters
+init <- reactive({
+  c(N1 = input$N1, N2 = input$N2)
+})
+time <- reactive({
+  seq(from = 0, to = input$max_time, by = 0.1)
+})
+params <- reactive({
+  c(r1 = input$r1, r2 = input$r2, K1 = input$K1, K2 = input$K2, 
+    a = input$alpha, b = input$beta)
+})
+
+
+
+# Run lotka_volterra_competition function
+lvcomp_out <- reactive({
+  run_lvcomp_model(time = time(), init = init(), params = params()) %>% 
+    data.frame()
+})
+
+# Plot N vs time for both species
+N_vs_Time <- reactive({
+  plot_lvcomp_time(lvcomp_out()) 
+})
+
+# Plot ZNGIs with population trajectories
+ZNGI <- reactive({
+  if ("ZNGI" %in% input$plots_to_show) {
+    plot_lvcomp_portrait(lvcomp_out(), params = params())
+  } 
+})
+
+# Make a list of plots to print based on user request
+plot_list <- reactive({ 
+  list(N_vs_Time(), ZNGI()) %>%
+    discard(is.null)
+  })
+
+plots_to_print <- reactive({ 
+  wrap_plots(plot_list(), ncol = 1)
+  })
+```
+
+## 使用绝对竞争系数的模型
+
+若不使用环境承载力，则Lotka-Volterra竞争方程可写为：
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \alpha_{22}N_2 - \alpha_{21}N_1\right)$$
+
+```{r parameter descriptions w/o carrying capacity}
+pars_vars_wo_K <- c("$r_1$",
+                    "$r_2$",
+                    "$N_1$",
+                    "$N_2$",
+                    "$\\alpha_{11}$",
+                    "$\\alpha_{12}$",
+                    "$\\alpha_{22}$",
+                    "$\\alpha_{21}$")
+descriptions_wo_K <- c("物种1的自然增长率",
+                       "物种2的自然增长",
+                       "物种1的种群规模",
+                       "物种2的种群规模",
+                       "物种1对于自身的人均影响",
+                       "物种2对于物种1的人均影响",
+                       "物种2对于自身的人均影响",
+                       "物种1对于物种2的人均影响")
+param_df_wo_K <- data.frame(pars_vars_wo_K, descriptions_wo_K)
+kable(x = param_df_wo_K, format = "html",
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+零增长等斜线 (求解 $N_2$):
+$$N_2 = -\frac{\alpha_{11}}{\alpha_{12}}N_1 + \frac{1}{\alpha_{12}}$$
+$$N_2 = -\frac{\alpha_{21}}{\alpha_{22}}N_1 + \frac{1}{\alpha_{22}}$$
+
+---
+
+```{r Lotka-Volterra Competition without carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow users to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show_wo_K",
+                       label = "选择以展示图表",
+                       choices = c("N vs. Time" = "N_vs_Time_wo_K",
+                                   "Zero net growth isoclines (ZNGIs)" = "ZNGI_wo_K"),
+                       selected = c("N_vs_Time_wo_K")),
+    
+    hr(),
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1_wo_K",
+                label = HTML("r<sub>1</sub>: 物种1的自然增长率"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2_wo_K",
+                label = HTML("r<sub>2</sub>: 物种2的自然增长率"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    
+    # Allow user to choose input method for competition coefficients
+    radioButtons(inputId = "alpha_input_wo_K",
+                 label = "竞争系数的输入方式:",
+                 choices = c("滑动滑块" = "slider", "手动输入" = "manual"),
+                 selected = "slider"),
+    
+    # Conditional panel for slider input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'slider'",
+      sliderInput(inputId = "alpha11_slider",
+                  label = HTML("&alpha;<sub>11</sub>: 物种1对于自身的人均影响"),
+                  min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
+      sliderInput(inputId = "alpha12_slider",
+                  label = HTML("&alpha;<sub>12</sub>: 物种2对于物种1的人均影响"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL),
+      sliderInput(inputId = "alpha22_slider",
+                  label = HTML("&alpha;<sub>22</sub>: 物种2对于自身的人均影响"),
+                  min = 0.0001, max = 0.01, value = 0.005, step = NULL),
+      sliderInput(inputId = "alpha21_slider",
+                  label = HTML("&alpha;<sub>21</sub>: 物种1对于物种2的人均影响"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL)
+    ),
+    
+    # Conditional panel for manual input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'manual'",
+      numericInput(inputId = "alpha11_manual",
+                   label = HTML("&alpha;<sub>11</sub>: 物种1对于自身的人均影响"),
+                   min = 0.0001, max = 1, value = 0.0033, step = 0.0001),
+      numericInput(inputId = "alpha12_manual",
+                   label = HTML("&alpha;<sub>12</sub>: 物种2对于物种1的人均影响"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001),
+      numericInput(inputId = "alpha22_manual",
+                   label = HTML("&alpha;<sub>22</sub>:物种2对于自身的人均影响"),
+                   min = 0.0001, max = 1, value = 0.005, step = 0.0001),
+      numericInput(inputId = "alpha21_manual",
+                   label = HTML("&alpha;<sub>21</sub>: 物种1对于物种2的人均影响"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001)
+    ),
+    
+    # User-defined initial values
+    numericInput(inputId = "N1_wo_K",
+                 label = "物种1的起始种群规模",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2_wo_K",
+                 label = "物种2的起始种群规模",
+                 min = 1, value = 70),
+
+    numericInput(inputId = "max_time_wo_K",
+                 label = "模拟时长",
+                 min = 1, value = 100)
+  ),
+  
+  # Panel of plots 
+  mainPanel(renderPlot(N_vs_Time_wo_K(), width = 600, height = 500),
+            renderPlot(ZNGI_wo_K(), width = 600, height = 500))
+)
+
+# Store inputted competition coefficients as new reactive objects
+alpha11_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha11_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha11_manual
+  }
+})
+alpha12_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha12_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha12_manual
+  }
+})
+alpha22_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha22_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha22_manual
+  }
+})
+alpha21_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha21_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha21_manual
+  }
+})
+
+# Get user-defined parameters
+init_wo_K <- reactive({
+  c(N1 = input$N1_wo_K, N2 = input$N2_wo_K)
+})
+time_wo_K <- reactive({
+  seq(from = 0, to = input$max_time_wo_K, by = 0.1)
+})
+params_wo_K <- reactive({
+  c(r1 = input$r1_wo_K, r2 = input$r2_wo_K,
+    a11 = alpha11_wo_K(), a12 = alpha12_wo_K(),
+    a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
+})
+
+
+
+# Run lotka_volterra_competition_wo_K function
+lvcomp_out_wo_K <- reactive({
+  run_lvcomp_model(time = time_wo_K(), 
+                   init = init_wo_K(), params = params_wo_K()) %>% 
+    data.frame()
+})
+
+# Plot N vs time for both species
+N_vs_Time_wo_K <- reactive({
+  plot_lvcomp_time(lvcomp_out_wo_K()) 
+})
+
+# Plot ZNGIs with population trajectories
+ZNGI_wo_K <- reactive({
+  if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
+    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K())
+  } 
+})
+
+# Make a list of plots to print based on user request
+plot_list_wo_K <- reactive({
+  list(N_vs_Time_wo_K(), ZNGI_wo_K()) %>%
+    discard(is.null)
+})
+
+plots_to_print_wo_K <- reactive({
+  wrap_plots(plot_list_wo_K(), ncol = 1)
+})
+```
+
+#
+
+## 参考文献
+ 
+- Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
+
+- Vandermeer and Goldberg, 2013. [Population Ecology.](https://press.princeton.edu/books/paperback/9780691160313/population-ecology), Ch. 8. (Access to a digital copy of this textbook may be available through your library). 
+
+- Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
+
+------------
+
+App maintained by Kenji Hayashi (kthayashi@ucla.edu)

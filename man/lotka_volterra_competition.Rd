@@ -16,3 +16,4 @@ lotka_volterra_competition(time, init, params)
 \description{
 Lotka-Volterra Competition with carrying capacities
 }
+\keyword{internal}

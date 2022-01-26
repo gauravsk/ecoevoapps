@@ -16,3 +16,4 @@ discretelogistic_eqn(Nt, rd, K)
 \description{
 Equation that returns Nt+1 from Nt for the "standard" Discrete Logistic model
 }
+\keyword{internal}

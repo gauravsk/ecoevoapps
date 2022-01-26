@@ -1,0 +1,346 @@
+---
+title: "Popülasyon Ekolojisi Modelleri 1"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | [English](https://ecoevoapps.shinyapps.io/population_growth) | Turkish  ***
+
+
+```{r setup, include=FALSE}
+source("single_populations_app_setup.R")
+```
+
+Tek bir türün popülasyon dinamiğini değerlendirelim. Analizimizi basitleştirmek amacıyla *kapalı bir popülasyon* ile başlayalım (kapalı popülasyonlar, göç almayan veya göç vermeyen popülasyanlardır). Popülasyon sadece doğumlar ile büyür ve ölümler ile küçülür. Geometrik olarak büyüyen bir popülasyonda, popülasyon kontrollü olarak büyümez, doğum ve ölüm oranları popülasyonun boyutuna rağmen stabildir. $b$’nin birey başına doğum oranı ve $d$’nin birey başına ölüm oranı olduğu bir popülasyonda, popülasyon boyutundaki ($N$) değişim şu şekilde belirtilir:
+
+$$\frac{dN}{dT} = bN - dN = (b-d)N$$
+
+$(b-d)$ farkının sabit olarak $r$ ile ifade edildiği geometrik popülasyon büyüme denklemi şu şekilde yazılır:
+
+$$\frac{dN}{dT} = rN$$
+
+Geometrik büyüyen bir popülasyon karakteristik bir J tipi büyüme gosterir. Bu üstel büyüme modelinde popülasyon boyutu zamana karşı grafiklendiğinde, $r$ sabiti J tipi büyümenin şeklini kontrol eder. $r$ sabitinin popülasyon boyutunun zamanda değişimini nasil etkilediğini gözlemlemek icin aşağıya inin!
+
+#### *Popülasyon büyümesine limitler*
+Geometrik artış modeli temel bir şekilde, uzun vadede popülasyonların sonsuz bir boyuta ulaşacağını öngörür. Doğada, popülasyonların sonsuz boyuta ulaşmadığını rahatlıkla gözlemliyoruz ve bu gerçeklik geometrik modelimizi geliştirmemiz gerektiğini gösteriyor. 
+
+Geometrik modelin varsayımlarını tekrar gözden geçirelim: özellikle, b ($b$) ve d ($d$) oranlarının sürekli olarak sabit kaldığı temel varsayamını. Bu varsayımdan ödün vererek, net popülasyon büyüme oranının ($r$) popülasyon boyutunun taşıma kapasitesine ($K$) yaklaştığında lineer olarak azalmasına izin vererek (çevre direncini göze alarak) popülasyon modelimizi daha gerçekçi hale getirebiliriz. Sonucunda ortaya çıkan S tipi büyüme, lojistik popülasyon büyüme modeli, şu şekilde tanımlanır:
+
+$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+
+S tipi büyüme gösteren popülasyonlar popülasyon boyutu taşıma kapasitesine eşit olana kadar büyürler ($N_i = K_i$) (pozitif popülasyon büyüme oranına sahip olabilirler). Popülasyon boyutu taşıma kapasitesini geçtiği anda, popülasyon büyüme oranı negatif olur, ve popülasyon boyutu taşıma kapasitesine geri düşer. 
+
+#### *Gecikmeli lojistik büyüme*
+
+Bazı durumlarda, popülasyonun büyüme oranı geçmiş zamandaki popülasyon boyutuna bağlı olabilir. Örnek olarak, popülasyonların doğum kapasitesi yetişkin olmayan fertlerin doğal kaynaklar için ne kadar rekabet etmesi gerektiğine bağlıdır. Böyle bir senaryoyu $t$ zamanındaki popülasyon büyüme oranını $t-\tau$ nın fonksiyonu halinde belirtebiliriz: 
+
+$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
+Gecikmeli lojistik büyümenin sonuçlarını S tipi büyüme simülasyonunun “gecikmeli büyüme” opsiyonuyla gözlemleyebilirsiniz. 
+
+
+
+#### *Parametre tablosu*
+```{r parameter descriptions turkish, echo = F}
+pars_vars <- c("$r_i$", 
+               "$K_i$", 
+               "$N_i$",
+               "$\\tau$")
+descriptions <- c("$i$ turunun net popülasyon büyüme oranı",
+                 "$i$ turunun tasima kapasitesi",
+                 "$i$ turunun populasyon boyutu",
+                 "Gecikmeli lojistik buyumede gecikme suresi")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parametre/ Degisken", "Aciklama")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+```{r app-tk, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined density dependent or independent growth ----
+    radioButtons("densdep", "Populasyon buyumesi tipi", 
+                 choices = c(`J tipi` = "indep", `S tipi` = "dep")),
+    
+    # User defined intrinsic growth rate r -----
+    sliderInput("r_val", label = "Net popülasyon büyüme oranı (r):",
+                min = 0.01, max = 1, value = .2, step = 0.01),
+    
+    # If Density Dependent growth requested, ask for K -----
+    conditionalPanel(condition = "input.densdep == 'dep'",
+                     sliderInput("K_val", label = "Tasima kapasitesi (K)",
+                                 min = 1, max = 10000, value = 500, step = 10)),
+    # If Density Dependent growth requested, ask if time lag requested -----
+    conditionalPanel(condition = "input.densdep == 'dep'",
+                     radioButtons("densdepLag", label = "Gecikmeli lojistik büyüme?",
+                                  choices = c(`Gecikmesiz buyume` = "nolag",`Gecikmeli buyume` = "lag"))),
+    
+    # If timelag requested in density-dependent growth, ask for tau -----
+    conditionalPanel(condition = "input.densdepLag == 'lag'",
+                     sliderInput("tau", label = "Gecikme suresi (tau)",
+                                 min = 0, max = 4, value = 1, step = .1)),
+    
+    # User defined initial population size  -----
+    sliderInput("N1_val", label = "Baslangic populasyon boyutu:",
+                min = 1, max = 1000, value = 50, step = 10),
+    hr(),
+    
+    # User can add a second species ----
+    checkboxInput("secondsp", "Ikinci bir tur ekleme?", value = F), 
+    
+    # If second species requested, add the following... ----
+    conditionalPanel(condition = "input.secondsp == true",
+                     # User defined density dependent or independent growth for sp2 ----
+                     radioButtons("densdep2", "Ikinci turun net populasyon buyume orani (r2)", 
+                                  choices = c(`J tipi` = "indep", `S tipi` = "dep")),
+                     
+                     # User defined intrinsic growth rate r2 -----
+                     sliderInput("r_val2", label = "Ikinci turun net populasyon buyume orani (r2):",
+                                 min = 0.01, max = 1, value = .15, step = 0.01),
+                     
+                     # If Density Dependent growth requested for sp2, ask for K2 -----
+                     conditionalPanel(condition = "input.densdep2 == 'dep'",
+                                      sliderInput("K_val2", label = "Ikinci turun tasima kapasitesi (K2)",
+                                                  min = 1, max = 10000, value = 500, step = 10),
+                     ),
+                     # If Density Dependent growth requested, ask if time lag requested -----
+                     conditionalPanel(condition = "input.densdep2 == 'dep'",
+                                      radioButtons("densdepLag2", label = "Ikinci turde gecikmeli lojistik buyume?",
+                                                   choices = c(`Gecikmesiz buyume` = "nolag",`Gecikmeli buyume` = "lag"))),
+                     
+                     # If timelag requested in density-dependent growth, ask for tau -----
+                     conditionalPanel(condition = "input.densdepLag2 == 'lag'",
+                                      sliderInput("tau2", label = "Ikinci turun gecikme suresi (tau2)",
+                                                  min = 0, max = 4, value = 1, step = .1)),
+                     sliderInput("N2_val", label = "Ikinci turun baslangic populasyon boyutu:",
+                                 min = 1, max = 1000, value = 50, step = 10),
+                         hr()),
+    
+    # User can select which plots to show ----
+    checkboxGroupInput("plots_to_show", "Hnagi grafiklerin gosterilecegini sec",
+                       c("Populasyon boyutu vs. Zaman" = "Nvtime",
+                         "ln(Populasyon boyutu) vs. Zaman" = "lnNvtime",
+                         "dPopulasyon boyutu/dZaman vs. Populasyon boyutu" = "n1overn",
+                         "dPopulasyon boyutu/(Populasyon boyutu dZaman) vs. Populasyon boyutu" = "n1novern"), selected = c("Nvtime", "lnNvtime")),
+    hr(),
+
+    # User defined length of simulation -----
+    numericInput("max_time", label = "Simulasyonun suresi:",
+                value = 100),
+
+                     # User defined initial population size  -----
+    ),
+
+  
+  
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print()}, width = 600,
+               height = 600)
+  )
+)
+
+# Get user defined parameters for sp 1  ------
+params <- reactive({
+  if(input$densdep == "indep") {
+    c(r = input$r_val) 
+  } else if(input$densdepLag == 'lag') {
+    c(r = input$r_val, K = input$K_val, tau = input$tau) 
+  } else {
+    c(r = input$r_val, K = input$K_val) 
+  }
+})
+init <- reactive({c(N1 = input$N1_val)})
+time <- reactive({seq(from = 0, to = input$max_time, by=1)})
+
+params2 <- reactive({
+  if(input$densdep2 == "indep") {
+    c(r = input$r_val2) 
+  } else if(input$densdepLag2 == 'lag') {
+    c(r = input$r_val2, K = input$K_val2, tau = input$tau2) 
+  } else {
+    c(r = input$r_val2, K = input$K_val2) 
+  }
+})
+init2 <- reactive({c(N1 = input$N2_val)})
+
+# Generate trajectories for sp 1 --------
+pop_growth <- reactive({
+  if(input$densdep == 'indep') {
+    data.frame(ecoevoapps::run_exponential_model(time= time(), init = init(), params = params()))
+  } else {
+    data.frame(ecoevoapps::run_logistic_model(time= time(), init = init(), params = params()))
+  }
+})
+
+# Generate trajectories for sp 2 --------
+pop_growth2 <- reactive({
+  if(input$secondsp) {
+    if(input$densdep2 == 'indep') {
+      data.frame(ecoevoapps::run_exponential_model(time= time(), init = init2(), params = params2()))
+    } else {
+      data.frame(ecoevoapps::run_logistic_model(time= time(), init = init2(), params = params2()))
+    }
+  }
+}) 
+
+pops_combined <- reactive({
+  if(input$secondsp) {
+    dplyr::bind_rows(pop_growth(), pop_growth2(),
+                     .id = "which_pop")
+  } else {
+    pg <- pop_growth()
+    pg$which_pop = "1"
+    pg
+  }
+})
+# Make plots -----------
+
+# 0. Make caption  ------
+plot_caption1 <- reactive({
+  if(input$densdep == 'indep') {
+  paste0("Species 1 parameter values: r1 = ", input$r_val)
+  } else if (input$densdepLag == "nolag") { 
+    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val) 
+    } else { 
+    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
+    }
+})
+
+plot_caption2 <- reactive({
+  if(input$secondsp) {
+    if(input$densdep2 == 'indep') {
+      paste0("Species 2 parameter values: r2 = ", input$r_val2)
+    } else if (input$densdepLag2 == "nolag") { 
+      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
+    } else { 
+      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
+    }
+  }
+})
+
+plot_caption <- reactive ({
+  if(input$secondsp) {
+    paste0(plot_caption1(), "\n", plot_caption2())
+  } else {
+    plot_caption1()
+  }
+})
+
+# 1. Trajectory of N vs. time -----------
+trajectory <- reactive({
+  if("Nvtime" %in% input$plots_to_show) {
+    ggplot(pops_combined()) + 
+      geom_line(aes(x = time, y = N1, color = which_pop), size = 2) +
+      ecoevoapps::theme_apps() +
+      scale_x_continuous(expand = c(0, 0, .1, 0)) +
+      scale_y_continuous(expand = c(0, 0, .1, 0)) +
+      annotate("text", x = 0, y = 0, label = "") +
+      scale_color_brewer("Species", palette = "Set1") +
+      ylab("Population size") 
+    } 
+})
+
+# 2. Trjectory of ln(N) vs. time --------
+trajectory_log <- reactive({
+  if("lnNvtime" %in% input$plots_to_show) {
+    ggplot(pops_combined()) + 
+      geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
+      scale_color_brewer("Species", palette = "Set1") +
+      ecoevoapps::theme_apps() +
+      scale_x_continuous(expand = c(0, 0, .1, 0)) +
+      scale_y_continuous(expand = c(0, 0, .1, 0)) +
+      annotate("text", x = 0, y = 0, label = "") +
+      ylab("ln(Population size)") 
+    }
+})
+
+# 3. dN/dT vs. N -----------
+n1_over_n <- reactive({
+  if("n1overn" %in% input$plots_to_show) {
+    
+    dndt_out <- data.frame(dndt = dndt(params()), which_pop = "1")
+    dndt_out$x <- 1:nrow(dndt_out)
+    
+    dndt_out_for_plot <-
+      if(input$secondsp) {
+        dn2dt_out <- data.frame(dndt = dndt(params2()), which_pop = "2")
+        dn2dt_out$x <- 1:nrow(dn2dt_out)
+        dplyr::bind_rows(dndt_out, dn2dt_out)
+      } else {
+        dndt_out
+      }
+    
+    ggplot(dndt_out_for_plot) +
+      geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
+      xlab("Population Size") + 
+      ylab("Population growth rate (dN/dt)") + 
+      scale_color_brewer("Species", palette = "Set1") +
+      scale_x_continuous(expand = c(0, 0, .1, 0)) +
+      scale_y_continuous(expand = c(0, 0, .1, 0)) +
+      theme_apps() 
+    }
+})
+
+# 4. dN/Ndt vs. N -----------
+n1n_over_n <- reactive({
+  if("n1novern" %in% input$plots_to_show) {
+    
+    dnNdt_out <- data.frame(dnNdt = dnNdt(params()), which_pop = "1")
+    dnNdt_out$x <- 1:nrow(dnNdt_out)
+    
+    dnNdt_out_for_plot <-
+      if(input$secondsp) {
+        dnN2dt_out <- data.frame(dnNdt = dnNdt(params2()), which_pop = "2")
+        dnN2dt_out$x <- 1:nrow(dnN2dt_out)
+        dplyr::bind_rows(dnNdt_out, dnN2dt_out)
+      } else {
+        dnNdt_out
+      }
+    
+    ggplot(dnNdt_out_for_plot) +
+      geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
+      xlab("Population Size") + 
+      ylab("per-capita population growth rate\n(dN/Ndt)") + 
+      scale_color_brewer("Species", palette = "Set1") +
+      scale_x_continuous(expand = c(0, 0, .1, 0)) +
+      # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
+      scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
+                         expand = c(0, 0, .1, 0)) +
+      theme_apps() 
+    }
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+plot_list <- reactive({
+  list(trajectory(), trajectory_log(),
+       n1_over_n(), n1n_over_n()) %>% 
+    discard(is.null)
+  })
+
+plots_to_print <- reactive({
+  wrap_plots(plot_list(), ncol = 2) + 
+    labs(caption = plot_caption()) + 
+    plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+})
+
+
+```
+
+
+
+### Further reading  
+
+"[How populations grow: the Exponential and the logistic](https://www.nature.com/scitable/knowledge/library/how-populations-grow-the-exponential-and-logistic-13240157/)", John Vandermeer, Nature Education Knowledge. 
+
+"[Exponential & logistic growth](https://www.khanacademy.org/science/biology/ecology/population-growth-and-regulation/a/exponential-logistic-growth)" at Khan Academy. 
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+

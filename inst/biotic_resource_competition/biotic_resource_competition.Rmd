@@ -1,5 +1,5 @@
 ---
-title: "Competition with Explicit Resource Dynamics"
+title: "Competition for a shared biotic resource"
 output: html_document
 runtime: shiny
 ---
@@ -16,12 +16,39 @@ library(ecoevoapps)
 library(patchwork)
 library(RColorBrewer)
 library(kableExtra)
+
+biotic_competition <- function(time, init, params) {
+  with (as.list(c(time, init, params)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # q = 1/prey carrying capacity
+    # a = attack rate
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate
+
+    dH_dt = r*H*(1 - q*H) - (a1*H*P1)/(1 + a1*T_h1*H) - (a2*H*P2)/(1 + a2*T_h2*H)
+    dP1_dt = e1*(a1*H*P1)/(1 + a1*T_h1*H) - d1*P1
+    dP2_dt = e2*(a2*H*P2)/(1 + a2*T_h2*H) - d2*P2
+    return(list(c(dH = dH_dt, dP1 = dP1_dt, dP2 = dP2_dt)))
+
+  })
+}
+
+run_biotic_competition_model <- function(time, init, params) {
+  deSolve::ode(func = biotic_competition,
+                y = init, times = time, parms = params)
+}
+
+
 ```
 
 This app simulates the dynamics of two consumer species ($P_1$ and $P_2$) that both require the same resource species ($H$) to grow. This allows us to implicitly model resource competition between the two consumer species, since an increase in $P_1$ results in a decreased growth rate of $P_2$ because of $P_1$'s suppression of resource $H$. 
 
 Even this fairly straightforward scenario can be modeled in many ways. E.g. we can consider a resource species $H$ that, in the absence of either consumer, grows either exponentially (with no intrinsic limit to population growth), or logistically. We can also consider consumer species that have a [Type I or a Type II functional response ](https://en.wikipedia.org/wiki/Functional_response) for the resource. 
-System of equations describing the most complex version of this model:  
+
+
+This system of equations describes the most complex version of this model:  
 
 \[
 \begin{align}
@@ -134,7 +161,7 @@ time <- reactive({seq(0,input$t,by = .1)})
 
 # Simulate the dynamics
 out <- reactive({
-  data.frame(ecoevoapps::run_biotic_competition_model(time = time(), 
+  data.frame(run_biotic_competition_model(time = time(), 
                                                       init = init(), 
                                                       params = params()))
 })

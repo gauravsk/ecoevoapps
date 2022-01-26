@@ -16,3 +16,4 @@ ibiogeo_E(S, A, k)
 \description{
 Extinction rate for Island Biogeography model
 }
+\keyword{internal}

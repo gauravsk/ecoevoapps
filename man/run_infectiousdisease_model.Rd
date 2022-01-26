@@ -11,11 +11,19 @@ run_infectiousdisease_model(time, init, params, model_type)
 
 \item{init}{initial population size of population}
 
-\item{params}{vector of beta (infection rate), m(natural birth/death rate), and gamma (recovery rate)}
+\item{params}{vector of beta (infection rate), m (natural birth/death rate),
+and gamma (recovery rate)}
 
 \item{model_type}{which type of model to run? (should be one of
 `SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)}
 }
 \description{
 Run infectious disease models models
+}
+\examples{
+# Run the SIR model
+params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
+init_vec <- c(S = 100, I = 1, R = 0)
+time_vec <- seq(0, 100, 0.1)
+run_infectiousdisease_model(time = time_vec, init = init_vec, params = params_vec, model_type = "SIR")
 }

@@ -4,7 +4,7 @@
 \alias{run_ricker_model}
 \title{Ricker model of discrete population growth with a carrying capacity}
 \usage{
-run_ricker_model(N0, K, r, time)
+run_ricker_model(N0 = 1, K = 100, r = 1.1, time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}

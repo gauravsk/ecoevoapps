@@ -1,0 +1,306 @@
+---
+title: "离散型种群增长模型"
+output: html_document
+runtime: shiny
+---
+
+***中文 | [Español](https://ecoevoapps.shinyapps.io/single_population_discrete_es/) | [English](https://ecoevoapps.shinyapps.io/single_pop_discrete/)***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(ggplot2)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(latex2exp)
+theme_set(ecoevoapps::theme_apps())
+```
+
+## 离散型指数增长 
+
+$N_{t+1} = \lambda N_t$
+
+```{r exponential-logistic, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("lambda", label = "种群增长率 (lambda):",
+                min = 0.01, max = 2, value = 1.2, step = .01),
+    # User defined N0 -------
+    numericInput("N0", label = "种群起始规模 (N0)",
+                min = 1, max = 100, value = 1),
+    # User defined time ---------
+    numericInput("time", label = "模拟时长",
+                min = 1, max = 1000, value = 30)
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print()}, width = 450, height = 450)
+  )
+)
+
+# Generate trajectories for sp 1 --------
+exponential_pop_traj <- reactive({run_discrete_exponential(N0 = input$N0, 
+                                                       lambda = input$lambda,
+                                                       time = input$time)})
+exponential_pop_df <- reactive({data.frame(time = 0:input$time,
+                                 Nt= exponential_pop_traj(),
+                                 popdiff = c(NA, diff(exponential_pop_traj())),
+                                 Ntm1 = c(dplyr::lag(exponential_pop_traj())),
+                                 popratio = exponential_pop_traj()/dplyr::lag(exponential_pop_traj()))})
+
+
+# Make plot caption -------------
+plot_caption_exp <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $\\lambda = $", input$lambda))
+})
+
+
+# Make plot -----------
+trajaectory_plot <- reactive({ggplot(data.frame(exponential_pop_df())) +
+  geom_line(aes(y = Nt, x = time), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    geom_point(aes(y = Nt, x = time), size = 2, shape = 21,
+               fill = "white", stroke = .8) +
+    ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)"))})
+
+# Make a list of plots  ----
+plots_to_print <- reactive({trajaectory_plot() +
+    labs(caption = plot_caption_exp(),
+         title = "Population growth with the discrete exponential model")})
+
+```
+
+## 离散型逻辑斯蒂增长  {.tabset}
+
+### 标准离散型逻辑斯蒂增长模型
+
+[逻辑斯蒂映射](https://en.wikipedia.org/wiki/Logistic_map)是用来描述离散型逻辑斯蒂增长的种群的一种方式。它和连续型逻辑斯蒂增长的公式相似，只是基于离散时间：  
+
+$$N_{t+1} = r_dN_t\left(1-\frac{N_t}{K}\right)$$
+
+Robert May发表于1976年的经典论文"[Simple mathematical models with very complicated dynamics](http://abel.harvard.edu/archive/118r_spring_05/docs/may.pdf)"是基于这个公式的一个著名研究。论文中May证明此类模型可以产生[混沌](https://zh.wikipedia.org/zh-cn/單峰映象#单峰映射和混沌)现象。
+
+```{r discrete-logistic, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("rd_dl", label = "种群增长率 (rd):",
+                min = 0.01, max = 4.5, value = 1.05, step = .01),
+    # User defined N0 -------
+    numericInput("N0_dl", label = "起始种群规模 (N0)",
+                min = 1, max = 100, value = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K_dl", label = "环境承载力 (K)",
+                 min = 1, max = 1000, value = 100),
+    # User defined time ---------
+    numericInput("time_dl", label = "模拟时长",
+                min = 1, max = 1000, value = 30)
+
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print_dl()}, width = 450, height = 800)
+  )
+)
+
+# Get user defined parameters for discrete logistic  ------
+dl_pop_traj <- reactive({run_discrete_logistic_model(N0 = input$N0_dl, K = input$K_dl, 
+                                           rd = input$rd_dl, time = input$time_dl)})
+dl_df <- reactive({data.frame(Nt = dl_pop_traj(),
+                      time = 1:input$time_dl,
+                      Ntm1 = dplyr::lag(dl_pop_traj()))})
+
+# Generate trajectories for discrete logistic --------
+trajaectory_plot_dl <- reactive({ggplot(dl_df()) +
+    geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
+               fill = "white", stroke = .8 ) +
+    labs(title = "Population growth with the discrete logistic model")})
+
+# cobweb for standard discrete logistic model -----
+cobweb_dl <- reactive({ggplot(dl_df()) +
+    stat_function(fun = function(x) discretelogistic_eqn(x, input$rd_dl, input$K_dl),
+                  aes(x = seq(1, input$K_dl*1.05, length.out = input$time_dl))) +
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
+    geom_hline(yintercept = input$K_dl, size = .2)+
+    geom_vline(xintercept = input$K_dl, size = .2) +
+    ylab(TeX("$N_{t+1}"))+
+    xlab(TeX("$N_t$")) +
+    labs(title = "迭代图/蛛网图")})
+
+# Make plot caption ----
+plot_caption_dl <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $r_d = $", input$rd_dl, "; K = ", input$K_dl))
+})
+# Make a list of plots  ----
+plots_to_print_dl <- reactive({{trajaectory_plot_dl()/cobweb_dl()} + 
+    labs(caption = plot_caption_dl())})
+```
+
+### Ricker模型
+
+Ricker模型是另一种描述有环境承载力的种群的方式。该模型最初[发表于1954年](https://www.nrcresearchpress.com/doi/abs/10.1139/f54-039), 用于描述渔业中亲体和补充量的关系。
+
+$$N_{t+1} = N_t e^{(r (1 - N_t/K))}$$ 
+
+```{r ricker-model, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("r_ricker", label = "种群增长率 (r):",
+                min = 0.01, max = 3, value = 1.01, step = .01),
+    # User defined N0 -------
+    numericInput("N0_ricker", label = "起始种群规模 (N0)",
+                min = 1, max = 100, value = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K_ricker", label = "环境承载力 (K)",
+                 min = 1, max = 1000, value = 100),
+    # User defined time ---------
+    numericInput("time_ricker", label = "模拟时长",
+                min = 1, max = 1000, value = 30, step = 5)
+
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print_ricker()}, width = 450, height = 800)
+  )
+)
+
+# Get user defined parameters for discrete logistic  ------
+ricker_pop_traj <- reactive({run_ricker_model(N0 = input$N0_ricker, K = input$K_ricker, 
+                                                 r = input$r_ricker, time = input$time_ricker)})
+ricker_df <- reactive({data.frame(Nt = ricker_pop_traj(),
+                      time = 1:input$time_ricker,
+                      Ntm1 = dplyr::lag(ricker_pop_traj()))})
+
+
+# Generate trajectories for discrete logistic --------
+trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
+    geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
+               fill = "white", stroke = .8 ) + 
+    labs(title = "Population growth with the Ricker model")})
+
+# cobweb plot for ricker model -----
+cobweb_ricker <- reactive({ggplot(ricker_df()) + 
+    stat_function(fun = function(x) ricker_eqn(x, input$r_ricker, input$K_ricker),
+                  aes(x = seq(1, input$K_ricker*1.05, length.out = input$time_ricker))) + 
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
+    geom_hline(yintercept = input$K_ricker, size = .2)+
+    geom_vline(xintercept = input$K_ricker, size = .2) +
+    ylab(TeX("$N_{t+1}"))+
+    xlab(TeX("$N_t$")) +
+    labs(title = "迭代图/蛛网图")})
+
+# Make plot caption ----
+plot_caption_ricker <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $r = $", input$r_ricker, "; K = ", input$K_ricker))
+})
+
+# Make a list of plots  ----
+
+plots_to_print_ricker <- reactive({{trajaectory_plot_ricker()/cobweb_ricker()} + 
+    labs(caption = plot_caption_ricker())})
+
+```
+
+### Beverton-Holt模型
+
+Beverton-Holt模型是第三种用于描述离散时间下种群增长的经典模型。该模型同样最初被用于渔业管理。
+
+$$N_{t+1} = \frac{RN_t}{1+\left(\frac{R-1}{K}\right)N_t}$$
+
+```{r beverton-holt, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    # User defined lambda -------
+    sliderInput("r_bh", label = "种群增长率 (R):",
+                min = 0.01, max = 3, value = 1.25, step = .01),
+    # User defined N0 -------
+    numericInput("N0_bh", label = "种群起始规模 (N0)",
+                min = 1, max = 100, value = 1),
+    # User defined carrying capacity (K) ----------    
+    numericInput("K_bh", label = "环境承载力 (K)",
+                 min = 1, max = 1000, value = 100),
+    # User defined time ---------
+    numericInput("time_bh", label = "模拟时长",
+                min = 1, max = 1000, value = 30, step = 5)
+
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plots_to_print_bh()}, width = 450, height = 800)
+  )
+)
+
+# Get user defined parameters for discrete logistic  ------
+bh_pop_traj <- reactive({run_beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, Rd = input$r_bh, time = input$time_bh)})
+bh_df <- reactive({data.frame(Nt = bh_pop_traj(),
+                      time = 1:input$time_bh,
+                      Ntm1 = dplyr::lag(bh_pop_traj()))})
+
+# Generate trajectories for beverton-holt model --------
+trajaectory_plot_bh <- reactive({ggplot(bh_df()) +
+    geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
+               fill = "white", stroke = 0) +
+    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
+               fill = "white", stroke = .8 ) +
+    labs(title = "Population growth with the Beverton-Holt model")})
+
+# Generate cobweb for beverton-holt model --------
+cobweb_bh <- reactive({ggplot(bh_df()) + 
+    stat_function(fun = function(x) bevertonholt_eqn(x, input$r_bh, input$K_bh),
+                  aes(x = seq(1, input$K_bh*1.05, length.out = input$time_bh))) + 
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
+
+    geom_hline(yintercept = input$K_bh, size = .2)+
+    geom_vline(xintercept = input$K_bh, size = .2) + 
+    ylab(TeX("$N_{t+1}"))+
+    xlab(TeX("$N_t$")) +
+    labs(title = "迭代图/蛛网图")})
+
+# Make plot caption ----
+plot_caption_bh <- reactive({
+    latex2exp::TeX(paste0("Parameter values: $r = $", input$r_bh, "; K = ", input$K_bh))
+})
+
+# Make a list of plots  ----
+
+plots_to_print_bh <- reactive({{trajaectory_plot_bh()/cobweb_bh()} + 
+    labs(caption = plot_caption_bh())})
+
+```
+
+## 参考文献
+
+"[Simple mathematical models with very complicated dynamics](http://abel.harvard.edu/archive/118r_spring_05/docs/may.pdf)", Robert May, 1976.
+
+"[Stock and Recruitment](https://www.nrcresearchpress.com/doi/abs/10.1139/f54-039)", Bill Ricker, 1954.
+
+[Course notes on the Ricker model](http://courses.ecology.uga.edu/ecol4000-fall2018/wp-content/uploads/sites/22/2018/08/Chapter-3-complex-dynamics.pdf) from UGA course on population ecology 
+
+Dr. Sebastian Bonhoeffer's [lecture notes](https://ethz.ch/content/dam/ethz/special-interest/usys/ibz/theoreticalbiology/education/learningmaterials/701-1424-00L/lecture-script-eep_2011.pdf) on Ecology and Evolution (see Ch. 1) 
+
+Dr. Jan Engelstädter's [e-book on analysis of biological data](https://bookdown.org/janengelstaedter/biol3360modelling3/discrete-time-models-in-one-variable.html). 
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```

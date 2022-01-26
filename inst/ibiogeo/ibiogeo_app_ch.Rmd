@@ -1,0 +1,107 @@
+---
+title: "Island Biogeography"
+output: html_document
+runtime: shiny
+---
+
+***中文 | [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) | [English](https://ecoevoapps.shinyapps.io/island_biogeography) |  [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) |  [Turkish](https://ecoevoapps.shinyapps.io/island_biogeography_ch)  ***
+
+Robert Macarthur和E.O. Wilson 在1964年提出了岛屿生物地理学理论"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)"，用于量化和预测岛屿系统的生物多样性。理论的基础在于， 岛屿上决定生物多样性的两个过程 --物种的迁入（immigration）和灭绝（extinction）--是可预测的。岛屿离大陆越近，物种迁入率越高；岛屿面积越大，灭绝率越低。而两者的平衡决定了岛屿上物种多样性的高低。  
+1967年，Macarthur和Wilson在著作"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)"中扩展了这个理论。Daniel Simberloff 通过[佛罗里达红树林岛屿的实验](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) 论证了这个理论；这个理论在[生物保育](https://www.jstor.org/stable/1742652)方面也非常重要。 更多关于岛屿生物地理学理论的影响，可详见这篇 [2017年的综述](https://science.sciencemag.org/content/357/6354/eaam8326).
+
+岛屿上的灭绝率：
+$$E = e^{\frac{kS}{A}}-1$$
+大陆向岛屿的迁入率：
+$$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
+动态平衡时，岛屿上的物种数量：  
+$$S_{eq} = \frac{AM}{D+A}$$
+
+其中:
+
+- $D$ 是大陆和岛屿之间的距离 (km);  
+- $A$ 是岛屿面积 (km^2);  
+- $M$ 是大陆上的物种数量;  
+- $k$ 是比例常数 (本应用设定 $k=0.15$).
+
+
+```{r, include = F}
+library(ggplot2)
+library(dplyr)
+library(ecoevoapps)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+# source("functions.R")
+source("ibiogeo_constants.R")
+```
+
+
+
+```{r app-cn}
+sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "D1_cn",
+                        label = HTML("D<sub>A</sub> (大陆到岛屿A的距离)"),
+                        min = 1,
+                        max = 8,
+                        value = 1),
+            sliderInput(inputId = "D2_cn",
+                        label = HTML("D<sub>B</sub> (大陆到岛屿B的距离)"),
+                        min = 1,
+                        max = 8,
+                        value = 4),            
+            sliderInput(inputId = "A1_cn",
+                        label = HTML("A<sub>A</sub> (岛屿A的面积)"),
+                        min = .1,
+                        max = 4,
+                        value = 1),
+            sliderInput(inputId = "A2_cn",
+                        label = HTML("A<sub>B</sub> (岛屿B的面积)"),
+                        min = .1,
+                        max = 4,
+                        value = .5),
+            sliderInput(inputId = "M_cn",
+                        label = "M (大陆上的物种数量)",
+                        min = 1,
+                        max = 100,
+                        value = 100),
+            width=4),
+        mainPanel(
+            renderPlot({plot_to_print_cn()}, width = 400, height = 600)
+        )
+)
+
+Dvec_cn <- reactive({c(input$D1_cn, input$D2_cn)})
+Avec_cn <- reactive({c(input$A1_cn, input$A2_cn)})
+plots_cn <- reactive({
+  ecoevoapps::run_ibiogeo_model(D = Dvec_cn(), A = Avec_cn(), M=input$M_cn, k=0.015)
+})
+
+map_cn <- reactive({plots_cn()$map})
+eq_plot_cn <- reactive({plots_cn()$eq_plot})
+
+plot_to_print_cn <- reactive({
+  map_cn() / eq_plot_cn()
+})
+
+```
+
+
+
+### 参考文献 
+
+"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", Macarthur and Wilson 1964.  
+
+"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)", Macarthur and Wilson 1967. 
+
+"[Experimental Zoogeography of Islands: The Colonization of Empty Islands](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)", Simberloff and Wilson 1969.  
+
+"[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
+
+"[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```

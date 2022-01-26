@@ -4,7 +4,7 @@
 \alias{run_discrete_logistic_model}
 \title{Discrete logistic model}
 \usage{
-run_discrete_logistic_model(N0, K, rd, time)
+run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}

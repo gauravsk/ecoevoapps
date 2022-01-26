@@ -18,3 +18,4 @@ ibiogeo_Sx(D, A, M, k)
 \description{
 Equilibrium number of species on island for Island Biogeography model
 }
+\keyword{internal}

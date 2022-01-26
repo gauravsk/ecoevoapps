@@ -4,7 +4,11 @@
 \alias{run_lvcomp_model}
 \title{Run the Lotka-Volterra competition model (with carrying capacity and relative effects)}
 \usage{
-run_lvcomp_model(time, init, params)
+run_lvcomp_model(
+  time = 0:100,
+  init = c(N1 = 20, N2 = 15),
+  params = c(r1 = 0.15, r2 = 0.2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05)
+)
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.

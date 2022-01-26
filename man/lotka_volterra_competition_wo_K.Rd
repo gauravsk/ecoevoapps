@@ -16,3 +16,4 @@ lotka_volterra_competition_wo_K(time, init, params)
 \description{
 Lotka-Volterra Competition without carrying capacities
 }
+\keyword{internal}

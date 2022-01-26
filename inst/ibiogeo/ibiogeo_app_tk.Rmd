@@ -1,0 +1,103 @@
+---
+title: "Island Biogeography"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/island_biogeography_ch) |  [Español](https://ecoevoapps.shinyapps.io/island_biogeography_es) |  [English](https://ecoevoapps.shinyapps.io/island_biogeography) |  [português](https://ecoevoapps.shinyapps.io/island_biogeography_pt) | Turkish  ***
+
+Ilk olarak Robert Macarthur ve E.O. Wilson tarafından 1964 yılında yayınladıkları "[Ada zoocoğrafyası denge kuramı](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)" makalesinde ortaya atılmış olan Ada Biyocoğrafyası kuramı adalardaki tür sayısını hesaplama hakkında sayısal ve öngörücü bir analiz sunar. Bu kuram adaya dışarıdan göç eden türler ve adada nesli tükenen türler -- adadaki tur sayısını belirleyen iki temel mekanizma -- arasında olan dengenin öngörülebileceği fikri üzerine kurulmuştur. Özellikle, adaya göç eden türler adaya yakın olan ana karadan daha hızlı göç etmekte ve adadaki türlerin neslinin tükenme hızı küçük adalarda daha hızlı olmaktadır. Göç etme ve nesil tükenme mekanizmalarının arasındaki denge adadaki denge noktası tür sayısını belirlemektedir. Macarthur ve Wilson bu kuramı 1967 yılında yayınladıkları klasik kitapları olan "[Ada Biyocoğrafyası Kuramı](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)"'nda daha da ileriye götürmüşlerdir. Daniel Simberloff bu kuram üzerinde [deneyesel çalışmalarını Florida’daki küçük mangrov adalarında sürdürmüştür](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856) ve ada biyocoğrafyası kuramı çevre biyolojisindeki [sürdürülebilirlik stratejilerinde](https://www.jstor.org/stable/1742652) de oldukça etkili olmuştur. Ada biyocoğrafyasının ekoloji anadalındaki etkileri hakkında daha fazla bilgi edinmek için  [2017 yılında yayınlanan bu inceleme makalesini](https://science.sciencemag.org/content/357/6354/eaam8326) okuyabilirsiniz.
+
+Adadaki nesil tükenme hızı:
+$$E = e^{\frac{kS}{A}}-1$$
+Ana karadan adaya göç hızı:
+$$I = e^{\left(-\frac{k}{D}*(S-M)\right)}-1$$
+Adadaki denge noktası tür sayısı:  
+$$S_{eq} = \frac{AM}{D+A}$$
+
+bu durumda:
+
+- $D$ ana kara ve ada arasındaki uzaklık (km);  
+- $A$ adanın yüz olçümü (km^2);  
+- $M$ ana karadaki tür sayısı;  
+- $k$ oranlama değişmezidir (bu aplikasyonda $k=0.15$ olarak kullanılmaktadır).
+
+
+```{r, include = F}
+library(ggplot2)
+library(dplyr)
+library(ecoevoapps)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+# source("functions.R")
+source("ibiogeo_constants.R")
+```
+
+```{r app_tu}
+sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "D1_tu",
+                        label = HTML("D<sub>A</sub> (ana kara ve ada arasindaki uzaklik (ada A))"),
+                        min = 1,
+                        max = 8,
+                        value = 1),
+            sliderInput(inputId = "D2_tu",
+                        label = HTML("D<sub>B</sub> (ana kara ve ada arasindaki uzaklik (ada B))"),
+                        min = 1,
+                        max = 8,
+                        value = 4),            
+            sliderInput(inputId = "A1_tu",
+                        label = HTML("A<sub>A</sub> (adanin yuz olcumu (ada A))"),
+                        min = .1,
+                        max = 4,
+                        value = 1),
+            sliderInput(inputId = "A2_tu",
+                        label = HTML("A<sub>A</sub> (adanin yuz olcumu (ada B))"),
+                        min = .1,
+                        max = 4,
+                        value = .5),
+            sliderInput(inputId = "M_tu",
+                        label = "M (ana karadaki tur sayisi)",
+                        min = 1,
+                        max = 100,
+                        value = 100),
+            width=4),
+        mainPanel(
+            renderPlot({plot_to_print_tu()}, width = 400, height = 600)
+        )
+)
+
+Dvec_tu <- reactive({c(input$D1_tu, input$D2_tu)})
+Avec_tu <- reactive({c(input$A1_tu, input$A2_tu)})
+plots_tu <- reactive({
+  ecoevoapps::run_ibiogeo_model(D = Dvec_tu(), A = Avec_tu(), M=input$M_tu, k=0.015)
+})
+
+map_tu <- reactive({plots_tu()$map})
+eq_plot_tu <- reactive({plots_tu()$eq_plot})
+
+plot_to_print_tu <- reactive({
+  map_tu() / eq_plot_tu()
+})
+```
+
+
+### References 
+
+"[Equilibrium theory of insular zoogeography](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1558-5646.1963.tb03295.x)", Macarthur and Wilson 1964.  
+
+"[The Theory of Island Biogeography](https://en.wikipedia.org/wiki/The_Theory_of_Island_Biogeography)", Macarthur and Wilson 1967. 
+
+"[Experimental Zoogeography of Islands: The Colonization of Empty Islands](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.2307/1934856)", Simberloff and Wilson 1969.  
+
+"[Island biogeography: Taking the long view of nature’s laboratories](https://science.sciencemag.org/content/357/6354/eaam8326)", Whittaker et al. 2017. 
+
+"[Island Biogeography and Conservation: Strategy and Limitations](https://www.jstor.org/stable/1742652)", Diamond et al. 1976. 
+
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```

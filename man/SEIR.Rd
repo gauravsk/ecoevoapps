@@ -11,7 +11,9 @@ SEIR(time, init, params)
 
 \item{init}{initial population size of population}
 
-\item{params}{vector of beta (infection rate), gamma (recovery rate), m(natural birth/death rate), v (vaccination rate), and a (inverse of incubation period)}
+\item{params}{vector of beta (infection rate), gamma (recovery rate),
+m (natural birth/death rate), v (vaccination rate),
+and a (inverse of incubation period)}
 }
 \description{
 SEIR model with vital rates

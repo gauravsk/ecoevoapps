@@ -2,8 +2,33 @@ Package: ecoevoapps
 Type: Package
 Title: Simulate Dynamics of Ecology/Evolution Models
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Authors@R: 
+    c(person(given = "Gaurav",
+             family = "Kandlikar",
+             role = c("aut", "cre"),
+             email = "gkandlikar@missouri.edu"),
+      person(given = "Madeline",
+             family = "Cowen",
+             role = "aut",
+             email = "mcowen@ucla.edu"),
+      person(given = "Kenji",
+             family = "Hayashi",
+             role = "aut",
+             email = "kthayashi@ucla.edu"),
+      person(given = "Rosa",
+             family = "McGuire",
+             role = "aut",
+             email = "rmcguire1@ucla.edu"),
+      person(given = "Xinyi",
+             family = "Yan",
+             role = "aut",
+             email = "xinyiyan@utexas.edu"),
+      person(given = "Marcel",
+             family = "Vaz",
+             role = "aut",
+             email = "marcelvaz@gmail.com")
+      )
+Maintainer: Gaurav Kandlikar <gkandlikar@missouri.edu>
 Description: A collection of Shiny apps for common models in 
     ecology and evolution. The package also includes functions 
     that can be called directly from R (rather than from the apps).
@@ -14,5 +39,9 @@ Imports:
     deSolve,
     ggplot2,
     tidyr,
-    magrittr
-RoxygenNote: 7.1.1
+    magrittr,
+    dplyr,
+    purrr,
+    rmarkdown,
+    diagram
+RoxygenNote: 7.1.2

@@ -1,0 +1,366 @@
+---
+title: "Competencia Lotka-Volterra"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | Español | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)*** *| Turkish | português *
+
+```{r setup, include=FALSE}
+library(ecoevoapps)
+library(deSolve)
+library(tidyverse)
+library(patchwork)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+knitr::opts_chunk$set(echo=FALSE)
+theme_set(ecoevoapps::theme_apps())
+```
+
+Las ecuaciones de competencia Lotka-Volterra exploran la dinámica entre dos especies que compiten por alimento, espacio u otros recursos. La idea detrás de este modelo es que a medida que la población de una especie crece, esta empieza a ser limitada tanto por la competencia entre individuos de la misma especie (competencia intraespecífica) como por la competencia con otras especies (competencia interespecífica). Los detalles del modelo están disponibles en múltiples textos de ecología y en varios sitios web.  
+
+Hay múltiples formas de escribir el clásico modelo de competencia Lotka-Volterra. La manera principal consiste en expresar la competencia en términos de la capacidad de carga de cada especie ($K_1$ and $K_2$) y en términos de la fuerza relativa de competencia interespecifica $\alpha$ y $\beta$. Esta es la forma del modelo que está presentada en la primera pestaña abajo. En el clásico articulo del año 2000, ["Mecanismos de mantenimiento de la diversidad de especies"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf), Peter Chesson advocó por la expresión de las ecuaciones de competencia Lotka-Volterra en términos de coeficientes de competencia absolutos para cada especie. La segunda pestaña permite a los usuarios explorar esa versión del modelo de competencia Lotka-Volterra. 
+
+
+# {.tabset}
+
+## Modelo en términos de capacidad de carga y efectos relativos de competencia
+
+Ecuaciones de Competencia Lotka-Volterra expresadas usando capacidades de carga: 
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \frac{N_2 + \beta N_1}{K_2}\right)$$
+
+```{r parameter descriptions}
+pars_vars <- c("$r_1$", 
+               "$r_2$", 
+               "$N_1$", 
+               "$N_2$", 
+               "$K_1$", 
+               "$K_2$", 
+               "$\\alpha$", 
+               "$\\beta$")
+descriptions <- c("Tasa intrínsica de crecimiento de la Especie 1",
+                 "Tasa intrínsica de crecimiento de la Especie 2",
+                 "Tamaño de la población de la Especie 1",
+                 "Tamaño de la población de la Especie 2",
+                 "Capacidad de carga de la Especie 1",
+                 "Capacidad de carga de la Especie 2",
+                 "Efecto relativo per cápita de la Especie 2 sobre la Especie 1",
+                 "Efecto relativo per cápita de la Especie 1 sobre la Especie 2")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+Isoclinas de crecimiento neto cero (resuelto para $N_2$):
+$$N_2 = - \frac{N_1}{\alpha} + \frac{K_1}{\alpha}$$
+$$N_2 = -\beta N_1 + K_2$$
+
+---
+
+```{r Lotka-Volterra Competition with carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow user to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show",
+                       label = "Seleccionar gráficos a mostrar",
+                       choices = c("N vs. Tiempo" = "N_vs_Time", 
+                                   "Isoclina de crecimiento neto cero (ICNC)" = "ZNGI"),
+                       selected = c("N_vs_Time")),
+    
+    hr(),
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1", 
+                label = HTML("r<sub>1</sub>: Tasa intrínsica de crecimiento de la Especie 1"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2", 
+                label = HTML("r<sub>2</sub>: Tasa intrínsica de crecimiento de la Especie 2"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    numericInput(inputId = "K1", 
+                 label = HTML("K<sub>1</sub>: Capacidad de carga de la Especie 1"),
+                 min = 1, value = 300),
+    numericInput(inputId = "K2", 
+                 label = HTML("K<sub>2</sub>: Capacidad de carga de la Especie 2"),
+                 min = 1, value = 200),
+    sliderInput(inputId = "alpha", 
+                label = HTML("&alpha;: Efecto relativo de la Especie 2 sobre la Especie 1"),
+                min = 0.01, max = 2, value = 0.3, step = 0.01),
+    sliderInput(inputId = "beta", 
+                label = HTML("&beta;: Efecto relativo de la Especie 1 sobre la Especie 2"),
+                min = 0.01, max = 2, value = 0.2, step = 0.01),
+    # User-defined initial values
+    numericInput(inputId = "N1", 
+                 label = "Tamaño inicial de la población de la Especie 1",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2", 
+                 label = "Tamaño inicial de la población de la Especie 2",
+                 min = 1, value = 70),
+    numericInput(inputId = "max_time", 
+                 label = "Duración de la simulación",
+                 min = 1, value = 100)
+  ),
+  
+  # Panel of plots
+  mainPanel(
+    renderPlot(N_vs_Time(), width = 600, height = 500),
+      renderPlot(ZNGI(), width = 600, height = 500))
+)
+
+# Get user-defined parameters
+init <- reactive({
+  c(N1 = input$N1, N2 = input$N2)
+})
+time <- reactive({
+  seq(from = 0, to = input$max_time, by = 0.1)
+})
+params <- reactive({
+  c(r1 = input$r1, r2 = input$r2, K1 = input$K1, K2 = input$K2, 
+    a = input$alpha, b = input$beta)
+})
+
+
+# Run lotka_volterra_competition function
+lvcomp_out <- reactive({
+  run_lvcomp_model(time = time(), init = init(), params = params()) %>% 
+    data.frame()
+})
+
+
+
+# Plot N vs time for both species
+N_vs_Time <- reactive({
+  plot_lvcomp_time(lvcomp_out()) +
+    labs(x = "Tiempo", y = "Tamaño de la población (N)", color = "Especie") 
+})
+
+
+# Plot ZNGIs with population trajectories
+ZNGI <- reactive({
+  if ("ZNGI" %in% input$plots_to_show) {
+    plot_lvcomp_portrait(lvcomp_out(), params = params())
+  } 
+})
+
+# Make a list of plots to print based on user request
+plot_list <- reactive({ 
+  list(N_vs_Time(), ZNGI()) %>%
+    discard(is.null)
+  })
+
+plots_to_print <- reactive({ 
+  wrap_plots(plot_list(), ncol = 1)
+  })
+```
+
+## Modelo en términos de coeficientes de competencia absolutos
+
+Ecuaciones de Competencia Lotka-Volterra expresadas sin capacidad de carga:
+$$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
+$$\frac{dN_2}{dt} = r_2N_2\left(1 - \alpha_{22}N_2 - \alpha_{21}N_1\right)$$
+
+```{r parameter descriptions w/o carrying capacity}
+pars_vars_wo_K <- c("$r_1$",
+                    "$r_2$",
+                    "$N_1$",
+                    "$N_2$",
+                    "$\\alpha_{11}$",
+                    "$\\alpha_{12}$",
+                    "$\\alpha_{22}$",
+                    "$\\alpha_{21}$")
+descriptions_wo_K <- c("Tasa intrínsica de crecimiento de la Especie 1",
+                       "Tasa intrínsica de crecimiento de la Especie 2",
+                       "Tamaño de la población de la Especie 1",
+                       "Tamaño de la población de la Especie 2",
+                       "Efecto per cápita de la Especie 1 sobre sí misma",
+                       "Efecto per cápita de la Especie 2 sobre la Especie 1",
+                       "Efecto per cápita de la Especie 2 sobre sí misma",
+                       "Efecto per cápita de la Especie 1 sobre la Especie 2")
+param_df_wo_K <- data.frame(pars_vars_wo_K, descriptions_wo_K)
+kable(x = param_df_wo_K, format = "html",
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+
+Isoclinas de crecimiento neto cero (resuelto para $N_2$):
+$$N_2 = -\frac{\alpha_{11}}{\alpha_{12}}N_1 + \frac{1}{\alpha_{12}}$$
+$$N_2 = -\frac{\alpha_{21}}{\alpha_{22}}N_1 + \frac{1}{\alpha_{22}}$$
+
+---
+
+```{r Lotka-Volterra Competition without carrying capacities}
+sidebarLayout(
+  sidebarPanel(
+    # Allow users to select which plots to display
+    checkboxGroupInput(inputId = "plots_to_show_wo_K",
+                       label = "Seleccionar gráficos a mostrar",
+                       choices = c("N vs. Tiempo" = "N_vs_Time_wo_K",
+                                   "Isoclina de crecimiento neto cero (ICNC)" = "ZNGI_wo_K"),
+                       selected = c("N_vs_Time_wo_K")),
+    
+    hr(),
+  
+    
+    # User-defined parameter values
+    sliderInput(inputId = "r1_wo_K",
+                label = HTML("r<sub>1</sub>: Tasa intrínsica de crecimiento de la Especie 1"),
+                min = 0.01, max = 1, value = 0.2, step = 0.01),
+    sliderInput(inputId = "r2_wo_K",
+                label = HTML("r<sub>2</sub>: Tasa intrínsica de crecimiento de la Especie 2"),
+                min = 0.01, max = 1, value = 0.5, step = 0.01),
+    
+    # Allow user to choose input method for competition coefficients
+    radioButtons(inputId = "alpha_input_wo_K",
+                 label = "Método de entrada de los coeficientes de competencia:",
+                 choices = c("Deslizador" = "slider", "Manual" = "manual"),
+                 selected = "slider"),
+    
+    # Conditional panel for slider input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'slider'",
+      sliderInput(inputId = "alpha11_slider",
+                  label = HTML("&alpha;<sub>11</sub>: Efecto per cápita de la Especie 1 sobre sí misma"),
+                  min = 0.0001, max = 0.01, value = 0.0033, step = NULL),
+      sliderInput(inputId = "alpha12_slider",
+                  label = HTML("&alpha;<sub>12</sub>: Efecto per cápita de la Especie 2 sobre la Especie 1"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL),
+      sliderInput(inputId = "alpha22_slider",
+                  label = HTML("&alpha;<sub>22</sub>: Efecto per cápita de la Especie 2 sobre sí misma"),
+                  min = 0.0001, max = 0.01, value = 0.005, step = NULL),
+      sliderInput(inputId = "alpha21_slider",
+                  label = HTML("&alpha;<sub>21</sub>: Efecto per cápita de la Especie 1 sobre la Especie 2"),
+                  min = 0.0001, max = 0.01, value = 0.001, step = NULL)
+    ),
+    
+    # Conditional panel for manual input of competition coefficients
+    conditionalPanel(
+      condition = "input.alpha_input_wo_K == 'manual'",
+      numericInput(inputId = "alpha11_manual",
+                   label = HTML("&alpha;<sub>11</sub>: Per capita effect of Species 1 on itself"),
+                   min = 0.0001, max = 1, value = 0.0033, step = 0.0001),
+      numericInput(inputId = "alpha12_manual",
+                   label = HTML("&alpha;<sub>12</sub>: Per capita effect of Species 2 on Species 1"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001),
+      numericInput(inputId = "alpha22_manual",
+                   label = HTML("&alpha;<sub>22</sub>: Per capita effect of Species 2 on itself"),
+                   min = 0.0001, max = 1, value = 0.005, step = 0.0001),
+      numericInput(inputId = "alpha21_manual",
+                   label = HTML("&alpha;<sub>21</sub>: Per capita effect of Species 1 on Species 2"),
+                   min = 0.0001, max = 1, value = 0.001, step = 0.0001)
+    ),
+    
+    # User-defined initial values
+    numericInput(inputId = "N1_wo_K",
+                 label = "Tamaño inicial de la población de la Especie 1",
+                 min = 1, value = 50),
+    numericInput(inputId = "N2_wo_K",
+                 label = "Tamaño inicial de la población de la Especie 2",
+                 min = 1, value = 70),
+
+    numericInput(inputId = "max_time_wo_K",
+                 label = "Duración de la simulación",
+                 min = 1, value = 100)
+  ),
+  
+  # Panel of plots 
+  mainPanel(renderPlot(N_vs_Time_wo_K(), width = 600, height = 500),
+            renderPlot(ZNGI_wo_K(), width = 600, height = 500))
+)
+
+# Store inputted competition coefficients as new reactive objects
+alpha11_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha11_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha11_manual
+  }
+})
+alpha12_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha12_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha12_manual
+  }
+})
+alpha22_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha22_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha22_manual
+  }
+})
+alpha21_wo_K <- reactive({
+  if (input$alpha_input_wo_K == "slider") {
+    input$alpha21_slider
+  } else if (input$alpha_input_wo_K == "manual") {
+    input$alpha21_manual
+  }
+})
+
+# Get user-defined parameters
+init_wo_K <- reactive({
+  c(N1 = input$N1_wo_K, N2 = input$N2_wo_K)
+})
+time_wo_K <- reactive({
+  seq(from = 0, to = input$max_time_wo_K, by = 0.1)
+})
+params_wo_K <- reactive({
+  c(r1 = input$r1_wo_K, r2 = input$r2_wo_K,
+    a11 = alpha11_wo_K(), a12 = alpha12_wo_K(),
+    a22 = alpha22_wo_K(), a21 = alpha21_wo_K())
+})
+
+
+
+# Run lotka_volterra_competition_wo_K function
+lvcomp_out_wo_K <- reactive({
+  run_lvcomp_model(time = time_wo_K(), 
+                   init = init_wo_K(), params = params_wo_K()) %>% 
+    data.frame()
+})
+
+# Plot N vs time for both species
+N_vs_Time_wo_K <- reactive({
+  plot_lvcomp_time(lvcomp_out_wo_K()) +
+    labs(x = "Tiempo", y = "Tamaño de la población (N)", color = "Especie") 
+})
+
+
+# Plot ZNGIs with population trajectories
+ZNGI_wo_K <- reactive({
+  if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
+    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K())
+  } 
+})
+
+# Make a list of plots to print based on user request
+plot_list_wo_K <- reactive({
+  list(N_vs_Time_wo_K(), ZNGI_wo_K()) %>%
+    discard(is.null)
+})
+
+plots_to_print_wo_K <- reactive({
+  wrap_plots(plot_list_wo_K(), ncol = 1)
+})
+```
+
+#
+
+## Referencias
+ 
+- Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
+
+- Vandermeer and Goldberg, 2013. [Population Ecology.](https://press.princeton.edu/books/paperback/9780691160313/population-ecology), Ch. 8. (Access to a digital copy of this textbook may be available through your library). 
+
+- Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
+
+------------
+
+App maintained by Kenji Hayashi (kthayashi@ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)

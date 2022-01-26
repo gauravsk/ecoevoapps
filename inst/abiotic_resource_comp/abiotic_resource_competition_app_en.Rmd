@@ -1,0 +1,223 @@
+---
+title: "Competition for abiotic resources"
+author: "Gaurav Kandlikar"
+output: html_document
+runtime: shiny
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyr)
+library(kableExtra)
+library(ggplot2)
+library(purrr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+```
+
+This model simulates the dynamics of two species that both rely on the same set of abiotic resources (e.g. nutrients) for their growth and reproduction. Since both species rely on the same resources, this gives rise to competitive dynamics between the species such that growth in one species' population can reduce the growth rate of the other species. 
+
+Specifically, this app implements an abiotic resource competition model that was developed by [Dave Tilman](https://cbs.umn.edu/tilman-lab/davidtilman) to study resource competition among algae, and thought it has also been used to study resource competition among grassland plants. The basic structure of the model is that the focal species ("consumers") grow as they uptake resources. Each consumer can consumer and use different resources with different levels of efficiency. As resources are consumed they become depleted from the environment, but resources also enter the environment from some external source (e.g. if nutrients are entering a lake through streams). The key insight from this framework was that species competing for abiotic resources coexist when they "specialize" in different resources. For a more complete description of this model, please refer to the [Populus guide](https://cbs.umn.edu/sites/cbs.umn.edu/files/public/downloads/PopulusHelp_e.pdf) by Dr. Don Alstad (page 42 onwards). 
+
+
+
+This app implements the "essential resources" model with two resources and two consumer species. 
+
+**Resource dynamics equations**  
+
+$$\frac{dR_1}{dt} = a_1(S_1-R_1) - N_1c_{11}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{21}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
+$$\frac{dR_2}{dt} = a_2(S_2-R_2) - N_2c_{12}\left(\frac{1}{N_1}\frac{dN_1}{dt} + m_1\right) -  N_2c_{22}\left(\frac{1}{N_2}\frac{dN_2}{dt} + m_2\right)$$
+
+**Consumer dynamics equations**  
+$$\frac{1}{N_1}\frac{dN_1}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{11}} - m_1 ,\frac{r_2R_2}{R_2 + k_{12}} - m_1\right)$$
+
+$$\frac{1}{N_2}\frac{dN_2}{dt} = \mathrm{min}\left(\frac{r_1R_1}{R_1 + k_{21}} - m_2 ,\frac{r_2R_2}{R_2 + k_{22}} - m_2\right)$$
+
+
+
+```{r parameter descriptions, echo = F}
+pars_vars <- c("$N_i$",
+               "$R_j$",
+               "$r_i$",
+               "$k_{ij}$",
+               "$c_{ij}$",
+               "$m_i$",
+               "$S_j$",
+               "$a_j$")
+descriptions <- c("Population size of consumer species $i$",
+                 "Abundance of resource $j$",
+                 "Maximum per-capita growth rate of consumer species $i$",
+                 "Half-saturation constant of consumer $i$ for resource $j$ (i.e. the concentration of resource $j$ at which species $i$ grows at half of its maximum growth rate)",
+                 "Consumption rate of resource $j$ by species $i$",
+                 "Mortality rate of consumer species $i$",
+                 "Supply point (or maximum resource level) of resource $j$",
+                 "Rate at which resource $j$ is converted from its unusable to usable form")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parameter/Variable", "Description")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+
+
+```{r}
+sidebarLayout(
+  sidebarPanel(style = "overflow-y:scroll; max-height: 400px",
+    # User defined resource growth rate -------
+    h5("Resource supply rates"),
+    sliderInput("S1", label = "S1",
+                min = 0.01, max = 25, value = 12, step = .1),
+    # User defined resource growth rate -------
+    sliderInput("S2", label = "S2",
+                min = 0.01, max = 25, value = 12, step = .1),
+
+    # User defined resource growth rate -------
+    h5("Consumers' max intrinsic growth rates"),
+    sliderInput("r1", label = "r1",
+                min = 0.01, max = 2, value = 1.6, step = .1),
+    # User defined resource growth rate -------
+    sliderInput("r2", label = "r2",
+                min = 0.01, max = 2, value = 1, step = .1),
+    
+    # User defined resource uptake rates -------
+    h5("Half saturation constants"),
+    sliderInput("k11", label = "k11",
+                min = 1, max = 30, value = 18, step = .1),
+    sliderInput("k12", label = "k12",
+                min = 1, max = 30, value = 4, step = .1),
+    sliderInput("k21", label = "k21",
+                min = 1, max = 30, value = 2, step = .1),
+    sliderInput("k22", label = "k22",
+                min = 1, max = 30, value = 14, step = .1),
+    # User defined mortality rates -------
+    h5("Mortality rates"),
+    sliderInput("m1", label = "m1",
+                min = 0.001, max = .5, value = .2, step = .01),
+    sliderInput("m2", label = "m2",
+                min = 0.001, max = .5, value = .2, step = .01),
+    
+    # User defined resource uptake rates -------
+    h5("Resource uptake rates"),
+    sliderInput("c11", label = "c11",
+                min = 0.01, max = 1, value = .25, step = .01),
+    sliderInput("c12", label = "c12",
+                min = 0.01, max = 1, value = .08, step = .01),
+    sliderInput("c21", label = "c21",
+                min = 0.01, max = 1, value = .1, step = .01),
+    sliderInput("c22", label = "c22",
+                min = 0.01, max = 1, value = .2, step = .01),
+
+    # User defined resource acquisition rates -------
+    h5("Resource conversion rates"),
+    sliderInput("a1", label = "a1",
+                min = 0.001, max = 1, value = .5, step = .01),
+    sliderInput("a2", label = "a2",
+                min = 0.001, max = 1, value = .5, step = .01),
+
+    # User defined N1, N2, and R -------
+    h5("Initial population size of consumers"),
+    column(width = 6, numericInput("N1", label = "N1",
+                min = 1, max = 100, value = 10)),
+    column(width = 6, numericInput("N2", label = "N2",
+                min = 1, max = 100, value = 10)),
+    h5("Initial size of resource pools"),
+    column(width = 6,
+           numericInput("R1", label = "R1",
+                min = 1, max = 100, value = 20)),
+    column(width = 6,
+           numericInput("R2", label = "R2",
+                min = 1, max = 100, value = 20)),
+    # User defined time ---------
+    numericInput("time", label = "Number of time steps to project",
+                min = 1, max = 5000, value = 500)
+    ),
+
+  # Panel of plots -----
+  mainPanel(
+    renderPlot({plot_out()}, width = 600,
+               height = 300),
+    hr(),
+    renderTable(Rstar_df()),
+  )
+)
+
+
+tilman_params <- reactive({
+  c(S1 = input$S1, S2 = input$S2, r1 = input$r1, r2 = input$r2,
+    k11 = input$k11, k12 = input$k12, k21 = input$k21, k22 = input$k22,
+    m1 = input$m1, m2 = input$m2,
+    c11 = input$c11, c12 = input$c12, c21 = input$c21, c22 = input$c22,
+    a1 = input$a1, a2 = input$a2)
+})
+tilman_init <- reactive({
+  c(N1 = input$N1, N2 = input$N2, R1 = input$R1, R2 = input$R2)
+})
+time <- reactive({seq(from = 0, to = input$time, by=.1)})
+
+Rstar_vec <- reactive({run_abiotic_comp_rstar(tilman_params())})
+Rstar_df <- reactive({
+  Rstar_vec <- Rstar_vec()
+  data.frame(species = c("N1", "N2"),
+             R1star = c(Rstar_vec["R11"], Rstar_vec["R21"]),
+             R2star = c(Rstar_vec["R12"], Rstar_vec["R22"]))
+  })
+
+tilman_out <- reactive({
+  to <- data.frame(run_abiotic_comp_model(
+    time = time(),
+    init = tilman_init(),
+    params = tilman_params()
+  ))
+})
+
+
+tilman_out_R1R2 <- reactive({
+  ggplot(tilman_out()) +
+  geom_segment(data = Rstar_df(), 
+               aes(x = R1star, xend = R1star, y = R2star,
+                   yend = Inf, color = species), size = 1.5) +
+  geom_segment(data = Rstar_df(), 
+               aes(x = R1star, xend = Inf, y = R2star, 
+                   yend = R2star, color = species), size = 1.5) +
+  geom_path(aes(x = R1, y = R2), size = 1) +
+    geom_point(data = tail(tilman_out(), 1), aes(x = R1, y = R2), 
+               size = 4, stroke = 2, shape = 21) + 
+    xlab("Resource 1") + ylab("Resource 2") + 
+  scale_color_brewer(name = "Consumer\nspecies", palette = "Set1") +
+  theme_apps() +
+    theme(legend.position = "none")
+})
+
+tilman_out_N1N2 <- reactive({
+  tilman_out_long <-  
+    pivot_longer(tilman_out(), c(R1,R2,N1,N2), "species") %>%
+    dplyr::filter(species %in% c("N1", "N2"))
+  ggplot(tilman_out_long) +
+  geom_line(aes(x = time, y = value, color = species), size = 2) +
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+  theme_apps()
+})
+
+plot_out <- reactive({
+  tilman_out_R1R2() + tilman_out_N1N2()
+})
+
+
+```
+
+
+## References  
+
+Tilman, D. 1980. [Resources: A graphical-mechanistic approach to competition and predation](http://max2.ese.u-psud.fr/epc/conservation/PDFs/HIPE/Tilman1980.pdf). The American Naturalist.
+
+Tilman, D. 1982. Resource Competition and Community Structure. Princeton University Press, Princeton, New Jersey. 296 pages. 
+
+Miller, T., et al. 2005. [A Critical Review of Twenty Years’ Use of the Resource‐Ratio Theory](https://www.jstor.org/stable/10.1086/428681?seq=1). The American Naturalist. 
+
+------------
+ 
+App maintained by Gaurav Kandlikar (gaurav.kandlikar@gmail.com)
