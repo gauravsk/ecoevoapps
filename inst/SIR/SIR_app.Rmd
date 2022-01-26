@@ -115,36 +115,33 @@ out <- reactive({
   })
 
 # Reshape the data for plotting
-out_long <- reactive({
-  pivot_longer(out(), c(S, I, R), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I", "R")))
-})
+# out_long <- reactive({
+#   pivot_longer(out(), c(S, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R")))
+# })
 
 # use out to create dS, dI, dR, and the per capita changes in population
-pop_out <- reactive({
-  pop_out <- out()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
-  pop_out
-})
-
-pop_out_long <- reactive({
-  pop_out() %>%
-  select(time, dS, dI, dR) %>%
-  pivot_longer(c(dS, dI, dR), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dI", "dR")))
-})
+# pop_out <- reactive({
+#   pop_out <- out()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+# 
+# pop_out_long <- reactive({
+#   pop_out() %>%
+#   select(time, dS, dI, dR) %>%
+#   pivot_longer(c(dS, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR")))
+# })
 
 # Make plots -------------------
 # Plot abundance through time ----------
 abund_plot_SIR <- reactive({
-  ggplot(out_long()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size")
+  plot_infectiousdisease_time(out(), model_type = "SIR")
 })
 
 # # Plot dS, dI, dR over time
@@ -156,17 +153,17 @@ abund_plot_SIR <- reactive({
 
 # Plot S vs I ---------
 SIplot <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out(), x_axis = "S", y_axis = "I")
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "S", y_axis = "I")
 })
 
 # Plot I vs R --------------
 RIplot <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out(), x_axis = "R", y_axis = "I")
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "R", y_axis = "I")
 })
 
 # Plot S vs R ------------
 SRplot <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out(), x_axis = "S", y_axis = "R")
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "S", y_axis = "R")
 })
 
 # combine 2d plots -----
@@ -269,42 +266,39 @@ out_sis <- reactive({
 })
 
 # Reshape the data so for plotting
-out_long_sis <- reactive({
-  pivot_longer(out_sis(), c(S, I), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I")))
-})
+# out_long_sis <- reactive({
+#   pivot_longer(out_sis(), c(S, I), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I")))
+# })
 
 # use out to create dS, dI, dR, and the per capita changes in population
-pop_out_sis <- reactive({
-  pop_out <- out_sis()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
-  pop_out
-})
-
-pop_out_long_sis <- reactive({
-  pop_out_sis() %>%
-  select(time, dS, dI) %>%
-  pivot_longer(c(dS, dI), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dI")))
-})
+# pop_out_sis <- reactive({
+#   pop_out <- out_sis()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+#   pop_out
+# })
+# 
+# pop_out_long_sis <- reactive({
+#   pop_out_sis() %>%
+#   select(time, dS, dI) %>%
+#   pivot_longer(c(dS, dI), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time
 abund_plot_sis <- reactive({
-  ggplot(out_long_sis()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size")
+   plot_infectiousdisease_time(out_sis(), model_type = "SIS")
 })
 
 
 
 # Plot S vs I
 SIplot_sis <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sis(), 
+  plot_infectiousdisease_portrait(sim_df = out_sis(), 
                                       x_axis = "S", y_axis = "I")
 
 })
@@ -427,38 +421,35 @@ out_seir <- reactive({
 })
 
 # Reshape the data for plotting
-out_long_seir <- reactive({
-  pivot_longer(out_seir(), c(S, E, I, R), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "E", "I", "R")))
-})
+# out_long_seir <- reactive({
+#   pivot_longer(out_seir(), c(S, E, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "E", "I", "R")))
+# })
 
 # use out to create dS, dE, dI, dR, and the per capita changes in population
-pop_out_seir <- reactive({
-  pop_out <- out_seir()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dE <- c(NA, diff(pop_out$E))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
-  pop_out
-})
-
-pop_out_long_seir <- reactive({ 
-  pop_out_seir() %>%
-    select(time, dS, dE, dI, dR) %>%
-    pivot_longer(c(dS, dE, dI, dR), "group") %>%
-    mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
-})
+# pop_out_seir <- reactive({
+#   pop_out <- out_seir()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dE <- c(NA, diff(pop_out$E))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+# 
+# pop_out_long_seir <- reactive({ 
+#   pop_out_seir() %>%
+#     select(time, dS, dE, dI, dR) %>%
+#     pivot_longer(c(dS, dE, dI, dR), "group") %>%
+#     mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
+# })
 
 # Make plots --------------------
 
 # Plot abundance through time ----------
 abund_plot_seir <- reactive({
-  ggplot(out_long_seir()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size") 
+  plot_infectiousdisease_time(out_seir(), model_type = "SEIR")
 })
 
 # # Plot dS, dE, dI, dR over time
@@ -470,37 +461,37 @@ abund_plot_seir <- reactive({
 
 # Plot S vs E ---------
 SEplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "S", y_axis = "E")
 })
 
 # Plot S vs I ---------
 SIplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "S", y_axis = "I")
 })
 
 # Plot S vs R ---------
 SRplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "S", y_axis = "R")  
 })
 
 # Plot E vs I ---------
 EIplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "E", y_axis = "I")  
 })
 
 # Plot E vs R ---------
 ERplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "E", y_axis = "R")  
 })
 
 # Plot R vs I ---------
 RIplot_seir <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
                                       x_axis = "R", y_axis = "I")  
 })
 
@@ -626,75 +617,77 @@ out_sird <- reactive({
 })
 
 # Reshape the data for plotting
-out_long_sird <- reactive({
-  pivot_longer(out_sird(), c(S, I, R, D), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I", "R", "D")))
-})
+# out_long_sird <- reactive({
+#   pivot_longer(out_sird(), c(S, I, R, D), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R", "D")))
+# })
 
 # use out to create dS, dD, dI, dR, and the per capita changes in population
-pop_out_sird <- reactive({
-  pop_out <- out_sird()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  pop_out$dD <- c(NA, diff(pop_out$D))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% 
-    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
-  pop_out
-})
+# pop_out_sird <- reactive({
+#   pop_out <- out_sird()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   pop_out$dD <- c(NA, diff(pop_out$D))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+#   pop_out
+# })
 
-pop_out_long_sird <- reactive({ 
-  pop_out_sird() %>%
-    select(time, dS, dI, dR, dD) %>%
-    pivot_longer(c(dS, dI, dR, dD), "group") %>%
-    mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
-})
+# pop_out_long_sird <- reactive({ 
+#   pop_out_sird() %>%
+#     select(time, dS, dI, dR, dD) %>%
+#     pivot_longer(c(dS, dI, dR, dD), "group") %>%
+#     mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time ----------
 abund_plot_sird <- reactive({
-  ggplot(out_long_sird()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size")
+  plot_infectiousdisease_time(out_sird(), model_type = "SIRD")
+
+  # ggplot(out_long_sird()) + 
+  #   geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  #   scale_color_brewer(palette = "Set1") +
+  #   ylab("Population size")
 })
 
 
 # Plot S vs D ---------
 SDplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "S", y_axis = "D")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "D")  
 })
 
 # Plot S vs I ---------
 SIplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "S", y_axis = "I")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "I")  
 })
 
 # Plot S vs R ---------
 SRplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "S", y_axis = "R")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "R")  
 })
 
 # Plot D vs I ---------
 DIplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "D", y_axis = "I")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "D", y_axis = "I")  
 })
 
 # Plot D vs R ---------
 DRplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "D", y_axis = "R")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "D", y_axis = "R")  
 })
 
 # Plot R vs I ---------
 RIplot_sird <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird(), 
-                                      x_axis = "R", y_axis = "I")  
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "R", y_axis = "I")  
 })
 
 # combine 2d plots -----
@@ -816,56 +809,53 @@ out_ft <- reactive({
 })
 
 # Reshape the data for plotting 
-out_long_ft <- reactive({
-  pivot_longer(out_ft(), c(S, I, R), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I", "R")))
-})
+# out_long_ft <- reactive({
+#   pivot_longer(out_ft(), c(S, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R")))
+# })
 
 # use out to create dS, dI, dR, and the per capita changes in population
-pop_out_ft <- reactive({
-  pop_out <- out_ft()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% 
-    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
-  pop_out
-})
+# pop_out_ft <- reactive({
+#   pop_out <- out_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
 
-pop_out_long_ft <- reactive({ 
-  pop_out_ft() %>%
-  select(time, dS, dI, dR) %>%
-  pivot_longer(c(dS, dI, dR), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dI", "dR")))
-})
+# pop_out_long_ft <- reactive({ 
+#   pop_out_ft() %>%
+#   select(time, dS, dI, dR) %>%
+#   pivot_longer(c(dS, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time ----------
 abund_plot_SIR_ft <- reactive({
-  ggplot(out_long_ft()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size") 
+    plot_infectiousdisease_time(out_ft(), model_type = "SIR_ft")
 })
 
 
 
 # Plot S vs I ---------
 SIplot_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
                                       x_axis = "S", y_axis = "I")  
 })
 
 # Plot I vs R --------------
 RIplot_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
                                       x_axis = "R", y_axis = "I")  
 })
 
 # Plot S vs R ------------
 SRplot_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
                                       x_axis = "S", y_axis = "R")  
 })
 
@@ -974,41 +964,42 @@ out_sis_ft <- reactive({
 })
 
 # Reshape the data so for plotting
-out_long_sis_ft <- reactive({
-  pivot_longer(out_sis_ft(), c(S, I), "group") %>% 
-    mutate(group = factor(group, levels = c("S", "I")))
-})
+# out_long_sis_ft <- reactive({
+#   pivot_longer(out_sis_ft(), c(S, I), "group") %>% 
+#     mutate(group = factor(group, levels = c("S", "I")))
+# })
 
 # use out to create dS, dI, dR, and the per capita changes in population
-pop_out_sis_ft <- reactive({
-  pop_out <- out_sis_ft()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
-  pop_out
-})
-
-pop_out_long_sis_ft <- reactive({
-  pop_out_sis_ft() %>%
-  select(time, dS, dI) %>%
-  pivot_longer(c(dS, dI), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dI")))
-})
+# pop_out_sis_ft <- reactive({
+#   pop_out <- out_sis_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+#   pop_out
+# })
+# 
+# pop_out_long_sis_ft <- reactive({
+#   pop_out_sis_ft() %>%
+#   select(time, dS, dI) %>%
+#   pivot_longer(c(dS, dI), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time ----------
 abund_plot_sis_ft <- reactive({
-  ggplot(out_long_sis_ft()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size")
+  plot_infectiousdisease_time(out_sis_ft(), model_type = "SIS_ft")
+  # ggplot(out_long_sis_ft()) + 
+  #   geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  #   scale_color_brewer(palette = "Set1") +
+  #   ylab("Population size")
 })
 
 
 # Plot S vs I ---------
 SIplot_sis_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sis_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_sis_ft(), 
                                       x_axis = "S", y_axis = "I")  
 })
 
@@ -1139,74 +1130,71 @@ out_seir_ft <- reactive({
 # Reshape the data so that population sizes of both 
 # species are in one column, and an extra column to define
 # species name. This helps with the plotting...
-out_long_seir_ft <- reactive({
-  pivot_longer(out_seir_ft(), c(S, E, I, R), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "E", "I", "R")))
-})
+# out_long_seir_ft <- reactive({
+#   pivot_longer(out_seir_ft(), c(S, E, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "E", "I", "R")))
+# })
 
 # use out to create dS, dE, dI, dR, and the per capita changes in population
-pop_out_seir_ft <- reactive({
-  pop_out <- out_seir_ft()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dE <- c(NA, diff(pop_out$E))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% 
-    mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
-  pop_out
-})
+# pop_out_seir_ft <- reactive({
+#   pop_out <- out_seir_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dE <- c(NA, diff(pop_out$E))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
 
-pop_out_long_seir_ft <- reactive({ 
-  pop_out_seir_ft() %>%
-  select(time, dS, dE, dI, dR) %>%
-  pivot_longer(c(dS, dE, dI, dR), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
-})
+# pop_out_long_seir_ft <- reactive({ 
+#   pop_out_seir_ft() %>%
+#   select(time, dS, dE, dI, dR) %>%
+#   pivot_longer(c(dS, dE, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time ----------
 abund_plot_seir_ft <- reactive({
-  ggplot(out_long_seir_ft()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size") 
+  plot_infectiousdisease_time(out_seir_ft(), model_type = "SEIR_ft")
 })
 
 
 # Plot S vs E ---------
 SEplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "S", y_axis = "E")  
 })
 
 # Plot S vs I ---------
 SIplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "S", y_axis = "I")  
 })
 
 # Plot S vs R ---------
 SRplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "S", y_axis = "R")  
 })
 
 # Plot E vs I ---------
 EIplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "E", y_axis = "I")  
 })
 
 # Plot E vs R ---------
 ERplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "E", y_axis = "R")  
 })
 
 # Plot R vs I ---------
 RIplot_seir_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_seir_ft(), 
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
                                       x_axis = "R", y_axis = "I")  
 })
 
@@ -1332,75 +1320,72 @@ out_sird_ft <- reactive({
 })
 
 # Reshape the data for plotting
-out_long_sird_ft <- reactive({
-  pivot_longer(out_sird_ft(), c(S, I, R, D), "group") %>% 
-  mutate(group = factor(group, levels = c("S", "I", "R", "D")))
-})
+# out_long_sird_ft <- reactive({
+#   pivot_longer(out_sird_ft(), c(S, I, R, D), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R", "D")))
+# })
 
 # use out to create dS, dD, dI, dR, and the per capita changes in population
-pop_out_sird_ft <- reactive({
-  pop_out <- out_sird_ft()
-  pop_out$dS <- c(NA, diff(pop_out$S))
-  pop_out$dI <- c(NA, diff(pop_out$I))
-  pop_out$dR <- c(NA, diff(pop_out$R))
-  pop_out$dD <- c(NA, diff(pop_out$D))
-  # not using pgrs right now but could be useful to calculate
-  pop_out <- pop_out %>% 
-    mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
-  pop_out
-})
+# pop_out_sird_ft <- reactive({
+#   pop_out <- out_sird_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   pop_out$dD <- c(NA, diff(pop_out$D))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+#   pop_out
+# })
 
-pop_out_long_sird_ft <- reactive({ 
-  pop_out_sird_ft() %>%
-  select(time, dS, dI, dR, dD) %>%
-  pivot_longer(c(dS, dI, dR, dD), "group") %>%
-  mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
-})
+# pop_out_long_sird_ft <- reactive({ 
+#   pop_out_sird_ft() %>%
+#   select(time, dS, dI, dR, dD) %>%
+#   pivot_longer(c(dS, dI, dR, dD), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
+# })
 
 # Make plots --------------------
 # Plot abundance through time ----------
 abund_plot_sird_ft <- reactive({
-  ggplot(out_long_sird_ft()) + 
-    geom_line(aes(x = time, y = value, color = group), size = 2) + 
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size")
+    plot_infectiousdisease_time(out_sird_ft(), model_type = "SIRD_ft")
 })
 
 
 # Plot S vs D ---------
 SDplot_sird_ft <- reactive({
-    plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+    plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                         x_axis = "S", y_axis = "D")
   })
 
 # Plot S vs I ---------
 SIplot_sird_ft <- reactive({
-    plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+    plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                         x_axis = "S", y_axis = "I")
   
 })
 
 # Plot S vs R ---------
 SRplot_sird_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                       x_axis = "S", y_axis = "R")
 })
 
 # Plot D vs I ---------
 DIplot_sird_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                       x_axis = "D", y_axis = "I")
 })
 
 # Plot D vs R ---------
 DRplot_sird_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                       x_axis = "D", y_axis = "R")
 })
 
 # Plot R vs I ---------
 RIplot_sird_ft <- reactive({
-  plot_infectiousdisease_trajectories(sim_df = out_sird_ft(),
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
                                       x_axis = "R", y_axis = "I")
 })
 
@@ -1419,6 +1404,8 @@ plots_to_render_sird_ft <- reactive({
 })
 ```
 
-------------
+-------------
 
-App maintained by Maddi Cowen (mcowen@g.ucla.edu)
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
