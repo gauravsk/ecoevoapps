@@ -45,18 +45,13 @@ sidebarLayout(
 # Generate trajectories for sp 1 --------
 
 exponential_pop_df <- reactive({
-  run_discrete_exponential(N0 = input$N0, lambda = input$lambda, time = input$time)
+  run_discrete_exponential_model(N0 = input$N0, lambda = input$lambda, time = input$time)
 })
 
 
 # Make plot -----------
 trajaectory_plot <- reactive({
-  ggplot(exponential_pop_df()) +
-  geom_line(aes(y = Nt, x = time), size = .2) +
-    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
-               fill = "white", stroke = 0) +
-    geom_point(aes(y = Nt, x = time), size = 2, shape = 21,
-               fill = "white", stroke = .8) +
+  plot_discrete_population_growth(exponential_pop_df()) +
     ylab(latex2exp::TeX("Population size at time $t$ ($N_t$)")) +
     labs(caption = latex2exp::TeX(paste0("Parameter values: $\\lambda = $", input$lambda)),
          title = "Population growth with the discrete exponential model")
@@ -109,13 +104,9 @@ dl_df <- reactive({
 })
 # Generate trajectories for discrete logistic --------
 trajaectory_plot_dl <- reactive({
-  ggplot(dl_df()) +
-    geom_line(aes(x = time, y = Nt), size = .2) +
-    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
-               fill = "white", stroke = 0) +
-    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
-               fill = "white", stroke = .8 ) +
-    labs(title = "Population growth with the discrete logistic model")})
+  plot_discrete_population_growth(dl_df()) +
+    labs(title = "Population growth with the discrete logistic model")
+})
 
 # cobweb for standard discrete logistic model -----
 cobweb_dl <- reactive({
@@ -181,13 +172,10 @@ ricker_df <- reactive({
   ricker_out
 })
 # Generate trajectories for discrete logistic --------
-trajaectory_plot_ricker <- reactive({ggplot(ricker_df()) +
-    geom_line(aes(x = time, y = Nt), size = .2) +
-    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
-               fill = "white", stroke = 0) +
-    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
-               fill = "white", stroke = .8 ) + 
-    labs(title = "Population growth with the Ricker model")})
+trajaectory_plot_ricker <- reactive({
+  plot_discrete_population_growth(ricker_df()) +
+    labs(title = "Population growth with the Ricker model")
+})
 
 # cobweb plot for ricker model -----
 cobweb_ricker <- reactive({
@@ -253,13 +241,10 @@ bh_df <- reactive({
   bv_df
 })
 # Generate trajectories for beverton-holt model --------
-trajaectory_plot_bh <- reactive({ggplot(bh_df()) +
-    geom_line(aes(x = time, y = Nt), size = .2) +
-    geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
-               fill = "white", stroke = 0) +
-    geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
-               fill = "white", stroke = .8 ) +
-    labs(title = "Population growth with the Beverton-Holt model")})
+trajaectory_plot_bh <- reactive({
+  plot_discrete_population_growth(bh_df()) +
+    labs(title = "Population growth with the Beverton-Holt model")
+})
 
 # Generate cobweb for beverton-holt model --------
 cobweb_bh <- reactive({
