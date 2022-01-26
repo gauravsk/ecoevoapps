@@ -2,6 +2,7 @@
 #' @param time vector of time units over which to run model
 #' @param init vector of initial population sizes for both species
 #' @param params vector of model parameters
+#' @keywords internal
 lotka_volterra_competition <- function(time, init, params) {
   with (as.list(c(time, init, params)), {
     # description of parameters
@@ -27,6 +28,7 @@ lotka_volterra_competition <- function(time, init, params) {
 #' @param time vector of time units over which to run model
 #' @param init vector of initial population sizes for both species
 #' @param params vector of model parameters
+#' @keywords internal
 lotka_volterra_competition_wo_K <- function(time, init, params) {
   with (as.list(c(time, init, params)), {
     # description of parameters
