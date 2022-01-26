@@ -149,6 +149,7 @@ rm_predprey_1step <-function(H, P, pars) {
 #' If K supplied, then prey has logistic growth;
 #' if T_h supplied, Type II functional response of predator;
 #' if both K and T_h, this is the Rosenzweig-Macarthur  model
+#' @import deSolve
 #' @examples
 #' # Classic Lotka-Volterra model
 #' run_predprey_model(200, init = c(H = 10, P = 5),
@@ -189,16 +190,16 @@ run_predprey_model <- function(time, init, params) {
 
   if(all(c("T_h", "K") %in% names(params))) {
     # R-M
-    deSolve::ode(rm_predprey, y = init, times = time, parms = params)
+    ode(rm_predprey, y = init, times = time, parms = params)
   } else if ("T_h" %in% names(params)) {
     # Type II
-    deSolve::ode(lv_predprey_t2, y = init, times = time, parms = params)
+    ode(lv_predprey_t2, y = init, times = time, parms = params)
   } else if ("K" %in% names(params)) {
     # logistic prey
-    deSolve::ode(lv_predprey_logPrey, y = init, times = time, parms = params)
+    ode(lv_predprey_logPrey, y = init, times = time, parms = params)
   } else {
     # Type I + exponential prey
-    deSolve::ode(lv_predprey_t1, y = init, times = time, parms = params)
+    ode(lv_predprey_t1, y = init, times = time, parms = params)
   }
 }
 
@@ -211,6 +212,7 @@ run_predprey_model <- function(time, init, params) {
 #' @param vec_density density of grid to generate
 #' @return a data frame, with Hstart, Hend, Pstart, Pend,
 #' and corresponding values of dH and dP for drawing vectors
+#' @keywords internal
 #' @importFrom purrr map2_df
 vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
@@ -264,6 +266,7 @@ vector_field_input <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 #' @param pars_for_eq_func parameter values used to generate `sim_df`
 #' @param vec_density density of grid to generate
 #' @import ggplot2
+#' @keywords internal
 #' @return a ggplot2 object
 plot_vector_field <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
@@ -279,14 +282,19 @@ plot_vector_field <- function(sim_df, pars_for_eq_func, vec_density = 20) {
 
 }
 
-#' Function for plotting trajectory of predator-prey model
+#' Function for plotting phase portrait of predator-prey model
 #' @param sim_df data frame generated from run_XXX
 #' @param pars_for_eq_func parameter values used to generate `sim_df`
-#' @param vectors_field set to TRUE to see the vector field under the trajectory
+#' @param vectors_field set to TRUE to see the vector field under the phase portrait
 #' @import ggplot2
+#' @examples
+#' # Run Rosenzweig-Macarthur model:
+#' param_vec <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
+#' sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = param_vec)
+#' plot_predprey_portrait(sim_df = sim_df, param_vec = param_vec, vectors_field = T)
 #' @export
-plot_predprey_trajectory <- function(sim_df, param_vec, vectors_field = F,...) {
-
+plot_predprey_portrait <- function(sim_df, param_vec, vectors_field = F,...) {
+  sim_df <- data.frame(sim_df)
   if(vectors_field) {
     base_plot <- plot_vector_field(sim_df, param_vec, ...)
   } else {
@@ -350,3 +358,23 @@ plot_predprey_trajectory <- function(sim_df, param_vec, vectors_field = F,...) {
   }
   return(traj)
 }
+
+#' Function for plotting phase portrait of predator-prey model
+#' @param sim_df data frame generated from run_XXX
+#' @import ggplot2
+#' @examples
+#' # Run Rosenzweig-Macarthur model:
+#' param_vec <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
+#' sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = param_vec)
+#' plot_predprey_time(sim_df = sim_df)
+#' @export
+plot_predprey_time <- function(sim_df) {
+  sim_df <- data.frame(sim_df)
+  sim_df_long <- pivot_longer(sim_df, c(H,P), "Population")
+  ggplot(sim_df_long) +
+    geom_line(aes(x = time, y = value, color = Population), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") +
+    theme_apps()
+}
+
