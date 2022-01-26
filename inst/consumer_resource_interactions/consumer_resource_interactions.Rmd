@@ -15,16 +15,14 @@ ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
 
-This app presents several models that can be used to simulate the dynamics of consumers and biotic resources (e.g. predators and their prey, herbivores and plants, parasitoids and their hosts, etc. We refer to the resource as "prey" and the consumer as "predator". 
-
-There are several variants of the general consumer-resource model that are presented here. The first tab presents the classic Lotka-Volterra predator prey model, and the other tabs all present variations on this classic model that add various aspects of biological reality. 
+One of the most important sets of interactions in ecological communities is the interaction between consumers and resources. For example, the interactions between a herbivore and the plants it eats, between a predator and its prey, between a parasitoid and its host, can all fit within the general category of consumer-resource interactions.  This app presents several models that have been developed to study such interactions. We refer to the resource as "prey" and the consumer as "predator". There are several variants of the general consumer-resource model that are presented here, each in a different tab. 
 
 
 ##  {.tabset}
 
 ### Lotka-Volterra predator-prey model
 
-Equations describing prey that grows exponentially and predators that consume the prey following a Type I functional response:
+The classic [Lotka-Volterra predator-prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) model captures the dynamics between a prey species that has exponential growth, and a predator that consumes prey with no saturation point ("Type 1 functional response", see [below](#consumer-functional-response)):
 
 \[
 \begin{align}
@@ -146,7 +144,7 @@ np_lvpred1 <- reactive({
 
 ### Logistic Prey
  
-This model presented here keeps the predator dynamics the same as in the L-V predator-prey model, but adds an additional layer of biological realism to the prey. Specifically, in the classic L-V model, the prey is modeled as having exponential growth, such that in the absence of predators, the prey grows without limits. In this tab, the prey experiences logistic growth, i.e. the prey grows logistically up to a carrying capacity $K$. 
+This model adds an additional layer of biological realism to the Lotka-Volterra model. Specifically, in the classic model, the prey is modeled as having exponential growth. In this tab, the prey experiences logistic growth up to a carrying capacity $K$. 
 
 \[
 \begin{align}
@@ -272,7 +270,7 @@ np_logprey <- reactive({
 
 ### Type II Functional Response
 
-This model presented here keeps the predator dynamics the same as in the L-V predator-prey model, but adds an additional layer of biological realism to the *predator*. Specifically, in the classic L-V model, the predator has a *Type 1 functional response*, which means that predator individuals never get satiated, and don't spend any time handling the prey. In this model, the predator has a **Type II functional response**, which means that the predator's efficiency in eating the prey is limited by the time it has to invest in processing the prey. 
+This model goes back to an exponentially growing prey, but adds an additional layer of biological realism to the *predator*. Specifically, in the classic L-V model, the  predator individuals don't spend any time processing they prey, and they never get satiated. In this model, the predator has a **[Type II functional response](https://en.wikipedia.org/wiki/Functional_response)**, which means that the predator's efficiency in eating the prey is limited by the time it has to invest in processing the prey. 
 
 \[
 \begin{align}
@@ -315,7 +313,7 @@ H^* &= \frac{d}{ea - adT_h} \\
 \]
 
 
-```{r eruptions, echo=FALSE}
+```{r, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     ### Ask users for parameter values ----
@@ -397,7 +395,7 @@ np_lvpred2 <- reactive({
 
 ### Rosenzweig-MacArthur Model 
 
-The Rosenzweig-MacArthur model combines both logistic growth for the prey as well as a Type II functional response for the predator.
+Finally, Rosenzweig-MacArthur model combines logistic growth for the prey as well as a Type II functional response for the predator.
 
 \[
 \begin{align}

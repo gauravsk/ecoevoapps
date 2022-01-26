@@ -20,9 +20,12 @@ library(kableExtra)
 theme_set(ecoevoapps::theme_apps())
 ```
 
+
+This app implements various models a category of models from epidemiology called [Compartment models](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology). These  models are designed to model the spread of diseases through populations that are made of individuals in different compartments, like individuals who are susceptible to the disease, exposed individuals, infected individuals, recovered individuals, etc. Different models can include different compartments, based on the population being studied and the dynamics of the infection. For more details on compartment models, please refer to the [Wikipedia page](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) or refer to [this paper](https://vtechworks.lib.vt.edu/bitstream/handle/10919/84993/ChildsIntroduction.pdf).
+
 ## Models Assuming Density-Dependent Transmission {.tabset}
 
-All of the following disease models assume that infectious individuals mix homogenously with other individuals in the population and that infections occur in direct proportion to the number of encounters between susceptible and infectious individuals (i.e., *disease transmission is density-dependent* and happens at rate $\beta SI$).
+All of the following disease models assume that infectious individuals mix homogeneously with other individuals in the population and that infections occur in direct proportion to the number of encounters between susceptible and infectious individuals (i.e., *disease transmission is density-dependent* and happens at rate $\beta SI$).
 
 *Open versus closed populations:* All of the models here include vital rates (i.e., births/deaths), which is called an open population. They assume that the number of births = the number of non-disease-induced deaths. If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. Models that do not include vital rates are said to model a closed population. To run a model in this app without vital rates, set $m = 0$. 
 
