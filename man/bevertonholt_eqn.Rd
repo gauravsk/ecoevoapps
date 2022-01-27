@@ -4,14 +4,14 @@
 \alias{bevertonholt_eqn}
 \title{Equation that returns Nt+1 from Nt for the Beverton-Holt model}
 \usage{
-bevertonholt_eqn(Nt, Rd, K)
+bevertonholt_eqn(Nt, rd, K)
 }
 \arguments{
+\item{rd}{Population growth rate}
+
 \item{K}{Carrying capacity}
 
 \item{x}{Nt}
-
-\item{r}{Population growth rate}
 }
 \description{
 Equation that returns Nt+1 from Nt for the Beverton-Holt model
