@@ -1,0 +1,681 @@
+---
+title: "消费者-资源相互作用"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ecoevoapps)
+library(kableExtra)
+library(tidyr)
+library(ggplot2)
+ggplot2::theme_set(ecoevoapps::theme_apps())
+```
+
+消费者和资源之间的相互作用是生态群落中最重要的动态之一。食草动物与植物、捕食者和猎物、拟寄生生物和宿主之间的相互作用，都可以看作是一种消费者-资源相互作用。此app展现了几个用于研究这类相互作用的模型。以下，我们将资源称作“猎物”，将消费者称作“捕食者”。下文各个选项卡展示了消费者-资源模型的不同变种。
+
+##  {.tabset}
+
+### Lotka-Volterra 捕食者-猎物模型
+
+经典的 [Lotka-Volterra 捕食者-猎物](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) 模型描述了一个呈指数（J型）增长的猎物和一个无猎食饱和 【I类功能反应，详见 [下文](#consumer-functional-response)】的捕食者，和两者间的动态:
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params type 1, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("猎物种群规模",
+                 "捕食者种群规模",
+                 "猎物人均增长率",
+                 "捕食者的猎食率",
+                 "营养转化率",
+                 "捕食者死亡率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+零增长等斜线:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\\
+\\
+H^* &= \frac{d}{ea} 
+\end{align}
+\]
+
+
+```{r type 1 pred prey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_lv_pred1", label = "猎物人均增长率", 
+                min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred1", label = "捕食者猎食率", min = .001, 
+                max = 1.0, value = .1),
+    sliderInput("e_lv_pred1", label = "营养转化率",
+                min = .001, max = 1.0, value = 0.2),
+    sliderInput("d_lv_pred1", label = "捕食者人均死亡率",
+                min = .0001, max = 1.0, value = .3),
+    
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_lv_pred1", label = "猎物起始种群规模", 
+                 min = 1, value = 10),
+    numericInput("P_lv_pred1", label = "捕食者起始种群规模", 
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_lv_pred1", label = "模拟时长", min = 10, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred1", label = "显示向量场?", 
+                       choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred1()),
+            renderPlot(np_lvpred1())
+            )
+
+)
+
+# Set the initial population sizes
+init_lv_pred1 <- reactive({c(H = input$H_lv_pred1, P = input$P_lv_pred1)})
+
+# Set the parameter values
+pars_lv_pred1 <- reactive({
+  c(r = input$r_lv_pred1, a = input$a_lv_pred1, 
+    e = input$e_lv_pred1, d = input$d_lv_pred1)
+})
+
+# Time over which to simulate model dynamics
+time_lv_pred1 <- reactive({seq(0, input$t_lv_pred1, by = .1)})
+
+# simulate model dynamics
+out_lv_pred1 <- reactive({
+  data.frame(run_predprey_model(
+    time = time_lv_pred1(),
+    init = init_lv_pred1(),
+    params = pars_lv_pred1()
+  ))
+})
+
+# Plots ------
+## make abundance thru time plot
+plot_lvpred1 <- reactive({
+  plot_predprey_time(out_lv_pred1())
+})
+
+# plot trajectory of population
+np_lvpred1 <- reactive({
+  if("Yes" %in% input$vectors_lv_pred1) {
+    plot_predprey_portrait(out_lv_pred1(), pars_lv_pred1(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_lv_pred1(), pars_lv_pred1(), 
+                             vectors_field = F)
+  }
+  
+})
+
+```
+
+### 呈逻辑斯蒂（S型）增长的猎物
+ 相比Lotka-Volterra模型，这个模型更加接近生物事实。在Lotka-Volterra模型中，猎物呈指数（J型）增长；而此处，猎物呈逻辑斯蒂（S型）增长，并趋于其环境承载力$K$：
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params logistic growth, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("猎物种群规模",
+                 "捕食者种群规模",
+                 "猎物人均增长率",
+                 "猎物的环境承载力",
+                 "捕食者猎食率",
+                 "营养转化率",
+                 "捕食者死亡率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+零增长等斜线:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+\\
+H^* &= \frac{d}{ea} \\
+\end{align}
+\]
+
+```{r logprey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, e, d, K
+    
+    sliderInput("r_logprey", label = "猎物人均增长率",
+                min = .0001, max = 1.0, value = .5),
+    numericInput("K_logprey", label = "猎物的环境承载力", 
+                 min = 1, value = 100),
+    sliderInput("a_logprey", label = "捕食者猎食率",
+                min = .001, max = 1.0, value = .1),
+    sliderInput("e_logprey", label = "营养转化率", 
+                min = .001, max = 1.0, value = 0.5),
+    sliderInput("d_logprey", label = "捕食者人均死亡率",
+                min = .0001, max = 1.0, value = .3),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    numericInput("H_logprey", label = "猎物起始种群规模",
+                 min = 1, value = 10),
+    numericInput("P_logprey", label = "捕食者起始种群规模", 
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_logprey", label = "模拟时长", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_logprey", label = "显示向量场?", 
+                       choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_logprey()), 
+            renderPlot(np_logprey())
+            )
+)
+
+# Set the initial population sizes
+init_logprey <- reactive({
+  c(H = input$H_logprey, P = input$P_logprey)
+})
+
+# Set the parameter values
+pars_logprey <- reactive({
+  c(r = input$r_logprey, K = input$K_logprey, 
+    a = input$a_logprey, e = input$e_logprey, d = input$d_logprey)
+  })
+
+# Time over which to simulate model dynamics
+time_logprey <- reactive({seq(0, input$t_logprey, by = .1)})
+
+# Simulate the dynamics
+out_logprey <- reactive({
+    data.frame(run_predprey_model(
+    time = time_logprey(),
+    init = init_logprey(),
+    params = pars_logprey()
+  ))
+})
+  
+# Plots ------
+
+## make abundance thru time plot
+plot_logprey <- reactive({
+  plot_predprey_time(out_logprey())
+})
+
+
+np_logprey <- reactive({
+  if("Yes" %in% input$vectors_logprey) {
+    plot_predprey_portrait(out_logprey(), pars_logprey(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_logprey(), pars_logprey(), 
+                             vectors_field = FALSE)
+  }
+})
+
+```
+
+### II类功能反应
+
+This model goes back to an exponentially growing prey, but adds an additional layer of biological realism to the *predator*. Specifically, in the classic L-V model, the  predator individuals don't spend any time processing they prey, and they never get satiated. In this model, the predator has a **[Type II functional response](https://en.wikipedia.org/wiki/Functional_response)**, which means that the predator's efficiency in eating the prey is limited by the time it has to invest in processing the prey. 
+此模型再次假设猎物呈指数增长，但对于*捕食者*的描述更接近现实。在经典L-V模型中，捕食者个体不需要额外时间来处理猎物，也从不会饱足；而此模型中，捕食者则具有**[II型功能反应](https://en.wikipedia.org/wiki/Functional_response)**:
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - \frac{aH}{1+aT_hH} P\\
+\\
+\frac{dP}{dt} &= eP \frac{aH}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params type ii, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("猎物种群规模",
+                 "捕食者种群规模",
+                 "猎物人均增长率",
+                 "捕食者猎食率",
+                 "捕食者处理猎物的时间",
+                 "营养转化率",
+                 "捕食者死亡率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("变量/参数", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+零增长等斜线:
+\[
+\begin{align}
+P^* &= \frac{r}{a} +rT_hH\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    sliderInput("r_lv_pred2", label = "猎物人均增长率",
+                min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred2", label = "捕食者猎食率",
+                min = .001, max = 1.0, value = .1),
+    sliderInput("T_h_lv_pred2", label = "捕食者处理猎物的时间",
+                min = 0.001, max = 1.0, value = 0.2),
+    sliderInput("e_lv_pred2", label = "营养转化率", 
+                min = .001, max = 1.0, value = 0.7),
+    sliderInput("d_lv_pred2", label = "捕食者人均死亡率",
+                min = .0001, max = 1.0, value = .3),
+      
+    ### Ask users for initial conditions -----
+    numericInput("H_lv_pred2", label = "猎物起始种群规模",
+                 min = 1, value = 10),
+    numericInput("P_lv_pred2", label = "捕食者起始种群规模",
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----    
+    numericInput("t_lv_pred2", label = "模拟时长", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred2", label = "显示向量场?", 
+                       choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred2()),
+            renderPlot(np_lvpred2())
+  )
+)
+
+# Set the initial population sizes
+init_lv_pred2 <- reactive({
+  c(H = input$H_lv_pred2 , P = input$P_lv_pred2)
+})
+
+# Set the parameter values
+pars_lv_pred2 <- reactive({
+  c(r = input$r_lv_pred2, a = input$a_lv_pred2, 
+    T_h = input$T_h_lv_pred2 , e = input$e_lv_pred2, 
+    d = input$d_lv_pred2 )})
+
+# Time over which to simulate model dynamics
+time_lv_pred2 <- reactive({seq(0,input$t_lv_pred2,by = .1)})
+
+# Simulate the dynamics
+out_lv_pred2 <- reactive({
+  data.frame(run_predprey_model(
+    time = time_lv_pred2(),
+    init = init_lv_pred2(),
+    params = pars_lv_pred2()
+  ))
+})
+  
+
+# Plots ------
+
+## make abundance thru time plot
+plot_lvpred2 <- reactive({
+  plot_predprey_time(out_lv_pred2())
+})
+
+np_lvpred2 <- reactive({
+  if("Yes" %in% input$vectors_lv_pred2) {
+    plot_predprey_portrait(out_lv_pred2(), pars_lv_pred2(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_lv_pred2(), pars_lv_pred2(), 
+                             vectors_field = FALSE)
+  }
+})
+
+
+```
+
+### Rosenzweig-MacArthur 模型
+最终，Rosenzweig-MacArthur模型兼具呈逻辑斯蒂增长的猎物和具有II型功能反应的捕食者：
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
+\\
+\frac{dP}{dt} &= e \frac{aHP}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params rosen-mac, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("猎物种群规模",
+                 "捕食者种群规模",
+                 "猎物人均增长率",
+                 "猎物的环境承载力",
+                 "捕食者猎食率",
+                 "捕食者处理猎物的时间",
+                 "营养转化率",
+                 "捕食者死亡率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+零增长等斜线:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r rosenzweig-macarthur, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_rm", label = "猎物人均增长率", 
+                min = .0001, max = 1.0, value = .2),
+    numericInput("K_rm", label = "猎物环境承载力",
+                 min = 1, value = 150),
+    sliderInput("a_rm", label = "捕食者猎食率",
+                min = .001, max = 1.0, value = .02),
+    sliderInput("T_h_rm", label = "捕食者处理猎物的时间",
+                min = 0.001, max = 1.0, value = 0.3),
+    sliderInput("e_rm", label = "营养转化率", 
+                min = .001, max = 1.0, value = 0.6),
+    sliderInput("d_rm", label = "捕食者人均死亡率",
+                min = .0001, max = 1.0, value = .4),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    numericInput("H_rm", label = "猎物起始种群规模",
+                 min = 1, value = 30),
+    numericInput("P_rm", label = "捕食者起始种群规模", 
+                 min = 1, value = 25),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_rm", label = "模拟时长", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_rm", label = "显示向量场?",
+                       choices = c("Yes" = "Yes"), selected = "Yes")
+    
+  ),
+  
+  mainPanel(renderPlot(plot_rm()),
+            renderPlot(np_rm())
+            )
+  
+)
+
+# Set the initial population sizes
+init_rm <- reactive({c(H = input$H_rm , P = input$P_rm)})
+
+# Set the parameter values
+pars_rm <- reactive({
+  c(r = input$r_rm, K = input$K_rm, 
+    a = input$a_rm, T_h = input$T_h_rm, 
+    e = input$e_rm, d = input$d_rm )})
+
+# Time over which to simulate model dynamics
+time_rm <- reactive({seq(0,input$t_rm,by = .1)})
+
+out_rm <- reactive({
+    data.frame(run_predprey_model(
+    time = time_rm(),
+    init = init_rm(),
+    params = pars_rm()
+  ))
+  })
+  
+# Plots ------
+## make abundance thru time plot
+plot_rm <- reactive({
+    plot_predprey_time(out_rm())
+})
+
+np_rm <- reactive({
+  if("Yes" %in% input$vectors_rm) {
+    plot_predprey_portrait(out_rm(), pars_rm(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_rm(), pars_rm(), 
+                             vectors_field = FALSE)
+  }
+})
+
+```
+
+## 消费者的功能反应 {.tabset}
+消费者的功能反应表述了消费者进食资源的速率和资源密度之间的关系。
+
+```{r functional response functions, echo=FALSE}
+type1_fr <- function (H_init, H_final, a){
+  to_return <- c(a*(H_init:H_final))
+  return(to_return)
+}
+
+type2_fr <- function (H_init, H_final, a, Th){
+  to_return <- c((a*(H_init:H_final)/(1+a*Th*(H_init:H_final))))
+  return(to_return)
+}
+
+```
+
+### I型
+
+随着资源密度增长，进食率呈线性增长。公式如下：
+
+$$f(H) = aH$$
+
+
+```{r params type 1 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$")
+descriptions <- c("猎物种群规模",
+                 "捕食者猎食率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 1 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a
+    sliderInput("a_fr_type1", label = "捕食者猎食率", min = .001, 
+                max = 1.0, value = .02),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type1", label = "猎物起始种群规模", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type1", label = "猎物终止种群规模", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type1())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type1 <- reactive({type1_fr(H_init = input$H_init_fr_type1, 
+                                   H_final = input$H_final_fr_type1,
+                                   a = input$a_fr_type1)})
+
+type1_fr_df <- reactive({data.frame(H = input$H_init_fr_type1:input$H_final_fr_type1,
+                                    f_rate = out_fr_type1())})
+
+#Plot
+
+plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("猎物数量") + 
+                            ylab("捕食率") +
+                            ylim(0,50)})
+   
+```
+
+### II型
+
+捕食者进食率随猎物密度增长而减缓，并因捕食者饱足而趋于平缓：
+
+$$g(H) = \frac {aH}{1+aT_hH}$$
+
+```{r params type 2 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$", 
+               "$T_h$")
+descriptions <- c("猎物种群规模",
+                 "捕食者猎食率",
+                 "捕食者处理猎物的时间")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 2 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a, Th
+    
+    sliderInput("a_fr_type2", label = "捕食者猎食率", min = .001, 
+                max = 1.0, value = .02),
+    sliderInput("T_h_fr_type2", label = "捕食者处理猎物的时间", min = 0.001, 
+                max = 1.0, value = 0.3),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type2", label = "猎物起始种群规模", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type2", label = "猎物终止种群规模", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type2())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type2 <- reactive({type2_fr(H_init = input$H_init_fr_type2, 
+                                   H_final = input$H_final_fr_type2,
+                                   a = input$a_fr_type2,
+                                   Th = input$T_h_fr_type2)})
+
+type2_fr_df <- reactive({data.frame(H = input$H_init_fr_type2:input$H_final_fr_type2,
+                                    f_rate = out_fr_type2())})
+
+#Plot
+
+plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("猎物数量") + 
+                            ylab("捕食率") +
+                            ylim(0,4)})
+   
+```
+
+
+## 参考文献
+- [Consumer Resource Dynamics](https://press.princeton.edu/books/paperback/9780691006574/consumer-resource-dynamics-mpb-36) by Murdoch, Briggs and Nisbet - digital copy may be available through a library.  
+- [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
+- [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
+- [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+-------------
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+
