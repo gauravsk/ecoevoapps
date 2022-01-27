@@ -117,7 +117,8 @@ trajaectory_plot_dl <- reactive({
 cobweb_dl <- reactive({
   plot_discrete_population_cobweb(dl_df(),
                                   params_vec = params_dl(),
-                                  model_type = "discrete_logistic")
+                                  model_type = "discrete_logistic") +
+    labs(title = "迭代图/蛛网图")
 })
 
 # Make plot caption ----
@@ -178,7 +179,8 @@ trajaectory_plot_ricker <- reactive({
 cobweb_ricker <- reactive({
     plot_discrete_population_cobweb(ricker_df(),
                                   params_vec = params_ricker(),
-                                  model_type = "ricker")
+                                  model_type = "ricker") +
+    labs(title = "迭代图/蛛网图")
 })
 
 # Make plot caption ----
@@ -243,7 +245,9 @@ trajaectory_plot_bh <- reactive({
 cobweb_bh <- reactive({
   plot_discrete_population_cobweb(bh_df(),
                                   params_vec = c(rd = input$r_bh, K = input$K_bh),
-                                  model_type = "beverton_holt") 
+                                  model_type = "beverton_holt")  +
+    labs(title = "迭代图/蛛网图")
+
 })
 
 
