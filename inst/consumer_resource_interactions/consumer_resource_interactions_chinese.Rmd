@@ -267,8 +267,7 @@ np_logprey <- reactive({
 
 ### II类功能反应
 
-This model goes back to an exponentially growing prey, but adds an additional layer of biological realism to the *predator*. Specifically, in the classic L-V model, the  predator individuals don't spend any time processing they prey, and they never get satiated. In this model, the predator has a **[Type II functional response](https://en.wikipedia.org/wiki/Functional_response)**, which means that the predator's efficiency in eating the prey is limited by the time it has to invest in processing the prey. 
-此模型再次假设猎物呈指数增长，但对于*捕食者*的描述更接近现实。在经典L-V模型中，捕食者个体不需要额外时间来处理猎物，也从不会饱足；而此模型中，捕食者则具有**[II型功能反应](https://en.wikipedia.org/wiki/Functional_response)**:
+此模型再次假设猎物呈指数增长，但对于*捕食者*的描述更接近现实。在经典L-V模型中，捕食者个体不需要额外时间来处理猎物，也从不会饱足；而此模型中，捕食者则具有**[II型功能反应](https://en.wikipedia.org/wiki/Functional_response)**, 即其捕食效率会因为需要时间来处理猎物而降低:
 
 \[
 \begin{align}
