@@ -18,11 +18,11 @@ shiny_singlepop_continuous <- function(language = "en") {
   stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
               (language %in% c("en", "tk", "ch")))
 
-  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population/single_population_app_en.Rmd",
+  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population_continuous/single_population_app_en.Rmd",
                                                                package =  "ecoevoapps"),
-                                language == "tk" ~ system.file("single_population/single_population_app_tk.Rmd",
+                                language == "tk" ~ system.file("single_population_continuous/single_population_app_tk.Rmd",
                                                                package =  "ecoevoapps"),
-                                language == "ch" ~ system.file("single_population/single_population_app_ch.Rmd",
+                                language == "ch" ~ system.file("single_population_continuous/single_population_app_ch.Rmd",
                                                                package =  "ecoevoapps"))
 
   rmarkdown::run(
