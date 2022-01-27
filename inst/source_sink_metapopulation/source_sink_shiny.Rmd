@@ -145,7 +145,7 @@ ssequiUI <- function(id){
 ```
 
 ```{r serverModules, echo=FALSE}
-# server modules for separate output based on respectve inputs (desktop vs mobile tabs)
+# server modules for separate output based on respective inputs (desktop vs mobile tabs)
 ssServer <- function(id) {
     moduleServer(id, function(input, output, session) {
       
@@ -155,7 +155,7 @@ ssServer <- function(id) {
             "beta1", # this variable (beta1)
             input$pa + input$pj * input$beta1 <= 1, # if satisefy this condition
             "pa + pj * beta1 should >1 for source polulation, view suggestion.  
-            Note that the violation does not stop the simulation. It just no longer satisefies the definition of a Pulliam source population" 
+            Note that the violation does not stop the simulation. It just no longer satisfies the definition of a Pulliam source population" 
             # this warning message will show up
             # but simlulation will continue even with warning
             # if want simulation ONLY with valid input, use REQUIRE statement
@@ -191,7 +191,7 @@ ssServer <- function(id) {
         
         #code tip: now init and params are reactive, use them like functions "xx()"
         ss_df <- reactive({ data.frame(year = 1:time(), 
-                                      source_sink(endtime = time(), init = init(), 
+                                      run_source_sink(endtime = time(), init = init(), 
                                                     params = params())) })
         ss_out <- reactive({
            out <- ss_df()
