@@ -11,6 +11,8 @@ output:
       collapsed: false
       smooth_scroll: false
     number_sections: true
+header-includes:
+   - \usepackage{asmath}
 runtime: shiny
 ---
 <div style="margin-bottom:10%;">
@@ -20,10 +22,9 @@ knitr::opts_chunk$set(echo = FALSE)
 </div>
 
 # Model overview
-A metapopulation is a collection of spatially separated populations of a given species.  
-The source-sink metapopulation model focuses on the "impact of **habitat-specific demographic rates** on population growth and regulation." (Pulliam 1988).   
+A metapopulation is a collection of spatially separated populations of a given species.   
 
-In the simplified model scenario, the two populations differ in their fecundity due to different habitat quality. The **source** population has a high-quality habitat, in which it achieves high fecundity and overall positive population growth rate until it reaches a carrying capacity. The **sink** population has a low-quality habitat in which the population cannot sustain itself. 
+In the simplified source-sink metapopulation model (Pulliam 1988), the two populations differ in their fecundity due to different habitat quality. The **source** population has a high-quality habitat, high fecundity, and overall positive population growth rate until it reaches a carrying capacity. The **sink** population has a low-quality habitat in which the population cannot sustain itself. 
 
 The two populations are linked via emmigration/immigration, and their population growths are described in the next section. 
 
@@ -31,33 +32,48 @@ The two populations are linked via emmigration/immigration, and their population
 The population size at the **beginning of a year** is denoted $n$.  
 During the summer breeding season, each adult produces $\beta$ offspring.  
 Therefore, the **end-of-summer** population size is given by:
-$$n_{\mathrm{end~of~summer}} = \mathrm{adults} + \mathrm{newborn~juveniles} = n + \beta n $$
+\begin{equation}
+\tag{1}
+n_{\mathrm{end~of~summer}} = \mathrm{adults} + \mathrm{newborn~juveniles} = n + \beta n
+\end{equation}
   
 The annual survival rate of adults is denoted $P_{A}$, and that of juveniles is denoted $P_{J}$. 
 
 Therefore, the **end-of-year** population size is:
-$$n_{\mathrm{end~of~year}} = \mathrm{survived~adults} + \mathrm{survived~juveniles} = P_{A}n + P_{J} \beta n $$
+\begin{equation}
+\tag{2}
+n_{\mathrm{end~of~year}} = \mathrm{survived~adults} + \mathrm{survived~juveniles} = P_{A}n + P_{J} \beta n
+\end{equation}
   
 Thus, we can respectively write the end-of-year size of the source population (1) and sink population (2) as: 
-$$n_{1\mathrm{~end~of~year}} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
-$$n_{2\mathrm{~end~of~year}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+\begin{equation}
+\tag{3}
+n_{1\mathrm{~end~of~year}} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}\\
+n_{2\mathrm{~end~of~year}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}
+\end{equation}
 where the $\lambda_i = (P_A + P_J\beta_i)$ represents the net annual growth rates of the respective population.  Populations can grow provided that $\lambda > 1$. 
 
-Note that the Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). The source population by definition has a positive population growth rate ($\lambda_1$ > 1) and the sink population by definition has a negative population growth rate ($\lambda$ < 1).     
+The Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). By definition, the source population has a positive population growth rate ($\lambda_1$ > 1), and the sink population a negative population growth rate ($\lambda$ < 1).     
   
 If the source population exceeds the site carrying capacity ($N^{*}$), any excess individuals will **disperse** to the sink site, where there is no upper limit on population size (i.e. no carrying capacity). 
-$$E_{\rm{from~sink}} = I_{\mathrm{to~source}} = n_{1\mathrm{~end~of~year}} - N^{*} $$
+\begin{equation}
+\tag{4}
+E_{\rm{from~sink}} = I_{\mathrm{to~source}} = n_{1\mathrm{~end~of~year}} - N^{*}
+\end{equation}
 At the **beginning of the next year**, the source and sink population will become:  
 
-- if source population has not reached carrying capacity:
-$$ n_{1~\mathrm{next~year~initial}} =  P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}$$
-$$n_{2~\mathrm{next~year~initial}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}$$
+- if source population has not reached carrying capacity, the populations sizes are given by equation (3).
 
 - or, if the source population size exceeds the carrying capacity ($n_{1}$ = $N^*$):
-$$ n_{1\mathrm{~next~year~initial}} = N^{*} $$
-$$n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~source}}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
+\begin{equation}
+\tag{5}
+n_{1\mathrm{~next~year~initial}} = N^{*}\\
+n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~source}}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}
+\end{equation}
 
 From there, the annual cycle begins again.
+
+![Illustration of the annual cycle, taken from Pulliam 1988 Fig.1](Pulliam1988_fig1.png)
 
 ## Table of model parameters
 
@@ -277,16 +293,31 @@ shinyApp( #to embed shiny app into the html document
 
 ## Source population
 Clearly, the equilibrium is the carrying capacity of the source site.
-$$n_{1}^{*} = N^{*} $$
+\begin{equation}
+\tag{6}
+n_{1}^{*} = N^{*}
+\end{equation}
 
 ## Sink population
 Recall that when the source population reaches equilibrium, the sink population annual increase can be written as:
-$$n_{2~next~year~initial} =  (P_{A} + P_{J} \beta_{2}) n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}$$
+\begin{equation}
+\tag{7}
+n_{2~next~year~initial} =  (P_{A} + P_{J} \beta_{2}) n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}
+\end{equation}
 The above is a discrete time model, but if we consider a really long time, it becomes continuous. We represent the rate of change of sink population as the time deriative:
-$$n_{2}^{'} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2} + (\lambda_{1} n_{1} - N^{*}) = (\lambda_{2} - 1) n_{2} + (\lambda_{1} - 1)N^{*}$$
+\begin{equation}
+\tag{8}
+n_{2}^{'} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2} + (\lambda_{1} n_{1} - N^{*}) = (\lambda_{2} - 1) n_{2} + (\lambda_{1} - 1)N^{*}
+\end{equation}
 At equilibrium, the rate of change is 0 and we can solve for $n_{2}^{*}$:
-$$0 = n_{2}^{'} = (\lambda_{2}-1) n_{2}^{*} + (\lambda_{1} - 1)N^{*} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2}^{*} + (P_{A} + P_{J} \beta_{1} - 1)N^{*} $$
-$$ n_{2}^{*} = -\frac{(P_{A} + P_{J} \beta_{1} - 1)N^{*}}{(P_{A} + P_{J} \beta_{2} - 1)}  $$
+\begin{equation}
+\tag{9}
+0 = n_{2}^{'} = (\lambda_{2}-1) n_{2}^{*} + (\lambda_{1} - 1)N^{*} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2}^{*} + (P_{A} + P_{J} \beta_{1} - 1)N^{*}
+\end{equation}
+\begin{equation}
+\tag{10}
+n_{2}^{*} = -\frac{(P_{A} + P_{J} \beta_{1} - 1)N^{*}}{(P_{A} + P_{J} \beta_{2} - 1)}
+\end{equation}
 Calculate the equilibirum of your sink population based on your input and verify your answer using the simulation plot.  
 
 
