@@ -3,6 +3,7 @@
 export(add_to_sf_plot)
 export(make_sf_plot)
 export(originator)
+export(plot_discrete_population_cobweb)
 export(plot_discrete_population_growth)
 export(plot_infectiousdisease_portrait)
 export(plot_infectiousdisease_time)

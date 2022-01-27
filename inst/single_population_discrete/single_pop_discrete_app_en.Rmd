@@ -64,6 +64,8 @@ plots_to_print <- reactive({trajaectory_plot()})
 
 ## Discrete logistic growth  {.tabset}
 
+Next, we can explore models of population growth where the growth rate of a population depends on the current population size. There are several different canonical models that track the dynamics of populations whose growth rates decrease as population size increases. 
+
 ### Standard discrete logistic model
 
 One way to model logistic growth in a population with discrete growth is with the [logistic map](https://en.wikipedia.org/wiki/Logistic_map), which is a discrete time analog of the continuous logistic equation:  
@@ -113,16 +115,10 @@ trajaectory_plot_dl <- reactive({
 
 # cobweb for standard discrete logistic model -----
 cobweb_dl <- reactive({
-  ggplot(dl_df()) +
-    stat_function(fun = function(x) ecoevoapps:::discretelogistic_eqn(x, input$rd_dl, input$K_dl),
-                  aes(x = seq(1, input$K_dl*1.05, length.out = input$time_dl))) +
-    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
-    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
-    geom_hline(yintercept = input$K_dl, size = .2)+
-    geom_vline(xintercept = input$K_dl, size = .2) +
-    ylab(TeX("$N_{t+1}"))+
-    xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")})
+  plot_discrete_population_cobweb(dl_df(),
+                                  params_vec = c(rd = input$rd_dl, K = input$K_dl),
+                                  model_type = "discrete_logistic")
+})
 
 # Make plot caption ----
 plot_caption_dl <- reactive({
@@ -167,7 +163,7 @@ sidebarLayout(
 
 ricker_df <- reactive({
   ricker_out <- run_ricker_model(N0 = input$N0_ricker, K = input$K_ricker,
-                              r = input$r_ricker, time = input$time_ricker)
+                              rd = input$r_ricker, time = input$time_ricker)
   
   ricker_out$Ntm1 <- dplyr::lag(ricker_out$Nt)
   ricker_out
@@ -180,14 +176,11 @@ trajaectory_plot_ricker <- reactive({
 
 # cobweb plot for ricker model -----
 cobweb_ricker <- reactive({
-  ggplot(ricker_df()) + 
-    stat_function(fun = function(x) ecoevoapps:::ricker_eqn(x, input$r_ricker, input$K_ricker),
-                  aes(x = seq(1, input$K_ricker*1.05, length.out = input$time_ricker))) + 
-    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
-    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
-    ylab(TeX("$N_{t+1}"))+
-    xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")})
+  
+    plot_discrete_population_cobweb(ricker_df(),
+                                  params_vec = c(rd = input$r_ricker, K = input$K_ricker),
+                                  model_type = "ricker")
+})
 
 # Make plot caption ----
 plot_caption_ricker <- reactive({
@@ -234,10 +227,8 @@ sidebarLayout(
 
 # Get user defined parameters for discrete logistic  ------
 bh_df <- reactive({
-  bv_df <- run_beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, 
-                                   Rd = input$r_bh, time = input$time_bh)
-  bv_df$Ntm1 <- dplyr::lag(bv_df$Nt)
-  bv_df
+  run_beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, 
+                                   rd = input$r_bh, time = input$time_bh)
 })
 # Generate trajectories for beverton-holt model --------
 trajaectory_plot_bh <- reactive({
@@ -247,18 +238,10 @@ trajaectory_plot_bh <- reactive({
 
 # Generate cobweb for beverton-holt model --------
 cobweb_bh <- reactive({
-  ggplot(bh_df()) + 
-    stat_function(fun = function(x) ecoevoapps:::bevertonholt_eqn(x, input$r_bh, input$K_bh),
-                  aes(x = seq(1, input$K_bh*1.05, length.out = input$time_bh))) + 
-    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.2, color = "red") +
-    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.2, color = "red") +
-
-    geom_hline(yintercept = input$K_bh, size = .2)+
-    geom_vline(xintercept = input$K_bh, size = .2) + 
-    ylab(TeX("$N_{t+1}"))+
-    xlab(TeX("$N_t$")) +
-    labs(title = "Cobweb plot")
-  })
+  plot_discrete_population_cobweb(bh_df(),
+                                  params_vec = c(rd = input$r_bh, K = input$K_bh),
+                                  model_type = "beverton_holt") 
+})
 
 # Make plot caption ----
 plot_caption_bh <- reactive({
