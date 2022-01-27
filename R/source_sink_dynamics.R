@@ -12,11 +12,10 @@
 #' # the model requires a sink site with negative population growth (lambda < 1),
 #' # but here lambdas for both sites exceeds 1.
 #' # Note that the violation does not stop the simulation.
-#' It just no longer satisfies the definition of a Pulliam sink population
+#' # But it no longer satisfies the definition of a Pulliam sink population
 #' run_source_sink(endtime = 50, init = c(100, 100),
 #' params = c(pa = 0.6, pj = 0.15, beta1 = 4, beta2 = 3, N1 = 300))
 #' @export
-# Write a function to calculate Nt+1 for both populations, using DISCRETE time
 run_source_sink <- function(endtime,init,params) {
   with (as.list(c(endtime,init,params)), {
     # description of parameters/state variables:
