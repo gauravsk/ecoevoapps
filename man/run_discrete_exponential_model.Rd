@@ -14,7 +14,7 @@ run_discrete_exponential_model(N0 = 1, lambda = 1.1, time = 100)
 \item{time}{Number of time steps over which to project the model}
 }
 \value{
-A data frame with colums time and Nt
+A data frame with columns time and Nt
 }
 \description{
 Discrete exponential growth model
