@@ -102,11 +102,10 @@ sidebarLayout(
 
 params_dl <- reactive({c(rd = input$rd_dl, K = input$K_dl)})
 dl_df <- reactive({
-  dl_df <- run_discrete_logistic_model(N0 = input$N0_dl,
+  run_discrete_logistic_model(N0 = input$N0_dl,
                                        params = params_dl(),
                                        time = input$time_dl)
-  dl_df$Ntm1 <- dplyr::lag(dl_df$Nt)
-  dl_df
+
 
 })
 # Generate trajectories for discrete logistic --------
@@ -165,12 +164,9 @@ sidebarLayout(
 params_ricker <- reactive({c(rd = input$r_ricker, K = input$K_ricker)})
 
 ricker_df <- reactive({
-  ricker_out <- run_ricker_model(N0 = input$N0_ricker,
+  run_ricker_model(N0 = input$N0_ricker,
                                  params = params_ricker(),
                                  time = input$time_ricker)
-  
-  ricker_out$Ntm1 <- dplyr::lag(ricker_out$Nt)
-  ricker_out
 })
 # Generate trajectories for discrete logistic --------
 trajaectory_plot_ricker <- reactive({
@@ -227,11 +223,11 @@ sidebarLayout(
     renderPlot({plots_to_print_bh()}, width = 450, height = 800)
   )
 )
-params_bh <- reactive({c(rd = input$r_bh, K = input$K_bh)})
 # Get user defined parameters for discrete logistic  ------
+params_bh <- reactive({c(rd = input$r_bh, K = input$K_bh)})
 bh_df <- reactive({
   run_beverton_holt_model(N0 = input$N0_bh, 
-                          params = params_bh
+                          params = params_bh(),
                           time = input$time_bh)
 })
 # Generate trajectories for beverton-holt model --------
