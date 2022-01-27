@@ -20,5 +20,5 @@ A data frame with columns time and Nt
 Beverton Holt model
 }
 \examples{
-run_beverton_holt_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
+run_beverton_holt_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 10)
 }

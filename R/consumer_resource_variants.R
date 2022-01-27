@@ -2,6 +2,7 @@
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param pars intrinsic growth rate r, a, e, d
+#' @keywords internal
 lv_predprey_t1 <- function(time,init,pars) {
   with (as.list(c(time,init,pars)), {
     # description of parameters:
@@ -34,6 +35,7 @@ lv_predprey_t1_1step <- function(H, P, pars) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param pars intrinsic growth rate r, a, e, d, K
+#' @keywords internal
 lv_predprey_logPrey <- function(time,init,pars) {
   with (as.list(c(time,init,pars)), {
     # description of parameters:
@@ -68,6 +70,7 @@ lv_predprey_logPrey_1step <- function(H, P, pars) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param pars intrinsic growth rate r, a, e, d, T_h
+#' @keywords internal
 lv_predprey_t2 <- function(time,init,pars) {
   with (as.list(c(time,init,pars)), {
     # description of parameters:
@@ -110,6 +113,7 @@ lv_predprey_t2_1step <- function(H, P, pars) {
 #' @param time vector of time units over which to run model
 #' @param init initial population size of population
 #' @param pars intrinsic growth rate r, a, e, d, T_h, K
+#' @keywords internal
 rm_predprey <- function(time,init,pars) {
   with (as.list(c(time,init,pars)), {
     # description of parameters:

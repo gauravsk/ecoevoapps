@@ -16,3 +16,4 @@ rm_predprey(time, init, pars)
 \description{
 Run Rosenzweig-MacArthur model
 }
+\keyword{internal}

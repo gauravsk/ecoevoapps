@@ -104,7 +104,7 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
     ylab("Proportion of individuals") +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
-    ecoevoapps::theme_apps()
+    theme_apps()
 
   # Add stable age distribution from Leslie matrix
   # if the leslie matrix is provided to the function
@@ -152,7 +152,7 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
     ylab(expression("Population growth rate (" ~lambda* ")")) +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
-    ecoevoapps::theme_apps()
+    theme_apps()
 
 
   # Add stable age distribution from Leslie matrix
@@ -177,7 +177,7 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
 plot_leslie_diagram <- function(leslie_mat) {
   n_ages <- nrow(leslie_mat)
   name_vec <- parse(text = paste0("Age[",1:n_ages,"]"))
-  diagr <- diagram::plotmat(A = leslie_mat, pos = n_ages,
+  diagr <- plotmat(A = leslie_mat, pos = n_ages,
                             curve = 0.5, lwd = 1.5, my = -0.1,
                name = name_vec,
                arr.len = 0.2, arr.width = 0.25, arr.lwd = 2,

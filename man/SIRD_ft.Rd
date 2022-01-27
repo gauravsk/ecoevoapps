@@ -18,3 +18,4 @@ a (inverse of incubation period), and mu (death to infections)}
 \description{
 SIRD model with vital rates and frequency-dependent transmission
 }
+\keyword{internal}

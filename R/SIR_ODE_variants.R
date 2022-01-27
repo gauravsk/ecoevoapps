@@ -3,6 +3,7 @@
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), and v (vaccination rate)
+#' @keywords internal
 SIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -22,6 +23,7 @@ SIR <- function(time,init,params) {
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' and v (vaccination rate)
+#' @keywords internal
 SIR_no_vitals <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -41,6 +43,7 @@ SIR_no_vitals <- function(time,init,params) {
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), v (vaccination rate),
 #' and a (inverse of incubation period)
+#' @keywords internal
 SEIR <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -63,6 +66,7 @@ SEIR <- function(time,init,params) {
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), v (vaccination rate),
 #' a (inverse of incubation period), and mu (death to infections)
+#' @keywords internal
 SIRD <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -84,6 +88,7 @@ SIRD <- function(time,init,params) {
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate),
 #' m (natural birth/death rate), and gamma (recovery rate)
+#' @keywords internal
 SIS <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -101,6 +106,7 @@ SIS <- function(time,init,params) {
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), and v(vaccination rate)
+#' @keywords internal
 SIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -122,6 +128,7 @@ SIR_ft <- function(time,init,params) {
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), v (vaccination rate),
 #' and a (inverse of incubation period)
+#' @keywords internal
 SEIR_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -144,6 +151,7 @@ SEIR_ft <- function(time,init,params) {
 #' @param params vector of beta (infection rate), gamma (recovery rate),
 #' m (natural birth/death rate), v (vaccination rate),
 #' a (inverse of incubation period), and mu (death to infections)
+#' @keywords internal
 SIRD_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -165,6 +173,7 @@ SIRD_ft <- function(time,init,params) {
 #' @param init initial population size of population
 #' @param params vector of beta (infection rate), m (natural birth/death rate),
 #' and gamma (recovery rate)
+#' @keywords internal
 SIS_ft <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters:
@@ -190,7 +199,7 @@ SIS_ft <- function(time,init,params) {
 #' # Run the SIR model
 #' params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
 #' init_vec <- c(S = 100, I = 1, R = 0)
-#' time_vec <- seq(0, 100, 0.1)
+#' time_vec <- seq(0, 10, 0.1)
 #' run_infectiousdisease_model(time = time_vec, init = init_vec, params = params_vec, model_type = "SIR")
 #' @export
 run_infectiousdisease_model <- function(time, init, params, model_type) {

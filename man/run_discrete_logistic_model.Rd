@@ -22,5 +22,5 @@ A data frame with columns time and Nt
 Discrete logistic model
 }
 \examples{
-run_discrete_logistic_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
+run_discrete_logistic_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 10)
 }

@@ -15,7 +15,7 @@ run_infectiousdisease_model(time, init, params, model_type)
 and gamma (recovery rate)}
 
 \item{model_type}{which type of model to run? (should be one of
-`SIR`, `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)}
+\code{SIR}, \code{SIR_ft}, \code{SEIR}, \code{SEIR_ft}, \code{SIRD}, \code{SIRD_ft}, \code{SIS}, or \code{SIS_ft})}
 }
 \description{
 Run infectious disease models models
@@ -24,6 +24,6 @@ Run infectious disease models models
 # Run the SIR model
 params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
 init_vec <- c(S = 100, I = 1, R = 0)
-time_vec <- seq(0, 100, 0.1)
+time_vec <- seq(0, 10, 0.1)
 run_infectiousdisease_model(time = time_vec, init = init_vec, params = params_vec, model_type = "SIR")
 }

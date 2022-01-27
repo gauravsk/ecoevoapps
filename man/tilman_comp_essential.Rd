@@ -21,3 +21,4 @@ a1 and a2 for resource uptake rate of sp1 and sp2}
 Internal function for running the abiotic resource
 competition between two species and two essential resources
 }
+\keyword{internal}
