@@ -11,10 +11,10 @@ plot_lvcomp_portrait(sim_df, params)
 (created by run_lvcomp_model())}
 
 \item{params}{vector of model parameters
-Note that carrying capacity for both species can be defined in `params`
-either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-If carrying capacities are defined as `K1` and `K2`, interspecific competition
-should be defined as `a` and `b`; otherwise, `a12` and `a21`.}
+Note that carrying capacity for both species can be defined in \code{params}
+either as \code{K1} and \code{K2}, or in the inverse, as \code{a11} and \code{a22}.
+If carrying capacities are defined as \code{K1} and \code{K2}, interspecific competition
+should be defined as \code{a} and \code{b}; otherwise, \code{a12} and \code{a21}.}
 }
 \description{
 Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model

@@ -11,7 +11,7 @@ plot_predprey_portrait(sim_df, param_vec, vectors_field = F, ...)
 
 \item{vectors_field}{set to TRUE to see the vector field under the phase portrait}
 
-\item{pars_for_eq_func}{parameter values used to generate `sim_df`}
+\item{pars_for_eq_func}{parameter values used to generate \code{sim_df}}
 }
 \description{
 Function for plotting phase portrait of predator-prey model

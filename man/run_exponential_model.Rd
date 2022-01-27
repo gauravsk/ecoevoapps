@@ -8,16 +8,16 @@ run_exponential_model(time, init, params)
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation (i.e. tmax)}
 
-\item{init}{initial population size of population, in a vector with name `N1`}
+\item{init}{initial population size of population, in a vector with name \code{N1}}
 
-\item{params}{intrinsic growth rate r, in a vector with name `r`}
+\item{params}{intrinsic growth rate r, in a vector with name \code{r}}
 }
 \description{
 Run exponential growth model
 }
 \examples{
-run_exponential_model(time = 0:100, init = c(N1 = 1), params = c(r = .1))
-run_exponential_model(time = 100, init = c(N1 = 1), params = c(r = .1))
+run_exponential_model(time = 0:10, init = c(N1 = 1), params = c(r = .1))
+run_exponential_model(time = 10, init = c(N1 = 1), params = c(r = .1))
 }

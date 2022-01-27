@@ -20,5 +20,5 @@ A data frame with columns time and Nt
 Discrete exponential growth model
 }
 \examples{
-run_discrete_exponential_model(N0 = 1, lambda = 1.1, time = 100)
+run_discrete_exponential_model(N0 = 1, lambda = 1.1, time = 10)
 }

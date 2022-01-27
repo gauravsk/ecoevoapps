@@ -20,5 +20,5 @@ A data frame with columns time and Nt
 Ricker model of discrete population growth with a carrying capacity
 }
 \examples{
-run_ricker_model(N0 = 1, params = c(K = 100, rd = 1.1), time = 100)
+run_ricker_model(N0 = 1, params = c(K = 100, rd = 1.1), time = 10)
 }

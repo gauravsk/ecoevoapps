@@ -16,3 +16,4 @@ exponential_growth(time, init, params)
 \description{
 Exponential growth model
 }
+\keyword{internal}

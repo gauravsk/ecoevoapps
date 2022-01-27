@@ -17,3 +17,4 @@ and v (vaccination rate)}
 \description{
 SIR model without vital rates
 }
+\keyword{internal}

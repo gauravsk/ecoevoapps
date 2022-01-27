@@ -16,3 +16,4 @@ logistic_growth(time, init, params)
 \description{
 Logistic growth model
 }
+\keyword{internal}

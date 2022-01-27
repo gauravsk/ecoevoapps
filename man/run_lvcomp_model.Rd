@@ -12,15 +12,15 @@ run_lvcomp_model(
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation (i.e. tmax)}
 
 \item{init}{vector of initial population sizes for both species, with names N1 and N2}
 
 \item{params}{vector of model parameters
-Note that carrying capacity for both species can be defined in `params`
-either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-If carrying capacities are defined as `K1` and `K2`, interspecific competition
-should be defined as `a` and `b`; otherwise, `a12` and `a21`.}
+Note that carrying capacity for both species can be defined in \code{params}
+either as \code{K1} and \code{K2}, or in the inverse, as \code{a11} and \code{a22}.
+If carrying capacities are defined as \code{K1} and \code{K2}, interspecific competition
+should be defined as \code{a} and \code{b}; otherwise, \code{a12} and \code{a21}.}
 }
 \description{
 Run the Lotka-Volterra competition model (with carrying capacity and relative effects)

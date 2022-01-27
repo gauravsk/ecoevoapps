@@ -45,3 +45,4 @@ Imports:
     rmarkdown,
     diagram
 RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)

@@ -17,3 +17,4 @@ m (natural birth/death rate), and gamma (recovery rate)}
 \description{
 SIS model with vital rates
 }
+\keyword{internal}

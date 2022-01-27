@@ -6,6 +6,7 @@
 #' intrinsic growth rate r for the resource,
 #' d1 and d2 for intrinsic mortality rate of sp1 and sp2;
 #' a1 and a2 for resource uptake rate of sp1 and sp2
+#' @keywords internal
 tilman_comp_essential <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
     # description of parameters/state variables:
@@ -26,7 +27,15 @@ tilman_comp_essential <- function(time,init,params) {
 }
 
 #' Calculate RStar for the 2-consumer, 2-essential resource competition
-#' @param params vector of parameters: k11, k12, k21, k22, r1, r2, m1, m2
+#' @param params vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`, `k12`,
+#' `k21`, `k22`, `m1`, `m2`, `c11`, `c12`,
+#' `c21`, `c22`, `a1`, `a1`)
+#' @examples
+#' params_vec = c(r1 = 1.6, r2 = 1,
+#' k11 = 18, k12 = 4, k21 = 2, k22 = 14,
+#' m1 = .2, m2 = .2,c11 = .25, c12 = .08,
+#' c21 = .1, c22 = .2, a1 = .5, a2 = .5)
+#' run_abiotic_comp_rstar(params = params_vec)
 #' @export
 run_abiotic_comp_rstar <- function(params) {
 

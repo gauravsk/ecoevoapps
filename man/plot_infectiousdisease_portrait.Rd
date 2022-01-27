@@ -9,9 +9,9 @@ plot_infectiousdisease_portrait(sim_df, x_axis, y_axis)
 \arguments{
 \item{sim_df}{simulated data frame generated from run_infectiousdisease_model()}
 
-\item{x_axis}{name of the column in `sim_df` to plot on X-axis of trajectory}
+\item{x_axis}{name of the column in \code{sim_df} to plot on X-axis of trajectory}
 
-\item{y_axis}{name of the column in `sim_df` to plot on Y-axis of trajectory}
+\item{y_axis}{name of the column in \code{sim_df} to plot on Y-axis of trajectory}
 }
 \description{
 Plot phase portrait for infectious disease model model

@@ -9,7 +9,7 @@ vector_field_input(sim_df, pars_for_eq_func, vec_density = 20)
 \arguments{
 \item{sim_df}{data frame generated from run_XXX}
 
-\item{pars_for_eq_func}{parameter values used to generate `sim_df`}
+\item{pars_for_eq_func}{parameter values used to generate \code{sim_df}}
 
 \item{vec_density}{density of grid to generate}
 }

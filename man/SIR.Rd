@@ -17,3 +17,4 @@ m (natural birth/death rate), and v (vaccination rate)}
 \description{
 SIR model with vital rates
 }
+\keyword{internal}

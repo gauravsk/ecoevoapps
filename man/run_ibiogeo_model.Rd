@@ -17,7 +17,7 @@ run_ibiogeo_model(D = c(1, 4), A = c(1, 0.5), k = 0.015, M = 100)
 }
 \value{
 Two ggplot objects: first, plot showing the equilibrium diversity of each island;
- second, a "map" illustrating island size and distance from mainland.
+second, a "map" illustrating island size and distance from mainland.
 }
 \description{
 The function takes as inputs the size of two islands as well as their
