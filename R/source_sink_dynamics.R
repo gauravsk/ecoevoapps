@@ -29,6 +29,10 @@ run_source_sink <- function(endtime,init,params) {
     # assume sink population has unlimited breeding sites, equilibrium N2 will be calculated
     # when all breading sites are occupied, emigration happens
 
+    # if(CONDITION) {
+    #   warning("Your parameters violate Pulliam model's requiremnets")
+    # }
+
     # initialize empty vectors to store population size at each time step
     n1 <- numeric(endtime)
     n2 <- numeric(endtime)
