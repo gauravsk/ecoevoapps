@@ -4,14 +4,12 @@
 \alias{run_ricker_model}
 \title{Ricker model of discrete population growth with a carrying capacity}
 \usage{
-run_ricker_model(N0 = 1, K = 100, rd = 1.1, time = 100)
+run_ricker_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}
 
-\item{K}{Carrying capacity}
-
-\item{rd}{Population growth rate}
+\item{params}{a vector of carrying capacity (K) and discrete growth rate (rd)}
 
 \item{time}{Number of time steps over which to project the model}
 }
@@ -22,5 +20,5 @@ A data frame with colums time and Nt
 Ricker model of discrete population growth with a carrying capacity
 }
 \examples{
-run_ricker_model(N0 = 1, K = 100, v = 1.1, time = 100)
+run_ricker_model(N0 = 1, params = c(K = 100, rd = 1.1), time = 100)
 }

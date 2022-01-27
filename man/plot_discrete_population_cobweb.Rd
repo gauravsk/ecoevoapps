@@ -21,12 +21,12 @@ Plot a cobweb digram of a discrete population growth model
 }
 \examples{
 dl_params <- c(rd = 1.1, K = 1000)
-sim_df_dl <- run_discrete_logistic_model(N0 = 1, K = dl_params["K"], rd = dl_params["rd"], time = 100)
+sim_df_dl <- run_discrete_logistic_model(N0 = 1, params = dl_params, time = 100)
 plot_discrete_population_cobweb(sim_df_dl, params_vec = dl_params, model_type = "discrete_logistic")
 bh_params <- c(rd = 1.1, K = 1000)
-sim_df_bh <- run_beverton_holt_model(N0 = 1, K = bh_params["K"], rd = bh_params["rd"], time = 100)
+sim_df_bh <- run_beverton_holt_model(N0 = 1, params = bh_params, time = 100)
 plot_discrete_population_cobweb(sim_df_bh, params_vec = bh_params, model_type = "beverton_holt")
 ri_params <- c(rd = 1.1, K = 1000)
-sim_df_ri <- run_ricker_model(N0 = 1, K = ri_params["K"], rd = ri_params["rd"], time = 100)
+sim_df_ri <- run_ricker_model(N0 = 1, params = ri_params, time = 100)
 plot_discrete_population_cobweb(sim_df_ri, params_vec = ri_params, model_type = "ricker")
 }

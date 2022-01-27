@@ -100,9 +100,11 @@ sidebarLayout(
 
 # Get user defined parameters for discrete logistic  ------
 
+params_dl <- reactive({c(rd = input$rd_dl, K = input$K_dl)})
 dl_df <- reactive({
-  dl_df <- run_discrete_logistic_model(N0 = input$N0_dl, K = input$K_dl,
-                              rd = input$rd_dl, time = input$time_dl)
+  dl_df <- run_discrete_logistic_model(N0 = input$N0_dl,
+                                       params = params_dl(),
+                                       time = input$time_dl)
   dl_df$Ntm1 <- dplyr::lag(dl_df$Nt)
   dl_df
 
@@ -116,7 +118,7 @@ trajaectory_plot_dl <- reactive({
 # cobweb for standard discrete logistic model -----
 cobweb_dl <- reactive({
   plot_discrete_population_cobweb(dl_df(),
-                                  params_vec = c(rd = input$rd_dl, K = input$K_dl),
+                                  params_vec = params_dl(),
                                   model_type = "discrete_logistic")
 })
 
@@ -160,10 +162,12 @@ sidebarLayout(
     renderPlot({plots_to_print_ricker()}, width = 450, height = 800)
   )
 )
+params_ricker <- reactive({c(rd = input$r_ricker, K = input$K_ricker)})
 
 ricker_df <- reactive({
-  ricker_out <- run_ricker_model(N0 = input$N0_ricker, K = input$K_ricker,
-                              rd = input$r_ricker, time = input$time_ricker)
+  ricker_out <- run_ricker_model(N0 = input$N0_ricker,
+                                 params = params_ricker(),
+                                 time = input$time_ricker)
   
   ricker_out$Ntm1 <- dplyr::lag(ricker_out$Nt)
   ricker_out
@@ -176,9 +180,8 @@ trajaectory_plot_ricker <- reactive({
 
 # cobweb plot for ricker model -----
 cobweb_ricker <- reactive({
-  
     plot_discrete_population_cobweb(ricker_df(),
-                                  params_vec = c(rd = input$r_ricker, K = input$K_ricker),
+                                  params_vec = params_ricker(),
                                   model_type = "ricker")
 })
 
@@ -224,11 +227,12 @@ sidebarLayout(
     renderPlot({plots_to_print_bh()}, width = 450, height = 800)
   )
 )
-
+params_bh <- reactive({c(rd = input$r_bh, K = input$K_bh)})
 # Get user defined parameters for discrete logistic  ------
 bh_df <- reactive({
-  run_beverton_holt_model(N0 = input$N0_bh, K = input$K_bh, 
-                                   rd = input$r_bh, time = input$time_bh)
+  run_beverton_holt_model(N0 = input$N0_bh, 
+                          params = params_bh
+                          time = input$time_bh)
 })
 # Generate trajectories for beverton-holt model --------
 trajaectory_plot_bh <- reactive({

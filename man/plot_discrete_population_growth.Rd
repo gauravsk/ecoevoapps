@@ -15,6 +15,7 @@ run_discrete_logistic_model(), run_discrete_exponential_model()}
 Plot the dynamics of a discrete population growth model
 }
 \examples{
-sim_df <- run_beverton_holt_model(N0 = 1, K = 100, rd = 1.01, time = 100)
+bh_params <- c(rd = 1.1, K = 100)
+sim_df <- run_beverton_holt_model(N0 = 1, params = bh_params, time = 100)
 plot_discrete_population_growth(sim_df)
 }

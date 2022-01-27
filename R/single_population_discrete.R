@@ -27,25 +27,24 @@ ricker_eqn <- function(Nt, r, K) Nt*exp(r*(1-Nt/K))
 
 #' Ricker model of discrete population growth with a carrying capacity
 #' @param N0 initial population size of population
-#' @param K Carrying capacity
-#' @param rd Population growth rate
+#' @param params a vector of carrying capacity (K) and discrete growth rate (rd)
 #' @param time Number of time steps over which to project the model
 #' @examples
-#' run_ricker_model(N0 = 1, K = 100, v = 1.1, time = 100)
+#' run_ricker_model(N0 = 1, params = c(K = 100, rd = 1.1), time = 100)
 #' @return A data frame with colums time and Nt
 #' @export
-run_ricker_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
+run_ricker_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time = 100) {
   # Check that N0, K, r, and time are all single numbers
-  if (!(length(N0) == 1 & is.numeric(N0))) stop("N0 should be a single number")
-  if (!(length(K) == 1 & is.numeric(K))) stop("K should be a single number")
-  if (!(length(rd) == 1 & is.numeric(rd))) stop("r should be a single number")
-  if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
+  # if (!(length(N0) == 1 & is.numeric(N0))) stop("N0 should be a single number")
+  # if (!(length(K) == 1 & is.numeric(K))) stop("K should be a single number")
+  # if (!(length(rd) == 1 & is.numeric(rd))) stop("r should be a single number")
+  # if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
 
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {
     Nt <- to_return[current_time-1]
-    to_return[current_time] <- ricker_eqn(Nt, rd, K)
+    to_return[current_time] <- ricker_eqn(Nt, params["rd"], params["K"])
   }
   to_return_df <- data.frame(time = 1:time,
                              Nt = to_return)
@@ -62,27 +61,27 @@ discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 
 #' Discrete logistic model
 #' @param N0 initial population size of population
-#' @param K Carrying capacity
+#' @param params a vector of carrying capacity (K) and discrete growth rate (rd)
 #' @param rd Discrete growth factor
 #' @param time Number of time steps over which to project the model
 #' @examples
-#' run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
+#' run_discrete_logistic_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
 #' @return A data frame with columns time and Nt
 #' @export
-run_discrete_logistic_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
+run_discrete_logistic_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time = 100) {
 
   # Check that N0, K, rd, and time are all single numbers
-  if (!(length(N0) == 1 & is.numeric(N0))) stop("N0 should be a single number")
-  if (!(length(K) == 1 & is.numeric(K))) stop("K should be a single number")
-  if (!(length(rd) == 1 & is.numeric(rd))) stop("rd should be a single number")
-  if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
-
+  # if (!(length(N0) == 1 & is.numeric(N0))) stop("N0 should be a single number")
+  # if (!(length(K) == 1 & is.numeric(K))) stop("K should be a single number")
+  # if (!(length(rd) == 1 & is.numeric(rd))) stop("rd should be a single number")
+  # if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
+  #
 
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {
     Nt <- to_return[current_time-1]
-    to_return[current_time] <-discretelogistic_eqn(Nt, rd, K)
+    to_return[current_time] <-discretelogistic_eqn(Nt, params["rd"], params["K"])
   }
   to_return_df <- data.frame(time = 1:time,
                              Nt = to_return)
@@ -101,26 +100,19 @@ bevertonholt_eqn <- function(Nt, rd, K) (rd*Nt)/(1+((rd-1)/K)*Nt)
 
 #' Beverton Holt model
 #' @param N0 initial population size of population
-#' @param K Carrying capacity
-#' @param rd population growth rate
+#' @param params a vector of carrying capacity (K) and discrete growth rate (rd)
 #' @param time Number of time steps over which to project the model
 #' @examples
-#' run_beverton_holt_model(N0 = 1, K = 100, rd = 1.1, time = 100)
+#' run_beverton_holt_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
 #' @return A data frame with columns time and Nt
 #' @export
-run_beverton_holt_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
-
-  # Check that N0, K, rd, and time are all single numbers
-  if (!(length(N0) == 1 & is.numeric(N0))) stop("N0 should be a single number")
-  if (!(length(K) == 1 & is.numeric(K))) stop("K should be a single number")
-  if (!(length(rd) == 1 & is.numeric(rd))) stop("Rd should be a single number")
-  if (!(length(time) == 1 & is.numeric(time))) stop("time should be a single number")
+run_beverton_holt_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time = 100) {
 
   to_return <- numeric(time)
   to_return[1] <- N0
   for(current_time in 2:time) {
     Nt <- to_return[current_time-1]
-    to_return[current_time] <- bevertonholt_eqn(Nt, rd, K)
+    to_return[current_time] <- bevertonholt_eqn(Nt, params["rd"], params["K"])
   }
   to_return_df <- data.frame(time = 1:time,
                              Nt = to_return)
@@ -133,7 +125,8 @@ run_beverton_holt_model <- function(N0 = 1, K = 100, rd = 1.1, time = 100) {
 #' generated by run_run_beverton_holt_model(), run_ricker_model(),
 #' run_discrete_logistic_model(), run_discrete_exponential_model()
 #' @examples
-#' sim_df <- run_beverton_holt_model(N0 = 1, K = 100, rd = 1.01, time = 100)
+#' bh_params <- c(rd = 1.1, K = 100)
+#' sim_df <- run_beverton_holt_model(N0 = 1, params = bh_params, time = 100)
 #' plot_discrete_population_growth(sim_df)
 #' @import ggplot2
 #' @export
@@ -157,13 +150,13 @@ plot_discrete_population_growth <- function(sim_df) {
 #' @param model_type a string: either "discrete_logistic", "beverton_holt", or "ricker"
 #' @examples
 #' dl_params <- c(rd = 1.1, K = 1000)
-#' sim_df_dl <- run_discrete_logistic_model(N0 = 1, K = dl_params["K"], rd = dl_params["rd"], time = 100)
+#' sim_df_dl <- run_discrete_logistic_model(N0 = 1, params = dl_params, time = 100)
 #' plot_discrete_population_cobweb(sim_df_dl, params_vec = dl_params, model_type = "discrete_logistic")
 #' bh_params <- c(rd = 1.1, K = 1000)
-#' sim_df_bh <- run_beverton_holt_model(N0 = 1, K = bh_params["K"], rd = bh_params["rd"], time = 100)
+#' sim_df_bh <- run_beverton_holt_model(N0 = 1, params = bh_params, time = 100)
 #' plot_discrete_population_cobweb(sim_df_bh, params_vec = bh_params, model_type = "beverton_holt")
 #' ri_params <- c(rd = 1.1, K = 1000)
-#' sim_df_ri <- run_ricker_model(N0 = 1, K = ri_params["K"], rd = ri_params["rd"], time = 100)
+#' sim_df_ri <- run_ricker_model(N0 = 1, params = ri_params, time = 100)
 #' plot_discrete_population_cobweb(sim_df_ri, params_vec = ri_params, model_type = "ricker")
 #' @import ggplot2
 #' @export
