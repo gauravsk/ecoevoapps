@@ -40,7 +40,7 @@ tilman_comp_essential <- function(time,init,params) {
 run_abiotic_comp_rstar <- function(params) {
 
   if(!(is.numeric(params))) stop("params should be a numeric vector")
-  if(!(all(c("S1", "S2", "r1", "r2", "k11", "k12",
+  if(!(all(c("r1", "r2", "k11", "k12",
              "k21", "k22", "m1", "m2", "c11", "c12",
              "c21", "c22", "a1", "a1") %in%
            names(params)))) {
