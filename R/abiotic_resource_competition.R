@@ -122,3 +122,14 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
                y = init, parms = params, times = time)
 }
 
+#' Plot population size over time for the aboitic resource competition model
+plot_abiotic_comp_time <- function(sim_df) {
+  pivot_longer(sim_df, c(R1,R2,N1,N2), "species") %>%
+    dplyr::filter(species %in% c("N1", "N2"))
+  ggplot(tilman_out_long) +
+    geom_line(aes(x = time, y = value, color = species), size = 2) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size") +
+    theme_apps()
+
+}
