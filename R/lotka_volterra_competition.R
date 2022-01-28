@@ -50,7 +50,17 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
   })
 }
 
-#' Run the Lotka-Volterra competition model (with carrying capacity and relative effects)
+#' Run the Lotka-Volterra competition model
+#'
+#' Given a vector of time, intiial values, and parameters, this
+#' function runs the Lotka-Volterra competition model. Note that the
+#' competition parameters can either be given as the relative effects of
+#' one species on the other (in terms of $ \alpha $  and $ \beta $),
+#' or in terms of the absolute intraspecific and interspecific competition
+#' coefficients (a11, a12, a22, a21).
+#' Note that the output of this function can be plotted
+#' with the functions [ecoevoapps::plot_lvcomp_time()] (plot of N1 and N2 over
+#' time) or [ecoevoapps::plot_lvcomp_portrait()] (phase portriat of N1 vs N2).
 #' @param time vector of time units over which to run model, starting from 0.
 #' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
 #' @param init vector of initial population sizes for both species, with names N1 and N2

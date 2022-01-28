@@ -2,7 +2,7 @@
 % Please edit documentation in R/lotka_volterra_competition.R
 \name{run_lvcomp_model}
 \alias{run_lvcomp_model}
-\title{Run the Lotka-Volterra competition model (with carrying capacity and relative effects)}
+\title{Run the Lotka-Volterra competition model}
 \usage{
 run_lvcomp_model(
   time = 0:100,
@@ -23,7 +23,15 @@ If carrying capacities are defined as \code{K1} and \code{K2}, interspecific com
 should be defined as \code{a} and \code{b}; otherwise, \code{a12} and \code{a21}.}
 }
 \description{
-Run the Lotka-Volterra competition model (with carrying capacity and relative effects)
+Given a vector of time, intiial values, and parameters, this
+function runs the Lotka-Volterra competition model. Note that the
+competition parameters can either be given as the relative effects of
+one species on the other (in terms of $ \alpha $  and $ \beta $),
+or in terms of the absolute intraspecific and interspecific competition
+coefficients (a11, a12, a22, a21).
+Note that the output of this function can be plotted
+with the functions \code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} (plot of N1 and N2 over
+time) or \code{\link[=plot_lvcomp_portrait]{plot_lvcomp_portrait()}} (phase portriat of N1 vs N2).
 }
 \examples{
 # Define full time series, and run model in terms of carrying capacities

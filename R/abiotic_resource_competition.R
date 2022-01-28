@@ -58,6 +58,13 @@ run_abiotic_comp_rstar <- function(params) {
 
 
 #' Run the Tilman abiotic resource competition model
+#'
+#' This function runs the abiotic resource model for two species
+#' competing for two essential resources.
+#' See page 42 onwards of Don Alstad's Populus guide for a thorough
+#' overview of the model:
+#' https://cbs.umn.edu/sites/cbs.umn.edu/files/public/downloads/PopulusHelp_e.pdf
+#' Note that the output of the model can be plotted with
 #' @param time vector of time units over which to run model, starting from 0.
 #' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
 #' @param init vector of initial population sizes for both species,
@@ -69,7 +76,7 @@ run_abiotic_comp_rstar <- function(params) {
 #' @examples
 #' # Define full time series, and run model in terms of carrying capacities
 #' # and relative competitive effects
-#' run_abiotic_comp_model(time = seq(0,100,0.1),
+#' run_abiotic_comp_model(time = seq(0,10),
 #'  init = c(N1 = 10, N2 = 10, R1 = 20, R2 = 20),
 #'  params = c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1,
 #' k11 = 18, k12 = 4, k21 = 2, k22 = 14,
