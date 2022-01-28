@@ -1,0 +1,40 @@
+---
+title: "Competitive species interactions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Competitive-species-interactions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette describes various models of interspecific competition in the `ecoevoapps` package. 
+
+The simplest model of interspecific competition in this package is the [Lotka Volterra] competition model:
+
+$$\frac{dN_1}{dt} = r_1N_1(1-\frac{N_1 + \alpha N_2}{K})$$
+
+```{r setup}
+library(ecoevoapps)
+
+time <- seq(0, 100, 0.1)
+init <- c(N1 = 70, N2 = 50)
+params <- c(r1 = .1, r2 = .15, K1 = 500, K2 = 600, a = .5, b = .5)
+lvcomp_simulation <- run_lvcomp_model(time = time, init = init, params = params)
+```
+This generates a dataframe with columns `time`, `N1`, and `N2`:
+
+```{r}
+head(lvcomp_simulation)
+```
+
+We can then use the `ecoevoapps` function `plot_lvcomp_time` to generate a trajectory of these populations over time:
+
+```{r}
+plot_lvcomp_time(lvcomp_simulation)
+```
