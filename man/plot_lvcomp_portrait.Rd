@@ -4,23 +4,26 @@
 \alias{plot_lvcomp_portrait}
 \title{Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model}
 \usage{
-plot_lvcomp_portrait(sim_df, params)
+plot_lvcomp_portrait(sim_df, params, margin_text = FALSE)
 }
 \arguments{
-\item{sim_df}{data frame of lokta-volterra model simulation
-(created by run_lvcomp_model())}
+\item{sim_df}{data frame of lokta-volterra model simulation (created by
+run_lvcomp_model())}
 
-\item{params}{vector of model parameters
-Note that carrying capacity for both species can be defined in \code{params}
-either as \code{K1} and \code{K2}, or in the inverse, as \code{a11} and \code{a22}.
-If carrying capacities are defined as \code{K1} and \code{K2}, interspecific competition
-should be defined as \code{a} and \code{b}; otherwise, \code{a12} and \code{a21}.}
+\item{params}{vector of model parameters Note that carrying capacity for both
+species can be defined in \code{params} either as \code{K1} and \code{K2}, or in the
+inverse, as \code{a11} and \code{a22}. If carrying capacities are defined as \code{K1} and
+\code{K2}, interspecific competition should be defined as \code{a} and \code{b};
+otherwise, \code{a12} and \code{a21}.}
+
+\item{margin_text}{add text annotations to margins of isoclines?}
 }
 \description{
 Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
 }
 \examples{
 params_vec = c(r1 = .5, r2 = .6, K1 = 1000, K2 = 1050, a = 0.5, b = 0.7)
-sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params = params_vec)
+sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params =
+params_vec)
 plot_lvcomp_portrait(sim_df, params_vec)
 }

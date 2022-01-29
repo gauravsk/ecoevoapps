@@ -124,21 +124,23 @@ run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
 
 
 #' Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
-#' @param sim_df data frame of lokta-volterra model simulation
-#' (created by run_lvcomp_model())
-#' @param params vector of model parameters
-#' Note that carrying capacity for both species can be defined in `params`
-#' either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-#' If carrying capacities are defined as `K1` and `K2`, interspecific competition
-#' should be defined as `a` and `b`; otherwise, `a12` and `a21`.
+#' @param sim_df data frame of lokta-volterra model simulation (created by
+#'   run_lvcomp_model())
+#' @param params vector of model parameters Note that carrying capacity for both
+#'   species can be defined in `params` either as `K1` and `K2`, or in the
+#'   inverse, as `a11` and `a22`. If carrying capacities are defined as `K1` and
+#'   `K2`, interspecific competition should be defined as `a` and `b`;
+#'   otherwise, `a12` and `a21`.
+#' @param margin_text add text annotations to margins of isoclines?
 #' @examples
 #' params_vec = c(r1 = .5, r2 = .6, K1 = 1000, K2 = 1050, a = 0.5, b = 0.7)
-#' sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params = params_vec)
+#' sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params =
+#' params_vec)
 #' plot_lvcomp_portrait(sim_df, params_vec)
 #' @import ggplot2
 #' @import dplyr
 #' @export
-plot_lvcomp_portrait <- function(sim_df, params) {
+plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
 
   if("K1" %in% names(params)) {
     ZNGI_sp1 <- data.frame(x1 = 0, y1 = params["K1"]/params["a"],
@@ -179,6 +181,39 @@ plot_lvcomp_portrait <- function(sim_df, params) {
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
     theme_apps()
+
+  # option to add margin_text
+  if(margin_text == TRUE) {
+    ZNGI_sp1 <- round(ZNGI_sp1)
+    ZNGI_sp2 <- round(ZNGI_sp2)
+
+    if("K1" %in% names(params)) {
+      potrait_plot <-
+        potrait_plot +
+        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0, vjust = 1, hjust = 1,
+                 label = paste0("K1 = \n", ZNGI_sp1[["xend1"]])) +
+        annotate("text", y = ZNGI_sp1[["y1"]], x = 0, vjust = 1, hjust = 1,
+                 label = paste0(" K1/a = \n", ZNGI_sp1[["y1"]])) +
+        annotate("text", x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1, hjust = 1,
+                 label = paste0("K2/b = \n", ZNGI_sp2[["xend2"]])) +
+        annotate("text", y = ZNGI_sp2[["y2"]], x = 0, vjust = 1, hjust = 1,
+                 label = paste0(" K2 = \n", ZNGI_sp2[["y2"]])) +
+        coord_cartesian(clip = "off")
+
+    } else {
+      potrait_plot <-
+        potrait_plot +
+        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0, vjust = 1, hjust = 1,
+                 label = paste0("1/a11 = \n", ZNGI_sp1[["xend1"]])) +
+        annotate("text", y = ZNGI_sp1[["y1"]], x = 0, vjust = 1, hjust = 1,
+                 label = paste0(" 1/a12 = \n", ZNGI_sp1[["y1"]])) +
+        annotate("text", x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1, hjust = 1,
+                 label = paste0("1/a21 = \n", ZNGI_sp2[["xend2"]])) +
+        annotate("text", y = ZNGI_sp2[["y2"]], x = 0, vjust = 1, hjust = 1,
+                 label = paste0(" 1/a22 = \n", ZNGI_sp2[["y2"]])) +
+        coord_cartesian(clip = "off")
+    }
+  }
 
   return(potrait_plot)
 }
