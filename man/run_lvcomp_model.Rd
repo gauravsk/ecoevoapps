@@ -26,7 +26,7 @@ should be defined as \code{a} and \code{b}; otherwise, \code{a12} and \code{a21}
 Given a vector of time, intiial values, and parameters, this
 function runs the Lotka-Volterra competition model. Note that the
 competition parameters can either be given as the relative effects of
-one species on the other (in terms of $ \alpha $  and $ \beta $),
+one species on the other (in terms of alpha (a)  and beta (b)),
 or in terms of the absolute intraspecific and interspecific competition
 coefficients (a11, a12, a22, a21).
 Note that the output of this function can be plotted

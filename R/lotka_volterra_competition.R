@@ -55,7 +55,7 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' Given a vector of time, intiial values, and parameters, this
 #' function runs the Lotka-Volterra competition model. Note that the
 #' competition parameters can either be given as the relative effects of
-#' one species on the other (in terms of $ \alpha $  and $ \beta $),
+#' one species on the other (in terms of alpha (a)  and beta (b)),
 #' or in terms of the absolute intraspecific and interspecific competition
 #' coefficients (a11, a12, a22, a21).
 #' Note that the output of this function can be plotted
@@ -153,7 +153,8 @@ plot_lvcomp_portrait <- function(sim_df, params) {
   }
 
   sim_df <- data.frame(sim_df)
-
+  # brewer.pal(3, name = "Set1") to generate:
+  color_pal <- c("#E41A1C", "#377EB8", "#4DAF4A")
   potrait_plot <-
     ggplot(data = sim_df) +
     geom_segment(data = ZNGI_sp1,
@@ -162,7 +163,7 @@ plot_lvcomp_portrait <- function(sim_df, params) {
     geom_segment(data = ZNGI_sp2,
                  aes(x = x2, y = y2, xend = xend2, yend = yend2,
                      color = "Species 2"), size = 2) +
-    scale_color_manual(values = brewer.pal(3, name = "Set1"),
+    scale_color_manual(values = color_pal,
                        labels = c("Species 1", "Species 2")) +
     geom_path(aes(x = N1, y = N2), size = 1) +
     geom_point(x = first(sim_df$N1), y = first(sim_df$N2),
