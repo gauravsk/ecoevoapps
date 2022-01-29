@@ -1,8 +1,8 @@
 ---
-title: "Competitive species interactions"
+title: "Lotka-Volterra competition model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Competitive-species-interactions}
+  %\VignetteIndexEntry{Lotka-Volterra competition model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,19 +13,27 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette describes various models of interspecific competition in the `ecoevoapps` package. 
 
-The simplest model of interspecific competition in this package is the [Lotka Volterra] competition model:
 
-$$\frac{dN_1}{dt} = r_1N_1(1-\frac{N_1 + \alpha N_2}{K})$$
+The simplest model of interspecific competition included in this package is the two-species [Lotka Volterra](https://hankstevens.github.io/Primer-of-Ecology/competition.html#lotka-volterra-interspecific-competition) competition model. In this model, the population growth rate of each species is determined by the density of that species itself, as well as the density of its competitor species. For example, the growth rate of species $1$ ($\frac{dN_1}{dt}$) is determined by the abundance of that species ($N_1$), the species' carrying capacity ($K_1$), the density of species 2 ($N_2$), and by the relative competitive effect of species $2$ on species $1$):
+
+$$\frac{dN_1}{dt} = r_1N_1\big(1-\frac{N_1 + \alpha N_2}{K_1}\big)$$
+If the two species are close competitors, then $\alpha \to 1$, such that the growth of species $1$ is equally affected by the density of both species.
+
+Similarly, the growth rate of species $2$ is as follows: 
+$$\frac{dN_2}{dt} = r_2N_2\big(1-\frac{N_2 + \beta N_1}{K_2}\big)$$
+where $\beta$ now describes the relative competitive effect of species $1$ on species $2$.
+
+We can simulate the dynamics of this model using `ecoevoapps` using the function `run_lvcomp_model()` as follows: 
 
 ```{r setup}
 library(ecoevoapps)
 
-time <- seq(0, 100, 0.1)
-init <- c(N1 = 70, N2 = 50)
-params <- c(r1 = .1, r2 = .15, K1 = 500, K2 = 600, a = .5, b = .5)
-lvcomp_simulation <- run_lvcomp_model(time = time, init = init, params = params)
+lvcomp_time <- seq(0, 100, 0.1)
+lvcomp_init <- c(N1 = 70, N2 = 50)
+lvcomp_params <- c(r1 = .1, r2 = .15, K1 = 500, K2 = 600, a = .5, b = .5)
+lvcomp_simulation <- run_lvcomp_model(time = lvcomp_time, init = lvcomp_init, 
+                                      params = lvcomp_params)
 ```
 This generates a dataframe with columns `time`, `N1`, and `N2`:
 
@@ -33,8 +41,90 @@ This generates a dataframe with columns `time`, `N1`, and `N2`:
 head(lvcomp_simulation)
 ```
 
-We can then use the `ecoevoapps` function `plot_lvcomp_time` to generate a trajectory of these populations over time:
+We can then use the `ecoevoapps` function `plot_lvcomp_time()` to generate a trajectory of these populations over time:
 
 ```{r}
 plot_lvcomp_time(lvcomp_simulation)
 ```
+
+We can also plot the phase portrait of this model, which shows how N1 and N2 change relative to each other over time, using the function `plot_lvcomp_portrait()`. In this case, we need to provide the function the simulation generated above, as well as the parameter vector we used to generate the simulation. The function uses this information to plot the trajectory of the populations, as well as the "zero net growth isoclines" (ZNGIs). (For more info about ZNGIs, please refer to these resources: [link 1](https://www.youtube.com/watch?v=obasfCufOr0), [link 2](https://hankstevens.github.io/Primer-of-Ecology/competition.html#isoclines)):
+
+```{r}
+plot_lvcomp_portrait(sim_df = lvcomp_simulation, params = lvcomp_params)
+
+```
+
+### Lotka-Volterra competition in terms of absolute competition coefficients
+
+In the equations above, we expressed the competitive effects of each species on itself (*intraspecific competition*) in terms of each species' carrying capacity ($K_1$ and $K_2$), and we described the species' competitive effects on each other (*interspecific competition*) in terms of relative competition coefficients ($\alpha$ and $\beta$). We can instead write the Lotka-Volterra competition equation in terms of the *absolute* effect of intra- and inter-specific competition on each species. Note that in these equations $\alpha_{ii}$ represents the intraspecific competitive effect in species $i$, and $\alpha_{ij}$ describes the effect of species $j$ on the growth of species $i$:
+
+$$\frac{dN_1}{dt} = r_1N_1(1-\alpha_{11}N_1 - \alpha_{12}N_2)$$
+$$\frac{dN_2}{dt} = r_2N_2(1-\alpha_{22}N_2 - \alpha_{21}N_1)$$
+Note that in this formulation, the carrying capacity of species 1 is simply the inverse of its intraspecific competition coefficient ($K_1 = 1/{\alpha_{11}}$), and similarly for species 2 ($K_2 = 1/{\alpha_{22}}$).
+
+The `run_lvcomp_model()` function allows one to define the parameters of Lotka-Volterra competition in this formulation, as shown below: 
+
+```{r}
+lvcomp_params_abs <- c(r1 = .5, r2 = .5, 
+                       a11 = .002, a22 = .0016, 
+                       a12 = .0015, a21 = .001)
+lvcomp_simulation_abs <- run_lvcomp_model(time = lvcomp_time, init = lvcomp_init, 
+                                          params = lvcomp_params_abs)
+
+plot_lvcomp_time(lvcomp_simulation_abs)
+plot_lvcomp_portrait(lvcomp_simulation_abs, lvcomp_params_abs)
+```
+
+### Behind the scenes
+
+If you are curious about how the function `run_lvcomp_model()` runs behind the scenes, read on!
+
+Behind the scenes, `run_lvcomp_model` is using the wonderful [`deSolve`](http://desolve.r-forge.r-project.org/) package to solve the differential equations in the Lotka-Volterra model. To use this package, we first need to write a function that describes the differential equations we want to solve, and then we can use the function `deSolve::ode()` to solve the differential equation. The code is provided below, and we strongly recommend that you explore some deSolve tutorials to understand the workflow.  ([ex. 1](https://cran.r-project.org/web/packages/deSolve/vignettes/deSolve.pdf); [ex. 2](https://www.youtube.com/watch?v=dmfAgoLzhnk); there's also an [example](https://www.youtube.com/watch?v=zRlgvUuc9QY) specifically on the Lotka-Volterra predator-prey models!) 
+
+```{r, eval = F}
+# Hand-coding the Lotka-Volterra competition model
+library(deSolve)
+lotka_volterra_competition <- function(time, init, params) {
+  with (as.list(c(time, init, params)), {
+    # description of parameters
+    # r1 = per capita growth rate of species 1
+    # N1 = population size of species 1
+    # K1 = carying capacity of species 1
+    # a = relative per capita effect of species 2 on species 1
+    # r2 = per capita growth rate of species 2
+    # N2 = population size of species 2
+    # K2 = carrying capacity of species 2
+    # b = relative per capita effect of species 1 on species 2
+
+    # Differential equations
+    dN1 <- r1*N1*(1 - (N1 + a*N2)/K1)
+    dN2 <- r2*N2*(1 - (N2 + b*N1)/K2)
+
+    # Return dN1 and dN2
+    return(list(c(dN1, dN2)))
+  })
+}
+
+# define vectors of initial population sizes, time, and parameters
+init <- c(N1 = 10, N2 = 30)
+time <- 0:500
+params <- c(r1 = .2, r2 = .1, K1 = 500, K2 = 600,
+            a = .9, b = 1.1)
+lv_out <- deSolve::ode(func = lotka_volterra_competition,
+                       y = init, times = time, parms = params)
+# Plot model output
+plot(lv_out[,"N1"]~lv_out[,"time"], type = "l", ylim = c(0, 700))
+lines(lv_out[,"N2"]~lv_out[,"time"], type = "l", col = 2)
+```
+
+### Reference 
+
+For more on the Lotka-Volterra competition model, please refer to the following references:
+
+- Dr. Hank Stevens' chapter on [Lotka-Volterra competition](https://hankstevens.github.io/Primer-of-Ecology/competition.html#lotka-volterra-interspecific-competition)
+
+- Dr. Sarah Otto's [lecture notes on Lotka-Volterra competition](https://www.zoology.ubc.ca/~bio301/Bio301/Lectures/Lecture19/Overheads.html).
+
+- Vandermeer and Goldberg, 2013. [Population Ecology.](https://press.princeton.edu/books/paperback/9780691160313/population-ecology), Ch. 8. (Access to a digital copy of this textbook may be available through your library). 
+
+- Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
