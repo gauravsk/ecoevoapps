@@ -180,7 +180,7 @@ plot_leslie_diagram <- function(leslie_mat) {
   diagr <- plotmat(A = leslie_mat, pos = n_ages,
                             curve = 0.5, lwd = 1.5, my = -0.1,
                name = name_vec,
-               arr.len = 0.2, arr.width = 0.25, arr.lwd = 2,
+               arr.length = 0.2, arr.width = 0.25, arr.lwd = 2,
                arr.type = "simple", self.lwd = 2, self.shiftx = 0.115,
                self.shifty = 0.1, self.cex = .5, box.size = 0.1,
                dtext = 0.2, box.lwd = 3.5, main="Life cycle diagram"

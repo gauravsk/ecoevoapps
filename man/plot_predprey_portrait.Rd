@@ -4,14 +4,18 @@
 \alias{plot_predprey_portrait}
 \title{Function for plotting phase portrait of predator-prey model}
 \usage{
-plot_predprey_portrait(sim_df, param_vec, vectors_field = F, ...)
+plot_predprey_portrait(sim_df, param_vec, vectors_field = FALSE, ...)
 }
 \arguments{
 \item{sim_df}{data frame generated from run_XXX}
 
-\item{vectors_field}{set to TRUE to see the vector field under the phase portrait}
+\item{param_vec}{parameter values used to generate \code{sim_df}}
 
-\item{pars_for_eq_func}{parameter values used to generate \code{sim_df}}
+\item{vectors_field}{set to TRUE to see the vector field under the phase
+portrait}
+
+\item{...}{additional arguments to pass to \link{plot_vector_field}
+(mostly this is the density of the vector field, set by vec_density)}
 }
 \description{
 Function for plotting phase portrait of predator-prey model
@@ -20,5 +24,6 @@ Function for plotting phase portrait of predator-prey model
 # Run Rosenzweig-Macarthur model:
 param_vec <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
 sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = param_vec)
-plot_predprey_portrait(sim_df = sim_df, param_vec = param_vec, vectors_field = T)
+plot_predprey_portrait(sim_df = sim_df, param_vec = param_vec, vectors_field
+= TRUE)
 }
