@@ -32,7 +32,7 @@ Maintainer: Gaurav Kandlikar <gkandlikar@missouri.edu>
 Description: A collection of Shiny apps for common models in 
     ecology and evolution. The package also includes functions 
     that can be called directly from R (rather than from the apps).
-License: GNU
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Imports: 
@@ -43,7 +43,10 @@ Imports:
     dplyr,
     purrr,
     rmarkdown,
-    diagram
+    diagram,
+    utils,
+    stats,
+    base
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
