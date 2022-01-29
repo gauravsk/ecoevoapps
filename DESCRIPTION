@@ -46,7 +46,8 @@ Imports:
     diagram,
     utils,
     stats,
-    base
+    base,
+    patchwork
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
