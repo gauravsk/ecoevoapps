@@ -22,7 +22,7 @@ run_discrete_exponential_model <- function(N0 = 1, lambda = 1.1, time = 100) {
 #' @param Nt Population size
 #' @param r Population growth rate
 #' @param K Carrying capacity
-#' @keywords internal
+#' @noRd
 ricker_eqn <- function(Nt, r, K) Nt*exp(r*(1-Nt/K))
 
 #' Ricker model of discrete population growth with a carrying capacity
@@ -51,7 +51,7 @@ run_ricker_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time = 100) 
 #' @param Nt Nt
 #' @param rd Population growth rate
 #' @param K Carrying capacity
-#' @keywords internal
+#' @noRd
 discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
 
 #' Discrete logistic model
@@ -83,7 +83,7 @@ run_discrete_logistic_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), t
 #' @param x Nt
 #' @param rd Population growth rate
 #' @param K Carrying capacity
-#' @keywords internal
+#' @noRd
 bevertonholt_eqn <- function(Nt, rd, K) (rd*Nt)/(1+((rd-1)/K)*Nt)
 
 #' Beverton Holt model
@@ -180,7 +180,7 @@ plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
   if(model_type == "discrete_logistic") {
     to_return <- base_plot +
       stat_function(fun = function(x)
-        ecoevoapps:::discretelogistic_eqn(x, rd = params_vec["rd"], K = params_vec["K"]),
+        discretelogistic_eqn(x, rd = params_vec["rd"], K = params_vec["K"]),
         aes(x = seq(1, max(Nt)*1.25, length.out = nrow(sim_df)))) +
       annotate("text", x = Inf, y = -Inf, hjust = 1.2, vjust = -.8,
                label = "Solid black line is the Discrete Logistic function,
@@ -189,7 +189,7 @@ plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
   } else if(model_type == "beverton_holt") {
     to_return <- base_plot +
       stat_function(fun = function(x)
-        ecoevoapps:::bevertonholt_eqn(x, rd = params_vec["rd"], K = params_vec["K"]),
+        bevertonholt_eqn(x, rd = params_vec["rd"], K = params_vec["K"]),
         aes(x = seq(1, max(Nt)*1.25, length.out = nrow(sim_df)))) +
       annotate("text", x = Inf, y = -Inf, hjust = 1.2, vjust = -.8,
                label = "Solid black line is the Beverton Holt function,
@@ -199,7 +199,7 @@ plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
   } else {
     to_return <- base_plot +
       stat_function(fun = function(x)
-        ecoevoapps:::ricker_eqn(x, r = params_vec["rd"], K = params_vec["K"]),
+        ricker_eqn(x, r = params_vec["rd"], K = params_vec["K"]),
         aes(x = seq(1, max(Nt)*1.25, length.out = nrow(sim_df)))) +
       annotate("text", x = Inf, y = -Inf, hjust = 1.2, vjust = -.8,
                label = "The solid black line is the Ricker function,

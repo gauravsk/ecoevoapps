@@ -8,9 +8,11 @@ run_predprey_model(time, init, params)
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-\code{time} can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation
+(i.e. tmax)}
 
-\item{init}{vector of initial population sizes for both species, with names H and P}
+\item{init}{vector of initial population sizes for both species, with names H
+and P}
 
 \item{params}{vector of parameters. Minimum requirements are r, a, e, d.
 If K supplied, then prey has logistic growth;
