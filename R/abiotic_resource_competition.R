@@ -191,4 +191,3 @@ plot_abiotic_comp_portrait <- function(rstar_vec, sim_df) {
     theme_apps() +
     theme(legend.position = "none")
 }
-
