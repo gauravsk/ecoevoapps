@@ -46,30 +46,30 @@ Therefore, the **end-of-year** population size is:
 n_{\mathrm{end~of~year}} = \mathrm{survived~adults} + \mathrm{survived~juveniles} = P_{A}n + P_{J} \beta n
 \end{equation}
   
-Thus, we can respectively write the end-of-year size of the source population (1) and sink population (2) as: 
+Thus, we can respectively write the end-of-year size of the source population and sink population as: 
 \begin{equation}
 \tag{3}
-n_{1\mathrm{~end~of~year}} = P_{A}n_{1} + P_{J} \beta_{1} n_{1} = \lambda_{1} n_{1}\\
-n_{2\mathrm{~end~of~year}} = P_{A}n_{2} + P_{J} \beta_{2} n_{2} = \lambda_{2} n_{2}
+n_{Source,\mathrm{~end~of~year}} = P_{A}n_{Source} + P_{J} \beta_{Source} n_{Source} = \lambda_{Source} n_{Source}\\
+n_{Sink,\mathrm{~end~of~year}} = P_{A}n_{Sink} + P_{J} \beta_{Sink} n_{Sink} = \lambda_{Sink} n_{Sink}
 \end{equation}
 where the $\lambda_i = (P_A + P_J\beta_i)$ represents the net annual growth rates of the respective population.  Populations can grow provided that $\lambda > 1$. 
 
-The Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). By definition, the source population has a positive population growth rate ($\lambda_1$ > 1), and the sink population a negative population growth rate ($\lambda$ < 1).     
+The Pulliam model assumes the source and sink sites differ only in their effect on the fecundity ($\beta$). By definition, the source population has a positive population growth rate ($\lambda_{Source}$ > 1), and the sink population a negative population growth rate ($\lambda_{Sink}$ < 1).     
   
 If the source population exceeds the site carrying capacity ($N^{*}$), any excess individuals will **disperse** to the sink site, where there is no upper limit on population size (i.e. no carrying capacity). 
 \begin{equation}
 \tag{4}
-E_{\rm{from~sink}} = I_{\mathrm{to~source}} = n_{1\mathrm{~end~of~year}} - N^{*}
+E_{\rm{from~source}} = I_{\mathrm{to~sink}} = n_{Source,\mathrm{~end~of~year}} - N^{*}
 \end{equation}
 At the **beginning of the next year**, the source and sink population will become:  
 
 - if source population has not reached carrying capacity, the populations sizes are given by equation (3).
 
-- or, if the source population size exceeds the carrying capacity ($n_{1}$ = $N^*$):
+- or, if the source population size exceeds the carrying capacity ($n_{Source}$ = $N^*$):
 \begin{equation}
 \tag{5}
-n_{1\mathrm{~next~year~initial}} = N^{*}\\
-n_{2\mathrm{~next~year~initial}} = n_{2\mathrm{~end~of~year}} + I_{\mathrm{to~source}}= \lambda_{2} n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}
+n_{Source,\mathrm{~next~year~initial}} = N^{*}\\
+n_{Sink,\mathrm{~next~year~initial}} = n_{Sink,\mathrm{~end~of~year}} + I_{\mathrm{to~sink}}\\= \lambda_{Sink} n_{Sink} + (\lambda_{Source} n_{Source} - N^{*}) = \lambda_{Sink} n_{Sink} + (\lambda_{Source} - 1)N^{*}
 \end{equation}
 
 From there, the annual cycle begins again.
@@ -84,9 +84,9 @@ library(knitr)
 library(kableExtra)
 
 paramTable <- data.frame(
-  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{1}$", "$\\beta_{2}$", "$\\lambda_{1}$", "$\\lambda_{2}$", "$n_{1}$", "$n_{2}$", "$N_{1}$ or $N^{*}$"),
+  Parameter = c("$P_{a}$", "$P_{j}$", "$\\beta_{Source}$", "$\\beta_{Sink}$", "$\\lambda_{Source}$", "$\\lambda_{Sink}$", "$n0_{Source}$", "$n0_{Sink}$", "$N_{Source}$ or $N^{*}$"),
   
-  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{1}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{2}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
+  Description = c("Probability of adults surviving winter", "Probability of juveniles surviving winter", "Fecundity at the source site", "Fecundity at the sink site", "Source population growth rate, given by $P_{a}$ + $\\beta_{Source}$ $P_{j}$", "Sink population growth rate, given by $P_{a}$ + $\\beta_{Sink}$ $P_{j}$", "Initial source population size", "Initial sink population size", "Carrying capacity/equilibirum of source population"),
   
   Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
 
@@ -110,19 +110,19 @@ library(shiny) # need the (newest as of July 2020) version 1.5.0
 ssinputUI <- function(id) {
     tagList(
         ### ask for params (model parameters)
-        ### params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+        ### params <- c(pa = .7, pj = .2, betaSource = 3, betaSink = 1, NSource = 300) 
         sliderInput(NS(id, "pa"), label = "Probability of adults surviving winter (Pa)", min = 0, max = 1, value = .7),
         sliderInput(NS(id, "pj"), label = "Probability of juveniles surviving winter (Pj)", min = 0, max = 1, value = .2),
-        sliderInput(NS(id, "beta1"), label = "Fecundity at the source site (beta1)", min = 0, max = 100, value = 3),
-        textOutput(NS(id, "suggest_beta1")), # suggested beta1 range given pa and pj
-        sliderInput(NS(id, "beta2"), label = "Fecundity at the sink site (beta2)", min = 0, max = 50, value = 1),
-        textOutput(NS(id, "suggest_beta2")), # suggested beta2 range given pa and pj
-        numericInput(NS(id, "N1"), label = "maximum breeding sites at source", min = 1, value = 300),
+        sliderInput(NS(id, "betaSource"), label = "Fecundity at the source site (betaSource)", min = 0, max = 100, value = 3),
+        textOutput(NS(id, "suggest_betaSource")), # suggested betaSource range given pa and pj
+        sliderInput(NS(id, "betaSink"), label = "Fecundity at the sink site (betaSink)", min = 0, max = 50, value = 1),
+        textOutput(NS(id, "suggest_betaSink")), # suggested betaSink range given pa and pj
+        numericInput(NS(id, "NSource"), label = "maximum breeding sites at source", min = 1, value = 300),
         
         ### ask for init (inital conditions)
         ### init <- c(N = 20, P = 2)
-        numericInput(NS(id, "n10"), label = "initial population at source (n1)", min = 0, value = 110),
-        numericInput(NS(id, "n20"), label = "initial population at sink (n2)", min = 0, value = 100),
+        numericInput(NS(id, "n0Source"), label = "initial population at source (n0Source)", min = 0, value = 110),
+        numericInput(NS(id, "n0Sink"), label = "initial population at sink (n0Sink)", min = 0, value = 100),
         
         ### ask for time (time to simulate)
         numericInput(NS(id, "endtime"), label = "years to simulate", min = 2, value = 50)
@@ -150,71 +150,58 @@ ssequiUI <- function(id){
 ssServer <- function(id) {
     moduleServer(id, function(input, output, session) {
       
-        ### first check if beta1 is valid for source population
-        observeEvent(input$beta1, # check this input spot
+        ### first check if betaSource is valid for source population
+        observeEvent(input$betaSource, # check this input spot
           shinyFeedback::feedbackWarning( # gives warning if:
-            "beta1", # this variable (beta1)
-            input$pa + input$pj * input$beta1 <= 1, # if satisefy this condition
-            "pa + pj * beta1 should >1 for source polulation, view suggestion.  
+            "betaSource", # this variable (betaSource)
+            input$pa + input$pj * input$betaSource <= 1, # if satisefy this condition
+            "pa + pj * betaSource should >1 for source polulation, view suggestion.  
             Note that the violation does not stop the simulation. It just no longer satisfies the definition of a Pulliam source population" 
             # this warning message will show up
             # but simlulation will continue even with warning
             # if want simulation ONLY with valid input, use REQUIRE statement
           )  
         )
-        ### suggested beta1 value based on pa and pj
-        output$suggest_beta1 <- renderText(paste("Suggested input: beta1 >", round((1-input$pa) / input$pj, digits = 1)) )
+        ### suggested betaSource value based on pa and pj
+        output$suggest_betaSource <- renderText(paste("Suggested input: betaSource >", round((1-input$pa) / input$pj, digits = 1)) )
         
-        ### then check if beta2 is valid for sink population
-        observeEvent(input$beta2,
+        ### then check if betaSink is valid for sink population
+        observeEvent(input$betaSink,
           shinyFeedback::feedbackWarning(
-            "beta2", 
-            input$pa + input$pj * input$beta2 >= 1,
-            "pa + pj * beta2 should <1 for sink polulation, view suggestion.  
+            "betaSink", 
+            input$pa + input$pj * input$betaSink >= 1,
+            "pa + pj * betaSink should <1 for sink polulation, view suggestion.  
             Note that the violation does not stop the simulation. It just no longer satisefies the definition of a Pulliam sink population"
           )  
         )
-        ### suggested beta1 value based on pa and pj
-        output$suggest_beta2 <- renderText(paste("Suggested input: beta2 <", round((1-input$pa) / input$pj, digits = 1)) )
+        ### suggested betaSource value based on pa and pj
+        output$suggest_betaSink <- renderText(paste("Suggested input: betaSink <", round((1-input$pa) / input$pj, digits = 1)) )
         
         
         ### Set the initial population sizes
-        #init <- c(n10 = 110, n20 = 100)
+        #init <- c(n0Source = 110, n0Sink = 100)
         #code tip: any time it's reactive, it has to be {} in ()
-        init <- reactive({ c(n10 = input$n10, n20 = input$n20)}) 
+        init <- reactive({ c(n0Source = input$n0Source, n0Sink = input$n0Sink)}) 
         
         ### Set the parameter values
-        #params <- c(pa = .7, pj = .2, beta1 = 3, beta2 = 1, N1 = 300) 
+        # params <- c(pa = .7, pj = .2, betaSource = 3, betaSink = 1, NSource = 300) 
         params <- reactive({ c(pa = input$pa, pj = input$pj, 
-                               beta1 = input$beta1, beta2 = input$beta2, N1 = input$N1) })
+                               betaSource = input$betaSource, betaSink = input$betaSink, NSource = input$NSource) })
         ### Time over which to simulate model dynamics
         time <- reactive({ endtime = input$endtime })
         
-        #code tip: now init and params are reactive, use them like functions "xx()"
-        ss_df <- reactive({ data.frame(year = 1:time(), 
-                                      run_source_sink(endtime = time(), init = init(), 
-                                                    params = params())) })
-        ss_out <- reactive({
-           out <- ss_df()
-           colnames(out) <- c("year", "source", "sink")
-           out
-         })
+        # run_source_sink function to get simulated population sizes at each time
+        ss_list <- reactive({run_source_sink(endtime = time(), init = init(), params = params()) })
         
-        ss_out_long <- reactive({ pivot_longer(ss_out(), c(source,sink), "population") })
-        
+        ### check assumption again, if violated, project on the plot
+        ss_assumption <- reactive({assumption_check(params = params()) })
         ### Plot
-        ss_plot <- reactive({ ggplot(ss_out_long()) + 
-          geom_line(aes(x = year, y = value, color = population), size = 2) + 
-            ecoevoapps::theme_apps() + 
-            scale_x_continuous(expand = c(0, 0, .1, 0)) +
-            scale_y_continuous(expand = c(0, 0, .1, 0)) + 
-            scale_color_brewer(palette = "Set1") +
-            ylab("Population size")  })    
+        ss_plot <- reactive({plot_source_sink(ss_list(), ss_assumption())  })    
         
         output$simulation <- renderPlot(ss_plot(), height = 300)
         
         ### calculate equilibrium for sink population, display on click
-        equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$beta1 - 1)*input$N1/(input$pa + input$pj*input$beta2 - 1), digits = 0)})
+        equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$betaSource - 1)*input$NSource/(input$pa + input$pj*input$betaSink - 1), digits = 0)})
         output$equilibrium <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
   })
 }
@@ -296,28 +283,28 @@ shinyApp( #to embed shiny app into the html document
 Clearly, the equilibrium is the carrying capacity of the source site.
 \begin{equation}
 \tag{6}
-n_{1}^{*} = N^{*}
+n_{Source}^{*} = N^{*}
 \end{equation}
 
 ## Sink population
 Recall that when the source population reaches equilibrium, the sink population annual increase can be written as:
 \begin{equation}
 \tag{7}
-n_{2~next~year~initial} =  (P_{A} + P_{J} \beta_{2}) n_{2} + (\lambda_{1} n_{1} - N^{*}) = \lambda_{2} n_{2} + (\lambda_{1} - 1)N^{*}
+n_{Sink,~next~year~initial} =  (P_{A} + P_{J} \beta_{2}) n_{Sink} + (\lambda_{Source} n_{Source} - N^{*}) = \lambda_{Sink} n_{Sink} + (\lambda_{Source} - 1)N^{*}
 \end{equation}
 The above is a discrete time model, but if we consider a really long time, it becomes continuous. We represent the rate of change of sink population as the time deriative:
 \begin{equation}
 \tag{8}
-n_{2}^{'} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2} + (\lambda_{1} n_{1} - N^{*}) = (\lambda_{2} - 1) n_{2} + (\lambda_{1} - 1)N^{*}
+n_{Sink}^{'} =  (P_{A} + P_{J} \beta_{Sink} - 1) n_{Sink} + (\lambda_{Source} n_{Source} - N^{*}) = (\lambda_{Sink} - 1) n_{Sink} + (\lambda_{Source} - 1)N^{*}
 \end{equation}
-At equilibrium, the rate of change is 0 and we can solve for $n_{2}^{*}$:
+At equilibrium, the rate of change is 0 and we can solve for $n_{Sink}^{*}$:
 \begin{equation}
 \tag{9}
-0 = n_{2}^{'} = (\lambda_{2}-1) n_{2}^{*} + (\lambda_{1} - 1)N^{*} =  (P_{A} + P_{J} \beta_{2} - 1) n_{2}^{*} + (P_{A} + P_{J} \beta_{1} - 1)N^{*}
+0 = n_{Sink}^{'} = (\lambda_{Sink}-1) n_{Sink}^{*} + (\lambda_{SOurce} - 1)N^{*} =  (P_{A} + P_{J} \beta_{Sink} - 1) n_{Sink}^{*} + (P_{A} + P_{J} \beta_{Source} - 1)N^{*}
 \end{equation}
 \begin{equation}
 \tag{10}
-n_{2}^{*} = -\frac{(P_{A} + P_{J} \beta_{1} - 1)N^{*}}{(P_{A} + P_{J} \beta_{2} - 1)}
+n_{Sink}^{*} = -\frac{(P_{A} + P_{J} \beta_{Source} - 1)N^{*}}{(P_{A} + P_{J} \beta_{Sink} - 1)}
 \end{equation}
 Calculate the equilibirum of your sink population based on your input and verify your answer using the simulation plot.  
 

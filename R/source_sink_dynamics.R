@@ -1,3 +1,20 @@
+#' check if input parameters violates model(Pulliam 1988) assumptions
+#' @param params a vector of model parameters
+#' @examples
+#' VALID parameter example 1: lambdaSource > 1, lambdaSink < 1
+#' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 4, betaSink = 1))
+#' INVALID parameter example 1: lambdaSource < 1, lambdaSInk < 1
+#' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 2))
+#' INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
+#' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
+assumption_check <- function(params){
+  with(as.list(params), {
+    if (((pa + pj * betaSource >1)&(pa + pj * betaSink <1))|((pa + pj * betaSource <1)&(pa + pj * betaSink >1))) {
+      return(TRUE)} else return(FALSE)
+  })
+}
+
+
 #' Simulate dynamics of the source and sink populations under Pulliam (1988)'s model
 #' @param endtime a number to indicate at what timesetp to end the simulation
 #' @param init a vector of initial population sizes of the source and sink population
@@ -6,65 +23,103 @@
 #' # in this example, source and sink population start at the same size,
 #' # the sink population dies out, but is later replenished by immigration
 #' # from the source patch once all source breeding sites are occupied
-#' run_source_sink(endtime = 50, init = c(100, 100),
-#' params = c(pa = 0.6, pj = 0.15, beta1 = 3, beta2 = 1, N1 = 300))
-#' # the following is an INVALID example, where the model assumption is violated
-#' # the model requires a sink site with negative population growth (lambda < 1),
-#' # but here lambdas for both sites exceeds 1.
-#' # Note that the violation does not stop the simulation.
-#' # But it no longer satisfies the definition of a Pulliam sink population
-#' run_source_sink(endtime = 50, init = c(100, 100),
-#' params = c(pa = 0.6, pj = 0.15, beta1 = 4, beta2 = 3, N1 = 300))
+#' run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
+#' params = c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, nSource = 300))
 #' @export
 run_source_sink <- function(endtime,init,params) {
   with (as.list(c(endtime,init,params)), {
     # description of parameters/state variables:
     # pa = probability of adults surviving winter
     # pj = probability of juvenile surviving winter
-    # beta1 = fecundity of population 1
-    # beta2 = fecundity of population 2
-    # n1 <- population of n1 (source by default)
-    # N1 <- limiting breeding site for source population (equilibrium source population)
-    # n2 <- population of n2 (sink by default)
-    # assume sink population has unlimited breeding sites, equilibrium N2 will be calculated
+    # betaSource = fecundity of source population
+    # betaSink = fecundity of sink population
+    # n0Source <- initual source population size
+    # NSource <- limiting breeding site for source population (equilibrium source population)
+    # n0Sink <- initial sink population size
+    # assume sink population has unlimited breeding sites, equilibrium nSink will be calculated
     # when all breading sites are occupied, emigration happens
 
-    # if(CONDITION) {
-    #   warning("Your parameters violate Pulliam model's requiremnets")
-    # }
+    # warnings for parameter inputs that violate Pulliam model's requirements
+    if(assumption_check(params) == F) {
+      warning("Your parameters violate Pulliam model's requirements; \n  lambda for source population must be greater than 1;\n  lambda for sink population must be smaller than 1")
+    }
 
     # initialize empty vectors to store population size at each time step
-    n1 <- numeric(endtime)
-    n2 <- numeric(endtime)
+    nSource <- numeric(endtime)
+    nSink <- numeric(endtime)
     e <- 0 # before breeding sites are all occupied at the source, emigration is 0
 
     # initial population sizes:
-    n1[1] <- n10
-    n2[1] <- n20
+    nSource[1] <- n0Source
+    nSink[1] <- n0Sink
 
     # annual cycles:
     for (t in 2:endtime) {
       # at the start of the year, population = end of last year
-      n10 <- n1[t-1]
-      n20 <- n2[t-1]
+      n0Source <- nSource[t-1]
+      n0Sink <- nSink[t-1]
 
       # growth & survival cycle  of the year
-      n1[t] <- n10*(pa + pj*beta1)
-      n2[t] <- n20*(pa + pj*beta2)
+      nSource[t] <- n0Source*(pa + pj*betaSource)
+      nSink[t] <- n0Sink*(pa + pj*betaSink)
       # optional: rounding, keep populations integers
-      # n1[t] <- round( n1[t])
-      # n2[t] <- round( n2[t])
+      # nSource[t] <- round( nSource[t])
+      # nSink[t] <- round( nSink[t])
 
       # migration cycle of the year
-      if (n1[t] >= N1){
+      if (nSource[t] >= NSource){
         #if source population reaches carrying capacity, emigration away from source, to sink
-        e <- n1[t] - N1
+        e <- nSource[t] - NSource
       }
-      n1[t] <- n1[t] - e
-      n2[t] <- n2[t] + e
+      nSource[t] <- nSource[t] - e
+      nSink[t] <- nSink[t] + e
     }
-    # return both n1 and n2
-    return(list(n1, n2))
+    # return both nSource and nSink
+    return(list(1:endtime, nSource, nSink))
   })
 }
 
+
+#' plot population trajectories of Pulliams' source sink meta-population
+#' @param sim_list a list of 2: source and sink population sizes at each time step,
+#' can directly use the output from run_source_sink()
+#' @param assumption_status a Boolean value, TRUE if assumptions are met, FALSE if violated
+#' @import ggplot2
+#' @import tidyr
+#' @examples
+#' a valid example
+#' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, NSource = 300)
+#' Sim_list <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
+#' params = Params)
+#' Assumption_status <- assumption_check(Params)
+#' plot_source_sink(sim_list = Sim_list, assumption_status = Assumption_status)
+#' a invalid example with warning
+#' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 3, NSource = 300)
+#' Sim_list <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
+#' params = Params)
+#' Assumption_status <- assumption_check(Params)
+#' plot_source_sink(sim_list = Sim_list, assumption_status = Assumption_status)
+#' @export
+plot_source_sink <- function(sim_list, assumption_status){
+  sim_df <- data.frame(sim_list)
+  colnames(sim_df) <- c("year", "source", "sink")
+  sim_df <- pivot_longer(sim_df, c(source,sink), "population")
+  plot <- ggplot(sim_df) +
+    geom_line(aes(x = year, y = value, color = population), size = 2) +
+    ecoevoapps::theme_apps() +
+    scale_x_continuous(expand = c(0, 0, .1, 0)) +
+    scale_y_continuous(expand = c(0, 0, .1, 0)) +
+    scale_color_brewer(palette = "Set1") +
+    ylab("Population size")
+  if(assumption_status == FALSE){
+    x_center = max(sim_df$year)/2
+    y_center = max(sim_df$value)/2
+    plot <- plot +
+      annotate("text", x = x_center, y = y_center,
+               label = "Your parameters violate \nPulliam model's requirements")+
+      labs(title = "Your parameters violate Pulliam model's requirements")+
+      theme(plot.title = element_text(color = "red", face = "bold"))
+
+  }
+  return(plot)
+}
