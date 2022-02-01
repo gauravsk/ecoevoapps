@@ -1,7 +1,5 @@
 ---
 title: "Pulliam's Source-Sink Metapopulation Model"
-author: "Xinyi Yan"
-date: "June 28, 2020"
 output: 
   html_document:
     css: bg.css
@@ -90,7 +88,7 @@ paramTable <- data.frame(
   
   Value.Range = c("0-1, constrained by $\\lambda$s", "0-1, constrained by $\\lambda$s", "> 0,  constrained by $\\lambda$s", "> 0, constrained by $\\lambda$s", "> 1", "< 1", "positive integers", "positive integers", "positive integers"))
 
-kable(paramTable) %>%
+kable(paramTable, col.names = c("Paramter", "Description", "Acceptable range of values")) %>%
   kable_styling(bootstrap_options = c("striped"))
 ```
 
@@ -180,13 +178,13 @@ ssServer <- function(id) {
         
         ### Set the initial population sizes
         #init <- c(n0Source = 110, n0Sink = 100)
-        #code tip: any time it's reactive, it has to be {} in ()
         init <- reactive({ c(n0Source = input$n0Source, n0Sink = input$n0Sink)}) 
         
         ### Set the parameter values
         # params <- c(pa = .7, pj = .2, betaSource = 3, betaSink = 1, NSource = 300) 
         params <- reactive({ c(pa = input$pa, pj = input$pj, 
-                               betaSource = input$betaSource, betaSink = input$betaSink, NSource = input$NSource) })
+                               betaSource = input$betaSource, 
+                               betaSink = input$betaSink, NSource = input$NSource) })
         ### Time over which to simulate model dynamics
         time <- reactive({ endtime = input$endtime })
         
@@ -196,12 +194,15 @@ ssServer <- function(id) {
         ### check assumption again, if violated, project on the plot
         ss_assumption <- reactive({assumption_check(params = params()) })
         ### Plot
-        ss_plot <- reactive({plot_source_sink(ss_list(), ss_assumption())  })    
+        ss_plot <- reactive({plot_source_sink(ss_list(), ss_assumption()) })    
         
         output$simulation <- renderPlot(ss_plot(), height = 300)
         
         ### calculate equilibrium for sink population, display on click
-        equi <- eventReactive(input$showAnswer, {round(-(input$pa + input$pj*input$betaSource - 1)*input$NSource/(input$pa + input$pj*input$betaSink - 1), digits = 0)})
+        equi <- eventReactive(input$showAnswer, {
+          round(-(input$pa + input$pj*input$betaSource - 1)*
+                  input$NSource/(input$pa + input$pj*input$betaSink - 1), digits = 0)
+          })
         output$equilibrium <- renderText({ paste(equi(), ". (Read section 4 for details.)") })
   })
 }
@@ -314,9 +315,12 @@ Calculate the equilibirum of your sink population based on your input and verify
 2. [Colorado State University Lecture Notes](https://sites.warnercnr.colostate.edu/gwhite/wp-content/uploads/sites/73/2017/06/Winkelman-Lecture-8.pdf)  
 3. [UCLA Lecture Notes](https://faculty.eeb.ucla.edu/Sork/Env121Sork/SorkLec4_Metapop/Metapop.html#IV)
 
-------------
+-------------
 
-App maintained by Xinyi Yan (yan.xinyi@outlook.com)
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+
 
 <!--
 # DEV NOTES (will delete)
