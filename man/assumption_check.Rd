@@ -20,3 +20,4 @@ assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 2))
 INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
 assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
 }
+\keyword{internal}

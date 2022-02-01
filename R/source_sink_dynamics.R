@@ -8,6 +8,7 @@
 #' INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
 #' @keywords internal
+#' @export
 assumption_check <- function(params){
   with(as.list(params), {
     if ((pa + pj * betaSource >1)&(pa + pj * betaSink <1)) {
