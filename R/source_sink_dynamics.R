@@ -7,9 +7,10 @@
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 2))
 #' INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
+#' @keywords internal
 assumption_check <- function(params){
   with(as.list(params), {
-    if (((pa + pj * betaSource >1)&(pa + pj * betaSink <1))|((pa + pj * betaSource <1)&(pa + pj * betaSink >1))) {
+    if ((pa + pj * betaSource >1)&(pa + pj * betaSink <1)) {
       return(TRUE)} else return(FALSE)
   })
 }
@@ -81,7 +82,8 @@ run_source_sink <- function(endtime,init,params) {
 
 
 #' plot population trajectories of Pulliams' source sink meta-population
-#' @param sim_list a list of 2: source and sink population sizes at each time step,
+#' @param sim_df a 3-column data frame, or a list of 3:
+#'  at each time step, the source and sink population sizes;
 #' can directly use the output from run_source_sink()
 #' @param assumption_status a Boolean value, TRUE if assumptions are met, FALSE if violated
 #' @import ggplot2
@@ -89,34 +91,41 @@ run_source_sink <- function(endtime,init,params) {
 #' @examples
 #' a valid example
 #' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, NSource = 300)
-#' Sim_list <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
+#' Sim_df <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
 #' params = Params)
 #' Assumption_status <- assumption_check(Params)
-#' plot_source_sink(sim_list = Sim_list, assumption_status = Assumption_status)
-#' a invalid example with warning
+#' plot_source_sink(sim_df = Sim_df, assumption_status = Assumption_status)
+#' an invalid example with warning
 #' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 3, NSource = 300)
-#' Sim_list <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
+#' Sim_df <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
 #' params = Params)
 #' Assumption_status <- assumption_check(Params)
-#' plot_source_sink(sim_list = Sim_list, assumption_status = Assumption_status)
+#' plot_source_sink(sim_df = Sim_df, assumption_status = Assumption_status)
 #' @export
-plot_source_sink <- function(sim_list, assumption_status){
-  sim_df <- data.frame(sim_list)
+plot_source_sink <- function(sim_df, assumption_status){
+  # if the input is a list, convert to data frame
+  sim_df <- data.frame(sim_df)
+  # reshape data & give column names
   colnames(sim_df) <- c("year", "source", "sink")
   sim_df <- pivot_longer(sim_df, c(source,sink), "population")
+
   plot <- ggplot(sim_df) +
     geom_line(aes(x = year, y = value, color = population), size = 2) +
-    ecoevoapps::theme_apps() +
+    theme_apps() +
     scale_x_continuous(expand = c(0, 0, .1, 0)) +
     scale_y_continuous(expand = c(0, 0, .1, 0)) +
     scale_color_brewer(palette = "Set1") +
     ylab("Population size")
+
+  # project warning if assumptions are violated
   if(assumption_status == FALSE){
+    # show warning at the middle of the plot
     x_center = max(sim_df$year)/2
     y_center = max(sim_df$value)/2
     plot <- plot +
       annotate("text", x = x_center, y = y_center,
                label = "Your parameters violate \nPulliam model's requirements")+
+      # show warning as the title
       labs(title = "Your parameters violate Pulliam model's requirements")+
       theme(plot.title = element_text(color = "red", face = "bold"))
 
