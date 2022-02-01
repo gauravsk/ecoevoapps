@@ -1,6 +1,5 @@
 ---
 title: "Competition for abiotic resources"
-author: "Gaurav Kandlikar"
 output: html_document
 runtime: shiny
 ---
