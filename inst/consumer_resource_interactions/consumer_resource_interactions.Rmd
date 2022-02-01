@@ -15,7 +15,9 @@ ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
 
-One of the most important sets of interactions in ecological communities is the interaction between consumers and resources. For example, the interactions between a herbivore and the plants it eats, between a predator and its prey, between a parasitoid and its host, can all fit within the general category of consumer-resource interactions.  This app presents several models that have been developed to study such interactions. We refer to the resource as "prey" and the consumer as "predator". There are several variants of the general consumer-resource model that are presented here, each in a different tab. 
+One of the most important sets of interactions in ecological communities is the interaction between consumers and resources. For example, the interactions between a herbivore and the plants it eats, between a predator and its prey, between a parasitoid and its host, can all fit within the general category of consumer-resource interactions.  Of course, all of these do have distinct biology- for examples, predation generally means the victim dies entirely, while plants don't necessarily die when they are consumed by herbivores. Similarly parasitoids generally attack early stages in the life cycle and kill the individual before reproduction, while parasites live on or in the host and reduce the fitness of the host without killing it. See the References section below for resource on each of these different types of interactions.
+
+Even with these biological distinctions, we can use similarly classes of models to study the dynamics of such systems. This app presents several models that have been developed to study such interactions. We refer to the resource as "prey" and the consumer as "predator". There are several variants of the general consumer-resource model that are presented here, each in a different tab. 
 
 
 ##  {.tabset}
@@ -522,7 +524,7 @@ np_rm <- reactive({
 
 ## Consumer Functional Response {.tabset}
 
-The consumer's functional response captures the relationship between consumer's intake rate of the resource as a function of the resource density.
+The consumer's functional response captures the relationship between consumer's intake rate of the resource as a function of the resource density. In other words, this is the rate at which consumers can access energy from their prey, as a function of the prey density. 
 
 ```{r functional response functions, echo=FALSE}
 type1_fr <- function (H_init, H_final, a){
@@ -677,6 +679,21 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 - [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
 - [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+**References for Plant-herbivore dynamics**:
+- [Herbivory: effects on plant abundance, distribution and population growth](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1635468/pdf/rspb20063587.pdf), 2006, by J. Maron and  E. Crone 
+
+- [Insect Herbivores and Plant Population Dynamics](https://www.annualreviews.org/doi/abs/10.1146/annurev.en.34.010189.002531?journalCode=ento), 1989, by M.J. Crawley
+
+**References for Predator-Prey dynamics**:
+
+- [Impact of Food and Predation on the Snowshoe Hare Cycle](https://www.science.org/doi/10.1126/science.269.5227.1112), 1995, by C.J. Krebs et al.  
+
+- [Dynamics of Predation](https://www.nature.com/scitable/knowledge/library/dynamics-of-predation-13229468/), 2010, by A.N.P. Stevens
+
+**References for Host-Parasite/Parasitoid dynamics**:
+- [Overivew of the Nicholson-Bailey model](https://en.wikipedia.org/wiki/Nicholson%E2%80%93Bailey_model) (Links to Wikipedia page)  
+- [Modelling the biological control of insect pests: a review of host-parasitoid models](https://www.sciencedirect.com/science/article/abs/pii/0304380095001778), 1996, by N.J. Mills and W.M. Getz
 
 -------------
 
