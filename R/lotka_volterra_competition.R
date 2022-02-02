@@ -172,6 +172,16 @@ plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
                pch = 21, size = 3, fill = "black") +
     geom_point(x = last(sim_df$N1), y = last(sim_df$N2),
                pch = 21, size = 3, fill = "white", stroke = 1) +
+
+    geom_point(x = ZNGI_sp1[["xend1"]], y = 0, fill = "#E41A1C",
+               pch = 21, size = 3, color = "black", stroke = 0.5) +
+    geom_point(x = 0, y = ZNGI_sp1[["y1"]], fill = "#E41A1C",
+               pch = 21, size = 3, color = "black", stroke = 0.5) +
+    geom_point(x = ZNGI_sp2[["xend2"]], y = 0, fill = "#377EB8",
+               pch = 21, size = 3, color = "black", stroke = 0.5) +
+    geom_point(x = 0, y = ZNGI_sp2[["y2"]], fill = "#377EB8",
+               pch = 21, size = 3, color = "black", stroke = 0.5) +
+
     geom_segment(x = sim_df$N1[round(nrow(sim_df)/4)],
                  y = sim_df$N2[round(nrow(sim_df)/4)],
                  xend = sim_df$N1[round(nrow(sim_df)/4) + 1],
@@ -180,7 +190,8 @@ plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
     labs(x = expression(N[1]), y = expression(N[2]), color = "ZNGI for") +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
-    theme_apps()
+    theme_apps() +
+    theme(plot.margin = margin(l = 15, t = 5, b = 7))
 
   # option to add margin_text
   if(margin_text == TRUE) {
@@ -190,31 +201,32 @@ plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
     if("K1" %in% names(params)) {
       potrait_plot <-
         potrait_plot +
-        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0, vjust = 1, hjust = 1,
-                 label = paste0("K1 = \n", ZNGI_sp1[["xend1"]])) +
+        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0, vjust = 2, hjust = 0,
+                 label = bquote(K[1] == .(ZNGI_sp1[["xend1"]]))) +
         annotate("text", y = ZNGI_sp1[["y1"]], x = 0, vjust = 1, hjust = 1,
-                 label = paste0(" K1/a = \n", ZNGI_sp1[["y1"]])) +
-        annotate("text", x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1, hjust = 1,
-                 label = paste0("K2/b = \n", ZNGI_sp2[["xend2"]])) +
+                 label = bquote(frac(K[1], alpha) == .(ZNGI_sp1[["y1"]]))) +
+        annotate("text",  x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1.25, hjust = 0,
+                 label = bquote(frac(K[2],beta) == .(ZNGI_sp2[["xend2"]]))) +
         annotate("text", y = ZNGI_sp2[["y2"]], x = 0, vjust = 1, hjust = 1,
-                 label = paste0(" K2 = \n", ZNGI_sp2[["y2"]])) +
-        coord_cartesian(clip = "off")
+                 label = bquote(K[2] == .(ZNGI_sp2[["y2"]]))) +
+
+      coord_cartesian(clip = "off")
 
     } else {
       potrait_plot <-
         potrait_plot +
-        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0, vjust = 1, hjust = 1,
-                 label = paste0("1/a11 = \n", ZNGI_sp1[["xend1"]])) +
+
+        annotate("text", x = ZNGI_sp1[["xend1"]], y = 0,  vjust = 1.25, hjust = 0,
+                 label = bquote(~frac(1, alpha[11]) == .(ZNGI_sp1[["xend1"]]))) +
         annotate("text", y = ZNGI_sp1[["y1"]], x = 0, vjust = 1, hjust = 1,
-                 label = paste0(" 1/a12 = \n", ZNGI_sp1[["y1"]])) +
-        annotate("text", x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1, hjust = 1,
-                 label = paste0("1/a21 = \n", ZNGI_sp2[["xend2"]])) +
+                 label = bquote(~frac(1, alpha[12]) == .(ZNGI_sp1[["y1"]]))) +
+        annotate("text",  x = ZNGI_sp2[["xend2"]], y = 0, vjust = 1.25, hjust = 0,
+                 label = bquote(~frac(1, alpha[21]) == .(ZNGI_sp2[["xend2"]]))) +
         annotate("text", y = ZNGI_sp2[["y2"]], x = 0, vjust = 1, hjust = 1,
-                 label = paste0(" 1/a22 = \n", ZNGI_sp2[["y2"]])) +
+                 label = bquote(~frac(1, alpha[22]) == .(ZNGI_sp2[["y2"]]))) +
         coord_cartesian(clip = "off")
     }
   }
-
   return(potrait_plot)
 }
 
@@ -240,8 +252,8 @@ plot_lvcomp_time <- function(sim_df) {
     scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
     labs(x = "Time", y = "Population size (N)", color = "Species") +
     scale_x_continuous(expand = c(0, 0)) +
-    scale_y_continuous(expand = c(0, 0)) +
-    theme_apps()
+    theme_apps() +
+    theme(plot.margin = margin(t = 10))
 
   return(N_over_time)
 }
