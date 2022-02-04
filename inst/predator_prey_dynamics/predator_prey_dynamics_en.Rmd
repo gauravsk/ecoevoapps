@@ -680,18 +680,11 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 - [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
 
-**References for Plant-herbivore dynamics**:
-- [Herbivory: effects on plant abundance, distribution and population growth](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1635468/pdf/rspb20063587.pdf), 2006, by J. Maron and  E. Crone 
-
-- [Insect Herbivores and Plant Population Dynamics](https://www.annualreviews.org/doi/abs/10.1146/annurev.en.34.010189.002531?journalCode=ento), 1989, by M.J. Crawley
-
-**References for Predator-Prey dynamics**:
-
 - [Impact of Food and Predation on the Snowshoe Hare Cycle](https://www.science.org/doi/10.1126/science.269.5227.1112), 1995, by C.J. Krebs et al.  
 
 - [Dynamics of Predation](https://www.nature.com/scitable/knowledge/library/dynamics-of-predation-13229468/), 2010, by A.N.P. Stevens
 
-**References for Host-Parasite/Parasitoid dynamics**:
+*Additional references for Host-Parasite/Parasitoid dynamics*:  
 - [Overivew of the Nicholson-Bailey model](https://en.wikipedia.org/wiki/Nicholson%E2%80%93Bailey_model) (Links to Wikipedia page)  
 - [Modelling the biological control of insect pests: a review of host-parasitoid models](https://www.sciencedirect.com/science/article/abs/pii/0304380095001778), 1996, by N.J. Mills and W.M. Getz
 
