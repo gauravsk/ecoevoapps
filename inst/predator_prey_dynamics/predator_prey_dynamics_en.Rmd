@@ -14,10 +14,10 @@ library(ggplot2)
 ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
+This app presents various models that explore the dynamics between predators and their prey. There are several versions of predator-prey models presented in the tabs below, but they all share a similar structure. The prey species are considered as a single population which, in the absence of the predator, grows either exponentially or logistically. The predator, in turn, depends solely on the prey for its energy (i.e. it is a specialist predator),  and if there were no prey available in the system, the predator population simply declines to zero. The more abundant the prey, the more the predator population can grow. But the more the predator population grows, the lower the prey falls. This sets up the cylic dynamics that we see in many predator-prey models.
 
-One of the most important sets of interactions in ecological communities is the interaction between consumers and resources. For example, the interactions between a herbivore and the plants it eats, between a predator and its prey, between a parasitoid and its host, can all fit within the general category of consumer-resource interactions.  Of course, all of these do have distinct biology- for examples, predation generally means the victim dies entirely, while plants don't necessarily die when they are consumed by herbivores. Similarly parasitoids generally attack early stages in the life cycle and kill the individual before reproduction, while parasites live on or in the host and reduce the fitness of the host without killing it. See the References section below for resource on each of these different types of interactions.
+Historically, versions of the predator-prey models have also been used to study dynamics between parasites and their hosts. Thus, we follow their convention in labeling the "prey" using the variable $H$, and the "predator" using the variable $P$.  
 
-Even with these biological distinctions, we can use similarly classes of models to study the dynamics of such systems. This app presents several models that have been developed to study such interactions. We refer to the resource as "prey" and the consumer as "predator". There are several variants of the general consumer-resource model that are presented here, each in a different tab. 
 
 
 ##  {.tabset}
