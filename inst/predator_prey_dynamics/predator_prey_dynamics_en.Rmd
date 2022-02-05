@@ -1,5 +1,5 @@
 ---
-title: "消费者-资源相互作用"
+title: "Consumer-Resource Dynamics"
 output: html_document
 runtime: shiny
 ---
@@ -14,13 +14,17 @@ library(ggplot2)
 ggplot2::theme_set(ecoevoapps::theme_apps())
 ```
 
-消费者和资源之间的相互作用是生态群落中最重要的动态之一。食草动物与植物、捕食者和猎物、拟寄生生物和宿主之间的相互作用，都可以看作是一种消费者-资源相互作用。此app展现了几个用于研究这类相互作用的模型。以下，我们将资源称作“猎物”，将消费者称作“捕食者”。下文各个选项卡展示了消费者-资源模型的不同变种。
+This app presents various models that explore the dynamics between predators and their prey. There are several versions of predator-prey models presented in the tabs below, but they all share a similar structure. The prey species are considered as a single population which, in the absence of the predator, grows either exponentially or logistically. The predator, in turn, depends solely on the prey for its energy (i.e. it is a specialist predator),  and if there were no prey available in the system, the predator population simply declines to zero. The more abundant the prey, the more the predator population can grow. But the more the predator population grows, the lower the prey falls. This sets up the cylic dynamics that we see in many predator-prey models.
+
+Historically, versions of the predator-prey models have also been used to study dynamics between parasites and their hosts. Thus, we follow their convention in labeling the "prey" using the variable $H$, and the "predator" using the variable $P$.  
+
+
 
 ##  {.tabset}
 
-### Lotka-Volterra 捕食者-猎物模型
+### Lotka-Volterra predator-prey model
 
-经典的 [Lotka-Volterra 捕食者-猎物](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) 模型描述了一个呈指数（J型）增长的猎物和一个无猎食饱和 【I类功能反应，详见 [下文](#consumer-functional-response)】的捕食者，和两者间的动态:
+The classic [Lotka-Volterra predator-prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) model captures the dynamics between a prey species that has exponential growth, and a predator that consumes prey with no saturation point ("Type 1 functional response", see [below](#consumer-functional-response)):
 
 \[
 \begin{align}
@@ -37,21 +41,21 @@ pars_vars <- c("$H$",
                "$a$", 
                "$e$", 
                "$d$")
-descriptions <- c("猎物种群规模",
-                 "捕食者种群规模",
-                 "猎物人均增长率",
-                 "捕食者的猎食率",
-                 "营养转化率",
-                 "捕食者死亡率")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-零增长等斜线:
+Equations for the zero net growth isoclines:
 \[
 \begin{align}
 P^* &= \frac{r}{a}\\
@@ -67,27 +71,27 @@ sidebarLayout(
     ### Ask users for parameter values ----
     ## r, a, T_h, e, d
     
-    sliderInput("r_lv_pred1", label = "猎物人均增长率", 
+    sliderInput("r_lv_pred1", label = "Per capita growth rate of Prey", 
                 min = .0001, max = 1.0, value = .5),
-    sliderInput("a_lv_pred1", label = "捕食者猎食率", min = .001, 
+    sliderInput("a_lv_pred1", label = "Predator attack rate", min = .001, 
                 max = 1.0, value = .1),
-    sliderInput("e_lv_pred1", label = "营养转化率",
+    sliderInput("e_lv_pred1", label = "Predator conversion efficiency",
                 min = .001, max = 1.0, value = 0.2),
-    sliderInput("d_lv_pred1", label = "捕食者人均死亡率",
+    sliderInput("d_lv_pred1", label = "Per capita death rate of Predator",
                 min = .0001, max = 1.0, value = .3),
     
     ### Ask users for initial conditions -----
     #N1, N2
     
-    numericInput("H_lv_pred1", label = "猎物起始种群规模", 
+    numericInput("H_lv_pred1", label = "Initial population size of Prey", 
                  min = 1, value = 10),
-    numericInput("P_lv_pred1", label = "捕食者起始种群规模", 
+    numericInput("P_lv_pred1", label = "Initial population size of Predator", 
                  min = 1, value = 10),
     
     ### Ask users for time to simulate ----
-    numericInput("t_lv_pred1", label = "模拟时长", min = 10, value = 100),
+    numericInput("t_lv_pred1", label = "Timesteps", min = 10, value = 100),
     
-    checkboxGroupInput("vectors_lv_pred1", label = "显示向量场?", 
+    checkboxGroupInput("vectors_lv_pred1", label = "Display vector field?", 
                        choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
@@ -140,8 +144,9 @@ np_lvpred1 <- reactive({
 
 ```
 
-### 呈逻辑斯蒂（S型）增长的猎物
- 相比Lotka-Volterra模型，这个模型更加接近生物事实。在Lotka-Volterra模型中，猎物呈指数（J型）增长；而此处，猎物呈逻辑斯蒂（S型）增长，并趋于其环境承载力$K$：
+### Logistic Prey
+ 
+This model adds an additional layer of biological realism to the Lotka-Volterra model. Specifically, in the classic model, the prey is modeled as having exponential growth. In this tab, the prey experiences logistic growth up to a carrying capacity $K$. 
 
 \[
 \begin{align}
@@ -159,22 +164,22 @@ pars_vars <- c("$H$",
                "$a$", 
                "$e$", 
                "$d$")
-descriptions <- c("猎物种群规模",
-                 "捕食者种群规模",
-                 "猎物人均增长率",
-                 "猎物的环境承载力",
-                 "捕食者猎食率",
-                 "营养转化率",
-                 "捕食者死亡率")
+descriptions <- c("Population size of the prey",
+                 "Population size of predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of predator",
+                 "Conversion efficiency of predator",
+                 "Death rate of predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-零增长等斜线:
+Equations for the zero net growth isoclines:
 \[
 \begin{align}
 P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
@@ -189,29 +194,29 @@ sidebarLayout(
     ### Ask users for parameter values ----
     ## r, a, e, d, K
     
-    sliderInput("r_logprey", label = "猎物人均增长率",
+    sliderInput("r_logprey", label = "Per capita growth rate of Prey",
                 min = .0001, max = 1.0, value = .5),
-    numericInput("K_logprey", label = "猎物的环境承载力", 
+    numericInput("K_logprey", label = "Carrying capacity of Prey", 
                  min = 1, value = 100),
-    sliderInput("a_logprey", label = "捕食者猎食率",
+    sliderInput("a_logprey", label = "Predator attack rate",
                 min = .001, max = 1.0, value = .1),
-    sliderInput("e_logprey", label = "营养转化率", 
+    sliderInput("e_logprey", label = "Predator conversion efficiency", 
                 min = .001, max = 1.0, value = 0.5),
-    sliderInput("d_logprey", label = "捕食者人均死亡率",
+    sliderInput("d_logprey", label = "Per capita death rate of Predator",
                 min = .0001, max = 1.0, value = .3),
     
     
       
     ### Ask users for initial conditions -----
-    numericInput("H_logprey", label = "猎物起始种群规模",
+    numericInput("H_logprey", label = "Initial population size of Prey",
                  min = 1, value = 10),
-    numericInput("P_logprey", label = "捕食者起始种群规模", 
+    numericInput("P_logprey", label = "Initial population size of Predator", 
                  min = 1, value = 10),
     
     ### Ask users for time to simulate ----
-    numericInput("t_logprey", label = "模拟时长", min = 1, value = 100),
+    numericInput("t_logprey", label = "Timesteps", min = 1, value = 100),
     
-    checkboxGroupInput("vectors_logprey", label = "显示向量场?", 
+    checkboxGroupInput("vectors_logprey", label = "Display vector field?", 
                        choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
@@ -265,10 +270,9 @@ np_logprey <- reactive({
 
 ```
 
-### II类功能反应
+### Type II Functional Response
 
 This model goes back to an exponentially growing prey, but adds an additional layer of biological realism to the *predator*. Specifically, in the classic L-V model, the  predator individuals don't spend any time processing they prey, and they never get satiated. In this model, the predator has a **[Type II functional response](https://en.wikipedia.org/wiki/Functional_response)**, which means that the predator's efficiency in eating the prey is limited by the time it has to invest in processing the prey. 
-此模型再次假设猎物呈指数增长，但对于*捕食者*的描述更接近现实。在经典L-V模型中，捕食者个体不需要额外时间来处理猎物，也从不会饱足；而此模型中，捕食者则具有**[II型功能反应](https://en.wikipedia.org/wiki/Functional_response)**:
 
 \[
 \begin{align}
@@ -286,22 +290,22 @@ pars_vars <- c("$H$",
                "$T_{h}$", 
                "$e$", 
                "$d$")
-descriptions <- c("猎物种群规模",
-                 "捕食者种群规模",
-                 "猎物人均增长率",
-                 "捕食者猎食率",
-                 "捕食者处理猎物的时间",
-                 "营养转化率",
-                 "捕食者死亡率")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("变量/参数", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-零增长等斜线:
+Equations for the zero net growth isoclines:
 \[
 \begin{align}
 P^* &= \frac{r}{a} +rT_hH\\
@@ -316,27 +320,27 @@ sidebarLayout(
   sidebarPanel(
     ### Ask users for parameter values ----
     ## r, a, T_h, e, d
-    sliderInput("r_lv_pred2", label = "猎物人均增长率",
+    sliderInput("r_lv_pred2", label = "Per capita growth rate of Prey",
                 min = .0001, max = 1.0, value = .5),
-    sliderInput("a_lv_pred2", label = "捕食者猎食率",
+    sliderInput("a_lv_pred2", label = "Predator attack rate",
                 min = .001, max = 1.0, value = .1),
-    sliderInput("T_h_lv_pred2", label = "捕食者处理猎物的时间",
+    sliderInput("T_h_lv_pred2", label = "Predator handling time",
                 min = 0.001, max = 1.0, value = 0.2),
-    sliderInput("e_lv_pred2", label = "营养转化率", 
+    sliderInput("e_lv_pred2", label = "Predator conversion efficiency", 
                 min = .001, max = 1.0, value = 0.7),
-    sliderInput("d_lv_pred2", label = "捕食者人均死亡率",
+    sliderInput("d_lv_pred2", label = "Per capita death rate of Predator",
                 min = .0001, max = 1.0, value = .3),
       
     ### Ask users for initial conditions -----
-    numericInput("H_lv_pred2", label = "猎物起始种群规模",
+    numericInput("H_lv_pred2", label = "Initial population size of Prey",
                  min = 1, value = 10),
-    numericInput("P_lv_pred2", label = "捕食者起始种群规模",
+    numericInput("P_lv_pred2", label = "Initial population size of Predator",
                  min = 1, value = 10),
     
     ### Ask users for time to simulate ----    
-    numericInput("t_lv_pred2", label = "模拟时长", min = 1, value = 100),
+    numericInput("t_lv_pred2", label = "Timesteps", min = 1, value = 100),
     
-    checkboxGroupInput("vectors_lv_pred2", label = "显示向量场?", 
+    checkboxGroupInput("vectors_lv_pred2", label = "Display vector field?", 
                        choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),  
@@ -391,8 +395,9 @@ np_lvpred2 <- reactive({
 
 ```
 
-### Rosenzweig-MacArthur 模型
-最终，Rosenzweig-MacArthur模型兼具呈逻辑斯蒂增长的猎物和具有II型功能反应的捕食者：
+### Rosenzweig-MacArthur Model 
+
+Finally, Rosenzweig-MacArthur model combines logistic growth for the prey as well as a Type II functional response for the predator.
 
 \[
 \begin{align}
@@ -411,23 +416,23 @@ pars_vars <- c("$H$",
                "$T_{h}$", 
                "$e$", 
                "$d$")
-descriptions <- c("猎物种群规模",
-                 "捕食者种群规模",
-                 "猎物人均增长率",
-                 "猎物的环境承载力",
-                 "捕食者猎食率",
-                 "捕食者处理猎物的时间",
-                 "营养转化率",
-                 "捕食者死亡率")
+descriptions <- c("Population size of the prey",
+                 "Population size of the predator",
+                 "Per capita growth rate of the prey",
+                 "Carrying capacity of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator",
+                 "Conversion efficiency of the predator",
+                 "Death rate of the predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-零增长等斜线:
+Equations for the zero net growth isoclines:
 \[
 \begin{align}
 P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
@@ -443,32 +448,32 @@ sidebarLayout(
     ### Ask users for parameter values ----
     ## r, a, T_h, e, d
     
-    sliderInput("r_rm", label = "猎物人均增长率", 
+    sliderInput("r_rm", label = "Per capita growth rate of Prey", 
                 min = .0001, max = 1.0, value = .2),
-    numericInput("K_rm", label = "猎物环境承载力",
+    numericInput("K_rm", label = "Prey carrying capacity",
                  min = 1, value = 150),
-    sliderInput("a_rm", label = "捕食者猎食率",
+    sliderInput("a_rm", label = "Predator attack rate",
                 min = .001, max = 1.0, value = .02),
-    sliderInput("T_h_rm", label = "捕食者处理猎物的时间",
+    sliderInput("T_h_rm", label = "Predator handling time",
                 min = 0.001, max = 1.0, value = 0.3),
-    sliderInput("e_rm", label = "营养转化率", 
+    sliderInput("e_rm", label = "Predator conversion efficiency", 
                 min = .001, max = 1.0, value = 0.6),
-    sliderInput("d_rm", label = "捕食者人均死亡率",
+    sliderInput("d_rm", label = "Per capita death rate of Predator",
                 min = .0001, max = 1.0, value = .4),
     
     
       
     ### Ask users for initial conditions -----
     #N1, N2
-    numericInput("H_rm", label = "猎物起始种群规模",
+    numericInput("H_rm", label = "Initial population size of Prey",
                  min = 1, value = 30),
-    numericInput("P_rm", label = "捕食者起始种群规模", 
+    numericInput("P_rm", label = "Initial population size of Predator", 
                  min = 1, value = 25),
     
     ### Ask users for time to simulate ----
-    numericInput("t_rm", label = "模拟时长", min = 1, value = 100),
+    numericInput("t_rm", label = "Timesteps", min = 1, value = 100),
     
-    checkboxGroupInput("vectors_rm", label = "显示向量场?",
+    checkboxGroupInput("vectors_rm", label = "Display vector field?",
                        choices = c("Yes" = "Yes"), selected = "Yes")
     
   ),
@@ -517,8 +522,9 @@ np_rm <- reactive({
 
 ```
 
-## 消费者的功能反应 {.tabset}
-消费者的功能反应表述了消费者进食资源的速率和资源密度之间的关系。
+## Consumer Functional Response {.tabset}
+
+The consumer's functional response captures the relationship between consumer's intake rate of the resource as a function of the resource density. In other words, this is the rate at which consumers can access energy from their prey, as a function of the prey density. 
 
 ```{r functional response functions, echo=FALSE}
 type1_fr <- function (H_init, H_final, a){
@@ -533,9 +539,9 @@ type2_fr <- function (H_init, H_final, a, Th){
 
 ```
 
-### I型
+### Type I
 
-随着资源密度增长，进食率呈线性增长。公式如下：
+Linear increase in intake rate with resource density, as shown by the equation:
 
 $$f(H) = aH$$
 
@@ -543,11 +549,11 @@ $$f(H) = aH$$
 ```{r params type 1 fr, echo=F}
 pars_vars <- c("$H$", 
                "$a$")
-descriptions <- c("猎物种群规模",
-                 "捕食者猎食率")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -559,15 +565,15 @@ sidebarLayout(
   sidebarPanel(
     ### Ask users for parameter values ----
     # a
-    sliderInput("a_fr_type1", label = "捕食者猎食率", min = .001, 
+    sliderInput("a_fr_type1", label = "Predator attack rate", min = .001, 
                 max = 1.0, value = .02),
   
     ### Ask users for initial and final conditions -----
     #H_init, H_final
     
-    numericInput("H_init_fr_type1", label = "猎物起始种群规模", 
+    numericInput("H_init_fr_type1", label = "Initial population size of Prey", 
                  min = 1, value = 30),
-    numericInput("H_final_fr_type1", label = "猎物终止种群规模", 
+    numericInput("H_final_fr_type1", label = "Final population size of Prey", 
                  min = 1, value = 100), #Add warning: H_final>H_init 
     
   ),  
@@ -591,15 +597,16 @@ type1_fr_df <- reactive({data.frame(H = input$H_init_fr_type1:input$H_final_fr_t
 plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
                             geom_line(aes(x = H, y=f_rate), size = 2) +
                             scale_color_brewer(palette = "Set1") +
-                            xlab("猎物数量") + 
-                            ylab("捕食率") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
                             ylim(0,50)})
    
 ```
 
-### II型
+### Type II
 
-捕食者进食率随猎物密度增长而减缓，并因捕食者饱足而趋于平缓：
+Decelerating intake rate, where the plateau represents consumer saturation:
+
 
 $$g(H) = \frac {aH}{1+aT_hH}$$
 
@@ -607,12 +614,12 @@ $$g(H) = \frac {aH}{1+aT_hH}$$
 pars_vars <- c("$H$", 
                "$a$", 
                "$T_h$")
-descriptions <- c("猎物种群规模",
-                 "捕食者猎食率",
-                 "捕食者处理猎物的时间")
+descriptions <- c("Population size of the prey",
+                 "Attack rate of the predator",
+                 "Handling time of the predator")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parameter/Variable", "Description")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -625,17 +632,17 @@ sidebarLayout(
     ### Ask users for parameter values ----
     # a, Th
     
-    sliderInput("a_fr_type2", label = "捕食者猎食率", min = .001, 
+    sliderInput("a_fr_type2", label = "Predator attack rate", min = .001, 
                 max = 1.0, value = .02),
-    sliderInput("T_h_fr_type2", label = "捕食者处理猎物的时间", min = 0.001, 
+    sliderInput("T_h_fr_type2", label = "Predator handling time", min = 0.001, 
                 max = 1.0, value = 0.3),
   
     ### Ask users for initial and final conditions -----
     #H_init, H_final
     
-    numericInput("H_init_fr_type2", label = "猎物起始种群规模", 
+    numericInput("H_init_fr_type2", label = "Initial population size of Prey", 
                  min = 1, value = 30),
-    numericInput("H_final_fr_type2", label = "猎物终止种群规模", 
+    numericInput("H_final_fr_type2", label = "Final population size of Prey", 
                  min = 1, value = 100), #Add warning: H_final>H_init 
     
   ),  
@@ -660,18 +667,26 @@ type2_fr_df <- reactive({data.frame(H = input$H_init_fr_type2:input$H_final_fr_t
 plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
                             geom_line(aes(x = H, y=f_rate), size = 2) +
                             scale_color_brewer(palette = "Set1") +
-                            xlab("猎物数量") + 
-                            ylab("捕食率") +
+                            xlab("Number of Prey") + 
+                            ylab("Foraging Rate") +
                             ylim(0,4)})
    
 ```
 
 
-## 参考文献
+## References 
 - [Consumer Resource Dynamics](https://press.princeton.edu/books/paperback/9780691006574/consumer-resource-dynamics-mpb-36) by Murdoch, Briggs and Nisbet - digital copy may be available through a library.  
 - [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
 - [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+- [Impact of Food and Predation on the Snowshoe Hare Cycle](https://www.science.org/doi/10.1126/science.269.5227.1112), 1995, by C.J. Krebs et al.  
+
+- [Dynamics of Predation](https://www.nature.com/scitable/knowledge/library/dynamics-of-predation-13229468/), 2010, by A.N.P. Stevens
+
+*Additional references for Host-Parasite/Parasitoid dynamics*:  
+- [Overivew of the Nicholson-Bailey model](https://en.wikipedia.org/wiki/Nicholson%E2%80%93Bailey_model) (Links to Wikipedia page)  
+- [Modelling the biological control of insect pests: a review of host-parasitoid models](https://www.sciencedirect.com/science/article/abs/pii/0304380095001778), 1996, by N.J. Mills and W.M. Getz
 
 -------------
 
