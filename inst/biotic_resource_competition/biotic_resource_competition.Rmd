@@ -45,7 +45,9 @@ run_biotic_competition_model <- function(time, init, params) {
 
 This app simulates the dynamics of two consumer species ($P_1$ and $P_2$) that both require the same resource species ($H$) to grow. This allows us to implicitly model resource competition between the two consumer species, since an increase in $P_1$ results in a decreased growth rate of $P_2$ because of $P_1$'s suppression of resource $H$. 
 
-Even this fairly straightforward scenario can be modeled in many ways. E.g. we can consider a resource species $H$ that, in the absence of either consumer, grows either exponentially (with no intrinsic limit to population growth), or logistically. We can also consider consumer species that have a [Type I or a Type II functional response ](https://en.wikipedia.org/wiki/Functional_response) for the resource. 
+Even this fairly straightforward scenario can be modeled in many ways. E.g. we can consider a resource species $H$ that, in the absence of either consumer, grows either exponentially (with no intrinsic limit to population growth), or logistically. 
+
+The models can also consider different relationships between the density of resources and rate at which they are attacked by consumers. This relationship is called the [functional response](https://en.wikipedia.org/wiki/Functional_response), and we consider two types of relationships. First, we consider a "Type 1 functional response", in which the rate at which consumers consume resources is a linear function of the resource density. The second relationship is the "Type II functional response", in which the amount of resources consumed is a saturating function of resource density. The idea of the Type II functional response was developed by C.S. Holling in the 1959 paper "[Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)". 
 
 
 This system of equations describes the most complex version of this model:  
