@@ -231,10 +231,10 @@ run_predprey_model <- function(time, init, params) {
 vector_field_input <- function(sim_df, params, vec_density = 20) {
 
   # determine the min and max of the number of prey and predators
-  lowH <- round(min(sim_df$H), 0)
-  hiH <- round(max(sim_df$H), 0)
-  lowP <- round(min(sim_df$P), 0)
-  hiP <- round(max(sim_df$P), 0)
+  lowH <- 1
+  hiH <- max(sim_df$H)
+  lowP <- 1
+  hiP <- max(sim_df$P)
 
   # select a sequence of points between (and a little beyond) those values
   seqH <- seq(0.9*lowH, 1.4*hiH, length.out = vec_density)
@@ -292,7 +292,7 @@ plot_vector_field <- function(sim_df, params, vec_density = 20) {
     # vector field
     geom_segment(data = vector_field_input_data,
                  aes(x = Hstart, y = Pstart, xend = Hend, yend = Pend),
-                 arrow = arrow(length = unit(0.02, "npc")),
+                 arrow = arrow(length = unit(0.01, "npc")),
                  color = "light gray")
 
 }
@@ -327,8 +327,8 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
     geom_path(data = sim_df, aes(x = H, y = P), size = 2) +
     geom_segment(x = sim_df$H[5], y = sim_df$P[5],
                  xend = sim_df$H[6], yend = sim_df$P[6],
-                 arrow = arrow(length = unit(0.1, "npc")),
-                 cex = 2) +
+                 arrow = arrow(length = unit(0.05, "npc")),
+                 size = 1.5) +
 
     # plot appearance
     xlab("Number of Prey") +
