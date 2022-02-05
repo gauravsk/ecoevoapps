@@ -14,7 +14,7 @@ Function for plotting phase portrait of predator-prey model
 }
 \examples{
 # Define parameters for the Rosenzweig-Macarthur model:
-params <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
+params <- c(r = .1, a = .01, e = .01, d = .01, K = 1000, T_h = .1)
 sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = params)
 plot_predprey_time(sim_df = sim_df)
 }
