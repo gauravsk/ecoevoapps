@@ -1,3 +1,5 @@
+template:
+  bootstrap: 5
 reference:
 - title: "Running models"
   desc: "Functions for running the model simulations"
@@ -11,3 +13,8 @@ reference:
   desc: "Functions for launching shiny apps from the `R` console"
   contents:
   - starts_with("shiny_")
+url: https://ecoevoapps.gitlab.io/docs
+repo:
+  url:
+    home: https://gitlab.com/ecoevoapps/ecoevoapps
+

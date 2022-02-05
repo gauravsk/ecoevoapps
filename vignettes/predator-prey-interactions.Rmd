@@ -1,0 +1,68 @@
+---
+title: "Predator-prey interactions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Predator-prey interactions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ecoevoapps)
+```
+
+Some of the most dramatic species interactions in ecological communities are the interactions between predators and their prey. There is a long history in ecology of using mathematical equations to model the dynamics of this interaction. There are many versions of predator-prey dynamics models, but most share a few common features. 
+
+The prey species are considered as a single population which, in the absence of the predator, grows either exponentially or logistically. The predator, in turn, depends solely on the prey for its energy (i.e. it is a specialist predator),  and if there were no prey available in the system, the predator population simply declines to zero. The more abundant the prey, the more the predator population can grow. But the more the predator population grows, the lower the prey falls. This sets up the cylic dynamics that we see in many predator-prey models.
+
+We start this vignette with the Lotka-Volterra predator-prey model, and then build on this model by adding various levels of biological detail. In all models, $H$ referes to the density of the prey, and $P$ refers to the density of the predator. For a more detailed overview of the predator-prey models presented here, please refer to Dr. Hank Stevens' [Primer of Ecology using R](https://hankstevens.github.io/Primer-of-Ecology/consumer-resource-interactions.html). 
+
+## Lotka-Volterra predator-prey dynamics
+
+The classic [Lotka-Volterra predator-prey](https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations) model captures the dynamics between a prey species that has exponential growth, and a predator that consumes prey with no saturation point (in other words, there is a linear relationship between prey density and amount of prey consumer; refer to references on the functional response of predators for more details). This results in the following pair of equations:
+
+$$
+\frac{dH}{dt} = rH - aHP \\ 
+\frac{dP}{dt} = eaHP - dP
+$$
+In the prey dynamics equation ($dH/dt$), the parameter $r$ refers to the intrinsic per-capita growth rate of the prey; $a$ refers to the attack rate of the predator, and $H$ and $P$ are the density of prey and predator respectively. 
+
+In the predator dynamics equation ($dP/dt$), $e$ refers to the conversion efficiency, which is the rate at which the predator species can convert its food into new predator births. $d$ refers to the intrinsic per-capita mortality rate of the predator. 
+
+We can simulate these dynamics with the `ecoevoapps` functions `run_predprey_model()`, as follows:
+
+```{r}
+time_lvpp <- seq(0,100, 0.1) # the time steps over which to run the simulation
+params_lvpp <- c(r = .7, a = 0.1,  e = 0.2, d = .25)
+init_lvpp <- c(H = 10, P = 10)
+sim_df_lvpp <- run_predprey_model(time = time_lvpp, init = init_lvpp, params = params_lvpp)
+
+
+head(sim_df_lvpp)
+```
+
+
+
+```{r}
+plot_predprey_time(sim_df_lvpp)
+```
+
+We can also plot the phase portrait of this model, which shows how N1 and N2 change relative to each other over time, using the function `plot_predprey_portrait()`. In this case, we need to provide the function the simulation generated above, as well as the parameter vector we used to generate the simulation. The function uses this information to plot the trajectory of the populations, as well as the "zero net growth isoclines" (ZNGIs).^[(For more info about ZNGIs, please refer to these resources: [link 1](https://www.youtube.com/watch?v=obasfCufOr0), [link 2](https://hankstevens.github.io/Primer-of-Ecology/competition.html#isoclines)]
+
+```{r}
+plot_predprey_portrait(sim_df = sim_df_lvpp, params = params_lvpp)
+```
+For predator-prey models, we can also add a layer under the actual trajectory in the portrait diagrams, to show the vector field showing how the population would move at all points in the phase space, using the argument `vectors_field = T`:
+
+```{r}
+plot_predprey_portrait(sim_df = sim_df_lvpp, params = params_lvpp, vectors_field = T)
+```
+
+
