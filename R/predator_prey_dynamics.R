@@ -333,8 +333,8 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
     # plot appearance
     xlab("Number of Prey") +
     ylab("Number of Predators") +
-    coord_cartesian(xlim = c(min(sim_df$H), max(sim_df$H) + 1),
-                    ylim = c(min(sim_df$P), max(sim_df$P) + 1)) +  #need this line to show all vectors that go beyond plot limits
+    scale_y_continuous(limits = c(0, max(sim_df$P) + 1), expand = c(0,0)) +
+    scale_x_continuous(limits = c(0, max(sim_df$H) + 1), expand = c(0,0)) +
     theme_apps()
 
   # Add isoclines based on the model type
@@ -383,7 +383,7 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
 #' @import ggplot2
 #' @examples
 #' # Define parameters for the Rosenzweig-Macarthur model:
-#' params <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
+#' params <- c(r = .1, a = .01, e = .01, d = .01, K = 1000, T_h = .1)
 #' sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = params)
 #' plot_predprey_time(sim_df = sim_df)
 #' @export
@@ -394,6 +394,8 @@ plot_predprey_time <- function(sim_df) {
     geom_line(aes(x = time, y = value, color = Population), size = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") +
+    scale_y_continuous(expand = c(0,0), limits = c(0, max(sim_df_long$value)*1.05)) +
+    scale_x_continuous(expand = c(0,0)) +
     theme_apps()
 }
 
