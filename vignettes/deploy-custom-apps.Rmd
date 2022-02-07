@@ -1,0 +1,37 @@
+---
+title: "Deploying custom shiny apps"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Deploying custom shiny apps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In some circumstances, you may want to deploy separate instances of the shiny apps in `ecoevoapps` rather than using the versions that we have deployed onto shinyapps.io^[See [here]() for links]. For example, you may want to host an app on your own personal or institutional domain for more control over access and usage, or you might want to customize the user interface or computations conducted by the app itself. 
+
+The easiest way to deploy custom versions of the apps is through RStudio's [shinyapps.io](https://www.shinyapps.io/). There is extensive documentation available for this service, including information about its Free tier,  [here](https://docs.rstudio.com/shinyapps.io/). 
+
+Once you familiarize yourself with the instructions above, you can clone the [`ecoevoapps` git repository](https://gitlab.com/ecoevoapps/ecoevoapps) onto your computer, or directly download the [specific shiny app](https://gitlab.com/ecoevoapps/ecoevoapps/-/tree/master/inst) you wish to deploy. 
+
+**Note that if you are deploying a shiny app from the package to shinyapps.io**, you will need to first install the package onto your computer from the `ecoevoapps` mirror on GitHub rather than the main development repository on GitLab.^[This is because Shinyapps.io is unable to install packages from GitLab Please contact us if you know of a way to configure the shinyapps deployment to install packages from Gitlab!] To do so, run the following code:
+
+```{r, eval = F}
+# install the remotes package if it is not already available
+if (!requireNamespace("remotes", quietly = TRUE))
+      install.packages('remotes')
+
+# install ecoevoapps from github
+remotes::install_github("gauravsk/ecoevoapps")
+```
+
+Then, you can customize the Shiny app file as you wish, and follow the procedures [here](https://docs.rstudio.com/shinyapps.io/getting-started.html#deploying-applications) to deploy the app to your shinyapps.io account. 
+
+### Resources
+If you are just getting started with using Shiny and/or RMarkdown documents, we recommend you read through [Introduction to reactive documents](https://shiny.rstudio.com/articles/interactive-docs.html) guide. If you are already familiar with the basics and want a more detailed guide, we recommend the  [Mastering Shiny](https://mastering-shiny.org/) book.
