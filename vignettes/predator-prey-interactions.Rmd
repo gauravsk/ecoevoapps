@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(ecoevoapps)
+library(patchwork)
 ```
 
 Some of the most dramatic species interactions in ecological communities are the interactions between predators and their prey. There is a long history in ecology of using mathematical equations to model the dynamics of this interaction. There are many versions of predator-prey dynamics models, but most share a few common features. 
@@ -65,4 +66,124 @@ For predator-prey models, we can also add a layer under the actual trajectory in
 plot_predprey_portrait(sim_df = sim_df_lvpp, params = params_lvpp, vectors_field = T)
 ```
 
+A key insight to emerge from this model is that these simple dynamics equations can give rise do *cycles* in the abundances of predators and preys, with no stationary equlibrium density to which the system settles. 
+
+
+## Logistic growth in prey populations
+
+In the classic Lotka-Volterra predator-prey model, the prey has exponential growth -- the only check on prey population size is the consumption by the predator. One way useful layer of biological realism to the model is to introduce a carrying capacity for the prey population, as follows: 
+
+$$
+\frac{dH}{dt} = rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
+\frac{dP}{dt} = eaHP - dP
+$$
+
+
+In the prey dynamics equation ($dH/dt$), $K$ represents the carrying capacity of the prey. The predator dynamics equation is unchanged from the model above. 
+
+We can again simulate this model with the function `run_predprey_model()`, but now the parameter vector includes an entry for the prey carrying capacity:
+
+```{r}
+time_lvpp_K <- seq(0, 200, 0.1)
+init_lvpp_K <- c(H = 15, P = 5)
+# For the parameters vector, use the same entries in params_lvpp
+# defined above, and add a carrying capacity of K = 500:
+params_lvpp_K <- c(r = 1, K = 250, a = 0.1, e = 0.2, d = 0.25)
+sim_df_lvpp_K <- run_predprey_model(time_lvpp_K, init_lvpp_K, params_lvpp_K)
+head(sim_df_lvpp_K)
+```
+We can again plot these dynamics using `plot_predprey_time()` and `plot_predprey_portrait()`:
+
+```{r}
+plot_predprey_time(sim_df_lvpp_K) +
+  plot_predprey_portrait(sim_df_lvpp_K, params_lvpp_K)
+```
+
+The plots above show us one of the key insights to emerge from this model: adding a carrying capacity to the prey adds a level of stabiity (self-regulation) to the system, such that over time, the cyclic dynamics between predator and prey give way to a stationary equilibrium point. 
+
+## Type 2 function response in the predator
+
+In the Lotka-Volterra model, the interaction between the predator and prey is set up such that the predator captures a fixed portion of the prey regardless of the prey's abundance. This proportion is captured by the constant value $a$ in the Lotka-Volterra equations. But in reality, there is likely some upper limit to the amount of prey that a predator can capture and process in a given amount of time. For example, some time may be spent in handling and/or digesting the prey -- time during which the predator is not actively attacking yet more prey. 
+
+This upper limit to a predator's consumption rates is captured by [Type II functional response](https://hankstevens.github.io/Primer-of-Ecology/consumer-resource-interactions.html#interlude-functional-response---what-an-individual-predator-does), and we can introduce this dynamic to the Lotka-Volterra equations as follows (note that in this formulation, the prey again has exponential growth):
+
+$$
+\frac{dH}{dt} = rH - \frac{aHP}{1+aT_hH} \\
+\\
+\frac{dP}{dt} = e \frac{aHP}{1+aT_hH} - dP
+$$
+
+
+Here, the new variable $T_h$ represents the "handling time" of the predator, and all other variables are as above. 
+
+One interesting outcome of introducing a handling time to the predator is that this *destabilizes* the system, such that the cyclic oscillations of predator and prey get larger in magnitude over time, which can increase the chance that one or both of the species crash to extinction. We can simulate these dynamics using the same functions:
+
+```{r}
+# Parameters are as above; T_h is the handling time
+params_tIIFR <- c(r = 0.5, a = 0.1, T_h = 0.2, e = 0.7, d = 0.3)
+times_tIIFR <- seq(0, 50, 0.1)
+init_tIIFR <- c(H = 10, P = 10)
+sim_df_tIIFR <- run_predprey_model(time = times_tIIFR, init = init_tIIFR, params = params_tIIFR)
+head(sim_df_tIIFR)
+```
+
+Plotting the trajectory and portrait of these dynamics reveals the destabilizing effects of the functional response:
+
+```{r}
+plot_predprey_time(sim_df_tIIFR) + 
+  plot_predprey_portrait(sim_df_tIIFR, params_tIIFR)
+```
+
+## Logistic growth and Type II functional responses
+
+In the previous two sections, we separately considered models of predator-prey dynamics with logistic growth in the prey or a predator with a type II functional response. We can put these features together into a single model, as follows: 
+
+$$
+\frac{dH}{dt} = rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
+\\
+\frac{dP}{dt} = e \frac{aHP}{1+aT_hH} - dP
+$$
+
+In a series of papers in the 1960s and early 1970s, Robert Macarthur and Michael Rosenzweig analyzed the properties of this model, resulting in a classic 1971 paper by Rosenzweig describing the so-called "(paradox of enrichment)[https://en.wikipedia.org/wiki/Paradox_of_enrichment]". The key insight was that in these models, higher values of the prey carrying capacit $K$ can actually result in the crash and of the system. 
+
+We can use `run_predprey_model()` to simulate two sets of dynamics that illustrate this paradox:
+
+```{r}
+params_MR_lowK <- c(r = 0.5, K = 150, a = .02, T_h = .3, e = .6, d = .4)
+params_MR_hiK <- c(r = 0.5, K = 350, a = .02, T_h = .3, e = .6, d = .4)
+time_MR <- seq(0,100,0.1)
+init_MR <- c(H = 10, P = 10)
+
+sim_df_MR_lowK <- run_predprey_model(time = time_MR, init = init_MR, params = params_MR_lowK)
+sim_df_MR_hiK <- run_predprey_model(time = time_MR, init = init_MR, params = params_MR_hiK)
+
+plot_predprey_time(sim_df_MR_lowK) +
+  plot_predprey_time(sim_df_MR_hiK)
+
+```
+In the left hand plot, with $K = 150$, the oscillations get smaller over time, and will eventually reach a stationary equilibrium, while in the right, with $K = 350$, the magnitude of the oscillations grows with time. 
+
+We can use `plot_predprey_portrait()` to evaluate why these dynamics arise:
+
+```{r}
+plot_predprey_portrait(sim_df_MR_lowK, params_MR_lowK) +
+  plot_predprey_portrait(sim_df_MR_hiK, params_MR_hiK) 
+```
+
+The key insight is that whether predator-prey dynamics lead to damped oscillations or oscillations that destabilize over time depends on the slope of the predator isocline when it intersects the prey isocline. 
+
+
+## Other references 
+- [Consumer Resource Dynamics](https://press.princeton.edu/books/paperback/9780691006574/consumer-resource-dynamics-mpb-36) by Murdoch, Briggs and Nisbet - digital copy may be available through a library.  
+- [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
+- [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
+- [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+- [Impact of Food and Predation on the Snowshoe Hare Cycle](https://www.science.org/doi/10.1126/science.269.5227.1112), 1995, by C.J. Krebs et al.  
+
+- [Dynamics of Predation](https://www.nature.com/scitable/knowledge/library/dynamics-of-predation-13229468/), 2010, by A.N.P. Stevens
+
+*Additional references for Host-Parasite/Parasitoid dynamics*:  
+- [Overivew of the Nicholson-Bailey model](https://en.wikipedia.org/wiki/Nicholson%E2%80%93Bailey_model) (Links to Wikipedia page)  
+- [Modelling the biological control of insect pests: a review of host-parasitoid models](https://www.sciencedirect.com/science/article/abs/pii/0304380095001778), 1996, by N.J. Mills and W.M. Getz
 
