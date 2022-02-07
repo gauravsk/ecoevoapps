@@ -17,4 +17,15 @@ url: https://ecoevoapps.gitlab.io/docs
 repo:
   url:
     home: https://gitlab.com/ecoevoapps/ecoevoapps
-
+articles:
+- title: Using ecoevoapps
+  navbar: Using ecoevoapps from the R command line
+  contents:
+  - population-growth
+  - lotka-volterra-competition
+  - predator-prey-interactions
+- title: Extending ecoevoapps
+  navbar: Extensions
+  contents:
+  - deploy-custom-apps
+  - diffeqs-in-R
