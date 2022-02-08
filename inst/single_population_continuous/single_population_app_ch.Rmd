@@ -1,5 +1,5 @@
 ---
-title: "Growth of a single population in continuous time"
+title: "连续时间下的单个种群增长"
 output: html_document
 runtime: shiny
 ---
