@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | [English](https://ecoevoapps.shinyapps.io/population_growth) | Turkish  ***
+***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | [Español](https://ecoevoapps.shinyapps.io/population_growth_es) |  [English](https://ecoevoapps.shinyapps.io/population_growth) | Turkish  ***
 
 
 ```{r setup, include=FALSE}
@@ -26,15 +26,15 @@ Geometrik artış modeli temel bir şekilde, uzun vadede popülasyonların sonsu
 
 Geometrik modelin varsayımlarını tekrar gözden geçirelim: özellikle, b ($b$) ve d ($d$) oranlarının sürekli olarak sabit kaldığı temel varsayamını. Bu varsayımdan ödün vererek, net popülasyon büyüme oranının ($r$) popülasyon boyutunun taşıma kapasitesine ($K$) yaklaştığında lineer olarak azalmasına izin vererek (çevre direncini göze alarak) popülasyon modelimizi daha gerçekçi hale getirebiliriz. Sonucunda ortaya çıkan S tipi büyüme, lojistik popülasyon büyüme modeli, şu şekilde tanımlanır:
 
-$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+$$\frac{dN}{dt} = rN \left(1-\frac{N}{K}\right)$$
 
-S tipi büyüme gösteren popülasyonlar popülasyon boyutu taşıma kapasitesine eşit olana kadar büyürler ($N_i = K_i$) (pozitif popülasyon büyüme oranına sahip olabilirler). Popülasyon boyutu taşıma kapasitesini geçtiği anda, popülasyon büyüme oranı negatif olur, ve popülasyon boyutu taşıma kapasitesine geri düşer. 
+S tipi büyüme gösteren popülasyonlar popülasyon boyutu taşıma kapasitesine eşit olana kadar büyürler ($N = K$) (pozitif popülasyon büyüme oranına sahip olabilirler). Popülasyon boyutu taşıma kapasitesini geçtiği anda, popülasyon büyüme oranı negatif olur, ve popülasyon boyutu taşıma kapasitesine geri düşer. 
 
 #### *Gecikmeli lojistik büyüme*
 
 Bazı durumlarda, popülasyonun büyüme oranı geçmiş zamandaki popülasyon boyutuna bağlı olabilir. Örnek olarak, popülasyonların doğum kapasitesi yetişkin olmayan fertlerin doğal kaynaklar için ne kadar rekabet etmesi gerektiğine bağlıdır. Böyle bir senaryoyu $t$ zamanındaki popülasyon büyüme oranını $t-\tau$ nın fonksiyonu halinde belirtebiliriz: 
 
-$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
+$$  \frac{dN}{dt} = rN_{t} \left(1-\frac{N_{t-\tau}}{K}\right)$$
 Gecikmeli lojistik büyümenin sonuçlarını S tipi büyüme simülasyonunun “gecikmeli büyüme” opsiyonuyla gözlemleyebilirsiniz. 
 
 

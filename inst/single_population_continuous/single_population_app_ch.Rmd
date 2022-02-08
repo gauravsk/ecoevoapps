@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | [English](https://ecoevoapps.shinyapps.io/population_growth) | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk) ***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/population_growth_es) | [English](https://ecoevoapps.shinyapps.io/population_growth) | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk) ***
 
 
 ```{r setup, include=FALSE}
@@ -26,15 +26,15 @@ $$\frac{dN}{dT} = rN$$
 
 指数增长模型的前提条件是人均出生率$b$和人均死亡率$d$均不变。我们可以放宽这个条件，并假设当种群的增长趋于环境承载力(carrying capacity $K$)时，其总增长率(net growth rate $rD$)呈线性递减。此类种群的动态变化可用逻辑斯谛增长(logistic growth)模型描述：
 
-$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+$$\frac{dN}{dt} = rN \left(1-\frac{N}{K}\right)$$
 
-呈逻辑斯谛增长的种群的会持续增长，直到种群规模与环境承载力相等($N_i = K_i$)。当种群规模超出环境承载力时，种群出现负增长，直到其规模减少至环境承载力。
+呈逻辑斯谛增长的种群的会持续增长，直到种群规模与环境承载力相等($N = K$)。当种群规模超出环境承载力时，种群出现负增长，直到其规模减少至环境承载力。
 
 #### *滞后逻辑斯谛增长* 
 
 在某些情况下，一个种群的增长率会取决于该种群在过去某个时间点的规模。比如，生物的繁殖产量会与其未成年时资源竞争的强度相关。对于这种情况，某时间点$t$时的种群增长率可以用过去$t-\tau$时的种群大小表示：  
 
-$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
+$$  \frac{dN}{dt} = rN_{t} \left(1-\frac{N_{t-\tau}}{K}\right)$$
 在app中可选择密度制约，并请勾选“Lagged density dependence”（滞后的密度依赖）选项，来模拟滞后逻辑斯谛增长。
 
 
