@@ -54,7 +54,7 @@ plot_lvcomp_portrait(sim_df = lvcomp_simulation, params = lvcomp_params)
 
 ```
 
-### Lotka-Volterra competition in terms of absolute competition coefficients
+## Lotka-Volterra competition in terms of absolute competition coefficients
 
 In the equations above, we expressed the competitive effects of each species on itself (*intraspecific competition*) in terms of each species' carrying capacity ($K_1$ and $K_2$), and we described the species' competitive effects on each other (*interspecific competition*) in terms of relative competition coefficients ($\alpha$ and $\beta$). We can instead write the Lotka-Volterra competition equation in terms of the *absolute* effect of intra- and inter-specific competition on each species. Note that in these equations $\alpha_{ii}$ represents the intraspecific competitive effect in species $i$, and $\alpha_{ij}$ describes the effect of species $j$ on the growth of species $i$:
 
@@ -76,7 +76,7 @@ plot_lvcomp_portrait(lvcomp_simulation_abs, lvcomp_params_abs)
 ```
 
 
-### Reference 
+## Other References 
 
 For more on the Lotka-Volterra competition model, please refer to the following references:
 
