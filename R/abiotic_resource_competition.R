@@ -59,20 +59,18 @@ run_abiotic_comp_rstar <- function(params) {
 
 #' Run the Tilman abiotic resource competition model
 #'
-#' This function runs the abiotic resource model for two species
-#' competing for two essential resources.
-#' See page 42 onwards of Don Alstad's Populus guide for a thorough
-#' overview of the model:
+#' This function runs the abiotic resource model for two species competing for
+#' two essential resources. See page 42 onwards of Don Alstad's Populus guide
+#' for a thorough overview of the model:
 #' https://cbs.umn.edu/sites/cbs.umn.edu/files/public/downloads/PopulusHelp_e.pdf
-#' Note that the output of the model can be plotted with
 #' @param time vector of time units over which to run model, starting from 0.
-#' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
-#' @param init vector of initial population sizes for both species,
-#' with names N1 and N2, AND initial resource pool sizes for both resources,
-#' with names R1 and R2
-#' @param params vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`, `k12`,
-#' `k21`, `k22`, `m1`, `m2`, `c11`, `c12`,
-#' `c21`, `c22`, `a1`, `a1`)
+#'   `time` can also be supplied as just the total length of the simulation
+#'   (i.e. tmax)
+#' @param init vector of initial population sizes for both species, with names
+#'   N1 and N2, AND initial resource pool sizes for both resources, with names
+#'   R1 and R2
+#' @param params vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`,
+#'   `k12`, `k21`, `k22`, `m1`, `m2`, `c11`, `c12`, `c21`, `c22`, `a1`, `a1`)
 #' @examples
 #' # Define full time series, and run model in terms of carrying capacities
 #' # and relative competitive effects
@@ -83,6 +81,11 @@ run_abiotic_comp_rstar <- function(params) {
 #' m1 = .2, m2 = .2,c11 = .25, c12 = .08,
 #' c21 = .1, c22 = .2, a1 = .5, a2 = .5))
 #' @import deSolve
+#' @seealso [run_abiotic_comp_rstar()] for calculating both species' R* values
+#'   for both resource, [plot_abiotic_comp_time()] for plots of the population
+#'   dynamics over time, and [plot_abiotic_comp_portrait()] for making portrait
+#'   plots of Resources 1 and 2 over time (including visualizations of the
+#'   ZNGIs)
 #' @export
 run_abiotic_comp_model <- function(time = seq(0,100,0.1),
                                    init = c(N1 = 10, N2 = 10,
@@ -136,7 +139,11 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
 #' @import ggplot2
 #' @import tidyr
 #' @import dplyr
-#' @return a ggplot
+#' @seealso [run_abiotic_comp_rstar()] for calculating both species' R* values
+#'   for both resource, [run_abiotic_comp_model()] for simulating the abiotic
+#'   resource competition model, and  [plot_abiotic_comp_portrait()] for making
+#'   portrait plots of Resources 1 and 2 over time (including visualizations of
+#'   the ZNGIs)
 #' @export
 plot_abiotic_comp_time <- function(sim_df) {
   sim_df <- data.frame(sim_df)
@@ -151,7 +158,7 @@ plot_abiotic_comp_time <- function(sim_df) {
     theme_apps()
 }
 
-#' Plot the phase portrait of resources 1 and 2 in the abiotic resource
+#' Plot the phase portrait of resources in the abiotic resource
 #' competition model
 #'
 #' @param rstar_vec vector of R star values for the focal species, generated
@@ -167,7 +174,10 @@ plot_abiotic_comp_time <- function(sim_df) {
 #' 10, N2 = 10, R1 = 20, R2 = 20), params = params_vec)
 #' plot_abiotic_comp_portrait(rstar_abioticrc, sim_df_abioticrc)
 #' @import ggplot2
-#' @return a ggplot
+#' @seealso [run_abiotic_comp_rstar()] for calculating both species' R* values
+#'   for both resource, [run_abiotic_comp_model()] for simulating the abiotic
+#'   resource competition model, and [plot_abiotic_comp_time()] for plots of the
+#'   population dynamics over time
 #' @export
 plot_abiotic_comp_portrait <- function(rstar_vec, sim_df) {
   sim_df <- data.frame(sim_df)
