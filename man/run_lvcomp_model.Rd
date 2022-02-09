@@ -29,10 +29,7 @@ Given a vector of time, intiial values, and parameters, this function runs
 the Lotka-Volterra competition model. Note that the competition parameters
 can either be given as the relative effects of one species on the other (in
 terms of alpha (a)  and beta (b)), or in terms of the absolute intraspecific
-and interspecific competition coefficients (a11, a12, a22, a21). Note that
-the output of this function can be plotted with the functions
-\code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} (plot of N1 and N2 over time) or
-\code{\link[=plot_lvcomp_portrait]{plot_lvcomp_portrait()}} (phase portriat of N1 vs N2).
+and interspecific competition coefficients (a11, a12, a22, a21).
 }
 \examples{
 # Define full time series, and run model in terms of carrying capacities
@@ -53,6 +50,6 @@ params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .000
 }
 \seealso{
 \code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} for making a plot of population dynamics over
-time, and \code{\link[=plot_lvcom_portrait]{plot_lvcom_portrait()}} for making a phase portrait of the both
+time, and \code{\link[=plot_lvcomp_portrait]{plot_lvcomp_portrait()}} for making a phase portrait of the both
 species (including the ZNGIs) the ZNGIs)
 }

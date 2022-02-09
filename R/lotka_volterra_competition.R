@@ -56,10 +56,7 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' the Lotka-Volterra competition model. Note that the competition parameters
 #' can either be given as the relative effects of one species on the other (in
 #' terms of alpha (a)  and beta (b)), or in terms of the absolute intraspecific
-#' and interspecific competition coefficients (a11, a12, a22, a21). Note that
-#' the output of this function can be plotted with the functions
-#' [ecoevoapps::plot_lvcomp_time()] (plot of N1 and N2 over time) or
-#' [ecoevoapps::plot_lvcomp_portrait()] (phase portriat of N1 vs N2).
+#' and interspecific competition coefficients (a11, a12, a22, a21).
 #' @param time vector of time units over which to run model, starting from 0.
 #'   `time` can also be supplied as just the total length of the simulation
 #'   (i.e. tmax)
@@ -88,7 +85,7 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
 #' params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
 #' @seealso [plot_lvcomp_time()] for making a plot of population dynamics over
-#'   time, and [plot_lvcom_portrait()] for making a phase portrait of the both
+#'   time, and [plot_lvcomp_portrait()] for making a phase portrait of the both
 #'   species (including the ZNGIs) the ZNGIs)
 #' @export
 run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
@@ -203,7 +200,7 @@ plot_lvcomp_portrait <- function(sim_df, params) {
 #' @import tidyr
 #' @seealso [run_lvcomp_model()] for simulating Lotka-Volterra competition
 #'   dynamics between two species given a vector of parameters, and
-#'   [plot_lvcom_portrait()] for making a phase portrait of the both species
+#'   [plot_lvcomp_portrait()] for making a phase portrait of the both species
 #'   (including the ZNGIs) the ZNGIs)
 #' @export
 plot_lvcomp_time <- function(sim_df) {

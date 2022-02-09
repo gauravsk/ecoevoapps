@@ -22,6 +22,6 @@ plot_lvcomp_time(sim_df)
 \seealso{
 \code{\link[=run_lvcomp_model]{run_lvcomp_model()}} for simulating Lotka-Volterra competition
 dynamics between two species given a vector of parameters, and
-\code{\link[=plot_lvcom_portrait]{plot_lvcom_portrait()}} for making a phase portrait of the both species
+\code{\link[=plot_lvcomp_portrait]{plot_lvcomp_portrait()}} for making a phase portrait of the both species
 (including the ZNGIs) the ZNGIs)
 }
