@@ -52,23 +52,21 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 
 #' Run the Lotka-Volterra competition model
 #'
-#' Given a vector of time, intiial values, and parameters, this
-#' function runs the Lotka-Volterra competition model. Note that the
-#' competition parameters can either be given as the relative effects of
-#' one species on the other (in terms of alpha (a)  and beta (b)),
-#' or in terms of the absolute intraspecific and interspecific competition
-#' coefficients (a11, a12, a22, a21).
-#' Note that the output of this function can be plotted
-#' with the functions [ecoevoapps::plot_lvcomp_time()] (plot of N1 and N2 over
-#' time) or [ecoevoapps::plot_lvcomp_portrait()] (phase portriat of N1 vs N2).
+#' Given a vector of time, intiial values, and parameters, this function runs
+#' the Lotka-Volterra competition model. Note that the competition parameters
+#' can either be given as the relative effects of one species on the other (in
+#' terms of alpha (a)  and beta (b)), or in terms of the absolute intraspecific
+#' and interspecific competition coefficients (a11, a12, a22, a21).
 #' @param time vector of time units over which to run model, starting from 0.
-#' `time` can also be supplied as just the total length of the simulation (i.e. tmax)
-#' @param init vector of initial population sizes for both species, with names N1 and N2
-#' @param params vector of model parameters
-#' Note that carrying capacity for both species can be defined in `params`
-#' either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-#' If carrying capacities are defined as `K1` and `K2`, interspecific competition
-#' should be defined as `a` and `b`; otherwise, `a12` and `a21`.
+#'   `time` can also be supplied as just the total length of the simulation
+#'   (i.e. tmax)
+#' @param init vector of initial population sizes for both species, with names
+#'   N1 and N2
+#' @param params vector of model parameters Note that carrying capacity for both
+#'   species can be defined in `params` either as `K1` and `K2`, or in the
+#'   inverse, as `a11` and `a22`. If carrying capacities are defined as `K1` and
+#'   `K2`, interspecific competition should be defined as `a` and `b`;
+#'   otherwise, `a12` and `a21`.
 #' @import deSolve
 #' @examples
 #' # Define full time series, and run model in terms of carrying capacities
@@ -86,6 +84,9 @@ lotka_volterra_competition_wo_K <- function(time, init, params) {
 #' params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05))
 #' run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
 #' params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
+#' @seealso [plot_lvcomp_time()] for making a plot of population dynamics over
+#'   time, and [plot_lvcomp_portrait()] for making a phase portrait of the both
+#'   species (including the ZNGIs) the ZNGIs)
 #' @export
 run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
                              params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05)) {
@@ -124,19 +125,22 @@ run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
 
 
 #' Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
-#' @param sim_df data frame of lokta-volterra model simulation
-#' (created by run_lvcomp_model())
-#' @param params vector of model parameters
-#' Note that carrying capacity for both species can be defined in `params`
-#' either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-#' If carrying capacities are defined as `K1` and `K2`, interspecific competition
-#' should be defined as `a` and `b`; otherwise, `a12` and `a21`.
+#' @param sim_df data frame of lokta-volterra model simulation (created by
+#'   run_lvcomp_model())
+#' @param params vector of model parameters Note that carrying capacity for both
+#'   species can be defined in `params` either as `K1` and `K2`, or in the
+#'   inverse, as `a11` and `a22`. If carrying capacities are defined as `K1` and
+#'   `K2`, interspecific competition should be defined as `a` and `b`;
+#'   otherwise, `a12` and `a21`.
 #' @examples
 #' params_vec = c(r1 = .5, r2 = .6, K1 = 1000, K2 = 1050, a = 0.5, b = 0.7)
 #' sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params = params_vec)
 #' plot_lvcomp_portrait(sim_df, params_vec)
 #' @import ggplot2
 #' @import dplyr
+#' @seealso [run_lvcomp_model()] for simulating Lotka-Volterra competition
+#'   dynamics between two species given a vector of parameters, and
+#'   [plot_lvcomp_time()] for making a plot of population dynamics over time
 #' @export
 plot_lvcomp_portrait <- function(sim_df, params) {
 
@@ -185,14 +189,19 @@ plot_lvcomp_portrait <- function(sim_df, params) {
 
 
 
-#' Generate a trajectory of population size (N1 vs N2) over time for the Lotka-Volterra model
-#' @param sim_df data frame of lokta-volterra model simulation
-#' (created by run_lvcomp_model())
+#' Generate a trajectory of population size (N1 vs N2) over time for the
+#' Lotka-Volterra model
+#' @param sim_df data frame of lokta-volterra model simulation (created by
+#'   run_lvcomp_model())
 #' @examples
 #' sim_df <- run_lvcomp_model()
 #' plot_lvcomp_time(sim_df)
 #' @import ggplot2
 #' @import tidyr
+#' @seealso [run_lvcomp_model()] for simulating Lotka-Volterra competition
+#'   dynamics between two species given a vector of parameters, and
+#'   [plot_lvcomp_portrait()] for making a phase portrait of the both species
+#'   (including the ZNGIs) the ZNGIs)
 #' @export
 plot_lvcomp_time <- function(sim_df) {
   sim_df <- data.frame(sim_df)

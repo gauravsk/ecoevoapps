@@ -27,3 +27,8 @@ sim_df <- run_predprey_model(200, init = c(H = 10, P = 5), params = params)
 plot_predprey_portrait(sim_df = sim_df, params = params, vectors_field
 = TRUE)
 }
+\seealso{
+\code{\link[=run_predprey_model]{run_predprey_model()}} for simulating the dynamics of a
+predator-prey system, and \code{\link[=plot_predprey_portrait]{plot_predprey_portrait()}} for making portrait
+plots of the predator and prey (including visualizations of the ZNGIs)
+}

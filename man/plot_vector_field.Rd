@@ -13,9 +13,6 @@ plot_vector_field(sim_df, params, vec_density = 20)
 
 \item{vec_density}{density of grid to generate}
 }
-\value{
-a ggplot2 object
-}
 \description{
 generates a vector field
 }

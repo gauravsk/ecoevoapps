@@ -43,3 +43,8 @@ run_predprey_model(5, init = c(H = 10, P = 5), params = params_lvt2)
 params_rm <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
 run_predprey_model(5, init = c(H = 10, P = 5), params = params_rm)
 }
+\seealso{
+\code{\link[=plot_predprey_time]{plot_predprey_time()}} for plots of the population dynamics over
+time, and \code{\link[=plot_predprey_portrait]{plot_predprey_portrait()}} for making portrait plots of the
+predator and prey (including visualizations of the ZNGIs)
+}
