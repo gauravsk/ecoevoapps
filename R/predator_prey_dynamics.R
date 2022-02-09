@@ -163,6 +163,9 @@ rm_predprey_1step <-function(H, P, pars) {
 #'   Type II functional response for the predator (this is sometimes called the
 #'   Rosenzweig-Macarthur model).
 #' @import deSolve
+#' @seealso [plot_predprey_time()] for plots of the population dynamics over
+#'   time, and [plot_predprey_portrait()] for making portrait plots of the
+#'   predator and prey (including visualizations of the ZNGIs)
 #' @examples
 #' # Lotka-Volterra predator-prey model
 #' params_lv <- c(r = .1, a = .01, e = .01, d = .001)
@@ -282,7 +285,6 @@ vector_field_input <- function(sim_df, params, vec_density = 20) {
 #' @param vec_density density of grid to generate
 #' @import ggplot2
 #' @keywords internal
-#' @return a ggplot2 object
 plot_vector_field <- function(sim_df, params, vec_density = 20) {
 
   vector_field_input_data <- vector_field_input(sim_df, params,
@@ -305,6 +307,9 @@ plot_vector_field <- function(sim_df, params, vec_density = 20) {
 #' @param ... additional arguments to pass to [ecoevoapps::plot_vector_field]
 #'   (mostly this is the density of the vector field, set by vec_density)
 #' @import ggplot2
+#' @seealso [run_predprey_model()] for simulating the dynamics of a
+#'   predator-prey system, and [plot_predprey_portrait()] for making portrait
+#'   plots of the predator and prey (including visualizations of the ZNGIs)
 #' @examples
 #' # Define parameters for the Rosenzweig-Macarthur model:
 #' params <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
@@ -381,6 +386,9 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
 #' Function for plotting phase portrait of predator-prey model
 #' @param sim_df data frame generated from run_XXX
 #' @import ggplot2
+#' @seealso [run_predprey_model()] for simulating the dynamics of a
+#'   predator-prey system, and [plot_predprey_portrait()] for making portrait
+#'   plots of the predator and prey (including visualizations of the ZNGIs)
 #' @examples
 #' # Define parameters for the Rosenzweig-Macarthur model:
 #' params <- c(r = .1, a = .01, e = .01, d = .01, K = 1000, T_h = .1)
