@@ -26,3 +26,7 @@ sir_out <- run_infectiousdisease_model(time = time_vec, init = init_vec,
 params = params_vec, model_type = "SIR")
 plot_infectiousdisease_portrait(sir_out, "S", "I")
 }
+\seealso{
+\code{\link[=run_infectiousdisease_model]{run_infectiousdisease_model()}} to simulate the dynamics of the
+model, and \code{\link[=plot_infectiousdisease_time]{plot_infectiousdisease_time()}} to plot trajectories over time
+}
