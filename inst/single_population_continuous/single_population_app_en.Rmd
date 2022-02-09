@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | English | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk)  ***
+***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | [Español](https://ecoevoapps.shinyapps.io/population_growth_es) | English | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk)  ***
 
 
 ```{r setup, include=FALSE}
@@ -22,19 +22,20 @@ $$\frac{dN}{dT} = rN$$
 The trajectory of a population that is experiencing exponential growth has a characteristic "J" shaped curve when plotting population size against time, with the $r$ term controling the shape of the J. Scroll down to the app to explore how the value of $r$ influences the population trajectory.
 
 #### *Introducing some limits to population growth*
-The exponential growth model above is very straightforward, and predicts that in the long-term, any population experiencing such growth will reach an infinitely large size. Given that populations never grow without limits in nature, we can improve on this model. 
+
+The exponential growth model is very straightforward, and predicts that in the long-term, any population experiencing such growth will reach an infinitely large size. Given that populations never grow without limits in nature, we can improve on this model. 
 
 Let us re-examine the assumptions of the exponential growth model-- namely, that there is a per-capita birth rate $b$ and a per-capita death rate $d$ that stays constant at all times. We can simply relax this assumption by examining what happens when the net growth rate ($rD$) declines linearly as a population reaches an environmentally-determined carrying capacity ($K$). The dynamics of such a population can be described by the logistic growth equation: 
 
-$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+$$\frac{dN}{dt} = rN \left(1-\frac{N}{K}\right)$$
 
-Populations experience logistic growth can grow (i.e., have a positive population growth rate) until the population size is equal to the carrying capacity ($N_i = K_i$). When a population exceeds its carrying capacity, the population will have a negative growth rate, and shrink back to the carrying capacity. 
+Populations experience logistic growth can grow (i.e., have a positive population growth rate) until the population size is equal to the carrying capacity ($N = K$). When a population exceeds its carrying capacity, the population will have a negative growth rate, and shrink back to the carrying capacity. 
 
 #### *Lagged logistic growth* 
 
 In some circumstances, the growth rate of a population might depend on the population size at some time in the past. For example, the reproductive output of individuals may be limited by how much they had to compete for resources as juveniles. We can model such a scenario by making the population growth rate at time $t$ a function of some time $t-\tau$ in the past as follows:  
 
-$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
+$$  \frac{dN}{dt} = rN_{t} \left(1-\frac{N_{t-\tau}}{K}\right)$$
 You can explore the consequences of lagged logistic growth by choosing the "Lagged density dependence" option in the density dependent simulation. 
 
 
