@@ -13,13 +13,3 @@ theme_apps <- function() {
     )
 }
 
-
-#' Set origin of ggplot objects to 0,0
-#' @param plot ggplot object
-#' @import ggplot2
-#' @export
-originator <- function(plot) {
-  plot +
-    scale_x_continuous(expand = c(0, 0)) +
-    scale_y_continuous(expand = c(0, 0))
-}

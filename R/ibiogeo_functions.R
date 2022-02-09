@@ -91,39 +91,40 @@ make_equilibrium_plot <- function(D, A, M, k) {
   # RColorBrewer::brewer.pdal(3, "Set1")
   colorpal <- c("#E41A1C", "#377EB8", "#4DAF4A")
 
-  (ggplot(data.frame(x = c(0, M)), aes(x)) +
-      stat_function(fun = ibiogeo_I, args = list(D = D[1], M = M, k = k),
-                             aes(color = "colorpal[1]", linetype = "1")) +
-      stat_function(fun = ibiogeo_I, args = list(D = D[2], M = M, k = k),
-                             aes(color = "colorpal[2]", linetype = "1")) +
-      stat_function(fun = ibiogeo_E, args = list(A = A[1], k = k),
-                             aes(color = "colorpal[1]", linetype = "2")) +
-      stat_function(fun = ibiogeo_E, args = list(A = A[2], k = k),
-                             aes(color = "colorpal[2]", linetype = "2")) +
-      ylab("Immigration or Extinction Rate\n(species/year)") +
-      xlab("\nNumber of species on island") +
-      geom_text(x = ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k), y = 0, vjust = 3,
-                         label = floor(ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k)), color = colorpal[1]) +
-      geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3,
-                         label = floor(ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2]) +
-      coord_cartesian(clip = "off") +
-      scale_color_manual(name = " ", guide = "legend", values = colorpal,
-                                  labels = c("Island A", "Island B")) +
-      scale_linetype_manual(name = "", values = c(1,2),
-                                     labels = c("Immigration\nrate", "Extinction\nrate")) +
-      geom_segment(aes(x = ibiogeo_Sx(D[1], A[1], M = M, k = k),
-                                xend = ibiogeo_Sx(D[1], A[1], M = M, k = k),
-                                y = 0,
-                                yend = ibiogeo_E(A = A[1],k = k, S = ibiogeo_Sx(D[1], A[1], M = M, k = k))),
-                            color = colorpal[1], linetype = 3) +
-      geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
-                                xend = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
-                                y = 0,
-                                yend = ibiogeo_E(A = A[2],k = k, S = ibiogeo_Sx(D[2], A[2], M = M, k = k))),
-                            color = colorpal[2], linetype = 3) +
-      theme_apps() +
-      theme(legend.position = "top", legend.text = element_text(size = 12)))  %>%
-    originator
+  ggplot(data.frame(x = c(0, M)), aes(x)) +
+    stat_function(fun = ibiogeo_I, args = list(D = D[1], M = M, k = k),
+                  aes(color = "colorpal[1]", linetype = "1")) +
+    stat_function(fun = ibiogeo_I, args = list(D = D[2], M = M, k = k),
+                  aes(color = "colorpal[2]", linetype = "1")) +
+    stat_function(fun = ibiogeo_E, args = list(A = A[1], k = k),
+                  aes(color = "colorpal[1]", linetype = "2")) +
+    stat_function(fun = ibiogeo_E, args = list(A = A[2], k = k),
+                  aes(color = "colorpal[2]", linetype = "2")) +
+    ylab("Immigration or Extinction Rate\n(species/year)") +
+    xlab("\nNumber of species on island") +
+    geom_text(x = ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k), y = 0, vjust = 3,
+              label = floor(ibiogeo_Sx(D = D[1], A = A[1], M = M, k = k)), color = colorpal[1]) +
+    geom_text(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k), y = 0, vjust = 3,
+              label = floor(ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k)), color = colorpal[2]) +
+    coord_cartesian(clip = "off") +
+    scale_color_manual(name = " ", guide = "legend", values = colorpal,
+                       labels = c("Island A", "Island B")) +
+    scale_linetype_manual(name = "", values = c(1,2),
+                          labels = c("Immigration\nrate", "Extinction\nrate")) +
+    geom_segment(aes(x = ibiogeo_Sx(D[1], A[1], M = M, k = k),
+                     xend = ibiogeo_Sx(D[1], A[1], M = M, k = k),
+                     y = 0,
+                     yend = ibiogeo_E(A = A[1],k = k, S = ibiogeo_Sx(D[1], A[1], M = M, k = k))),
+                 color = colorpal[1], linetype = 3) +
+    geom_segment(aes(x = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
+                     xend = ibiogeo_Sx(D = D[2], A = A[2], M = M, k = k),
+                     y = 0,
+                     yend = ibiogeo_E(A = A[2],k = k, S = ibiogeo_Sx(D[2], A[2], M = M, k = k))),
+                 color = colorpal[2], linetype = 3) +
+    theme_apps() +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme(legend.position = "top", legend.text = element_text(size = 12))
 }
 
 
