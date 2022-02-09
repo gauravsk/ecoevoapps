@@ -15,9 +15,13 @@ is a time step)}
 If the Leslie matrix is provided, the trajectory also includes lines indicating
 the stable age distribution}
 }
-\value{
-ggplot of total population size over time
-}
 \description{
 Generate a trajectory of the total population size over time
+}
+\seealso{
+\code{\link[=run_structured_population_simulation]{run_structured_population_simulation()}} to simulate the growth of a
+structured population given a Leslie matrix,
+\code{\link[=plot_structured_population_size]{plot_structured_population_size()}} and
+\code{\link[=plot_structured_population_agedist]{plot_structured_population_agedist()}} for plotting different aspects of the
+population trajectory, and \code{\link[=plot_leslie_diagram]{plot_leslie_diagram()}} for plotting an transition
 }
