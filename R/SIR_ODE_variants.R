@@ -194,6 +194,8 @@ SIS_ft <- function(time,init,params) {
 #'   and gamma (recovery rate)
 #' @param model_type which type of model to run? (should be one of `SIR`,
 #'   `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)
+#' @seealso [plot_infectiousdisease_time()] to plot trajectories over time, and
+#'   [plot_infectiousdisease_portrait()] to plot pairwise portrait diagrams
 #' @import deSolve
 #' @examples
 #' # Run the SIR model
@@ -241,6 +243,8 @@ run_infectiousdisease_model <- function(time, init, params, model_type) {
 #' @param x_axis name of the column in `sim_df` to plot on X-axis of trajectory
 #' @param y_axis name of the column in `sim_df` to plot on Y-axis of trajectory
 #' @import ggplot2
+#' @seealso [run_infectiousdisease_model()] to simulate the dynamics of the
+#'   model, and [plot_infectiousdisease_time()] to plot trajectories over time
 #' @examples
 #' # Run SIR model
 #' params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
@@ -278,6 +282,9 @@ plot_infectiousdisease_portrait <- function(sim_df, x_axis, y_axis) {
 #' @param model_type which type of model to run? (should be one of `SIR`,
 #'   `SIR_ft`, `SEIR`, `SEIR_ft`, `SIRD`, `SIRD_ft`, `SIS`, or `SIS_ft`)
 #' @import ggplot2
+#' @seealso [run_infectiousdisease_model()] to simulate the dynamics of the
+#'   model, and [plot_infectiousdisease_portrait()] to plot pairwise portrait
+#'   diagrams
 #' @examples
 #' # Run SIR model
 #' params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)

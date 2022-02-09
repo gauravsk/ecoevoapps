@@ -22,3 +22,11 @@ Beverton Holt model
 \examples{
 run_beverton_holt_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 10)
 }
+\seealso{
+\code{\link[=run_discrete_logistic_model]{run_discrete_logistic_model()}} and \code{\link[=run_ricker_model]{run_ricker_model()}} for other
+discrete-time models of population growth with population regulation, and
+\code{\link[=run_logistic_model]{run_logistic_model()}} for a continuous time model of logistic growth.
+Also see \code{\link[=plot_discrete_population_growth]{plot_discrete_population_growth()}} and
+\code{\link[=plot_discrete_population_cobweb]{plot_discrete_population_cobweb()}} for plotting trajectory over time and
+cobweb plots.
+}

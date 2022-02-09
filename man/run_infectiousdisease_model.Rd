@@ -28,3 +28,7 @@ time_vec <- seq(0, 10, 0.1)
 run_infectiousdisease_model(time = time_vec, init = init_vec, params =
 params_vec, model_type = "SIR")
 }
+\seealso{
+\code{\link[=plot_infectiousdisease_time]{plot_infectiousdisease_time()}} to plot trajectories over time, and
+\code{\link[=plot_infectiousdisease_portrait]{plot_infectiousdisease_portrait()}} to plot pairwise portrait diagrams
+}

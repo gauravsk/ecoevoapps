@@ -27,3 +27,8 @@ sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params =
 params_vec)
 plot_lvcomp_portrait(sim_df, params_vec)
 }
+\seealso{
+\code{\link[=run_lvcomp_model]{run_lvcomp_model()}} for simulating Lotka-Volterra competition
+dynamics between two species given a vector of parameters, and
+\code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} for making a plot of population dynamics over time
+}
