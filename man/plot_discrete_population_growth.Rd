@@ -7,10 +7,7 @@
 plot_discrete_population_growth(sim_df)
 }
 \arguments{
-\item{sim_df}{data frame of discrete population growth generated}
-}
-\value{
-a ggplot plot
+\item{sim_df}{data frame of discrete population growth}
 }
 \description{
 Plot the dynamics of a discrete population growth model

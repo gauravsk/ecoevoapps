@@ -15,9 +15,6 @@ parameters used to generate sim_df}
 \item{model_type}{a string: either "discrete_logistic", "beverton_holt", or
 "ricker"}
 }
-\value{
-a ggplot plot
-}
 \description{
 Plot a cobweb digram of a discrete population growth model
 }

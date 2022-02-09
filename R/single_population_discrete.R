@@ -131,7 +131,7 @@ run_beverton_holt_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time 
 }
 
 #' Plot the dynamics of a discrete population growth model
-#' @param sim_df data frame of discrete population growth generated
+#' @param sim_df data frame of discrete population growth
 #' @seealso [run_discrete_exponential_model()], [run_discrete_logistic_model()],
 #'   [run_beverton_holt_model()], [run_ricker_model()] for functions that
 #'   generate the \code{sim_df} objects plotted by this function
@@ -146,7 +146,6 @@ run_beverton_holt_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time 
 #' sim_df_ri <- run_ricker_model(N0 = 1, params = ri_params, time = 100)
 #' plot_discrete_population_growth(sim_df_ri)
 #' @import ggplot2
-#' @returns a ggplot plot
 #' @export
 plot_discrete_population_growth <- function(sim_df) {
   ggplot(sim_df) +
@@ -179,7 +178,6 @@ plot_discrete_population_growth <- function(sim_df) {
 #' sim_df_ri <- run_ricker_model(N0 = 1, params = ri_params, time = 100)
 #' plot_discrete_population_cobweb(sim_df_ri, params_vec = ri_params, model_type = "ricker")
 #' @import ggplot2
-#' @returns a ggplot plot
 #' @export
 plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
 
