@@ -24,8 +24,10 @@ articles:
   - population-growth
   - lotka-volterra-competition
   - predator-prey-interactions
+  - island-biogeo
 - title: Extending ecoevoapps
   navbar: Extensions
   contents:
   - deploy-custom-apps
   - diffeqs-in-R
+destination: "../ecoevoapps.gitlab.io/static/docs"
