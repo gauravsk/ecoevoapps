@@ -2,7 +2,6 @@
 
 export(add_to_sf_plot)
 export(make_sf_plot)
-export(originator)
 export(plot_abiotic_comp_portrait)
 export(plot_abiotic_comp_time)
 export(plot_discrete_population_cobweb)
