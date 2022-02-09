@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 # Load the ecoevoapps package
 library(ecoevoapps)
+library(ggplot2)
 ```
 
 Some populations are best modeled as a collection of individuals in distinct age  classes ([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/)). The growth of such structured populations depends on the transition rates from one age class to another. For example, the survival rates of juveniles into young  adults may be different from the survival rate of young adults into older adults. We can model the dynamics of such populations by knowing the rates of *survival* from one age class into the next, and by knowing how individuals in each age contribute to the population by giving birth to new individuals. 
