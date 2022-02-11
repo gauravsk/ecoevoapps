@@ -11,7 +11,7 @@ runtime: shiny
 source("single_populations_app_setup.R")
 ```
 
-Consideraremos la dinámica de población de una sola especie. Para simplificar comenzamos considerando una población cerrada, es decir, aquella en la que no hay inmigración ni emigración. La población solo crece cuando hay nacimientos y se reduce con las muertes. En una población que crece exponencialmente, no hay control sobre el crecimiento de la población; las tasas de natalidad y mortalidad permanecen constantes sin importar el tamaño de la población. Dado que $b$ es la tasa de natalidad per cápita y $d$ es la tasa de mortalidad per cápita, la dinámica de tal población se puede describir asi:
+Consideremos la dinámica de población de una sola especie. Para simplificar comenzamos considerando una población cerrada, es decir, aquella en la que no hay inmigración ni emigración. La población solo crece cuando hay nacimientos y se reduce con las muertes. En una población que crece exponencialmente, no hay control sobre el crecimiento de la población; las tasas de natalidad y mortalidad permanecen constantes sin importar el tamaño de la población. Dado que $b$ es la tasa de natalidad per cápita y $d$ es la tasa de mortalidad per cápita, la dinámica de tal población se puede describir asi:
 
 $$\frac{dN}{dT} = bN - dN = (b-d)N$$
 
@@ -19,9 +19,9 @@ Dado que $(b-d)$ es una constante que puede ser expresada como $r$, podemos escr
 
 $$\frac{dN}{dT} = rN$$
 
-La trayectoria de una población que está experimentando un crecimiento exponencial tiene una curva característica en forma de "J" cuando se grafica el tamaño de la población en función del tiempo, con el termino $r$ controlando la forma de la J. Desplácese hacia abajo hasta la aplicación para explorar cómo el valor de $r$ influye en la trayectoria de la población.
+La trayectoria de una población que está experimentando crecimiento exponencial tiene una curva característica en forma de "J" cuando se grafica el tamaño de la población en función del tiempo, con el término $r$ controlando la forma de la J. Desplácese hacia abajo hasta la aplicación para explorar cómo el valor de $r$ influye en la trayectoria de la población.
 
-#### *Introducción de algunos límites al crecimiento de la población*
+#### *Introduciendo algunos límites al crecimiento de la población*
 
 El modelo de crecimiento exponencial es simple y predice que, a largo plazo, cualquier población que experimente dicho crecimiento alcanzará un tamaño infinitamente grande. Dado que las poblaciones nunca crecen sin límites en la naturaleza, podemos mejorar este modelo.
 
@@ -29,7 +29,7 @@ Reexaminemos los supuestos del modelo de crecimiento exponencial, es decir, que 
 
 $$\frac{dN}{dt} = rN \left(1-\frac{N}{K}\right)$$
 
-Las poblaciones que experimentan un crecimiento logístico pueden crecer (es decir, tener una tasa de crecimiento de la población positiva) hasta que el tamaño de la población sea igual a la capacidad de carga ($N = K$). Cuando una población excede su capacidad de carga, la población tendrá una tasa de crecimiento negativa y se reducirá a la capacidad de carga.
+Las poblaciones que experimentan un crecimiento logístico pueden crecer (es decir, tener una tasa de crecimiento de la población positiva) hasta que el tamaño de la población sea igual a la capacidad de carga ($N = K$). Cuando una población excede su capacidad de carga, la población tendrá una tasa de crecimiento negativa y se reducirá hasta la capacidad de carga.
 
 #### *Crecimiento logístico rezagado* 
 
@@ -37,7 +37,7 @@ En algunas circunstancias, la tasa de crecimiento de una población puede depend
 
 $$  \frac{dN}{dt} = rN_{t} \left(1-\frac{N_{t-\tau}}{K}\right)$$
 
-Puede explorar las consecuencias del crecimiento logístico retardado eligiendo la opción "Dependencia de densidad retardada en la simulación dependiente de la densidad".
+Puede explorar las consecuencias del crecimiento logístico retardado eligiendo la opción "Dependencia de densidad rezagada" en la simulación de dependencia de la densidad.
 
 
 #### *Parameter table*
@@ -53,7 +53,7 @@ descriptions <- c("Tasa de crecimiento intrínseco de la especie $i$",
 
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -102,12 +102,12 @@ sidebarLayout(
 
                      
                      # User defined intrinsic growth rate r2 -----
-                     sliderInput("r_val2", label = "Tasa de crecimiento intrínseco de especies 2 (r2):",
+                     sliderInput("r_val2", label = "Tasa de crecimiento intrínseco de la Especie 2 (r2):",
                                  min = 0.01, max = 1, value = .15, step = 0.01),
                      
                      # If Density Dependent growth requested for sp2, ask for K2 -----
                      conditionalPanel(condition = "input.densdep2 == 'dep'",
-                                      sliderInput("K_val2", label = "Capacidad de Carga de especies 2 (K2)",
+                                      sliderInput("K_val2", label = "Capacidad de Carga de la Especie 2 (K2)",
                                                   min = 1, max = 10000, value = 500, step = 10),
                      ),
                      # If Density Dependent growth requested, ask if time lag requested -----
@@ -119,12 +119,12 @@ sidebarLayout(
                      conditionalPanel(condition = "input.densdepLag2 == 'lag'",
                                       sliderInput("tau2", label = "Lapso de tiempo (tau2)",
                                                   min = 0, max = 4, value = 1, step = .1)),
-                     sliderInput("N2_val", label = "Tamaño inicial de la población de especies 2:",
+                     sliderInput("N2_val", label = "Tamaño inicial de la población de la Especie 2:",
                                  min = 1, max = 1000, value = 50, step = 10),
                          hr()),
     
     # User can select which plots to show ----
-    checkboxGroupInput("plots_to_show", "Seleccionas las figuras para mostrar",
+    checkboxGroupInput("plots_to_show", "Selecciona las figuras para mostrar",
                        c("N vs. Time" = "Nvtime",
                          "ln(N) vs. Time" = "lnNvtime",
                          "dN/dt vs. N" = "n1overn",
@@ -205,22 +205,22 @@ pops_combined <- reactive({
 # 0. Make caption  ------
 plot_caption1 <- reactive({
   if(input$densdep == 'indep') {
-  paste0("Species 1 parameter values: r1 = ", input$r_val)
+  paste0("Parámetros de la Especie 1: r1 = ", input$r_val)
   } else if (input$densdepLag == "nolag") { 
-    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val) 
+    paste0("Parámetros de la Especie 1: r1 = ", input$r_val, ", K1 = ", input$K_val) 
     } else { 
-    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
+    paste0("Parámetros de la Especie 1: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
     }
 })
 
 plot_caption2 <- reactive({
   if(input$secondsp) {
     if(input$densdep2 == 'indep') {
-      paste0("Species 2 parameter values: r2 = ", input$r_val2)
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2)
     } else if (input$densdepLag2 == "nolag") { 
-      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
     } else { 
-      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
     }
   }
 })
@@ -242,8 +242,9 @@ trajectory <- reactive({
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-      scale_color_brewer("Species", palette = "Set1") +
-      ylab("Population size") 
+      scale_color_brewer("Especie", palette = "Set1") +
+      ylab("Tamaño de la población") +
+      xlab("Tiempo")
     } 
 })
 
@@ -252,12 +253,13 @@ trajectory_log <- reactive({
   if("lnNvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
       geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_brewer("Especie", palette = "Set1") +
       ecoevoapps::theme_apps() +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-      ylab("ln(Population size)") 
+      ylab("ln(Tamaño de la población)") +
+      xlab("Tiempo")
     }
 })
 
@@ -279,9 +281,9 @@ n1_over_n <- reactive({
     
     ggplot(dndt_out_for_plot) +
       geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
-      xlab("Population Size") + 
-      ylab("Population growth rate (dN/dt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      xlab("Tamaño de la población") + 
+      ylab("Tasa de crecimiento de la popblación (dN/dt)") + 
+      scale_color_brewer("Especie", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       theme_apps() 
@@ -306,9 +308,9 @@ n1n_over_n <- reactive({
     
     ggplot(dnNdt_out_for_plot) +
       geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
-      xlab("Population Size") + 
-      ylab("per-capita population growth rate\n(dN/Ndt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      xlab("Tamaño de la población") + 
+      ylab("Tasa per cápita de crecimiento de la popblación\n(dN/Ndt)") + 
+      scale_color_brewer("Especie", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
       scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
@@ -334,7 +336,7 @@ plots_to_print <- reactive({
 ```
 
 
-### Further reading  
+### Lectura adicional  
 
 "[How populations grow: the Exponential and the logistic](https://www.nature.com/scitable/knowledge/library/how-populations-grow-the-exponential-and-logistic-13240157/)", John Vandermeer, Nature Education Knowledge. 
 
