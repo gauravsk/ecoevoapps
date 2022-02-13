@@ -318,7 +318,7 @@ At equilibrium, the rate of change is 0 and we can solve for $n_{2}^{*}$:
 \tag{10}
 n_{2}^{*} = -\frac{(P_{A} + P_{J} \beta_{1} - 1)N^{*}}{(P_{A} + P_{J} \beta_{2} - 1)}
 \end{equation}
-Calculate the equilibirum of your sink population based on your input and verify your answer using the simulation plot.  
+Calculate the equilibrium of your sink population based on your input and verify your answer using the simulation plot.  
 
 
 # Reference & helpful resources:  
