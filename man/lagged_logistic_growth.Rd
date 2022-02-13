@@ -16,3 +16,4 @@ lagged_logistic_growth(time, init, params)
 \description{
 Lagged logistic growth model
 }
+\keyword{internal}

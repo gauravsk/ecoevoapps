@@ -33,8 +33,6 @@ library(dplyr)
 library(ecoevoapps)
 library(patchwork)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
-# source("functions.R")
-source("ibiogeo_constants.R")
 ```
 
 ```{r app-pt}

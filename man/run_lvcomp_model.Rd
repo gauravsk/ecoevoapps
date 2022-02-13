@@ -2,7 +2,7 @@
 % Please edit documentation in R/lotka_volterra_competition.R
 \name{run_lvcomp_model}
 \alias{run_lvcomp_model}
-\title{Run the Lotka-Volterra competition model (with carrying capacity and relative effects)}
+\title{Run the Lotka-Volterra competition model}
 \usage{
 run_lvcomp_model(
   time = 0:100,
@@ -12,18 +12,24 @@ run_lvcomp_model(
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation
+(i.e. tmax)}
 
-\item{init}{vector of initial population sizes for both species, with names N1 and N2}
+\item{init}{vector of initial population sizes for both species, with names
+N1 and N2}
 
-\item{params}{vector of model parameters
-Note that carrying capacity for both species can be defined in `params`
-either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-If carrying capacities are defined as `K1` and `K2`, interspecific competition
-should be defined as `a` and `b`; otherwise, `a12` and `a21`.}
+\item{params}{vector of model parameters Note that carrying capacity for both
+species can be defined in \code{params} either as \code{K1} and \code{K2}, or in the
+inverse, as \code{a11} and \code{a22}. If carrying capacities are defined as \code{K1} and
+\code{K2}, interspecific competition should be defined as \code{a} and \code{b};
+otherwise, \code{a12} and \code{a21}.}
 }
 \description{
-Run the Lotka-Volterra competition model (with carrying capacity and relative effects)
+Given a vector of time, intiial values, and parameters, this function runs
+the Lotka-Volterra competition model. Note that the competition parameters
+can either be given as the relative effects of one species on the other (in
+terms of alpha (a)  and beta (b)), or in terms of the absolute intraspecific
+and interspecific competition coefficients (a11, a12, a22, a21).
 }
 \examples{
 # Define full time series, and run model in terms of carrying capacities
@@ -41,4 +47,9 @@ run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
 params = c(r1 = .15, r2 = .2, K1 = 1000, K2 = 800, a = 0.9, b = 1.05))
 run_lvcomp_model(time = 0:5, init = c(N1 = 1, N2 = 5),
 params = c(r1 = .15, r2 = .2, a11 = .001, a22 = 0.00125, a12 = .0005, a21 = .0007))
+}
+\seealso{
+\code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} for making a plot of population dynamics over
+time, and \code{\link[=plot_lvcomp_portrait]{plot_lvcomp_portrait()}} for making a phase portrait of the both
+species (including the ZNGIs) the ZNGIs)
 }

@@ -1,2 +1,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^rsconnect$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+inst/.*/rsconnect/

@@ -7,14 +7,14 @@
 plot_lvcomp_portrait(sim_df, params)
 }
 \arguments{
-\item{sim_df}{data frame of lokta-volterra model simulation
-(created by run_lvcomp_model())}
+\item{sim_df}{data frame of lokta-volterra model simulation (created by
+run_lvcomp_model())}
 
-\item{params}{vector of model parameters
-Note that carrying capacity for both species can be defined in `params`
-either as `K1` and `K2`, or in the inverse, as `a11` and `a22`.
-If carrying capacities are defined as `K1` and `K2`, interspecific competition
-should be defined as `a` and `b`; otherwise, `a12` and `a21`.}
+\item{params}{vector of model parameters Note that carrying capacity for both
+species can be defined in \code{params} either as \code{K1} and \code{K2}, or in the
+inverse, as \code{a11} and \code{a22}. If carrying capacities are defined as \code{K1} and
+\code{K2}, interspecific competition should be defined as \code{a} and \code{b};
+otherwise, \code{a12} and \code{a21}.}
 }
 \description{
 Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
@@ -23,4 +23,9 @@ Generate a phase portrait (N1 vs N2) plot for the Lotka-Volterra model
 params_vec = c(r1 = .5, r2 = .6, K1 = 1000, K2 = 1050, a = 0.5, b = 0.7)
 sim_df <- run_lvcomp_model(time = 0:50, init = c(N1 = 1, N2 = 5), params = params_vec)
 plot_lvcomp_portrait(sim_df, params_vec)
+}
+\seealso{
+\code{\link[=run_lvcomp_model]{run_lvcomp_model()}} for simulating Lotka-Volterra competition
+dynamics between two species given a vector of parameters, and
+\code{\link[=plot_lvcomp_time]{plot_lvcomp_time()}} for making a plot of population dynamics over time
 }

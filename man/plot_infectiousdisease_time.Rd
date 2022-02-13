@@ -7,7 +7,11 @@
 plot_infectiousdisease_time(sim_df, model_type)
 }
 \arguments{
-\item{sim_df}{simulated data frame generated from run_infectiousdisease_model()}
+\item{sim_df}{simulated data frame generated from
+run_infectiousdisease_model()}
+
+\item{model_type}{which type of model to run? (should be one of \code{SIR},
+\code{SIR_ft}, \code{SEIR}, \code{SEIR_ft}, \code{SIRD}, \code{SIRD_ft}, \code{SIS}, or \code{SIS_ft})}
 }
 \description{
 Plot phase portrait for infectious disease model model
@@ -17,6 +21,12 @@ Plot phase portrait for infectious disease model model
 params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
 init_vec <- c(S = 100, I = 1, R = 0)
 time_vec <- seq(0, 100, 0.1)
-sir_out <- run_infectiousdisease_model(time = time_vec, init = init_vec, params = params_vec, model_type = "SIR")
-plot_infectiousdisease_time(sir_out, model_out = "SIR")
+sir_out <- run_infectiousdisease_model(time = time_vec, init = init_vec,
+params = params_vec, model_type = "SIR")
+plot_infectiousdisease_time(sir_out, model_type = "SIR")
+}
+\seealso{
+\code{\link[=run_infectiousdisease_model]{run_infectiousdisease_model()}} to simulate the dynamics of the
+model, and \code{\link[=plot_infectiousdisease_portrait]{plot_infectiousdisease_portrait()}} to plot pairwise portrait
+diagrams
 }

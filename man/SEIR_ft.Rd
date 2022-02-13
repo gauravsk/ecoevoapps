@@ -18,3 +18,4 @@ and a (inverse of incubation period)}
 \description{
 SEIR model with vital rates and frequency-dependent transmission
 }
+\keyword{internal}

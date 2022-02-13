@@ -1,0 +1,33 @@
+template:
+  bootstrap: 5
+reference:
+- title: "Running models"
+  desc: "Functions for running the model simulations"
+  contents:
+  - starts_with("run_")
+- title: "Plotting model simulations"
+  desc: "Functions for plotting the output from model simulations"
+  contents:
+  - starts_with("plot_")
+- title: "Running Shiny apps"
+  desc: "Functions for launching shiny apps from the `R` console"
+  contents:
+  - starts_with("shiny_")
+url: https://ecoevoapps.gitlab.io/docs
+repo:
+  url:
+    home: https://gitlab.com/ecoevoapps/ecoevoapps
+articles:
+- title: Using ecoevoapps
+  navbar: Using ecoevoapps from the R command line
+  contents:
+  - population-growth
+  - lotka-volterra-competition
+  - predator-prey-interactions
+  - island-biogeo
+- title: Extending ecoevoapps
+  navbar: Extensions
+  contents:
+  - deploy-custom-apps
+  - diffeqs-in-R
+destination: "../ecoevoapps.gitlab.io/static/docs"

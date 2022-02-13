@@ -1,126 +1,130 @@
 ---
-title: "Growth of a single population in continuous time"
+title: "Crecimiento de una sola Población en Tiempo Continuo"
 output: html_document
 runtime: shiny
 ---
 
-***中文 | [English](https://ecoevoapps.shinyapps.io/population_growth) | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk) ***
+***[中文](https://ecoevoapps.shinyapps.io/population_growth_ch) | Español |  [English](https://ecoevoapps.shinyapps.io/population_growth/) | [Turkish](https://ecoevoapps.shinyapps.io/population_growth_tk)  ***
 
 
 ```{r setup, include=FALSE}
 source("single_populations_app_setup.R")
 ```
 
-本文介绍单个物种的种群动态。为了方便起见，我们只考虑无个体迁入或迁出的*封闭种群*。该种群大小因个体出生而增长，因个体死亡而缩小。若种群增长不受抑制，则其增长呈指数型。无论种群大小变化，其出生率和死亡率均不变。已知人均出生率（per-capita birth rate）为$b$， 人均死亡率（per-capita death rate）为$d$， 则种群大小$N$的变化为：
+Consideremos la dinámica de población de una sola especie. Para simplificar comenzamos considerando una población cerrada, es decir, aquella en la que no hay inmigración ni emigración. La población solo crece cuando hay nacimientos y se reduce con las muertes. En una población que crece exponencialmente, no hay control sobre el crecimiento de la población; las tasas de natalidad y mortalidad permanecen constantes sin importar el tamaño de la población. Dado que $b$ es la tasa de natalidad per cápita y $d$ es la tasa de mortalidad per cápita, la dinámica de tal población se puede describir asi:
 
 $$\frac{dN}{dT} = bN - dN = (b-d)N$$
 
-$(b-d)$ 是一个常数，可合并写为自然增长率(intrinsic growth rate)$r$。则指数型增长可写为：
+Dado que $(b-d)$ es una constante que puede ser expresada como $r$, podemos escribir la ecuación de crecimiento exponencial de la siguiente manera:
 
 $$\frac{dN}{dT} = rN$$
 
-对于一个指数型增长的种群，其种群大小随时间变化的轨迹呈J型曲线。而J的形状由$r$的数值决定。👇请使用文末的app探索$r$值如何改变种群的轨迹。
+La trayectoria de una población que está experimentando crecimiento exponencial tiene una curva característica en forma de "J" cuando se grafica el tamaño de la población en función del tiempo, con el término $r$ controlando la forma de la J. Desplácese hacia abajo hasta la aplicación para explorar cómo el valor de $r$ influye en la trayectoria de la población.
 
-#### *限制种群增长*
-上文的指数增长模型（exponential growth model）预测，该类种群的长期规模会趋于无穷大。但现实中，没有种群的数量能够无限制增长，因此指数增长模型可以被改进。 
+#### *Introduciendo algunos límites al crecimiento de la población*
 
-指数增长模型的前提条件是人均出生率$b$和人均死亡率$d$均不变。我们可以放宽这个条件，并假设当种群的增长趋于环境承载力(carrying capacity $K$)时，其总增长率(net growth rate $rD$)呈线性递减。此类种群的动态变化可用逻辑斯谛增长(logistic growth)模型描述：
+El modelo de crecimiento exponencial es simple y predice que, a largo plazo, cualquier población que experimente dicho crecimiento alcanzará un tamaño infinitamente grande. Dado que las poblaciones nunca crecen sin límites en la naturaleza, podemos mejorar este modelo.
 
-$$\frac{dN_i}{dt} = r_iN_i \left(1-\frac{N_i}{K_i}\right)$$
+Reexaminemos los supuestos del modelo de crecimiento exponencial, es decir, que hay una tasa de natalidad per cápita $b$ y una tasa de mortalidad per cápita $d$ que permanece constante en todo momento. Simplemente podemos relajar esta suposición examinando lo que sucede cuando la tasa de crecimiento neto ($rD$) disminuye linealmente a medida que una población alcanza una capacidad de carga ($K$) determinada por el medio ambiente. La dinámica de tal población se puede describir mediante la ecuación de crecimiento logístico:
 
-呈逻辑斯谛增长的种群的会持续增长，直到种群规模与环境承载力相等($N_i = K_i$)。当种群规模超出环境承载力时，种群出现负增长，直到其规模减少至环境承载力。
+$$\frac{dN}{dt} = rN \left(1-\frac{N}{K}\right)$$
 
-#### *滞后逻辑斯谛增长* 
+Las poblaciones que experimentan un crecimiento logístico pueden crecer (es decir, tener una tasa de crecimiento de la población positiva) hasta que el tamaño de la población sea igual a la capacidad de carga ($N = K$). Cuando una población excede su capacidad de carga, la población tendrá una tasa de crecimiento negativa y se reducirá hasta la capacidad de carga.
 
-在某些情况下，一个种群的增长率会取决于该种群在过去某个时间点的规模。比如，生物的繁殖产量会与其未成年时资源竞争的强度相关。对于这种情况，某时间点$t$时的种群增长率可以用过去$t-\tau$时的种群大小表示：  
+#### *Crecimiento logístico rezagado* 
 
-$$  \frac{dN_i}{dt} = r_iN_{i,t} \left(1-\frac{N_{i,t-\tau}}{K_i}\right)$$
-在app中可选择密度制约，并请勾选“Lagged density dependence”（滞后的密度依赖）选项，来模拟滞后逻辑斯谛增长。
+En algunas circunstancias, la tasa de crecimiento de una población puede depender del tamaño de la población en algún momento del pasado. Por ejemplo, el rendimiento reproductivo de los individuos puede verse limitado por cuánto tuvieron que competir por los recursos cuando eran jóvenes. Podemos modelar tal escenario haciendo que la tasa de crecimiento de la población en el tiempo $t$ sea una función de algún tiempo $t-\tau$ en el pasado de la siguiente manera:
+
+$$  \frac{dN}{dt} = rN_{t} \left(1-\frac{N_{t-\tau}}{K}\right)$$
+
+Puede explorar las consecuencias del crecimiento logístico retardado eligiendo la opción "Dependencia de densidad rezagada" en la simulación de dependencia de la densidad.
 
 
-#### *参数表*
-```{r parameter descriptions ch, echo = F}
+#### *Parameter table*
+```{r parameter descriptions, echo = F}
 pars_vars <- c("$r_i$", 
                "$K_i$", 
                "$N_i$",
                "$\\tau$")
-descriptions <- c("物种$i$的自然增长率",
-                 "物种$i$的环境承载力（carrying capacity）",
-                 "物种$i$的种群大小",
-                 "滞后逻辑斯谛增长的滞后时间")
+descriptions <- c("Tasa de crecimiento intrínseco de la especie $i$",
+                 "Capacidad de Carga de la especie $i$",
+                 "Tamaño de la población de la especie $i$",
+                 "Lapso para el crecimiento logístico retrasado (rezagado)")
+
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("参数/变量", "描述")) %>%
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
 
-### Interactive app 
+### Dinámica del Modelo 
 
 ```{r app-english, echo=FALSE}
 sidebarLayout(
   sidebarPanel(
     # User defined density dependent or independent growth ----
-    radioButtons("densdep", "Type of population growth", 
-                 choices = c(`Density Independent` = "indep", `Density Dependent` = "dep")),
+    radioButtons("densdep", "Crecimiento exponencial o logístico", 
+                 choices = c(`Exponencial` = "indep", `Logístico` = "dep")),
     
     # User defined intrinsic growth rate r -----
-    sliderInput("r_val", label = "Intrinsic growth rate (r):",
+    sliderInput("r_val", label = "Tasa de crecimiento intrínseco (r):",
                 min = 0.01, max = 1, value = .2, step = 0.01),
     
     # If Density Dependent growth requested, ask for K -----
     conditionalPanel(condition = "input.densdep == 'dep'",
-                     sliderInput("K_val", label = "Carrying capacity (K)",
+                     sliderInput("K_val", label = "Capacidad de Carga (K)",
                                  min = 1, max = 10000, value = 500, step = 10)),
     # If Density Dependent growth requested, ask if time lag requested -----
     conditionalPanel(condition = "input.densdep == 'dep'",
-                     radioButtons("densdepLag", label = "Delayed density dependence?",
-                                  choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
+                     radioButtons("densdepLag", label = "¿Crecimiento logístico rezagado?",
+                                  choices = c(`No` = "nolag",`Si` = "lag"))),
     
     # If timelag requested in density-dependent growth, ask for tau -----
     conditionalPanel(condition = "input.densdepLag == 'lag'",
-                     sliderInput("tau", label = "Time lag (tau)",
+                     sliderInput("tau", label = "Lapso de tiempo (tau)",
                                  min = 0, max = 4, value = 1, step = .1)),
     
     # User defined initial population size  -----
-    sliderInput("N1_val", label = "Initial population size:",
+    sliderInput("N1_val", label = "Tamaño inicial de la población",
                 min = 1, max = 1000, value = 50, step = 10),
     hr(),
     
     # User can add a second species ----
-    checkboxInput("secondsp", "Add a second species?", value = F), 
+    checkboxInput("secondsp", "¿Incluir segunda especie?", value = F), 
     
     # If second species requested, add the following... ----
     conditionalPanel(condition = "input.secondsp == true",
                      # User defined density dependent or independent growth for sp2 ----
-                     radioButtons("densdep2", "Type of population growth for Species 2", 
-                                  choices = c(`Density Independent` = "indep", `Density Dependent` = "dep")),
+                     radioButtons("densdep2", "Crecimiento exponencial o logístico", 
+                                  choices = c(`Exponencial` = "indep", `Logístico` = "dep")),
+
                      
                      # User defined intrinsic growth rate r2 -----
-                     sliderInput("r_val2", label = "Intrinsic growth rate for species 2 (r2):",
+                     sliderInput("r_val2", label = "Tasa de crecimiento intrínseco de la Especie 2 (r2):",
                                  min = 0.01, max = 1, value = .15, step = 0.01),
                      
                      # If Density Dependent growth requested for sp2, ask for K2 -----
                      conditionalPanel(condition = "input.densdep2 == 'dep'",
-                                      sliderInput("K_val2", label = "Carrying capacity for species 2 (K2)",
+                                      sliderInput("K_val2", label = "Capacidad de Carga de la Especie 2 (K2)",
                                                   min = 1, max = 10000, value = 500, step = 10),
                      ),
                      # If Density Dependent growth requested, ask if time lag requested -----
                      conditionalPanel(condition = "input.densdep2 == 'dep'",
-                                      radioButtons("densdepLag2", label = "Delayed density dependence in Species 2?",
-                                                   choices = c(`No lag` = "nolag",`Lagged density dependence` = "lag"))),
+                                      radioButtons("densdepLag2", label = "¿Crecimiento logístico rezagado?",
+                                  choices = c(`No` = "nolag",`Si` = "lag"))),
                      
                      # If timelag requested in density-dependent growth, ask for tau -----
                      conditionalPanel(condition = "input.densdepLag2 == 'lag'",
-                                      sliderInput("tau2", label = "Time lag sp 2 (tau2)",
+                                      sliderInput("tau2", label = "Lapso de tiempo (tau2)",
                                                   min = 0, max = 4, value = 1, step = .1)),
-                     sliderInput("N2_val", label = "Initial population size of species 2:",
+                     sliderInput("N2_val", label = "Tamaño inicial de la población de la Especie 2:",
                                  min = 1, max = 1000, value = 50, step = 10),
                          hr()),
     
     # User can select which plots to show ----
-    checkboxGroupInput("plots_to_show", "Select which plots to show",
+    checkboxGroupInput("plots_to_show", "Selecciona las figuras para mostrar",
                        c("N vs. Time" = "Nvtime",
                          "ln(N) vs. Time" = "lnNvtime",
                          "dN/dt vs. N" = "n1overn",
@@ -128,10 +132,9 @@ sidebarLayout(
     hr(),
 
     # User defined length of simulation -----
-    numericInput("max_time", label = "Length of simulation:",
+    numericInput("max_time", label = "Duración de tiempo:",
                 value = 100),
 
-                     # User defined initial population size  -----
     ),
 
   
@@ -202,22 +205,22 @@ pops_combined <- reactive({
 # 0. Make caption  ------
 plot_caption1 <- reactive({
   if(input$densdep == 'indep') {
-  paste0("Species 1 parameter values: r1 = ", input$r_val)
+  paste0("Parámetros de la Especie 1: r1 = ", input$r_val)
   } else if (input$densdepLag == "nolag") { 
-    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val) 
+    paste0("Parámetros de la Especie 1: r1 = ", input$r_val, ", K1 = ", input$K_val) 
     } else { 
-    paste0("Species 1 parameter values: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
+    paste0("Parámetros de la Especie 1: r1 = ", input$r_val, ", K1 = ", input$K_val, ", Tau1 = ", input$tau) 
     }
 })
 
 plot_caption2 <- reactive({
   if(input$secondsp) {
     if(input$densdep2 == 'indep') {
-      paste0("Species 2 parameter values: r2 = ", input$r_val2)
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2)
     } else if (input$densdepLag2 == "nolag") { 
-      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2, ", K2 = ", input$K_val2) 
     } else { 
-      paste0("Species 2 parameter values: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
+      paste0("Parámetros de la Especie 2: r2 = ", input$r_val2, ", K2 = ", input$K_val2, ", Tau2 = ", input$tau2) 
     }
   }
 })
@@ -239,8 +242,9 @@ trajectory <- reactive({
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-      scale_color_brewer("Species", palette = "Set1") +
-      ylab("Population size") 
+      scale_color_brewer("Especie", palette = "Set1") +
+      ylab("Tamaño de la población") +
+      xlab("Tiempo")
     } 
 })
 
@@ -249,12 +253,13 @@ trajectory_log <- reactive({
   if("lnNvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
       geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_brewer("Especie", palette = "Set1") +
       ecoevoapps::theme_apps() +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-      ylab("ln(Population size)") 
+      ylab("ln(Tamaño de la población)") +
+      xlab("Tiempo")
     }
 })
 
@@ -276,9 +281,9 @@ n1_over_n <- reactive({
     
     ggplot(dndt_out_for_plot) +
       geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
-      xlab("Population Size") + 
-      ylab("Population growth rate (dN/dt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      xlab("Tamaño de la población") + 
+      ylab("Tasa de crecimiento de la popblación (dN/dt)") + 
+      scale_color_brewer("Especie", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       theme_apps() 
@@ -303,9 +308,9 @@ n1n_over_n <- reactive({
     
     ggplot(dnNdt_out_for_plot) +
       geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
-      xlab("Population Size") + 
-      ylab("per-capita population growth rate\n(dN/Ndt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      xlab("Tamaño de la población") + 
+      ylab("Tasa per cápita de crecimiento de la popblación\n(dN/Ndt)") + 
+      scale_color_brewer("Especie", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
       scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
@@ -331,12 +336,11 @@ plots_to_print <- reactive({
 ```
 
 
-### Further reading  
+### Lectura adicional  
 
 "[How populations grow: the Exponential and the logistic](https://www.nature.com/scitable/knowledge/library/how-populations-grow-the-exponential-and-logistic-13240157/)", John Vandermeer, Nature Education Knowledge. 
 
 "[Exponential & logistic growth](https://www.khanacademy.org/science/biology/ecology/population-growth-and-regulation/a/exponential-logistic-growth)" at Khan Academy. 
-
 
 -------------
 

@@ -24,3 +24,10 @@ Returns a matrix with nrow = nrow(leslie_mat) and ncol = time
 \description{
 Simulate growth of a (st)age-structured population
 }
+\seealso{
+\code{\link[=plot_structured_population_size]{plot_structured_population_size()}},
+\code{\link[=plot_structured_population_agedist]{plot_structured_population_agedist()}}, and
+\code{\link[=plot_structured_population_lambda]{plot_structured_population_lambda()}} for plotting different aspects of the
+population trajectory, and \code{\link[=plot_leslie_diagram]{plot_leslie_diagram()}} for plotting an
+transition diagram based on the specified Leslie matrix
+}

@@ -8,19 +8,26 @@ run_logistic_model(time, init, params)
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation
+(i.e. tmax)}
 
-\item{init}{initial population size of population, in a vector with name `N1`}
+\item{init}{initial population size of population, in a vector with name \code{N1}}
 
-\item{params}{vector of intrinsic growth rate,  carrying capacity and,
-if simulating a lagged-logistic model, `tau`
-in a vector with names `r`,`K`, and `tau` (if applicable)}
+\item{params}{vector of intrinsic growth rate,  carrying capacity and, if
+simulating a lagged-logistic model, \code{tau} in a vector with names \code{r}, \code{K},
+and \code{tau} (if applicable)}
 }
 \description{
 Run logistic growth model
 }
 \examples{
-run_logistic_model(time = 0:100, init = c(N1 = 1), params = c(r = .15, K = 1000))
-run_logistic_model(time = 100, init = c(N1 = 1), params = c(r = .15, K = 1000))
-run_logistic_model(time = 0:100, init = c(N1 = 1), params = c(r = .15, K = 1000, tau = 2.1))
+run_logistic_model(time = 0:10, init = c(N1 = 1), params = c(r = .15, K = 1000))
+run_logistic_model(time = 10, init = c(N1 = 1), params = c(r = .15, K = 1000))
+run_logistic_model(time = 0:10, init = c(N1 = 1), params = c(r = .15, K = 1000, tau = 2.1))
+}
+\seealso{
+\code{\link[=run_exponential_model]{run_exponential_model()}} for simulating the dynamics of a
+population with no carrying capacity, and \code{\link[=run_discrete_logistic_model]{run_discrete_logistic_model()}},
+\code{\link[=run_beverton_holt_model]{run_beverton_holt_model()}}, and \code{\link[=run_ricker_model]{run_ricker_model()}} for discrete-time
+models of population growth with population regulation
 }

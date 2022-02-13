@@ -17,3 +17,4 @@ and gamma (recovery rate)}
 \description{
 SIS model with vital rates and frequency-dependent transmission
 }
+\keyword{internal}

@@ -13,26 +13,36 @@ run_abiotic_comp_model(
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.
-`time` can also be supplied as just the total length of the simulation (i.e. tmax)}
+\code{time} can also be supplied as just the total length of the simulation
+(i.e. tmax)}
 
-\item{init}{vector of initial population sizes for both species,
-with names N1 and N2, AND initial resource pool sizes for both resources,
-with names R1 and R2}
+\item{init}{vector of initial population sizes for both species, with names
+N1 and N2, AND initial resource pool sizes for both resources, with names
+R1 and R2}
 
-\item{params}{vector of model parameters (`S1`, `S2`, `r1`, `r2`, `k11`, `k12`,
-`k21`, `k22`, `m1`, `m2`, `c11`, `c12`,
-`c21`, `c22`, `a1`, `a1`)}
+\item{params}{vector of model parameters (\code{S1}, \code{S2}, \code{r1}, \code{r2}, \code{k11},
+\code{k12}, \code{k21}, \code{k22}, \code{m1}, \code{m2}, \code{c11}, \code{c12}, \code{c21}, \code{c22}, \code{a1}, \code{a1})}
 }
 \description{
-Run the Tilman abiotic resource competition model
+This function runs the abiotic resource model for two species competing for
+two essential resources. See page 42 onwards of Don Alstad's Populus guide
+for a thorough overview of the model:
+https://cbs.umn.edu/sites/cbs.umn.edu/files/public/downloads/PopulusHelp_e.pdf
 }
 \examples{
 # Define full time series, and run model in terms of carrying capacities
 # and relative competitive effects
-run_abiotic_comp_model(time = seq(0,100,0.1),
+run_abiotic_comp_model(time = seq(0,10),
  init = c(N1 = 10, N2 = 10, R1 = 20, R2 = 20),
  params = c(S1 = 12, S2 = 12, r1 = 1.6, r2 = 1,
 k11 = 18, k12 = 4, k21 = 2, k22 = 14,
 m1 = .2, m2 = .2,c11 = .25, c12 = .08,
 c21 = .1, c22 = .2, a1 = .5, a2 = .5))
+}
+\seealso{
+\code{\link[=run_abiotic_comp_rstar]{run_abiotic_comp_rstar()}} for calculating both species' R* values
+for both resource, \code{\link[=plot_abiotic_comp_time]{plot_abiotic_comp_time()}} for plots of the population
+dynamics over time, and \code{\link[=plot_abiotic_comp_portrait]{plot_abiotic_comp_portrait()}} for making portrait
+plots of Resources 1 and 2 over time (including visualizations of the
+ZNGIs)
 }

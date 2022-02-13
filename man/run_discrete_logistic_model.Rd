@@ -4,17 +4,31 @@
 \alias{run_discrete_logistic_model}
 \title{Discrete logistic model}
 \usage{
-run_discrete_logistic_model(N0 = 1, K = 100, rd = 1.1, time = 100)
+run_discrete_logistic_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 100)
 }
 \arguments{
 \item{N0}{initial population size of population}
 
-\item{K}{Carrying capacity}
-
-\item{rd}{Discrete growth factor}
+\item{params}{a vector of carrying capacity (K) and discrete growth rate (rd)}
 
 \item{time}{Number of time steps over which to project the model}
+
+\item{rd}{Discrete growth factor}
+}
+\value{
+A data frame with columns time and Nt
 }
 \description{
 Discrete logistic model
+}
+\examples{
+run_discrete_logistic_model(N0 = 1, params = c(rd = 1.1, K = 100), time = 10)
+}
+\seealso{
+\code{\link[=run_ricker_model]{run_ricker_model()}} and \code{\link[=run_beverton_holt_model]{run_beverton_holt_model()}} for other
+discrete-time models of population growth with population regulation, and
+\code{\link[=run_logistic_model]{run_logistic_model()}} for a continuous time model of logistic growth. Also
+see \code{\link[=plot_discrete_population_growth]{plot_discrete_population_growth()}} and
+\code{\link[=plot_discrete_population_cobweb]{plot_discrete_population_cobweb()}} for plotting trajectory over time and
+cobweb plots.
 }

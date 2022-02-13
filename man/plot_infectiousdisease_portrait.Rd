@@ -7,11 +7,12 @@
 plot_infectiousdisease_portrait(sim_df, x_axis, y_axis)
 }
 \arguments{
-\item{sim_df}{simulated data frame generated from run_infectiousdisease_model()}
+\item{sim_df}{simulated data frame generated from
+run_infectiousdisease_model()}
 
-\item{x_axis}{name of the column in `sim_df` to plot on X-axis of trajectory}
+\item{x_axis}{name of the column in \code{sim_df} to plot on X-axis of trajectory}
 
-\item{y_axis}{name of the column in `sim_df` to plot on Y-axis of trajectory}
+\item{y_axis}{name of the column in \code{sim_df} to plot on Y-axis of trajectory}
 }
 \description{
 Plot phase portrait for infectious disease model model
@@ -21,6 +22,11 @@ Plot phase portrait for infectious disease model model
 params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
 init_vec <- c(S = 100, I = 1, R = 0)
 time_vec <- seq(0, 100, 0.1)
-sir_out <- run_infectiousdisease_model(time = time_vec, init = init_vec, params = params_vec, model_type = "SIR")
+sir_out <- run_infectiousdisease_model(time = time_vec, init = init_vec,
+params = params_vec, model_type = "SIR")
 plot_infectiousdisease_portrait(sir_out, "S", "I")
+}
+\seealso{
+\code{\link[=run_infectiousdisease_model]{run_infectiousdisease_model()}} to simulate the dynamics of the
+model, and \code{\link[=plot_infectiousdisease_time]{plot_infectiousdisease_time()}} to plot trajectories over time
 }

@@ -10,11 +10,10 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 # Load the ecoevoapps package
 library(ecoevoapps)
+library(ggplot2)
 ```
 
-Some populations are best modeled as a collection of individuals in distinct age or size classes ([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/)). The growth of such structured populations depends on the transition rates from one class to another. For example, the survival rates of juveniles into young  adults may be different from the survival rate of young adults into older adults. We can model the dynamics of such populations by knowing the rates of *survival* from one age (or stage) into the next, and by knowing how individuals in each age (or stage) contribute to the population by giving birth to new individuals. 
-
-By wiggling the values of these rates we can start finding what are the transitions that impact the most the growth of the whole population (sensitivity analysis).
+Some populations are best modeled as a collection of individuals in distinct age  classes ([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/)). The growth of such structured populations depends on the transition rates from one age class to another. For example, the survival rates of juveniles into young  adults may be different from the survival rate of young adults into older adults. We can model the dynamics of such populations by knowing the rates of *survival* from one age class into the next, and by knowing how individuals in each age contribute to the population by giving birth to new individuals. 
 
 ### The Leslie matrix
 The [Leslie Matrix](https://en.wikipedia.org/wiki/Leslie_matrix) is a convenient way of organizing age transition rates (survival and fecundity). The Leslie matrix is an $NxN$ matrix, where $N$ indicates the total number of ages in the population cycle. The elements of the matrix tell us about how the individuals in each age *column* contribute to each age *row*. For example, the second column in the first row tells us how individuals who are of age 2 contribute to the age 1 category. 
@@ -26,8 +25,6 @@ In addition to being a convenient way to account for survival and fecundity info
 2. The largest eigenvalue of the Leslie matrix is $\lambda$, the asymptotic growth rate for the whole population. When $\lambda < 1$ the population declines to extinction, $\lambda > 1$ the population grows exponentially, and when $\lambda = 1$ the population size remains constant through time).
 
 3. The eigenvector that corresponds to the largest eigenvalue gives the stable population structure, i.e., the proportions of each age class after the population reached equilibrium.
-
-
 
 #### Use the app below to explore these properties of structured population growth:
 
@@ -157,24 +154,25 @@ eigenvec <- reactive({
 
 diagr <- reactive({ 
   plot_leslie_diagram(Leslie_matrix())
-  })
+})
 
 # Simulation plots
 
 pop_trajectory <- reactive({
-  ecoevoapps::run_structured_population_simulation(leslie_mat = Leslie_matrix(), init = init(), time = 1000)
+  run_structured_population_simulation(leslie_mat = Leslie_matrix(), 
+                                       init = init(), time = 1000)
 })
 
 plot_pop_trajectory <- reactive({
-  ecoevoapps::plot_structured_population_size(pop_trajectory()) +
+  plot_structured_population_size(pop_trajectory()) +
     labs(title = "") +
     theme(legend.text = element_text(size = 13),
           legend.title = element_text(size = 13))
 })
 
 plot_pop_agedist <- reactive({
-  ecoevoapps::plot_structured_population_agedist(pop_trajectory(), 
-                                                 leslie_mat = Leslie_matrix())+
+  plot_structured_population_agedist(pop_trajectory(), 
+                                     leslie_mat = Leslie_matrix())+
     labs(title = "") +
     theme(legend.text = element_text(size = 13),
           legend.title = element_text(size = 13),
@@ -189,11 +187,6 @@ plot_pop_lambda <- reactive({
           legend.title = element_text(size = 13),
           plot.caption = element_text(size = 13))
 })
-
-# plots <- reactive({
-#   plot_pop_trajectory() + plot_pop_agedist() + plot_pop_lambda() + guide_area() +
-#     plot_layout(guides = "collect")
-# })
 
 ```
 
