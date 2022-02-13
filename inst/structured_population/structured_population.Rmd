@@ -23,9 +23,9 @@ In addition to being a convenient way to account for survival and fecundity info
 
 1. To simulate the population at the next time step (time $t+1$), one simply needs to  multiply the Leslie matrix by the matrix with the initial population sizes (at time $t$).  
 
-2. The largest eigenvalue of the Leslie matrix is $\lambda$, the asymptotic growth rate for the whole population. When $\lambda < 1$ the population declines to extinction, $\lambda > 1$ the grows exponentially, and when $\lambda = 1$ the population size remains constant through time).
+2. The largest eigenvalue of the Leslie matrix is $\lambda$, the asymptotic growth rate for the whole population. When $\lambda < 1$ the population declines to extinction, $\lambda > 1$ the population grows exponentially, and when $\lambda = 1$ the population size remains constant through time).
 
-3) The eigenvector that corresponds to the largest eigenvalue gives the stable population structure, i.e., the proportions of each age class after the population reached equilibrium.
+3. The eigenvector that corresponds to the largest eigenvalue gives the stable population structure, i.e., the proportions of each age class after the population reached equilibrium.
 
 
 
