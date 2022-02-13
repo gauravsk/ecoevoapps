@@ -1,0 +1,1412 @@
+---
+title: "传染病仓室模型"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(kableExtra)
+theme_set(ecoevoapps::theme_apps())
+```
+
+此app展示了传染病学模型中的[仓室模型](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology)。这些模型被用于模拟疾病在各种群间的传播。这些种群由分属不同仓室的个体组成，比如易感人群，潜伏期的感染者，有症状的感染者，痊愈的患者，等等。基于不同的研究群体和传染病动态，不同模型可以包含不同的仓室。关于仓室模型的更多详情可见[维基百科](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) 或 [这篇论文](https://vtechworks.lib.vt.edu/bitstream/handle/10919/84993/ChildsIntroduction.pdf)。
+
+## 密度制约型传染模型 {.tabset}
+
+以下所有模型都假设种群中的个体完全均匀混合，且感染率与易感人群和患者间的接触数量呈正比(即*疾病传播由密度制约* ，其速率为$\beta SI$).。
+
+*开放vs封闭种群:* 这里的所有模型都包含生命统计指标（如出生/死亡率），即为开放种群。这些模型假设死亡数=非疾病引起的死亡数。如果感染周期相对于个体寿命较短，这些生命统计指标可以忽略不计。如果模型不包含生命统计指标，那么模型描述的是封闭种群。可设置$m = 0$来运行不包含生命统计指标的模型。
+
+### SIR模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)
+\end{align}
+\]
+
+```{r params SIR, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r SIR app, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    # m - death/birth rate; beta - infection rate
+    # gamma - recovery rate; v - vaccination rate
+    
+    sliderInput("m", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta", label = "感染率:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma", label = "痊愈率:",
+                min = 0, max = 1, value = .2, step = 0.01),
+    
+    sliderInput("v", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0", label = "S起始种群规模", 
+                 min = 0, value = 100),
+    numericInput("I0", label = "I起始种群规模",
+                 min = 0, value = 1),
+    numericInput("R0", label = "R起始种群规模", 
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time", label = "模拟时长", min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_SIR()}, width = 600, height = 800))
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init <- reactive({c(S = input$S0, I = input$I0, R = input$R0)})
+# Set the parameter values
+params <- reactive({c(m = input$m, beta = input$beta, 
+                      v = input$v, gamma = input$gamma)})
+# Time over which to simulate model dynamics
+time <- reactive({seq(0,input$time,by = .1)})
+
+# Simulate model dynamics 
+out <- reactive({
+  data.frame(run_infectiousdisease_model(time = time(), params = params(),
+                                         init = init(), model_type = "SIR"))
+  })
+
+# Reshape the data for plotting
+# out_long <- reactive({
+#   pivot_longer(out(), c(S, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R")))
+# })
+
+# use out to create dS, dI, dR, and the per capita changes in population
+# pop_out <- reactive({
+#   pop_out <- out()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+# 
+# pop_out_long <- reactive({
+#   pop_out() %>%
+#   select(time, dS, dI, dR) %>%
+#   pivot_longer(c(dS, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR")))
+# })
+
+# Make plots -------------------
+# Plot abundance through time ----------
+abund_plot_SIR <- reactive({
+  plot_infectiousdisease_time(out(), model_type = "SIR")
+})
+
+# # Plot dS, dI, dR over time
+# dabund_plot_SIR <- reactive({ ggplot(pop_out_long()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") 
+# })
+
+# Plot S vs I ---------
+SIplot <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "S", y_axis = "I")
+})
+
+# Plot I vs R --------------
+RIplot <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "R", y_axis = "I")
+})
+
+# Plot S vs R ------------
+SRplot <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out(), x_axis = "S", y_axis = "R")
+})
+
+# combine 2d plots -----
+SIR_2d_plots <- reactive({
+  wrap_plots(SIplot(), RIplot(), SRplot(), ncol = 3)
+})
+
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_SIR <- reactive({
+  wrap_plots(abund_plot_SIR(), 
+             # dabund_plot_SIR(), 
+             SIR_2d_plots(), nrow = 2) 
+})
+
+
+```
+
+
+### SIS模型
+
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I) - mS - \beta SI + \gamma I\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\end{align}
+\]
+
+```{r params SIS, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群规模",
+                 "感染人群规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sis app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    # m - death/birth rate; beta - infection rate; gamma - recovery rate
+    
+    sliderInput("m_sis", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sis", label = "感染率:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_sis", label = "痊愈率:",
+                min = 0, max = 1, value = .2, step = 0.01),
+  
+    ### Ask user for initial conditions ----
+    numericInput("S0_sis", label = "S起始种群规模", 
+                 min = 0, value = 100),
+    numericInput("I0_sis", label = "I起始种群规模", 
+                 min = 0, value = 1),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sis", label = "模拟时长", min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sis()}, width = 600, height = 800))
+)
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sis <- reactive({c(S = input$S0_sis, I = input$I0_sis)})
+# Set the parameter values
+params_sis <- reactive({
+  c(m = input$m_sis, beta = input$beta_sis, gamma = input$gamma_sis)
+})
+# Time over which to simulate model dynamics
+time_sis <- reactive({seq(0, input$time_sis, by = .1)})
+
+# Simulate model dynamics 
+out_sis <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_sis(), params = params_sis(),
+                                         init = init_sis(), model_type = "SIS"))
+})
+
+# Reshape the data so for plotting
+# out_long_sis <- reactive({
+#   pivot_longer(out_sis(), c(S, I), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I")))
+# })
+
+# use out to create dS, dI, dR, and the per capita changes in population
+# pop_out_sis <- reactive({
+#   pop_out <- out_sis()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+#   pop_out
+# })
+# 
+# pop_out_long_sis <- reactive({
+#   pop_out_sis() %>%
+#   select(time, dS, dI) %>%
+#   pivot_longer(c(dS, dI), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time
+abund_plot_sis <- reactive({
+   plot_infectiousdisease_time(out_sis(), model_type = "SIS")
+})
+
+
+
+# Plot S vs I
+SIplot_sis <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sis(), 
+                                      x_axis = "S", y_axis = "I")
+
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sis <- reactive({
+  wrap_plots(abund_plot_sis(), 
+             # dabund_plot_sis(), 
+             SIplot_sis(), nrow = 2) 
+})
+
+```
+
+
+### SEIR模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + E + I + R)(1 - v) - mS - \beta SI\\
+\frac{dE}{dt} &= \beta SI - aE - mE\\
+\frac{dI}{dt} &= aE - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + E + I + R)
+\end{align}
+\]
+
+```{r params SEIR, echo=F}
+pars_vars <- c("$S$", 
+               "$E$",
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$a$",
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                  "潜伏期感染人群（exposed）规模",
+                 "（有传染性的）感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "潜伏期的倒数",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r seir app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate; beta - infection rate; a - inverse of incubation period
+    #gamma - recovery rate; v - vaccination rate
+    
+    sliderInput("m_seir", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_seir", label = "感染率:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("a_seir", label = "潜伏期的倒数:",
+                min = 0, max = 1, value = 0.05, step = 0.01),
+    
+    sliderInput("gamma_seir", label = "痊愈率:",
+                min = 0, max = 1, value = .2, step = 0.01),
+    
+    sliderInput("v_seir", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_seir", label = "S起始种群规模",
+                 min = 0, value = 100),
+    numericInput("E0_seir", label = "E起始种群规模", 
+                 min = 0, value = 0),
+    numericInput("I0_seir", label = "I起始种群规模", 
+                 min = 0, value = 1),
+    numericInput("R0_seir", label = "R起始种群规模", 
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_seir", label = "模拟时长", min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_seir()}, width = 600, height = 800))
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_seir <- reactive({
+  c(S = input$S0_seir, E = input$E0_seir, 
+    I = input$I0_seir, R = input$R0_seir)
+})
+# Set the parameter values
+params_seir <- reactive({
+  c(m = input$m_seir, beta = input$beta_seir, a = input$a_seir,
+    gamma = input$gamma_seir, v = input$v_seir)})
+# Time over which to simulate model dynamics
+time_seir <- reactive({seq(0, input$time_seir, by = .1)})
+
+# Simulate model dynamics 
+out_seir <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_seir(),
+                                         params = params_seir(),
+                                         init = init_seir(), 
+                                         model_type = "SEIR"))
+})
+
+# Reshape the data for plotting
+# out_long_seir <- reactive({
+#   pivot_longer(out_seir(), c(S, E, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "E", "I", "R")))
+# })
+
+# use out to create dS, dE, dI, dR, and the per capita changes in population
+# pop_out_seir <- reactive({
+#   pop_out <- out_seir()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dE <- c(NA, diff(pop_out$E))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+# 
+# pop_out_long_seir <- reactive({ 
+#   pop_out_seir() %>%
+#     select(time, dS, dE, dI, dR) %>%
+#     pivot_longer(c(dS, dE, dI, dR), "group") %>%
+#     mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
+# })
+
+# Make plots --------------------
+
+# Plot abundance through time ----------
+abund_plot_seir <- reactive({
+  plot_infectiousdisease_time(out_seir(), model_type = "SEIR")
+})
+
+# # Plot dS, dE, dI, dR over time
+# dabund_plot_seir <- reactive({ ggplot(pop_out_long_seir()) +
+#     geom_line(aes(x = time, y = value, color = group), size = 2) +
+#     scale_color_brewer(palette = "Set1") +
+#     ylab("Change in population size") 
+# })
+
+# Plot S vs E ---------
+SEplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "S", y_axis = "E")
+})
+
+# Plot S vs I ---------
+SIplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "S", y_axis = "I")
+})
+
+# Plot S vs R ---------
+SRplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "S", y_axis = "R")  
+})
+
+# Plot E vs I ---------
+EIplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "E", y_axis = "I")  
+})
+
+# Plot E vs R ---------
+ERplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "E", y_axis = "R")  
+})
+
+# Plot R vs I ---------
+RIplot_seir <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir(), 
+                                      x_axis = "R", y_axis = "I")  
+})
+
+# combine 2d plots -----
+SEIR_2d_plots <- reactive({
+  wrap_plots(SEplot_seir(), SIplot_seir(), SRplot_seir(), 
+             EIplot_seir(), ERplot_seir(), RIplot_seir(), ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_seir <- reactive({
+  wrap_plots(abund_plot_seir(), 
+             # dabund_plot_seir(), 
+             SEIR_2d_plots(), nrow = 2) 
+})
+
+
+```
+
+### SIRD模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I - \mu I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} &= \mu I\\
+\end{align}
+\]
+
+```{r params SIRD, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$D$",
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$\\mu$",
+               "$v$")
+descriptions <- c("易感人群（susceptible）规模",
+                 "感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "疾病致死数量",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "疾病致死率",
+                 "新生儿疫苗接种率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sird app, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate; beta - infection rate; mu - death rate due to infection
+    #gamma - recovery rate; v - vaccination rate
+    
+    sliderInput("m_sird", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sird", label = "感染率:",
+                min = 0, max = 1, value = .01, step = 0.01),
+    
+    sliderInput("gamma_sird", label = "痊愈率:",
+                min = 0, max = 1, value = .2, step = 0.01),
+    
+    sliderInput("mu_sird", label = "疾病致死率:",
+                min = 0, max = 1, value = 0.05, step = 0.01),
+    
+    sliderInput("v_sird", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sird", label = "S起始种群规模",
+                 min = 0, value = 100),
+    numericInput("I0_sird", label = "I起始种群规模",
+                 min = 0, value = 1),
+    numericInput("R0_sird", label = "R起始种群规模",
+                 min = 0, value = 0),
+    numericInput("D0_sird", label = "D起始种群规模",
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sird", label = "模拟时长", min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sird()}, width = 600, height = 800))
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sird <- reactive({
+  c(S = input$S0_sird, I = input$I0_sird, R = input$R0_sird, D = input$D0_sird)
+})
+# Set the parameter values
+params_sird <- reactive({
+  c(m = input$m_sird, beta = input$beta_sird, mu = input$mu_sird, 
+    gamma = input$gamma_sird, v = input$v_sird)
+})
+# Time over which to simulate model dynamics
+time_sird <- reactive({seq(0, input$time_sird, by = .1)})
+
+# Simulate model dynamics 
+out_sird <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_sird(), 
+                                         params = params_sird(),
+                                         init = init_sird(), 
+                                         model_type = "SIRD"))
+})
+
+# Reshape the data for plotting
+# out_long_sird <- reactive({
+#   pivot_longer(out_sird(), c(S, I, R, D), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R", "D")))
+# })
+
+# use out to create dS, dD, dI, dR, and the per capita changes in population
+# pop_out_sird <- reactive({
+#   pop_out <- out_sird()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   pop_out$dD <- c(NA, diff(pop_out$D))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+#   pop_out
+# })
+
+# pop_out_long_sird <- reactive({ 
+#   pop_out_sird() %>%
+#     select(time, dS, dI, dR, dD) %>%
+#     pivot_longer(c(dS, dI, dR, dD), "group") %>%
+#     mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time ----------
+abund_plot_sird <- reactive({
+  plot_infectiousdisease_time(out_sird(), model_type = "SIRD")
+
+  # ggplot(out_long_sird()) + 
+  #   geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  #   scale_color_brewer(palette = "Set1") +
+  #   ylab("Population size")
+})
+
+
+# Plot S vs D ---------
+SDplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "D")  
+})
+
+# Plot S vs I ---------
+SIplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "I")  
+})
+
+# Plot S vs R ---------
+SRplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "S", y_axis = "R")  
+})
+
+# Plot D vs I ---------
+DIplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "D", y_axis = "I")  
+})
+
+# Plot D vs R ---------
+DRplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "D", y_axis = "R")  
+})
+
+# Plot R vs I ---------
+RIplot_sird <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird(), 
+                                  x_axis = "R", y_axis = "I")  
+})
+
+# combine 2d plots -----
+SIRD_2d_plots <- reactive({
+  wrap_plots(SIplot_sird(), SRplot_sird(), SDplot_sird(),
+             RIplot_sird(), DIplot_sird(), DRplot_sird(),  ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sird <- reactive({
+  wrap_plots(abund_plot_sird(), 
+             # dabund_plot_sird(), 
+             SIRD_2d_plots(), nrow = 2) 
+})
+
+
+```
+
+
+
+## 频率制约传染模型 {.tabset}
+以下所有传染病模型都假设疾病传播取决于易感人群在种群中的比例，而不是绝对数量。因此，疾病以速率$\beta \frac{SI}{N}$传播，而不是$\beta SI$。
+
+*开放vs封闭种群:* 这里的所有模型都包含生命统计指标（如出生/死亡率），即为开放种群。这些模型假设死亡数=非疾病引起的死亡数。如果感染周期相对于个体寿命较短，这些生命统计指标可以忽略不计。如果模型不包含生命统计指标，那么模型描述的是封闭种群。可设置$m = 0$来运行不包含生命统计指标的模型。
+
+### SIR模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)
+\end{align}
+\]
+
+```{r params SIR ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r SIR ft app, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate; beta - infection rate
+    #gamma - recovery rate; v - vaccination rate
+    
+    sliderInput("m_ft", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_ft", label = "感染率:",
+                min = 0, max = 1, value = .2, step = 0.01),
+    
+    sliderInput("gamma_ft", label = "痊愈率:",
+                min = 0, max = 1, value = .1, step = 0.01),
+    
+    sliderInput("v_ft", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_ft", label = "S起始种群规模", 
+                 min = 0, value = 50),
+    numericInput("I0_ft", label = "I起始种群规模",
+                 min = 0, value = 20),
+    numericInput("R0_ft", label = "R起始种群规模",
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_ft", label = "模拟时长", min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_SIR_ft()}, width = 600, height = 800))
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_ft <- reactive({
+  c(S = input$S0_ft, I = input$I0_ft, R = input$R0_ft)
+})
+# Set the parameter values
+params_ft <- reactive({
+  c(m = input$m_ft, beta = input$beta_ft, v = input$v_ft, gamma = input$gamma_ft)
+})
+# Time over which to simulate model dynamics
+time_ft <- reactive({seq(0,input$time_ft,by = .1)})
+
+# Simulate model dynamics 
+out_ft <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_ft(),
+                                         params = params_ft(),
+                                         init = init_ft(),
+                                         model_type = "SIR_ft"))
+})
+
+# Reshape the data for plotting 
+# out_long_ft <- reactive({
+#   pivot_longer(out_ft(), c(S, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R")))
+# })
+
+# use out to create dS, dI, dR, and the per capita changes in population
+# pop_out_ft <- reactive({
+#   pop_out <- out_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+
+# pop_out_long_ft <- reactive({ 
+#   pop_out_ft() %>%
+#   select(time, dS, dI, dR) %>%
+#   pivot_longer(c(dS, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time ----------
+abund_plot_SIR_ft <- reactive({
+    plot_infectiousdisease_time(out_ft(), model_type = "SIR_ft")
+})
+
+
+
+# Plot S vs I ---------
+SIplot_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
+                                      x_axis = "S", y_axis = "I")  
+})
+
+# Plot I vs R --------------
+RIplot_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
+                                      x_axis = "R", y_axis = "I")  
+})
+
+# Plot S vs R ------------
+SRplot_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_ft(), 
+                                      x_axis = "S", y_axis = "R")  
+})
+
+# combine 2d plots -----
+SIR_2d_plots_ft <- reactive({
+  wrap_plots(SIplot_ft(), RIplot_ft(), SRplot_ft(), ncol = 3)
+})
+
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_SIR_ft <- reactive({
+  wrap_plots(abund_plot_SIR_ft(), 
+             # dabund_plot_SIR(), 
+             SIR_2d_plots_ft(), nrow = 2) 
+})
+
+
+```
+
+
+### SIS模型
+
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I) - mS - \beta \frac{SI}{N} + \gamma I\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I\\
+\end{align}
+\]
+
+```{r params SIS ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sis ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate; beta - infection rate; gamma - recovery rate
+    
+    sliderInput("m_sis_ft", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sis_ft", label = "感染率:",
+                min = 0, max = 1, value = .35, step = 0.01),
+    
+    sliderInput("gamma_sis_ft", label = "痊愈率:",
+                min = 0, max = 1, value = .1, step = 0.01),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sis_ft", label = "S起始种群规模",
+                 min = 0, value = 50),
+    numericInput("I0_sis_ft", label = "I起始种群规模", 
+                 min = 0, value = 20),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sis_ft", label = "模拟时长", 
+                 min = 10, value = 100)
+
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sis_ft()}, width = 600, height = 800))
+)
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_sis_ft <- reactive({c(S = input$S0_sis_ft, I = input$I0_sis_ft)})
+# Set the parameter values
+params_sis_ft <- reactive({
+  c(m = input$m_sis_ft, beta = input$beta_sis_ft, gamma = input$gamma_sis_ft)
+})
+# Time over which to simulate model dynamics
+time_sis_ft <- reactive({seq(0, input$time_sis_ft, by = .1)})
+
+# Simulate model dynamics 
+out_sis_ft <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_sis_ft(),
+                                         params = params_sis_ft(),
+                                         init = init_sis_ft(),
+                                         model_type = "SIS_ft"))
+})
+
+# Reshape the data so for plotting
+# out_long_sis_ft <- reactive({
+#   pivot_longer(out_sis_ft(), c(S, I), "group") %>% 
+#     mutate(group = factor(group, levels = c("S", "I")))
+# })
+
+# use out to create dS, dI, dR, and the per capita changes in population
+# pop_out_sis_ft <- reactive({
+#   pop_out <- out_sis_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% mutate(pgrS = dS/S, pgrI = dI/I)
+#   pop_out
+# })
+# 
+# pop_out_long_sis_ft <- reactive({
+#   pop_out_sis_ft() %>%
+#   select(time, dS, dI) %>%
+#   pivot_longer(c(dS, dI), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time ----------
+abund_plot_sis_ft <- reactive({
+  plot_infectiousdisease_time(out_sis_ft(), model_type = "SIS_ft")
+  # ggplot(out_long_sis_ft()) + 
+  #   geom_line(aes(x = time, y = value, color = group), size = 2) + 
+  #   scale_color_brewer(palette = "Set1") +
+  #   ylab("Population size")
+})
+
+
+# Plot S vs I ---------
+SIplot_sis_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sis_ft(), 
+                                      x_axis = "S", y_axis = "I")  
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sis_ft <- reactive({
+  wrap_plots(abund_plot_sis_ft(), 
+             # dabund_plot_sis(), 
+             SIplot_sis_ft(), nrow = 2) 
+})
+
+
+```
+
+
+### SEIR模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + E + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dE}{dt} &= \beta \frac{SI}{N} - aE - mE\\
+\frac{dI}{dt} &= aE - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + E + I + R)
+\end{align}
+\]
+
+```{r params SEIR ft, echo=F}
+pars_vars <- c("$S$", 
+               "$E$",
+               "$I$", 
+               "$R$", 
+               "$m$", 
+               "$\\beta$", 
+               "$a$",
+               "$\\gamma$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                  "潜伏期感染人群（exposed）规模",
+                 "（有传染性的）感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "潜伏期的倒数",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r seir ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #a - inverse of incubation period
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_seir_ft", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_seir_ft", label = "感染率:",
+                min = 0, max = 1, value = .35, step = 0.01),
+    
+    sliderInput("a_seir_ft", label = "潜伏期的倒数:",
+                min = 0, max = 1, value = 0.2, step = 0.01),
+    
+    sliderInput("gamma_seir_ft", label = "痊愈率:",
+                min = 0, max = 1, value = .1, step = 0.01),
+    
+    sliderInput("v_seir_ft", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_seir_ft", label = "S起始种群规模",
+                 min = 0, value = 50),
+    numericInput("E0_seir_ft", label = "E起始种群规模", 
+                 min = 0, value = 0),
+    numericInput("I0_seir_ft", label = "I起始种群规模", 
+                 min = 0, value = 20),
+    numericInput("R0_seir_ft", label = "R起始种群规模", 
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_seir_ft", label = "模拟时长", 
+                 min = 10, value = 100)
+
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_seir_ft()}, width = 600, height = 800))
+)
+
+
+# Run the simulation -------------------
+
+# Set the initial population sizes
+init_seir_ft <- reactive({
+  c(S = input$S0_seir_ft, E = input$E0_seir_ft, 
+    I = input$I0_seir_ft, R = input$R0_seir_ft)
+  })
+# Set the parameter values
+params_seir_ft <- reactive({
+  c(m = input$m_seir_ft, beta = input$beta_seir_ft, 
+    a = input$a_seir_ft, gamma = input$gamma_seir_ft, v = input$v_seir_ft)
+})
+# Time over which to simulate model dynamics
+time_seir_ft <- reactive({seq(0, input$time_seir_ft, by = .1)})
+
+# Simulate model dynamics 
+out_seir_ft <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_seir_ft(), 
+                                         params = params_seir_ft(),
+                                         init = init_seir_ft(), 
+                                         model_type = "SEIR_ft"))
+})
+
+# Reshape the data so that population sizes of both 
+# species are in one column, and an extra column to define
+# species name. This helps with the plotting...
+# out_long_seir_ft <- reactive({
+#   pivot_longer(out_seir_ft(), c(S, E, I, R), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "E", "I", "R")))
+# })
+
+# use out to create dS, dE, dI, dR, and the per capita changes in population
+# pop_out_seir_ft <- reactive({
+#   pop_out <- out_seir_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dE <- c(NA, diff(pop_out$E))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrE = dE/E, pgrI = dI/I, pgrR = dR/R)
+#   pop_out
+# })
+
+# pop_out_long_seir_ft <- reactive({ 
+#   pop_out_seir_ft() %>%
+#   select(time, dS, dE, dI, dR) %>%
+#   pivot_longer(c(dS, dE, dI, dR), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dE", "dI", "dR")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time ----------
+abund_plot_seir_ft <- reactive({
+  plot_infectiousdisease_time(out_seir_ft(), model_type = "SEIR_ft")
+})
+
+
+# Plot S vs E ---------
+SEplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "S", y_axis = "E")  
+})
+
+# Plot S vs I ---------
+SIplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "S", y_axis = "I")  
+})
+
+# Plot S vs R ---------
+SRplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "S", y_axis = "R")  
+})
+
+# Plot E vs I ---------
+EIplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "E", y_axis = "I")  
+})
+
+# Plot E vs R ---------
+ERplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "E", y_axis = "R")  
+})
+
+# Plot R vs I ---------
+RIplot_seir_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_seir_ft(), 
+                                      x_axis = "R", y_axis = "I")  
+})
+
+# combine 2d plots -----
+SEIR_2d_plots_ft <- reactive({
+  wrap_plots(SEplot_seir_ft(), SIplot_seir_ft(), SRplot_seir_ft(),
+             EIplot_seir_ft(), ERplot_seir_ft(), RIplot_seir_ft(), ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_seir_ft <- reactive({
+  wrap_plots(abund_plot_seir_ft(), 
+             # dabund_plot_seir(), 
+             SEIR_2d_plots_ft(), nrow = 2) 
+})
+```
+
+### SIRD模型
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta \frac{SI}{N}\\
+\frac{dI}{dt} &= \beta \frac{SI}{N} - mI - \gamma I - \mu I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} &= \mu I\\
+\end{align}
+\]
+
+```{r params SIRD ft, echo=F}
+pars_vars <- c("$S$", 
+               "$I$", 
+               "$R$", 
+               "$D$",
+               "$m$", 
+               "$\\beta$", 
+               "$\\gamma$",
+               "$\\mu$",
+               "$v$")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "疾病致死数量",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "疾病致死率",
+                 "新生儿接种疫苗率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r sird ft app, echo=FALSE}
+sidebarLayout(
+  
+  sidebarPanel(
+    
+    ### Ask user for parameter values ----
+    
+    #m - death/birth rate
+    #beta - infection rate
+    #mu - death rate due to infection
+    #gamma - recovery rate
+    #v - vaccination rate
+    
+    sliderInput("m_sird_ft", label = "出生/死亡率:",
+                min = 0, max = 1, value = .1, step = 0.1),
+    
+    sliderInput("beta_sird_ft", label = "感染率:",
+                min = 0, max = 1, value = .35, step = 0.01),
+    
+    sliderInput("gamma_sird_ft", label = "痊愈率:",
+                min = 0, max = 1, value = .1, step = 0.01),
+    
+    sliderInput("mu_sird_ft", label = "疾病致死率:",
+                min = 0, max = 1, value = 0.01, step = 0.01),
+    
+    sliderInput("v_sird_ft", label = "疫苗接种率:",
+                min = 0, max = 1, value = 0, step = 0.1),
+    
+    
+    ### Ask user for initial conditions ----
+    numericInput("S0_sird_ft", label = "S起始种群规模",
+                 min = 0, value = 50),
+    numericInput("I0_sird_ft", label = "I起始种群规模",
+                 min = 0, value = 20),
+    numericInput("R0_sird_ft", label = "R起始种群规模",
+                 min = 0, value = 0),
+    
+    ### Ask user for time to simulate ----
+    numericInput("time_sird_ft", label = "模拟时长", 
+                 min = 10, value = 100)
+  ),
+  
+  # Render plots -----------------
+  mainPanel(renderPlot({plots_to_render_sird_ft()}, width = 600, height = 800))
+)
+
+# Run the simulation -------------------
+# Set the initial population sizes
+init_sird_ft <- reactive({
+  c(S = input$S0_sird_ft, I = input$I0_sird_ft, R = input$R0_sird_ft, D = 0)
+  })
+# Set the parameter values
+params_sird_ft <- reactive({
+  c(m = input$m_sird_ft, beta = input$beta_sird_ft, 
+    mu = input$mu_sird_ft, gamma = input$gamma_sird_ft, v = input$v_sird_ft)
+})
+# Time over which to simulate model dynamics
+time_sird_ft <- reactive({seq(0, input$time_sird_ft, by = .1)})
+
+# Simulate model dynamics 
+out_sird_ft <- reactive({
+  data.frame(run_infectiousdisease_model(time = time_sird_ft(), 
+                                         params = params_sird_ft(),
+                                         init = init_sird_ft(),
+                                         model_type = "SIRD_ft"))
+})
+
+# Reshape the data for plotting
+# out_long_sird_ft <- reactive({
+#   pivot_longer(out_sird_ft(), c(S, I, R, D), "group") %>% 
+#   mutate(group = factor(group, levels = c("S", "I", "R", "D")))
+# })
+
+# use out to create dS, dD, dI, dR, and the per capita changes in population
+# pop_out_sird_ft <- reactive({
+#   pop_out <- out_sird_ft()
+#   pop_out$dS <- c(NA, diff(pop_out$S))
+#   pop_out$dI <- c(NA, diff(pop_out$I))
+#   pop_out$dR <- c(NA, diff(pop_out$R))
+#   pop_out$dD <- c(NA, diff(pop_out$D))
+#   # not using pgrs right now but could be useful to calculate
+#   pop_out <- pop_out %>% 
+#     mutate(pgrS = dS/S, pgrI = dI/I, pgrR = dR/R, pgrD = dD/D)
+#   pop_out
+# })
+
+# pop_out_long_sird_ft <- reactive({ 
+#   pop_out_sird_ft() %>%
+#   select(time, dS, dI, dR, dD) %>%
+#   pivot_longer(c(dS, dI, dR, dD), "group") %>%
+#   mutate(group = factor(group, levels = c("dS", "dI", "dR", "dD")))
+# })
+
+# Make plots --------------------
+# Plot abundance through time ----------
+abund_plot_sird_ft <- reactive({
+    plot_infectiousdisease_time(out_sird_ft(), model_type = "SIRD_ft")
+})
+
+
+# Plot S vs D ---------
+SDplot_sird_ft <- reactive({
+    plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                        x_axis = "S", y_axis = "D")
+  })
+
+# Plot S vs I ---------
+SIplot_sird_ft <- reactive({
+    plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                        x_axis = "S", y_axis = "I")
+  
+})
+
+# Plot S vs R ---------
+SRplot_sird_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                      x_axis = "S", y_axis = "R")
+})
+
+# Plot D vs I ---------
+DIplot_sird_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                      x_axis = "D", y_axis = "I")
+})
+
+# Plot D vs R ---------
+DRplot_sird_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                      x_axis = "D", y_axis = "R")
+})
+
+# Plot R vs I ---------
+RIplot_sird_ft <- reactive({
+  plot_infectiousdisease_portrait(sim_df = out_sird_ft(),
+                                      x_axis = "R", y_axis = "I")
+})
+
+# combine 2d plots -----
+SIRD_2d_plots_ft <- reactive({
+  wrap_plots(SIplot_sird_ft(), SRplot_sird_ft(), SDplot_sird_ft(),
+             RIplot_sird_ft(), DIplot_sird_ft(), DRplot_sird_ft(),  ncol = 3)
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+
+plots_to_render_sird_ft <- reactive({
+  wrap_plots(abund_plot_sird_ft(), 
+             # dabund_plot_sird(), 
+             SIRD_2d_plots_ft(), nrow = 2) 
+})
+```
+
+-------------
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
