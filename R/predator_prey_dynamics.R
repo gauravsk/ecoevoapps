@@ -186,7 +186,7 @@ run_predprey_model <- function(time, init, params) {
   # and if vector was supplied, check that it starts at t = 0
   if(length(time) == 1) {
     tmax <- time
-    time <- seq(0, tmax)
+    time <- seq(0, tmax, by = 0.1)
   } else if(time[1] != 0) {
     stop("The time vector should start at 0.")
   }
