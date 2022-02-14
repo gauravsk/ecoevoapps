@@ -1,5 +1,5 @@
 ---
-title: "Compartmental infectious disease models"
+title: "传染病仓室模型"
 output: html_document
 runtime: shiny
 ---
@@ -20,16 +20,15 @@ library(kableExtra)
 theme_set(ecoevoapps::theme_apps())
 ```
 
+此app展示了传染病学模型中的[仓室模型](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology)。这些模型被用于模拟疾病在各种群间的传播。这些种群由分属不同仓室的个体组成，比如易感人群，潜伏期的感染者，有症状的感染者，痊愈的患者，等等。基于不同的研究群体和传染病动态，不同模型可以包含不同的仓室。关于仓室模型的更多详情可见[维基百科](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) 或 [这篇论文](https://vtechworks.lib.vt.edu/bitstream/handle/10919/84993/ChildsIntroduction.pdf)。
 
-This app implements a category of models from epidemiology called [Compartment models](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology). These  models are designed to model the spread of diseases through populations that are made of individuals in different compartments, like individuals who are susceptible to the disease, exposed individuals, infected individuals, recovered individuals, etc. Different models can include different compartments, based on the population being studied and the dynamics of the infection. For more details on compartment models, please refer to the [Wikipedia page](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) or refer to [this paper](https://vtechworks.lib.vt.edu/bitstream/handle/10919/84993/ChildsIntroduction.pdf).
+## 密度制约型传染模型 {.tabset}
 
-## Models Assuming Density-Dependent Transmission {.tabset}
+以下所有模型都假设种群中的个体完全均匀混合，且感染率与易感人群和患者间的接触数量呈正比(即*疾病传播由密度制约* ，其速率为$\beta SI$).。
 
-All of the following disease models assume that infectious individuals mix homogeneously with other individuals in the population and that infections occur in direct proportion to the number of encounters between susceptible and infectious individuals (i.e., *disease transmission is density-dependent* and happens at rate $\beta SI$).
+*开放vs封闭种群:* 这里的所有模型都包含生命统计指标（如出生/死亡率），即为开放种群。这些模型假设死亡数=非疾病引起的死亡数。如果感染周期相对于个体寿命较短，这些生命统计指标可以忽略不计。如果模型不包含生命统计指标，那么模型描述的是封闭种群。可设置$m = 0$来运行不包含生命统计指标的模型。
 
-*Open versus closed populations:* All of the models here include vital rates (i.e., births/deaths), which is called an open population. They assume that the number of births = the number of non-disease-induced deaths. If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. Models that do not include vital rates are said to model a closed population. To run a model in this app without vital rates, set $m = 0$. 
-
-### SIR model
+### SIR模型
 
 \[
 \begin{align}
@@ -47,16 +46,16 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -72,28 +71,28 @@ sidebarLayout(
     # m - death/birth rate; beta - infection rate
     # gamma - recovery rate; v - vaccination rate
     
-    sliderInput("m", label = "Birth/Death rate:",
+    sliderInput("m", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta", label = "Infection rate:",
+    sliderInput("beta", label = "感染率:",
                 min = 0, max = 1, value = .01, step = 0.01),
     
-    sliderInput("gamma", label = "Recovery rate:",
+    sliderInput("gamma", label = "痊愈率:",
                 min = 0, max = 1, value = .2, step = 0.01),
     
-    sliderInput("v", label = "Vaccination rate:",
+    sliderInput("v", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     ### Ask user for initial conditions ----
-    numericInput("S0", label = "Initial population size of S", 
+    numericInput("S0", label = "S起始种群规模", 
                  min = 0, value = 100),
-    numericInput("I0", label = "Initial population size of I",
+    numericInput("I0", label = "I起始种群规模",
                  min = 0, value = 1),
-    numericInput("R0", label = "Initial population size of R", 
+    numericInput("R0", label = "R起始种群规模", 
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time", label = "模拟时长", min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -187,7 +186,7 @@ plots_to_render_SIR <- reactive({
 ```
 
 
-### SIS model
+### SIS模型
 
 
 \[
@@ -204,15 +203,15 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群规模",
+                 "感染人群规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -228,23 +227,23 @@ sidebarLayout(
     
     # m - death/birth rate; beta - infection rate; gamma - recovery rate
     
-    sliderInput("m_sis", label = "Birth/Death rate:",
+    sliderInput("m_sis", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_sis", label = "Infection rate:",
+    sliderInput("beta_sis", label = "感染率:",
                 min = 0, max = 1, value = .01, step = 0.01),
     
-    sliderInput("gamma_sis", label = "Recovery rate:",
+    sliderInput("gamma_sis", label = "痊愈率:",
                 min = 0, max = 1, value = .2, step = 0.01),
   
     ### Ask user for initial conditions ----
-    numericInput("S0_sis", label = "Initial population size of S", 
+    numericInput("S0_sis", label = "S起始种群规模", 
                  min = 0, value = 100),
-    numericInput("I0_sis", label = "Initial population size of I", 
+    numericInput("I0_sis", label = "I起始种群规模", 
                  min = 0, value = 1),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sis", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_sis", label = "模拟时长", min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -317,7 +316,7 @@ plots_to_render_sis <- reactive({
 ```
 
 
-### SEIR model
+### SEIR模型
 
 \[
 \begin{align}
@@ -338,18 +337,18 @@ pars_vars <- c("$S$",
                "$a$",
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                  "Population size of exposed (not yet infectious) individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Inverse of incubation period",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                  "潜伏期感染人群（exposed）规模",
+                 "（有传染性的）感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "潜伏期的倒数",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -366,34 +365,34 @@ sidebarLayout(
     #m - death/birth rate; beta - infection rate; a - inverse of incubation period
     #gamma - recovery rate; v - vaccination rate
     
-    sliderInput("m_seir", label = "Birth/Death rate:",
+    sliderInput("m_seir", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_seir", label = "Infection rate:",
+    sliderInput("beta_seir", label = "感染率:",
                 min = 0, max = 1, value = .01, step = 0.01),
     
-    sliderInput("a_seir", label = "Inverse of incubation period:",
+    sliderInput("a_seir", label = "潜伏期的倒数:",
                 min = 0, max = 1, value = 0.05, step = 0.01),
     
-    sliderInput("gamma_seir", label = "Recovery rate:",
+    sliderInput("gamma_seir", label = "痊愈率:",
                 min = 0, max = 1, value = .2, step = 0.01),
     
-    sliderInput("v_seir", label = "Vaccination rate:",
+    sliderInput("v_seir", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_seir", label = "Initial population size of S",
+    numericInput("S0_seir", label = "S起始种群规模",
                  min = 0, value = 100),
-    numericInput("E0_seir", label = "Initial population size of E", 
+    numericInput("E0_seir", label = "E起始种群规模", 
                  min = 0, value = 0),
-    numericInput("I0_seir", label = "Initial population size of I", 
+    numericInput("I0_seir", label = "I起始种群规模", 
                  min = 0, value = 1),
-    numericInput("R0_seir", label = "Initial population size of R", 
+    numericInput("R0_seir", label = "R起始种群规模", 
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_seir", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_seir", label = "模拟时长", min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -515,7 +514,7 @@ plots_to_render_seir <- reactive({
 
 ```
 
-### SIRD model
+### SIRD模型
 
 \[
 \begin{align}
@@ -536,18 +535,18 @@ pars_vars <- c("$S$",
                "$\\gamma$",
                "$\\mu$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Number of individuals who die due to infection",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Death rate from infection",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群（susceptible）规模",
+                 "感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "疾病致死数量",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "疾病致死率",
+                 "新生儿疫苗接种率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -562,34 +561,34 @@ sidebarLayout(
     #m - death/birth rate; beta - infection rate; mu - death rate due to infection
     #gamma - recovery rate; v - vaccination rate
     
-    sliderInput("m_sird", label = "Birth/Death rate:",
+    sliderInput("m_sird", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_sird", label = "Infection rate:",
+    sliderInput("beta_sird", label = "感染率:",
                 min = 0, max = 1, value = .01, step = 0.01),
     
-    sliderInput("gamma_sird", label = "Recovery rate:",
+    sliderInput("gamma_sird", label = "痊愈率:",
                 min = 0, max = 1, value = .2, step = 0.01),
     
-    sliderInput("mu_sird", label = "Death rate due to infection:",
+    sliderInput("mu_sird", label = "疾病致死率:",
                 min = 0, max = 1, value = 0.05, step = 0.01),
     
-    sliderInput("v_sird", label = "Vaccination rate:",
+    sliderInput("v_sird", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sird", label = "Initial population size of S",
+    numericInput("S0_sird", label = "S起始种群规模",
                  min = 0, value = 100),
-    numericInput("I0_sird", label = "Initial population size of I",
+    numericInput("I0_sird", label = "I起始种群规模",
                  min = 0, value = 1),
-    numericInput("R0_sird", label = "Initial population size of R",
+    numericInput("R0_sird", label = "R起始种群规模",
                  min = 0, value = 0),
-    numericInput("D0_sird", label = "Initial population size of D",
+    numericInput("D0_sird", label = "D起始种群规模",
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sird", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_sird", label = "模拟时长", min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -712,13 +711,12 @@ plots_to_render_sird <- reactive({
 
 
 
-## Models Assuming Frequency-Dependent Transmission {.tabset}
+## 频率制约传染模型 {.tabset}
+以下所有传染病模型都假设疾病传播取决于易感人群在种群中的比例，而不是绝对数量。因此，疾病以速率$\beta \frac{SI}{N}$传播，而不是$\beta SI$。
 
-All of the following disease models assume that disease transmission depends on the frequency of susceptible individuals in the population as opposed to the absolute number of susceptible individuals. Thus, the disease is transmitted at rate $\beta \frac{SI}{N}$ instead of $\beta SI$.
+*开放vs封闭种群:* 这里的所有模型都包含生命统计指标（如出生/死亡率），即为开放种群。这些模型假设死亡数=非疾病引起的死亡数。如果感染周期相对于个体寿命较短，这些生命统计指标可以忽略不计。如果模型不包含生命统计指标，那么模型描述的是封闭种群。可设置$m = 0$来运行不包含生命统计指标的模型。
 
-*Open versus closed populations:* All of the models here include vital rates (i.e., births/deaths), which is called an open population. They assume that the number of births = the number of non-disease-induced deaths. If the course of the infection is short relative to individual lifespan, the vital rates can be ignored. Models that do not include vital rates are said to model a closed population. To run a model in this app without vital rates, set $m = 0$. 
-
-### SIR model
+### SIR模型
 
 \[
 \begin{align}
@@ -736,16 +734,16 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -761,28 +759,28 @@ sidebarLayout(
     #m - death/birth rate; beta - infection rate
     #gamma - recovery rate; v - vaccination rate
     
-    sliderInput("m_ft", label = "Birth/Death rate:",
+    sliderInput("m_ft", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_ft", label = "Infection rate:",
+    sliderInput("beta_ft", label = "感染率:",
                 min = 0, max = 1, value = .2, step = 0.01),
     
-    sliderInput("gamma_ft", label = "Recovery rate:",
+    sliderInput("gamma_ft", label = "痊愈率:",
                 min = 0, max = 1, value = .1, step = 0.01),
     
-    sliderInput("v_ft", label = "Vaccination rate:",
+    sliderInput("v_ft", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     ### Ask user for initial conditions ----
-    numericInput("S0_ft", label = "Initial population size of S", 
+    numericInput("S0_ft", label = "S起始种群规模", 
                  min = 0, value = 50),
-    numericInput("I0_ft", label = "Initial population size of I",
+    numericInput("I0_ft", label = "I起始种群规模",
                  min = 0, value = 20),
-    numericInput("R0_ft", label = "Initial population size of R",
+    numericInput("R0_ft", label = "R起始种群规模",
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_ft", label = "Time to simulate", min = 10, value = 100)
+    numericInput("time_ft", label = "模拟时长", min = 10, value = 100)
   ),
   
   # Render plots -----------------
@@ -880,7 +878,7 @@ plots_to_render_SIR_ft <- reactive({
 ```
 
 
-### SIS model
+### SIS模型
 
 
 \[
@@ -897,15 +895,15 @@ pars_vars <- c("$S$",
                "$\\beta$", 
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "新生儿接种疫苗率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -921,24 +919,24 @@ sidebarLayout(
     
     #m - death/birth rate; beta - infection rate; gamma - recovery rate
     
-    sliderInput("m_sis_ft", label = "Birth/Death rate:",
+    sliderInput("m_sis_ft", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_sis_ft", label = "Infection rate:",
+    sliderInput("beta_sis_ft", label = "感染率:",
                 min = 0, max = 1, value = .35, step = 0.01),
     
-    sliderInput("gamma_sis_ft", label = "Recovery rate:",
+    sliderInput("gamma_sis_ft", label = "痊愈率:",
                 min = 0, max = 1, value = .1, step = 0.01),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sis_ft", label = "Initial population size of S",
+    numericInput("S0_sis_ft", label = "S起始种群规模",
                  min = 0, value = 50),
-    numericInput("I0_sis_ft", label = "Initial population size of I", 
+    numericInput("I0_sis_ft", label = "I起始种群规模", 
                  min = 0, value = 20),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sis_ft", label = "Time to simulate", 
+    numericInput("time_sis_ft", label = "模拟时长", 
                  min = 10, value = 100)
 
   ),
@@ -1018,7 +1016,7 @@ plots_to_render_sis_ft <- reactive({
 ```
 
 
-### SEIR model
+### SEIR模型
 
 \[
 \begin{align}
@@ -1039,18 +1037,18 @@ pars_vars <- c("$S$",
                "$a$",
                "$\\gamma$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                  "Population size of exposed (not yet infectious) individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Inverse of incubation period",
-                 "Recovery rate",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                  "潜伏期感染人群（exposed）规模",
+                 "（有传染性的）感染人群（infectious）规模",
+                 "痊愈人群（recovered）规模",
+                 "出生/死亡率",
+                 "感染率",
+                 "潜伏期的倒数",
+                 "痊愈率",
+                 "新生儿疫苗接种率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -1070,34 +1068,34 @@ sidebarLayout(
     #gamma - recovery rate
     #v - vaccination rate
     
-    sliderInput("m_seir_ft", label = "Birth/Death rate:",
+    sliderInput("m_seir_ft", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_seir_ft", label = "Infection rate:",
+    sliderInput("beta_seir_ft", label = "感染率:",
                 min = 0, max = 1, value = .35, step = 0.01),
     
-    sliderInput("a_seir_ft", label = "Inverse of incubation period:",
+    sliderInput("a_seir_ft", label = "潜伏期的倒数:",
                 min = 0, max = 1, value = 0.2, step = 0.01),
     
-    sliderInput("gamma_seir_ft", label = "Recovery rate:",
+    sliderInput("gamma_seir_ft", label = "痊愈率:",
                 min = 0, max = 1, value = .1, step = 0.01),
     
-    sliderInput("v_seir_ft", label = "Vaccination rate:",
+    sliderInput("v_seir_ft", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_seir_ft", label = "Initial population size of S",
+    numericInput("S0_seir_ft", label = "S起始种群规模",
                  min = 0, value = 50),
-    numericInput("E0_seir_ft", label = "Initial population size of E", 
+    numericInput("E0_seir_ft", label = "E起始种群规模", 
                  min = 0, value = 0),
-    numericInput("I0_seir_ft", label = "Initial population size of I", 
+    numericInput("I0_seir_ft", label = "I起始种群规模", 
                  min = 0, value = 20),
-    numericInput("R0_seir_ft", label = "Initial population size of R", 
+    numericInput("R0_seir_ft", label = "R起始种群规模", 
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_seir_ft", label = "Time to simulate", 
+    numericInput("time_seir_ft", label = "模拟时长", 
                  min = 10, value = 100)
 
   ),
@@ -1216,7 +1214,7 @@ plots_to_render_seir_ft <- reactive({
 })
 ```
 
-### SIRD model
+### SIRD模型
 
 \[
 \begin{align}
@@ -1237,18 +1235,18 @@ pars_vars <- c("$S$",
                "$\\gamma$",
                "$\\mu$",
                "$v$")
-descriptions <- c("Population size of susceptible individuals",
-                 "Population size of infectious individuals",
-                 "Population size of recovered individuals",
-                 "Number of individuals who die due to infection",
-                 "Birth/death rate",
-                 "Infection rate",
-                 "Recovery rate",
-                 "Death rate from infection",
-                 "Newborn vaccination rate")
+descriptions <- c("易感人群(susceptible)规模",
+                 "感染人群(infectious)规模",
+                 "痊愈人群(recovered)规模",
+                 "疾病致死数量",
+                 "出生/死亡率",
+                 "感染率",
+                 "痊愈率",
+                 "疾病致死率",
+                 "新生儿接种疫苗率")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("参数/变量", "描述")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
@@ -1268,32 +1266,32 @@ sidebarLayout(
     #gamma - recovery rate
     #v - vaccination rate
     
-    sliderInput("m_sird_ft", label = "Birth/Death rate:",
+    sliderInput("m_sird_ft", label = "出生/死亡率:",
                 min = 0, max = 1, value = .1, step = 0.1),
     
-    sliderInput("beta_sird_ft", label = "Infection rate:",
+    sliderInput("beta_sird_ft", label = "感染率:",
                 min = 0, max = 1, value = .35, step = 0.01),
     
-    sliderInput("gamma_sird_ft", label = "Recovery rate:",
+    sliderInput("gamma_sird_ft", label = "痊愈率:",
                 min = 0, max = 1, value = .1, step = 0.01),
     
-    sliderInput("mu_sird_ft", label = "Death rate due to infection:",
+    sliderInput("mu_sird_ft", label = "疾病致死率:",
                 min = 0, max = 1, value = 0.01, step = 0.01),
     
-    sliderInput("v_sird_ft", label = "Vaccination rate:",
+    sliderInput("v_sird_ft", label = "疫苗接种率:",
                 min = 0, max = 1, value = 0, step = 0.1),
     
     
     ### Ask user for initial conditions ----
-    numericInput("S0_sird_ft", label = "Initial population size of S",
+    numericInput("S0_sird_ft", label = "S起始种群规模",
                  min = 0, value = 50),
-    numericInput("I0_sird_ft", label = "Initial population size of I",
+    numericInput("I0_sird_ft", label = "I起始种群规模",
                  min = 0, value = 20),
-    numericInput("R0_sird_ft", label = "Initial population size of R",
+    numericInput("R0_sird_ft", label = "R起始种群规模",
                  min = 0, value = 0),
     
     ### Ask user for time to simulate ----
-    numericInput("time_sird_ft", label = "Time to simulate", 
+    numericInput("time_sird_ft", label = "模拟时长", 
                  min = 10, value = 100)
   ),
   

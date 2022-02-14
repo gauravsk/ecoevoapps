@@ -1,0 +1,205 @@
+---
+title: "结构式种群"
+output: html_document
+runtime: shiny
+---
+
+```{r, include = F}
+# Set default parameters for R chunks in Rmd
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# Load the ecoevoapps package
+library(ecoevoapps)
+```
+
+一些种群适合表示为一系列处于不同年龄级、或不同大小等级的个体([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/))。这类结构式种群的增长率取决于一个等级向另一个等级过渡的速率。例如，幼体期至成体期的存活率可能不同于成体期至更大龄级的存活率。我们可以用一个年龄（或阶段）等级至下一个等级的*存活率*，以及各年龄（或阶段）通过*繁殖*对于种群增长的贡献，来模拟此类种群的动态。
+
+通过调整这些存活率的数值，我们可以得知哪些年龄（或阶段）间的过渡对于整个种群的增长最为重要（灵敏度分析）。
+
+### Leslie（莱斯利）矩阵
+[Leslie矩阵](https://en.wikipedia.org/wiki/Leslie_matrix) 是系统整理龄组过渡率（生存和繁殖）的一个有效方法。Leslie 矩阵是一个NxN的矩阵，其中N是种群周期中年龄等级的数量。我们可以从矩阵的元素得知各*列*龄级中的个体如何过渡至各*行*代表的龄级。例如，矩阵第一行第二列的元素表示了龄级2向龄级1的过渡。
+
+除了可以方便地整理存活率和繁殖率信息，此矩阵还有三个重要属性：
+
+1. 如要模拟种群在下一个时间点（时间$t+1$）的状态，只要将Leslie矩阵乘以一个代表初始种群规模（在时间$t$）的矩阵。
+
+2. Leslie矩阵的最大特征值$\lambda$是整个种群的渐近增长率。当$\lambda < 1$，种群衰退直至灭绝；当$\lambda > 1$，种群呈指数型增长；当$\lambda = 1$, 种群大小不随时间变化。
+
+3. 矩阵最大特征值所对应的特征向量代表了种群的稳定结构，即种群达到平衡后各年龄级的比例。
+
+
+#### 使用下文的app来探索结构式种群的属性：
+
+```{r}
+
+### APP
+fluidPage(
+  ## INPUT
+  sidebarPanel(
+      
+    # Initial sizes
+    numericInput(inputId = "N1",
+                  label = "龄级1的初始个体数量",
+                  min = 0,
+                  max = NA,
+                  value = 100),
+    numericInput(inputId = "N2",
+                   label = "龄级2的初始个体数量",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+    numericInput(inputId = "N3",
+                   label = "龄级3的初始个体数量",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+      
+    # Leslie matrix
+    numericInput(inputId = "F1",
+                  label = "龄级1的繁殖率",
+                  min = 0,
+                  max = NA,
+                  value = 0),
+    numericInput(inputId = "F2",
+                  label = "龄级2的繁殖率",
+                  min = 0,
+                  max = NA,
+                  value = 8),          
+    numericInput(inputId = "F3",
+                  label = "龄级3的繁殖率",
+                  min = 0,
+                  max = NA,
+                  value = 1),
+    sliderInput(inputId = "S12",
+                  label = "龄级1至龄级2的存活率(%)",
+                  min = 1,
+                  max = 100,
+                  value = 40),
+    sliderInput(inputId = "S23",
+                  label = "龄级2至龄级3的存活率 (%)",
+                  min = 0,
+                  max = 100,
+                  value = 80),
+    width=4),
+  
+  ## OUTPUT
+  mainPanel(
+  tabsetPanel(type = "pills",
+              tabPanel("种群示意图和Leslie矩阵",
+                       renderPlot({ diagr() }, width = 500),
+                       br(),
+                       column(width = 5,
+                              style='border-right: 0.02px solid grey',
+                              br(),
+                              h4("Leslie矩阵"),
+                              renderTable({ Leslie_to_print() })),
+                       column(width = 7,
+                              h4("特征值分析"),
+                              em(strong("种群渐近增长率(lambda)")),
+                              renderText({ eigenval() }),
+                              br(), # br(), br(),
+                              em(strong("种群稳定结构")),
+                              renderTable({ eigenvec() })
+                       )),
+              tabPanel("种群轨迹",
+                       h4("种群各龄级的轨迹"),
+                       renderPlot({ plot_pop_trajectory() }),
+                       h4("龄级分布的轨迹"),
+                       renderPlot({ plot_pop_agedist() }),
+                       h4("种群整体增长率的轨迹"),
+                       renderPlot({ plot_pop_lambda() }))
+  )
+  )
+)
+
+
+## Leslie matrix
+Leslie_matrix <- reactive({
+  matrix(
+      c(input$F1,input$F2, input$F3,
+        input$S12/100,0,0,
+        0, input$S23/100,0),
+      ncol = 3, byrow = T
+      )
+  })
+
+Leslie_to_print <- reactive({
+  ll <- Leslie_matrix()
+  colnames(ll) <- paste("龄级",1:3)
+  ll
+})
+
+init <- reactive({
+  c(input$N1,input$N2,input$N3)
+})
+
+## Largest eigenvalue
+eigenval <- reactive({
+  paste0("Leslie矩阵的最大特征值 = ",round(eigen(Leslie_matrix())$values,2)[1])
+  })
+
+## Eigenvector corresponding to largest eigenvalue
+tmp <- reactive({
+  round(eigen(Leslie_matrix())$vectors[,1]*100/
+          sum(eigen(Leslie_matrix())$vectors[,1]))
+})
+
+eigenvec <- reactive({
+  matrix(
+    c("特征向量", round(eigen(Leslie_matrix())$vectors[,1],2),
+      "%", tmp()[1], tmp()[2], tmp()[3]),
+    ncol=4, byrow=T,
+    dimnames = list(NULL, c(" ","龄级1","龄级2", "龄级3"))
+  )
+})
+
+
+diagr <- reactive({ 
+  plot_leslie_diagram(Leslie_matrix())
+  })
+
+# Simulation plots
+
+pop_trajectory <- reactive({
+  ecoevoapps::run_structured_population_simulation(leslie_mat = Leslie_matrix(), init = init(), time = 1000)
+})
+
+plot_pop_trajectory <- reactive({
+  ecoevoapps::plot_structured_population_size(pop_trajectory()) +
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13))
+})
+
+plot_pop_agedist <- reactive({
+  ecoevoapps::plot_structured_population_agedist(pop_trajectory(), 
+                                                 leslie_mat = Leslie_matrix())+
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13),
+          plot.caption = element_text(size = 13))
+})
+
+plot_pop_lambda <- reactive({
+  plot_structured_population_lambda(pop_trajectory(), 
+                                    leslie_mat = Leslie_matrix()) +
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13),
+          plot.caption = element_text(size = 13))
+})
+
+# plots <- reactive({
+#   plot_pop_trajectory() + plot_pop_agedist() + plot_pop_lambda() + guide_area() +
+#     plot_layout(guides = "collect")
+# })
+
+```
+
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
