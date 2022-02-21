@@ -1,0 +1,249 @@
+---
+title: "共有生物资源的竞争"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(deSolve)
+library(ecoevoapps)
+library(patchwork)
+library(RColorBrewer)
+library(kableExtra)
+
+biotic_competition <- function(time, init, params) {
+  with (as.list(c(time, init, params)), {
+    # description of parameters:
+    # r = per capita growth rate (prey)
+    # q = 1/prey carrying capacity
+    # a = attack rate
+    # T_h = handling time
+    # e = conversion efficiency
+    # d = predator death rate
+
+    dH_dt = r*H*(1 - q*H) - (a1*H*P1)/(1 + a1*T_h1*H) - (a2*H*P2)/(1 + a2*T_h2*H)
+    dP1_dt = e1*(a1*H*P1)/(1 + a1*T_h1*H) - d1*P1
+    dP2_dt = e2*(a2*H*P2)/(1 + a2*T_h2*H) - d2*P2
+    return(list(c(dH = dH_dt, dP1 = dP1_dt, dP2 = dP2_dt)))
+
+  })
+}
+
+run_biotic_competition_model <- function(time, init, params) {
+  deSolve::ode(func = biotic_competition,
+                y = init, times = time, parms = params)
+}
+
+
+```
+
+这个app模拟了依赖同一个资源物种($H$)的两个消费者物种($P_1$ and $P_2$)之间的动态。$P_1$的增长会抑制资源$H$，进而降低$P2$的生长率，因此我们可以间接地描述两个消费者物种之间的资源竞争。
+
+即使这个简单易懂的场景也可以用多种模型表示。比如在没有消费者的情况下，资源物种$H$可以呈指数型（种群增长无自然限制）、也可以呈逻辑斯蒂型增长。
+
+这些模型也可以考虑资源密度和消费者摄入率之间不同的函数。这种函数被称作[功能反应](https://en.wikipedia.org/wiki/Functional_response), 此处我们考虑其两种形式。首先，我们考虑“I类功能反应"，即消费者摄入资源率是资源密度的线性函数。第二种函数为“II类功能反应"，即摄入资源是资源密度的饱和函数。II类功能反应这个概念是由C.S. Holling在其1959的研究论文"[Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)"中提出的。
+
+以下一系列方程描述了该模型最复杂的形式:  
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \bigl(1-qH\bigr) - \frac{a_1HP_1}{1+a_1T_{h1}H} - \frac{a_2HP_2}{1+a_2T_{h2}H} \\
+\\
+\frac{dP_1}{dt} &= e_{1} \frac{a_1HP_1}{1+a_1T_{h1}H} - d_1P_1
+\\
+\\
+\frac{dP2}{dt} &= e_2 \frac{a_2HP_2}{1+a_2T_{h2}H} - d_2P_2
+\end{align}
+\]
+
+
+```{r parameter descriptions, echo=F}
+pars_vars <- c("$H$", 
+               "$P_i$", 
+               "$r$", 
+               "$q$", 
+               "$a_i$", 
+               "$T_{h_i}$", 
+               "$e_i$", 
+               "$d_i$")
+descriptions <- c("猎物种群规模",
+                 "捕食者$i$种群规模",
+                 "猎物人均生长率",
+                 "猎物人均自我限制",
+                 "捕食者$i$的猎食率",
+                 "捕食者$i$处理猎物的时间",
+                 "捕食者$i$营养转化效率",
+                 "捕食者$i$死亡率")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+- 当$q =0$, 猎物呈指数型增长。当$q>0$，则猎物呈逻辑斯蒂型增长，其环境承载力$K = \frac{1}{q}$.  
+- 当$T_{h_{i}} = 0$时, 捕食者$i$呈I型功能反应。  
+
+```{r, echo=FALSE}
+wellPanel(
+  fluidRow(
+    column(4, 
+           ### Ask users for parameter values ----
+           ## start with Prey params
+           numericInput("H", label = "猎物起始种群规模", min = 1, value = 30),
+           sliderInput("r", label = "猎物人均增长率(r)", min = .0001, max = 1.0, value = .2),
+           sliderInput("q", label = "猎物自我限制率(q)", min = 0, max = 0.10, step = 0.0001, value = .0066),
+           br(),
+           hr(),
+           numericInput("t", label = "模拟时长", min = 1, value = 1000),
+           checkboxGroupInput("fxnrep", 
+                              label = "显示功能反应的函数图像?",
+                              choices = c("Yes" = "Yes"),
+                              selected = NULL)
+           
+    ),
+    
+    column(4,
+           ## now pred1 params + initial conditions
+           numericInput("P1", label = "捕食者1的起始种群规模", min = 1, value = 25),
+           sliderInput("a1", label = "捕食者1的猎食率(a1)", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h1", label = "捕食者1处理猎物的时间(Th_1)", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e1", label = "捕食者1的营养转化效率(e1)", min = .001, max = 1.0, value = 0.4),
+           sliderInput("d1", label = "捕食者1的人均死亡率", min = .0001, max = 1.0, value = .1)
+    ),
+    
+    column(4,
+           ## now pred2 params + initial conditions
+           numericInput("P2", label = "捕食者2的起始种群规模", min = 1, value = 25),
+           sliderInput("a2", label = "捕食者2的猎食率(a2)", min = .001, max = 1.0, value = .02),
+           sliderInput("T_h2", label = "捕食者2处理猎物的时间(Th_2)", min = 0, max = 1.0, value = 0.1),
+           sliderInput("e2", label = "捕食者2的营养转化效率(e2)", min = .001, max = 1.0, value = 0.39),
+           sliderInput("d2", label = "捕食者2的人均死亡率(d2)", min = .0001, max = 1.0, value = .1)
+    )
+  ))
+
+
+fluidRow(
+  column(12,
+         renderPlot(plots_to_print())
+  ))
+
+
+# Set the initial population sizes
+
+init <- reactive({c(H = input$H , P1 = input$P1, P2 = input$P2)})
+
+# Set the parameter values
+
+# description of parameters:
+# r = per capita growth rate (prey)
+# a = attack rate 
+# T_h = handling time
+# e = conversion efficiency
+# d = predator death rate 
+
+params <- reactive({c(r = input$r, q = input$q,
+                      a1 = input$a1, T_h1 = input$T_h1, 
+                      e1 = input$e1, d1 = input$d1, 
+                      a2 = input$a2, T_h2 = input$T_h2, 
+                      e2 = input$e2, d2 = input$d2)})
+
+# Time over which to simulate model dynamics
+time <- reactive({seq(0,input$t,by = .1)})
+
+
+
+# Simulate the dynamics
+out <- reactive({
+  data.frame(run_biotic_competition_model(time = time(), 
+                                                      init = init(), 
+                                                      params = params()))
+})
+  
+# Reshape the data for plotting
+out_long <- reactive({
+  pivot_longer(out(), c(H, P1, P2), "Population")
+})
+
+
+# Plots --------
+## abundance through time
+abund_plot <- reactive({
+  ggplot(out_long()) + 
+  geom_line(aes(x = time, y = value, color = Population), size = 2) + 
+  scale_color_brewer(palette = "Set1") +
+  ylab("Population size") +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) + 
+      ecoevoapps::theme_apps()
+})
+
+## functional responses of sp1 and sp2
+
+fr_df <- reactive({
+  fr_df <- data.frame(prey = 1:2000)
+  fr_df <- fr_df %>% mutate(y1 = (input$a1 * prey)/(1 + input$a1 * input$T_h1 * prey),
+                            y2 = (input$a2 * prey)/(1 + input$a2 * input$T_h2 * prey))
+  fr_df
+})
+
+plot_fxnrep_sp1 <- reactive({
+  if("Yes" %in% input$fxnrep){
+    ggplot(fr_df(), aes(x = prey, y = y1)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) + 
+      ecoevoapps::theme_apps()
+  }
+})
+
+plot_fxnrep_sp2 <- reactive({
+  if("Yes" %in% input$fxnrep){
+    ggplot(fr_df(), aes(x = prey, y = y2)) +
+      geom_path(col = brewer.pal(n = 3, name = "Set1")[3], size = 2) +
+      xlab("Prey Density") +
+      ylab("Prey Consumed \nper Predator") +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) + 
+      ecoevoapps::theme_apps()
+  }
+})
+
+plot_fxnreps <- reactive({
+  if("Yes" %in% input$fxnrep){
+  wrap_plots(plot_fxnrep_sp1(), plot_fxnrep_sp2(), nrow = 2)
+  }
+})
+
+# Make a list of plots and print out plots based on which ones were requested ----
+plots_to_print <- reactive({
+  if("Yes" %in% input$fxnrep){
+    wrap_plots(abund_plot(), plot_fxnreps(), design = "AAB")
+  } else {
+    wrap_plots(abund_plot(), ncol = 1)
+  }
+  
+})
+
+   
+```
+
+## 参考文献
+
+- Armstrong and McGeehee, 1976. [Coexistence of species competing for shared resources](http://www-users.math.umn.edu/~mcgehee/publications/Armstrong1976b/Armstrong1976TheorPopBio9p317.pdf). Theoretical Population Biology.  
+- Armstrong and McGeehee, 1980. [Competitive Exclusion](https://www.journals.uchicago.edu/doi/10.1086/283553). The American Naturalist.   
+- Chesson, 1990. [MacArthur’s consumer–resource model](http://eebweb.arizona.edu/Faculty/chesson/Peter/Reprints/1990_MacArthur%27s%20consumer-resource%20model.pdf) Theoretical Population Biology.   
+- Chesson and Kuang, 2008.  [The interaction between predation and competition.](https://www.nature.com/articles/nature07248) Nature. 
+
+-------
+
+App maintained by Maddi Cowen (mcowen@g.ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)
