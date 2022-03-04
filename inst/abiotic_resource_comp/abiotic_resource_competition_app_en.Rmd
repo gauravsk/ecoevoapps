@@ -4,6 +4,9 @@ output: html_document
 runtime: shiny
 ---
 
+***[中文](https://ecoevoapps.shinyapps.io/abiotic_resource_competition_ch) |  [Español](https://ecoevoapps.shinyapps.io/abiotic_resource_competition_es) | English |   [Turkish](https://ecoevoapps.shinyapps.io/abiotic_resource_competition_tr)  ***
+
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyr)
