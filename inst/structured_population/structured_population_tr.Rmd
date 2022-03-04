@@ -4,6 +4,9 @@ output: html_document
 runtime: shiny
 ---
 
+***[中文](https://ecoevoapps.shinyapps.io/structured_population_dynamics_ch/) | [English](https://ecoevoapps.shinyapps.io/structured_population_dynamics/) | Turkish ***
+
+
 ```{r, include = F}
 # Set default parameters for R chunks in Rmd
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
