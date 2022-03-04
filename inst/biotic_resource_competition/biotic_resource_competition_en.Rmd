@@ -4,6 +4,10 @@ output: html_document
 runtime: shiny
 ---
 
+
+***[中文](https://ecoevoapps.shinyapps.io/biotic_resource_competition_ch) |  English | [Turkish](https://ecoevoapps.shinyapps.io/biotic_resource_competition_tr)  ***
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -245,6 +249,10 @@ plots_to_print <- reactive({
 - Chesson, 1990. [MacArthur’s consumer–resource model](http://eebweb.arizona.edu/Faculty/chesson/Peter/Reprints/1990_MacArthur%27s%20consumer-resource%20model.pdf) Theoretical Population Biology.   
 - Chesson and Kuang, 2008.  [The interaction between predation and competition.](https://www.nature.com/articles/nature07248) Nature. 
 
--------
+-------------
 
-App maintained by Maddi Cowen (mcowen@g.ucla.edu) and Rosa McGuire (rmcguire1@ucla.edu)
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
+
