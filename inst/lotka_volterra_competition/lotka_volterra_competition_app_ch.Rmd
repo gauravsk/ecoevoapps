@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)** | Turkish | português *
+***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/) | [Turkish](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_tr/) ***
 
 
 ```{r setup, include=FALSE}
@@ -353,6 +353,9 @@ plots_to_print_wo_K <- reactive({
 
 - Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Note: this paper focuses on predator-prey models rather than species competition, but it presents a clear explanation of the concept of zero net-growth isoclines.*
 
-------------
+-------------
 
-App maintained by Kenji Hayashi (kthayashi@ucla.edu)
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```

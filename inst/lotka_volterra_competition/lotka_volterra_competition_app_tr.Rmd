@@ -4,7 +4,8 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | English ** | Turkish | português*
+
+***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition) |  Turkish ***
 
 
 ```{r setup, include=FALSE}
@@ -357,6 +358,9 @@ plots_to_print_wo_K <- reactive({
 
 - Rosenzweig and MacArthur, 1963. [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.jstor.org/stable/2458702?seq=1). The American Naturalist. *Not: bu makale türler arası rekabetten ziyade avcı ve av modellerine odaklanır fakat sabit durum eşegim çizgileri üzerine açıklamalar içerir.*
 
-------------
+-------------
 
-App maintained by Kenji Hayashi (kthayashi@ucla.edu)
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
