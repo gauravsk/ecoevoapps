@@ -112,7 +112,7 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
   if(length(init) != 4) stop("init should be a numeric vector of length 4, e.g. c(N1 = 10, N2 = 20, R1 = 20, R2 = 20)")
   if(!(all(names(init) %in% c("N1","N2", "R1","R2")))) stop("init should be a numeric vector of length 4, e.g. c(N1 = 10, N2 = 20, R1 = 20, R2 = 20)")
 
-  # Check that params is correctly defined (just r)
+  # Check that params is correctly defined
   if(!(is.numeric(params))) stop("params should be a numeric vector")
   if(!(all(c("S1", "S2", "r1", "r2", "k11", "k12",
              "k21", "k22", "m1", "m2", "c11", "c12",
@@ -121,8 +121,7 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
     stop("Please provide a complete parameter vector (see ?run_abiotic_comp_model for details)")
   }
 
-  ode(func = tilman_comp_essential,
-               y = init, parms = params, times = time)
+  ode(func = tilman_comp_essential, y = init, parms = params, times = time)
 }
 
 #'Plot population size over time for the aboitic resource competition model

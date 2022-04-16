@@ -8,7 +8,7 @@ plot_source_sink(sim_df, assumption_status)
 }
 \arguments{
 \item{sim_df}{a 3-column data frame, or a list of 3:
- at each time step, the source and sink population sizes;
+at each time step, the source and sink population sizes;
 can directly use the output from run_source_sink()}
 
 \item{assumption_status}{a Boolean value, TRUE if assumptions are met, FALSE if violated}
