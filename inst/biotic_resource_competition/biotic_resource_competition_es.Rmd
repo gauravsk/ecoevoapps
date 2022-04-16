@@ -1,11 +1,11 @@
 ---
-title: "Competition for a shared biotic resource"
+title: "Competencia por recursos bióticos"
 output: html_document
 runtime: shiny
 ---
 
 
-***[中文](https://ecoevoapps.shinyapps.io/biotic_resource_competition_ch) |  [Español](https://ecoevoapps.shinyapps.io/biotic_resource_competition_es) |  English | [Turkish](https://ecoevoapps.shinyapps.io/biotic_resource_competition_tr)  ***
+***[中文](https://ecoevoapps.shinyapps.io/biotic_resource_competition_ch) | Español | [English](https://ecoevoapps.shinyapps.io/biotic_resource_competition_en) | [Turkish](https://ecoevoapps.shinyapps.io/biotic_resource_competition_tr)  ***
 
 
 ```{r setup, include=FALSE}
@@ -22,14 +22,14 @@ library(RColorBrewer)
 library(kableExtra)
 ```
 
-This app simulates the dynamics of two consumer species ($P_1$ and $P_2$) that both require the same resource species ($H$) to grow. This allows us to implicitly model resource competition between the two consumer species, since an increase in $P_1$ results in a decreased growth rate of $P_2$ because of $P_1$'s suppression of resource $H$. 
+Esta aplicación simula la dinámica de dos especies consumidoras ($P_1$ y $P_2$) que requieren las mismas especies de recursos ($H$) para crecer. Esto nos permite modelar implícitamente la competencia por los recursos entre las dos especies consumidoras, debido a un aumento en $P_1$ da como resultado una tasa de crecimiento menor de $P_2$ debido a la supresión del recurso H por parte de $P_1$.
 
-Even this fairly straightforward scenario can be modeled in many ways. E.g. we can consider a resource species $H$ that, in the absence of either consumer, grows either exponentially (with no intrinsic limit to population growth), or logistically. 
+Incluso este sencillo escenario se puede modelar de muchas maneras. P.ej. podemos considerar una especie de recurso $H$ que, en ausencia de cualquiera de los consumidores, crece exponencialmente (sin límite intrínseco al crecimiento de la población) o logísticamente.
 
-The models can also consider different relationships between the density of resources and rate at which they are attacked by consumers. This relationship is called the [functional response](https://en.wikipedia.org/wiki/Functional_response), and we consider two types of relationships. First, we consider a "Type 1 functional response", in which the rate at which consumers consume resources is a linear function of the resource density. The second relationship is the "Type II functional response", in which the amount of resources consumed is a saturating function of resource density. The idea of the Type II functional response was developed by C.S. Holling in the 1959 paper "[Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)". 
+Los modelos también pueden considerar diferentes relaciones entre la densidad de los recursos y la tasa a la que son atacados por los consumidores. Esta relación se llama [respuesta funcional](https://en.wikipedia.org/wiki/Functional_response) y consideramos dos tipos de relaciones. En primer lugar, consideramos a. "Respuesta funcional tipo 1", en la que la tasa a la que los consumidores consumen recursos es una función lineal de la densidad de recursos. La segunda relación es la "respuesta funcional Tipo II", en la que la cantidad de recursos consumidos es una función de saturación de la densidad de recursos. La idea de la respuesta funcional Tipo II fue desarrollada por C.S. Holling en el artículo de 1959 "[Algunas características de los tipos simples de depredación y parasitismo](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)".
 
 
-This system of equations describes the most complex version of this model:  
+Este sistema de ecuaciones describe la versión más compleja de este modelo:
 
 \[
 \begin{align}
@@ -52,24 +52,25 @@ pars_vars <- c("$H$",
                "$T_{h_i}$", 
                "$e_i$", 
                "$d_i$")
-descriptions <- c("Population size of the prey",
-                 "Population size of predator $i$",
-                 "Per capita growth rate of prey",
-                 "Per capita prey self-limitation",
-                 "Attack rate of predator $i$",
-                 "Handling time of predator $i$",
-                 "Conversion efficiency of predator $i$",
-                 "Death rate of predator $i$")
+descriptions <- c("Tamaño de especies $H$",
+                 "Tamaño de especies $P_1$ o $P_2$",
+                 "Tasa de crecimiento intrínseco de la especie $H$",
+                 "Tasa de competencia intraespecífica de la especie $H$",
+                 "Tasa de ataque de especie $P_1$ o $P_2$",
+                 "Tiempo de manejo de especie  $P_1$ o $P_2$",
+                 "Eficiencia de conversión del especie $P_1$ o $P_2$",
+                 "Tasa de mortalidad de especie $P_1$ o $P_2$")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-- Note that if $q =0$, prey has exponential growth. If $q>0$, then prey has logistic growth with carrying capacity $K = \frac{1}{q}$.  
-- Also note that if $T_{h_{i}} = 0$, predator $i$ has a Type 1 functional response.  
+- Si $q =0$, especie $H$ crece exponencialmente. Si $q>0$, especie $H$ crece logísticamente a su carga de capacicad $K = \frac{1}{q}$.  
+
+- Si $T_{h_{i}} = 0$, $P_i$ tiene una respuesta funcional tipo 1.  
 
 ```{r, echo=FALSE}
 wellPanel(
