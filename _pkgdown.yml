@@ -28,6 +28,7 @@ articles:
 - title: Extending ecoevoapps
   navbar: Extensions
   contents:
+  - contributing
   - deploy-custom-apps
   - diffeqs-in-R
 destination: "../ecoevoapps.gitlab.io/static/docs"
