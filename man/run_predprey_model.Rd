@@ -32,16 +32,16 @@ Run predator-prey model
 \examples{
 # Lotka-Volterra predator-prey model
 params_lv <- c(r = .1, a = .01, e = .01, d = .001)
-run_predprey_model(5, init = c(H = 10, P = 5), params = params_lv)
+head(run_predprey_model(5, init = c(H = 10, P = 5), params = params_lv))
 # Lotka-Volterra model with logistic growth of prey
 params_lv_logprey <- c(r = .1, a = .01, e = .01, d = .001, K = 1000)
-run_predprey_model(5, init = c(H = 10, P = 5), params = params_lv_logprey)
+head(run_predprey_model(5, init = c(H = 10, P = 5), params = params_lv_logprey))
 # Lotka-Volterra model with Type 2 functional response
 params_lvt2 <- c(r = .1, a = .01, e = .01, d = .001, T_h = .1)
-run_predprey_model(5, init = c(H = 10, P = 5), params = params_lvt2)
+head(run_predprey_model(5, init = c(H = 10, P = 5), params = params_lvt2))
 # Rosenzweig-Macarthur model (logistic prey and Type 2 FR predator)
 params_rm <- c(r = .1, a = .01, e = .01, d = .001, K = 1000, T_h = .1)
-run_predprey_model(5, init = c(H = 10, P = 5), params = params_rm)
+head(run_predprey_model(5, init = c(H = 10, P = 5), params = params_rm))
 }
 \seealso{
 \code{\link[=plot_predprey_time]{plot_predprey_time()}} for plots of the population dynamics over

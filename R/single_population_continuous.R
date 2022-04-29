@@ -35,7 +35,7 @@ run_exponential_model <- function(time, init, params) {
   # and if vector was supplied, check that it starts at t = 0
   if(length(time) == 1) {
     tmax <- time
-    time <- seq(0, tmax)
+    time <- seq(0, tmax, 0.1)
   } else if(time[1] != 0) {
     stop("The time vector should start at 0.")
   }
@@ -122,7 +122,7 @@ run_logistic_model <- function(time, init, params) {
   # and if vector was supplied, check that it starts at t = 0
   if(length(time) == 1) {
     tmax <- time
-    time <- seq(0, tmax)
+    time <- seq(0, tmax,0.1)
   } else if(time[1] != 0) {
     stop("The time vector should start at 0.")
   }
@@ -147,3 +147,29 @@ run_logistic_model <- function(time, init, params) {
                  y = init, times = time, parms = params)
   }
 }
+
+
+#' Plot the dynamics of a discrete population growth model
+#' @param sim_df data frame of continuous population growth
+#' @seealso [run_logistic_model()] and [run_exponential_model()] for functions
+#'   that generate the \code{sim_df} objects plotted by this function
+#' @examples
+#' # Exponential population growth
+#' exp_params <- c(r = 0.5)
+#' sim_df_ex <- run_exponential_model(time = 10, init = c(N1 = 10),
+#' params = exp_params)
+#' plot_continuous_population_growth(sim_df_ex)
+#' log_params <- c(r = 0.5, K = 100)
+#' sim_df_log <- run_logistic_model(time = 10, init = c(N1 = 10),
+#' params = log_params)
+#' plot_continuous_population_growth(sim_df_log)
+#' @import ggplot2
+#' @export
+plot_continuous_population_growth <- function(sim_df) {
+  sim_df <- data.frame(sim_df)
+  ggplot(sim_df) +
+    geom_line(aes(x = time, y = N1)) +
+    ylab("Population size") +
+    theme_apps()
+}
+

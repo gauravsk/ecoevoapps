@@ -1,8 +1,8 @@
 ---
-title: "Models of population growth"
+title: "Models of population growth in continuous/discrete time"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Models of population growth}
+  %\VignetteIndexEntry{Models of population growth in continuous/discrete time}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -56,14 +56,10 @@ This creates a data frame with columns for time and population size:
 head(sim_df_exp)
 ```
 
-We can plot the size of this population over time as follows:
+We can plot the size of this population over time using the function `plot_continuous_population_growth()`:
 
 ```{r}
-sim_df_exp %>%
-  data.frame %>%
-  ggplot(aes(x = time, y = N1)) + 
-  geom_line() +
-  theme_apps()
+plot_continuous_population_growth(sim_df_exp)
 ```
 
 ### Logistic growth 
@@ -93,11 +89,7 @@ head(sim_df_log)
 We can plot the trajectory of this population over time using the same code above:
 
 ```{r}
-sim_df_log %>%
-  data.frame %>%
-  ggplot(aes(x = time, y = N1)) + 
-  geom_line() +
-  theme_apps()
+plot_continuous_population_growth(sim_df_log)
 ```
 
 ### Lagged logistic growth
@@ -119,11 +111,8 @@ sim_df_laglog <- run_logistic_model(time = time_laglog, init = init_laglog, para
 This again produces a data frame with columns time and N1, though we are not showing it here to avoid repetition. At sufficiently large values of $r$ and/or $\tau$, this model results in damped oscillations in population sizes, before the population ultimately converges to its carrying capacity: 
 
 ```{r}
-sim_df_laglog %>%
-  data.frame %>%
-  ggplot(aes(x = time, y = N1)) + 
-  geom_line() +
-  theme_apps()
+plot_continuous_population_growth(sim_df_laglog)
+
 ```
 
 ## Discrete time models of population growth
