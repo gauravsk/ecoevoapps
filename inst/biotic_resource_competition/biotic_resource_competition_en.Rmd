@@ -77,9 +77,12 @@ wellPanel(
     column(4, 
            ### Ask users for parameter values ----
            ## start with Prey params
-           numericInput("H", label = "Initial population size of Prey", min = 1, value = 30),
-           sliderInput("r", label = "Per capita growth rate of Prey (r)", min = .0001, max = 1.0, value = .2),
-           sliderInput("q", label = "Prey self-limitation rate (q)", min = 0, max = 0.10, step = 0.0001, value = .0066),
+           numericInput("H", label = "Initial population size of Prey", 
+                        min = 1, value = 30),
+           sliderInput("r", label = "Per capita growth rate of Prey (r)", 
+                       min = .0001, max = 1.0, value = .2),
+           sliderInput("q", label = "Prey self-limitation rate (q)",
+                       min = 0, max = 0.10, step = 0.0001, value = .0066),
            br(),
            hr(),
            numericInput("t", label = "Timesteps", min = 1, value = 1000),
@@ -92,20 +95,30 @@ wellPanel(
     
     column(4,
            ## now pred1 params + initial conditions
-           numericInput("P1", label = "Initial population size of Predator 1", min = 1, value = 25),
-           sliderInput("a1", label = "Predator 1 attack rate (a1)", min = .001, max = 1.0, value = .02),
-           sliderInput("T_h1", label = "Predator 1 handling time (Th_1)", min = 0, max = 1.0, value = 0.1),
-           sliderInput("e1", label = "Predator 1 conversion efficiency (e1)", min = .001, max = 1.0, value = 0.4),
-           sliderInput("d1", label = "Per capita death rate of Predator 1 (d1)", min = .0001, max = 1.0, value = .1)
+           numericInput("P1", label = "Initial population size of Predator 1", 
+                        min = 1, value = 25),
+           sliderInput("a1", label = "Predator 1 attack rate (a1)", 
+                       min = .001, max = 1.0, value = .02),
+           sliderInput("T_h1", label = "Predator 1 handling time (Th_1)", 
+                       min = 0, max = 1.0, value = 0.1),
+           sliderInput("e1", label = "Predator 1 conversion efficiency (e1)",
+                       min = .001, max = 1.0, value = 0.4),
+           sliderInput("d1", label = "Per capita death rate of Predator 1 (d1)",
+                       min = .0001, max = 1.0, value = .1)
     ),
     
     column(4,
            ## now pred2 params + initial conditions
-           numericInput("P2", label = "Initial population size of Predator 2", min = 1, value = 25),
-           sliderInput("a2", label = "Predator 2 attack rate (a2)", min = .001, max = 1.0, value = .02),
-           sliderInput("T_h2", label = "Predator 2 handling time (Th_2)", min = 0, max = 1.0, value = 0.1),
-           sliderInput("e2", label = "Predator 2 conversion efficiency (e2)", min = .001, max = 1.0, value = 0.39),
-           sliderInput("d2", label = "Per capita death rate of Predator 2 (d2)", min = .0001, max = 1.0, value = .1)
+           numericInput("P2", label = "Initial population size of Predator 2",
+                        min = 1, value = 25),
+           sliderInput("a2", label = "Predator 2 attack rate (a2)",
+                       min = .001, max = 1.0, value = .02),
+           sliderInput("T_h2", label = "Predator 2 handling time (Th_2)", 
+                       min = 0, max = 1.0, value = 0.1),
+           sliderInput("e2", label = "Predator 2 conversion efficiency (e2)",
+                       min = .001, max = 1.0, value = 0.39),
+           sliderInput("d2", label = "Per capita death rate of Predator 2 (d2)", 
+                       min = .0001, max = 1.0, value = .1)
     )
   ))
 

@@ -24,6 +24,7 @@ articles:
   - population-growth
   - lotka-volterra-competition
   - predator-prey-interactions
+  - mechanistic-competition-models
   - island-biogeo
 - title: Extending ecoevoapps
   navbar: Extensions
