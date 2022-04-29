@@ -14,7 +14,7 @@ plot_biotic_comp_time(sim_df)
 Plot population size over time for the boitic resource competition model
 }
 \examples{
-sim_df_biotic_rc <- run_biotic_competition_model(
+sim_df_biotic_rc <- run_biotic_comp_model(
 time = seq(0,10),
 init = c(P1 = 25, P2 = 25, H = 30),
 params = c(r = 0.2, q = .0066,

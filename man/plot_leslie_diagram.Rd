@@ -12,11 +12,16 @@ plot_leslie_diagram(leslie_mat)
 \description{
 Generate diagram of population structure
 }
+\examples{
+leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+ncol = 4, byrow = T)
+plot_leslie_diagram(leslie_matrix)
+}
 \seealso{
 \code{\link[=run_structured_population_simulation]{run_structured_population_simulation()}} to simulate the growth of a
 structured population given a Leslie matrix,
 \code{\link[=plot_structured_population_size]{plot_structured_population_size()}},
 \code{\link[=plot_structured_population_agedist]{plot_structured_population_agedist()}}, and
 \code{\link[=plot_structured_population_lambda]{plot_structured_population_lambda()}} for plotting different aspects of the
-population trajectory#'
+population trajectory
 }

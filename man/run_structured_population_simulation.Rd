@@ -24,6 +24,14 @@ Returns a matrix with nrow = nrow(leslie_mat) and ncol = time
 \description{
 Simulate growth of a (st)age-structured population
 }
+\examples{
+leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+ncol = 4, byrow = T)
+structured_pop_init <- c(10,10,10,10)
+structured_pop_time <- 5
+run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+structured_pop_init, time = structured_pop_time)
+}
 \seealso{
 \code{\link[=plot_structured_population_size]{plot_structured_population_size()}},
 \code{\link[=plot_structured_population_agedist]{plot_structured_population_agedist()}}, and

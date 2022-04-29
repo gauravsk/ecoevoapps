@@ -9,6 +9,13 @@
 #'   [plot_structured_population_lambda()] for plotting different aspects of the
 #'   population trajectory, and [plot_leslie_diagram()] for plotting an
 #'   transition diagram based on the specified Leslie matrix
+#' @examples
+#' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+#' ncol = 4, byrow = T)
+#' structured_pop_init <- c(10,10,10,10)
+#' structured_pop_time <- 5
+#' run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+#' structured_pop_init, time = structured_pop_time)
 #' @export
 run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1,
                                                                        0.4,0,0,0,
@@ -69,6 +76,14 @@ popmat_to_df <- function(pop_growth_matrix) {
 #'   [plot_structured_population_lambda()] for plotting different aspects of the
 #'   population trajectory, and [plot_leslie_diagram()] for plotting an
 #'   transition diagram based on the specified Leslie matrix
+#' @examples
+#' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+#' ncol = 4, byrow = T)
+#' structured_pop_init <- c(10,10,10,10)
+#' structured_pop_time <- 50
+#' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+#' structured_pop_init, time = structured_pop_time)
+#' plot_structured_population_size(structured_pop_out)
 #' @import ggplot2
 #' @export
 plot_structured_population_size <- function(pop_growth_matrix) {
@@ -104,6 +119,14 @@ plot_structured_population_size <- function(pop_growth_matrix) {
 #'   [plot_structured_population_lambda()] for plotting different aspects of the
 #'   population trajectory, and [plot_leslie_diagram()] for plotting an
 #'   transition diagram based on the specified Leslie matrix
+#' @examples
+#' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+#' ncol = 4, byrow = T)
+#' structured_pop_init <- c(10,10,10,10)
+#' structured_pop_time <- 50
+#' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+#' structured_pop_init, time = structured_pop_time)
+#' plot_structured_population_agedist(structured_pop_out, leslie_matrix)
 #' @return ggplot of age distribution over time
 #' @import ggplot2
 #' @export
@@ -155,6 +178,14 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
 #'   [plot_structured_population_size()] and
 #'   [plot_structured_population_agedist()] for plotting different aspects of the
 #'   population trajectory, and [plot_leslie_diagram()] for plotting an transition
+#' @examples
+#' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+#' ncol = 4, byrow = T)
+#' structured_pop_init <- c(10,10,10,10)
+#' structured_pop_time <- 50
+#' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+#' structured_pop_init, time = structured_pop_time)
+#' plot_structured_population_lambda(structured_pop_out, leslie_matrix)
 #' @export
 plot_structured_population_lambda <- function(pop_growth_matrix,
                                               leslie_mat = NULL) {
@@ -200,7 +231,11 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
 #'   [plot_structured_population_size()],
 #'   [plot_structured_population_agedist()], and
 #'   [plot_structured_population_lambda()] for plotting different aspects of the
-#'   population trajectory#'
+#'   population trajectory
+#' @examples
+#' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+#' ncol = 4, byrow = T)
+#' plot_leslie_diagram(leslie_matrix)
 #' @export
 plot_leslie_diagram <- function(leslie_mat) {
   n_ages <- nrow(leslie_mat)

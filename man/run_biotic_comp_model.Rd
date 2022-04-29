@@ -26,10 +26,14 @@ c(r, q, a1, T_h1, e1, d1, a2, T_h2, e2, d2)}
 Run a model of competition for a biotic resource
 }
 \examples{
-run_biotic_competition_model(
+run_biotic_comp_model(
 time = seq(0,10),
-init = c(P1 = 25, P2 = 25, H = 30),
+init = c(H = 30, P1 = 25, P2 = 25),
 params = c(r = 0.2, q = .0066,
 a1 = .02, T_h1 = 0.1, e1 = 0.4, d1 = 0.1,
 a2 = .02, T_h2 = 0.1, e2 = 0.39, d2 = 0.1))
+}
+\seealso{
+\code{\link[=plot_biotic_comp_time]{plot_biotic_comp_time()}} for plots of the population dynamics over
+time
 }

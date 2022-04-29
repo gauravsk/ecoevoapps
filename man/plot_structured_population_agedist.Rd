@@ -23,6 +23,15 @@ ggplot of age distribution over time
 Generate a trajectory of the proportion of individuals in each (st)age over
 time
 }
+\examples{
+leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
+ncol = 4, byrow = T)
+structured_pop_init <- c(10,10,10,10)
+structured_pop_time <- 50
+structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
+structured_pop_init, time = structured_pop_time)
+plot_structured_population_agedist(structured_pop_out, leslie_matrix)
+}
 \seealso{
 \code{\link[=run_structured_population_simulation]{run_structured_population_simulation()}} to simulate the growth of a
 structured population given a Leslie matrix,
