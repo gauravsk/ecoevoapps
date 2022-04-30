@@ -9,8 +9,10 @@ Wo <- function(Iy, Iymin = Iymin, Iymax = Ip, Womax = Womax, shapeval = .02) {
 #' @param Ip Total amount of energy an adult has to invest into reproduction
 #' @param shapeval slope of the Smith-Fretwell curve
 #' @import ggplot2
+#' @examples
+#' run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
 #' @export
-make_sf_plot <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = .02) {
+run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = .02) {
   Iymax <- Ip
   aval <- shapeval*(Iymin+Iymax)/2
   xopt <- Iymin + sqrt(Iymin^2 + aval*Iymin)
@@ -42,15 +44,21 @@ make_sf_plot <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = .02) {
   return(smith_fretwell_plot)
 }
 
-#' Add a new Smith-Fretwell curve to a ggplot object created with make_sf_plot
-#' @param existing_plot ggplot object created with make_sf_plot that has the first (base) curve
+#' Add a new Smith-Fretwell curve to a ggplot object created with
+#' run_smith_fretwell_model
+#' @param existing_plot ggplot object created with run_smith_fretwell_model that
+#'   has the first (base) curve
 #' @param Iymin Minimum seed size for a viable offspring
 #' @param Womax Maximum fitness that an offspring can achieve
 #' @param Ip Total amount of energy an adult has to invest into reproduction
 #' @param shapeval slope of the Smith-Fretwell curve
 #' @import ggplot2
+#' @examples
+#' sf_species1 <- run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
+#' run_smith_fretwell_model_sp2(sf_species1, Iymin = 6, Womax = 0.6, Ip = 1000)
 #' @export
-add_to_sf_plot <- function(existing_plot, Iymin = 6, Womax = .6, Ip = 1000, shapeval = 0.02) {
+run_smith_fretwell_model_sp2 <- function(existing_plot, Iymin = 6, Womax = .6,
+                                         Ip = 1000, shapeval = 0.02) {
 
   # Define parameters
   Iymin2 <- Iymin
