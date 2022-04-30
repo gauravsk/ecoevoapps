@@ -1,41 +1,47 @@
 #' check if input parameters violates model(Pulliam 1988) assumptions
 #' @param params a vector of model parameters
 #' @examples
-#' VALID parameter example 1: lambdaSource > 1, lambdaSink < 1
+#' # VALID parameter example 1: lambdaSource > 1, lambdaSink < 1
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 4, betaSink = 1))
-#' INVALID parameter example 1: lambdaSource < 1, lambdaSInk < 1
+#' # INVALID parameter example 1: lambdaSource < 1, lambdaSInk < 1
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 2))
-#' INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
+#' # INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
 #' assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
 #' @keywords internal
 #' @export
 assumption_check <- function(params){
   with(as.list(params), {
-    if ((pa + pj * betaSource >1)&(pa + pj * betaSink <1)) {
-      return(TRUE)} else return(FALSE)
+    if ((pa + pj * betaSource > 1) & (pa + pj * betaSink < 1)) {
+      return(TRUE)
+    }
+    else return(FALSE)
   })
 }
 
 
-#' Simulate dynamics of the source and sink populations under Pulliam (1988)'s model
+#' Simulate dynamics of the source and sink populations under Pulliam (1988)'s
+#' model
 #' @param endtime a number to indicate at what timesetp to end the simulation
-#' @param init a vector of initial population sizes of the source and sink population
+#' @param init a vector of initial population sizes of the source and sink
+#'   population
 #' @param params a vector of model parameters
 #' @examples
 #' # in this example, source and sink population start at the same size,
 #' # the sink population dies out, but is later replenished by immigration
 #' # from the source patch once all source breeding sites are occupied
 #' run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
-#' params = c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, nSource = 300))
+#' params = c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, NSource = 300))
+#' @seealso [plot_source_sink()]  for plotting the size of the source and sink
+#'   population over time
 #' @export
-run_source_sink <- function(endtime,init,params) {
-  with (as.list(c(endtime,init,params)), {
+run_source_sink <- function(endtime, init, params) {
+  with (as.list(c(endtime, init, params)), {
     # description of parameters/state variables:
     # pa = probability of adults surviving winter
     # pj = probability of juvenile surviving winter
     # betaSource = fecundity of source population
     # betaSink = fecundity of sink population
-    # n0Source <- initual source population size
+    # n0Source <- initial source population size
     # NSource <- limiting breeding site for source population (equilibrium source population)
     # n0Sink <- initial sink population size
     # assume sink population has unlimited breeding sites, equilibrium nSink will be calculated
@@ -62,8 +68,8 @@ run_source_sink <- function(endtime,init,params) {
       n0Sink <- nSink[t-1]
 
       # growth & survival cycle  of the year
-      nSource[t] <- n0Source*(pa + pj*betaSource)
-      nSink[t] <- n0Sink*(pa + pj*betaSink)
+      nSource[t] <- n0Source*(pa + pj * betaSource)
+      nSink[t] <- n0Sink*(pa + pj * betaSink)
       # optional: rounding, keep populations integers
       # nSource[t] <- round( nSource[t])
       # nSink[t] <- round( nSink[t])
@@ -83,25 +89,28 @@ run_source_sink <- function(endtime,init,params) {
 
 
 #' plot population trajectories of Pulliams' source sink meta-population
-#' @param sim_df a 3-column data frame, or a list of 3:
-#'  at each time step, the source and sink population sizes;
-#' can directly use the output from run_source_sink()
-#' @param assumption_status a Boolean value, TRUE if assumptions are met, FALSE if violated
+#' @param sim_df a 3-column data frame, or a list of 3: at each time step, the
+#'   source and sink population sizes; can directly use the output from
+#'   run_source_sink()
+#' @param assumption_status a Boolean value, TRUE if assumptions are met, FALSE
+#'   if violated
 #' @import ggplot2
 #' @import tidyr
 #' @examples
-#' a valid example
+#' # a valid example
 #' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 1, NSource = 300)
 #' Sim_df <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
 #' params = Params)
 #' Assumption_status <- assumption_check(Params)
 #' plot_source_sink(sim_df = Sim_df, assumption_status = Assumption_status)
-#' an invalid example with warning
+#' # an invalid example with warning
 #' Params <- c(pa = 0.6, pj = 0.15, betaSource = 3, betaSink = 3, NSource = 300)
 #' Sim_df <- run_source_sink(endtime = 50, init = c(n0Source = 100, n0Sink = 100),
 #' params = Params)
 #' Assumption_status <- assumption_check(Params)
 #' plot_source_sink(sim_df = Sim_df, assumption_status = Assumption_status)
+#' @seealso [run_source_sink()] for generating the list that is used as the
+#'   input `sim_df` for this function
 #' @export
 plot_source_sink <- function(sim_df, assumption_status){
   # if the input is a list, convert to data frame
@@ -125,9 +134,9 @@ plot_source_sink <- function(sim_df, assumption_status){
     y_center = max(sim_df$value)/2
     plot <- plot +
       annotate("text", x = x_center, y = y_center,
-               label = "Your parameters violate \nPulliam model's requirements")+
+               label = "Your parameters violate \nPulliam model's requirements") +
       # show warning as the title
-      labs(title = "Your parameters violate Pulliam model's requirements")+
+      labs(title = "Your parameters violate Pulliam model's requirements") +
       theme(plot.title = element_text(color = "red", face = "bold"))
 
   }

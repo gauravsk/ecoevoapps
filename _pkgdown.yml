@@ -1,16 +1,56 @@
 template:
   bootstrap: 5
 reference:
-- title: "Running models"
-  desc: "Functions for running the model simulations"
+- title: "Population growth in continuous time"
   contents:
-  - starts_with("run_")
-- title: "Plotting model simulations"
-  desc: "Functions for plotting the output from model simulations"
+  - "run_exponential_model"
+  - "run_logistic_model"
+  - starts_with("plot_continuous_")
+- title: "Population growth in discrete time"
   contents:
-  - starts_with("plot_")
-- title: "Running Shiny apps"
-  desc: "Functions for launching shiny apps from the `R` console"
+  - "run_discrete_exponential_model"
+  - "run_discrete_logistic_model"
+  - "run_beverton_holt_model"
+  - "run_ricker_model"
+  - starts_with("plot_discrete_")
+- title: "Growth of structured populations"
+  contents:
+  - "run_structured_population_simulation"
+  - starts_with("plot_structured_")
+  - "plot_leslie_diagram"
+- title: "Dynamics of a metapopulation (source/sink dynamics)"
+  contents:
+  - "run_source_sink"
+  - "plot_source_sink"
+- title: "Lotka-Volterra competition"
+  contents:
+  - "run_lvcomp_model"
+  - starts_with("plot_lvcomp_")
+- title: "Competition for abiotic resources"
+  contents:
+  - "run_abiotic_comp_model"
+  - "run_abiotic_comp_rstar"
+  - starts_with("plot_abiotic_comp")
+- title: "Competition for a biotic resource"
+  contents:
+  - "run_biotic_comp_model"
+  - "plot_biotic_comp_time"
+  - "plot_functional_responses"
+- title: "Predator-Prey dynamics"
+  contents:
+  - "run_predprey_model"
+  - starts_with("plot_predprey_")
+  - "plot_functional_responses"
+- title: "Infectious disease dynamics"
+  contents:
+  - "run_infectiousdisease_model"
+  - starts_with("plot_infectiousdisease_")
+- title: "Other models"
+  contents:
+  - "run_ibiogeo_model"
+  - starts_with("run_smith_fretwell")
+- title: "Run shiny apps"
+  desc: Functions to run shiny apps from the command line
   contents:
   - starts_with("shiny_")
 url: https://ecoevoapps.gitlab.io/docs

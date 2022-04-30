@@ -13,11 +13,11 @@ assumption_check(params)
 check if input parameters violates model(Pulliam 1988) assumptions
 }
 \examples{
-VALID parameter example 1: lambdaSource > 1, lambdaSink < 1
+# VALID parameter example 1: lambdaSource > 1, lambdaSink < 1
 assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 4, betaSink = 1))
-INVALID parameter example 1: lambdaSource < 1, lambdaSInk < 1
+# INVALID parameter example 1: lambdaSource < 1, lambdaSInk < 1
 assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 2))
-INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
+# INVALID parameter example 2: lambdaSource < 1, lambdaSink > 1
 assumption_check(params = c(pa = 0.6, pj = 0.15, betaSource = 2, betaSink = 3))
 }
 \keyword{internal}
