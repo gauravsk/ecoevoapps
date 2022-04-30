@@ -1,0 +1,110 @@
+---
+title: "Infectious disease dynamics (compartment/SIR models)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Infectious disease dynamics (compartment/SIR models)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ecoevoapps)
+library(patchwork)
+```
+
+
+There is an important category of models from epidemiology called [Compartment models](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology). These  models are designed to model the spread of diseases through populations that are made of individuals in different compartments (groups). For example, a population might be made up of individuals who are susceptible to the disease, individuals who have been exposed to a disease but are not yet infected/infectious, infected individuals who can spread disease, recovered individuals, etc. Different models can include different compartments, based on the population being studied and the dynamics of the infection. For more details on compartment models, please refer to the [Wikipedia page](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology) or refer to [this paper](https://vtechworks.lib.vt.edu/bitstream/handle/10919/84993/ChildsIntroduction.pdf).
+
+
+The `ecoevoapps` package includes functions to simulate various specific implementations of such compartment models. 
+
+### Suscptible-Infectious-Recovered (SIR) model  
+One of the most common implementations of compartment models tracks the dynamics of a population comprised of individuals who are susceptible to a disease, those who are infectious, and those who have recovered. The dynamics of a such a model are governed by the following set of equations: 
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)
+\end{align}
+\]
+
+This model can be simulated with the `run_infectiousdisease_model()` function:
+
+```{r}
+sir_params_vec <- c(m = .1, beta = .01, v = .2, gamma = 0)
+sir_init_vec <- c(S = 100, I = 1, R = 0)
+sir_time_vec <- seq(0, 25, 0.1)
+sir_out <- run_infectiousdisease_model(time = sir_time_vec, init = sir_init_vec, params = sir_params_vec, model_type = "SIR")
+head(sir_out)
+```
+
+We can then use `plot_infectiousdisease_time()` to plot the trajectory of these compartments over time:
+
+```{r}
+plot_infectiousdisease_time(sir_out, model_type = "SIR")
+```
+
+We can also use `plot_infectiousdisease_portrait()` to track how the compartments change relative to one another:
+
+```{r}
+plot_infectiousdisease_portrait(sir_out, "S", "I") + 
+  plot_infectiousdisease_portrait(sir_out, "S", "R") + 
+  plot_infectiousdisease_portrait(sir_out, "R", "I")
+```
+
+### Susceptible-Infectious-Susceptible  
+
+In the SIR model, once an individual recovers from a disease, they are fully immune to it in the future. But in reality, we may encounter a disease from which individuals never actually develops immunity. In this case, an SIS model may be more appropriate: 
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I) - mS - \beta SI + \gamma I\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I\\
+\end{align}
+\]
+
+We can similarly simulate the dynamics of an SIS model using the same functions as above, just with different inputs:
+
+```{r}
+sis_params_vec <- c(m = 0.1, beta = .01, gamma = 0)
+sis_init_vec <- c(S = 100, I = 1)
+sis_time_vec <- seq(0, 25, 0.1)
+sis_out <- run_infectiousdisease_model(time = sis_time_vec, init = sis_init_vec, params = sis_params_vec, model_type = "SIS")
+head(sis_out)
+
+plot_infectiousdisease_time(sis_out, model_type = "SIS")
+
+```
+
+### Susceptible-Exposed-Infectious-Recovered  
+
+Another structure we can explore is cases in which populations are comprised of susceptible individuals, those who are exposed but not (yet) infectious, infectious individuals, and those who have recovered. This is captured by an SEIR model:  
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + E + I + R)(1 - v) - mS - \beta SI\\
+\frac{dE}{dt} &= \beta SI - aE - mE\\
+\frac{dI}{dt} &= aE - mI - \gamma I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + E + I + R)
+\end{align}
+\]
+
+Again, we can use the functions above with different input parameters to simulate this model:
+
+```{r}
+seir_params_vec <- c(m = 0.1, beta = .1, gamma = 0.2, a = .025, v = 0)
+seir_init_vec <- c(S = 100, E = 0, I = 2, R = 0)
+seir_time_vec <- seq(0, 25, 0.1)
+seir_out <- run_infectiousdisease_model(time = seir_time_vec, init = seir_init_vec, params = seir_params_vec, model_type = "SEIR")
+head(seir_out)
+
+plot_infectiousdisease_time(seir_out, model_type = "SEIR")
+```
