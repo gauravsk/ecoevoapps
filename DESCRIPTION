@@ -46,6 +46,8 @@ Imports:
     diagram,
     utils,
     stats,
+    shiny,
+    kableExtra,
     base,
     patchwork
 RoxygenNote: 7.1.2
