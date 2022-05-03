@@ -1,11 +1,11 @@
 ---
-title: "Competition for a shared biotic resource"
+title: "Modelo de competição por um recurso biótico "
 output: html_document
 runtime: shiny
 ---
 
 
-***[中文](https://ecoevoapps.shinyapps.io/biotic_resource_competition_ch) |  [Español](https://ecoevoapps.shinyapps.io/biotic_resource_competition_es) |  English | [português](https://ecoevoapps.shinyapps.io/biotic_resource_competition_pt) | [Turkish](https://ecoevoapps.shinyapps.io/biotic_resource_competition_tr)  ***
+***[中文](https://ecoevoapps.shinyapps.io/biotic_resource_competition_ch) |  [Español](https://ecoevoapps.shinyapps.io/biotic_resource_competition_es) |  [English](https://ecoevoapps.shinyapps.io/biotic_resource_competition) | português | [Turkish](https://ecoevoapps.shinyapps.io/biotic_resource_competition_tr)  ***
 
 
 ```{r setup, include=FALSE}
@@ -22,14 +22,15 @@ library(RColorBrewer)
 library(kableExtra)
 ```
 
-This app simulates the dynamics of two consumer species ($P_1$ and $P_2$) that both require the same resource species ($H$) to grow. This allows us to implicitly model resource competition between the two consumer species, since an increase in $P_1$ results in a decreased growth rate of $P_2$ because of $P_1$'s suppression of resource $H$. 
+Esse aplicativo modela a dinâmica de duas espécies predadoras ($P_1$ e $P_2$) que dependem de uma mesma espécie de presa ($H$) como recurso. Esse modelo, portanto, simula implicitamente a competição por recursos entre dois predadores – conforme a população de $P_1$ cresce, a população de $P_2$ decresce devido ao esgotamento do recurso $H$ por $P_1$.
 
-Even this fairly straightforward scenario can be modeled in many ways. E.g. we can consider a resource species $H$ that, in the absence of either consumer, grows either exponentially (with no intrinsic limit to population growth), or logistically. 
+Até mesmo um caso simples como esse pode ser modelado de várias formas. Por exemplo, podemos assumir que a presa, na ausência de $P_1$ e $P_2$, cresça exponencial- ou logisticamente.
 
-The models can also consider different relationships between the density of resources and rate at which they are attacked by consumers. This relationship is called the [functional response](https://en.wikipedia.org/wiki/Functional_response), and we consider two types of relationships. First, we consider a "Type 1 functional response", in which the rate at which consumers consume resources is a linear function of the resource density. The second relationship is the "Type II functional response", in which the amount of resources consumed is a saturating function of resource density. The idea of the Type II functional response was developed by C.S. Holling in the 1959 paper "[Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)". 
+O modelo pode também levar em conta diferentes relações entre a densidade da presa e a taxa de consumo por cada predador. Essas relações são chamadas de [resposta funcional](https://en.wikipedia.org/wiki/Functional_response) dos consumidores e podem assumir duas formas básicas: 1) resposta funcional do tipo I, quando a taxa de consumo é uma função linear da densidade de recurso; e 2) resposta funcional do tipo II, quando a taxa de consumo é uma função de saturação da densidade de recurso. A ideia da resposta funcional do tipo II foi desenvolvida por C. S. Holling (1959) no artigo "[Algumas características de tipos simples de predação e parasitismo](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf)".
 
 
-This system of equations describes the most complex version of this model:  
+
+O sistema de equações abaixo descreve a versão mais complexa do modelo:
 
 \[
 \begin{align}
@@ -52,24 +53,25 @@ pars_vars <- c("$H$",
                "$T_{h_i}$", 
                "$e_i$", 
                "$d_i$")
-descriptions <- c("Population size of the prey",
-                 "Population size of predator $i$",
-                 "Per capita growth rate of prey",
-                 "Per capita prey self-limitation",
-                 "Attack rate of predator $i$",
-                 "Handling time of predator $i$",
-                 "Conversion efficiency of predator $i$",
-                 "Death rate of predator $i$")
+descriptions <- c("Tamanho da população da presa $H$ (recurso)",
+                 "Tamanho da população do predador $P_i$ (consumidor)",
+                 "Taxa de crescimento per capita de $H$",
+                 "Coeficiente de auto-limitação de $H$",
+                 "Taxa de consumo de $P_i$",
+                 "Tempo de manipulação de $P_i$",
+                 "Eficiência de conversão de $P_i$",
+                 "Taxa de mortalidade de $P_i$")
 param_df <- data.frame(pars_vars, descriptions)
 kable(x = param_df, format = "html", 
-      col.names = c("Parameter/Variable", "Description")) %>%
+      col.names = c("Parâmetro/variável", "Descrição")) %>%
   kable_styling(full_width = FALSE, 
                 bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```  
 
-- Note that if $q =0$, prey has exponential growth. If $q>0$, then prey has logistic growth with carrying capacity $K = \frac{1}{q}$.  
-- Also note that if $T_{h_{i}} = 0$, predator $i$ has a Type 1 functional response.  
+* Note que, se q=0, H tem crescimento exponencial. Se $q>0$, $H$ tem crescimento logístico com capacidade de suporte $K = \frac{1}{q}$.
+
+* Note também que, se $T_{h,i}=0$, a espécie $P_i$ tem uma resposta funcional do tipo I.
 
 ```{r, echo=FALSE}
 wellPanel(
@@ -77,47 +79,47 @@ wellPanel(
     column(4, 
            ### Ask users for parameter values ----
            ## start with Prey params
-           numericInput("H", label = "Initial population size of Prey", 
+           numericInput("H", label = "População inicial da presa (H)", 
                         min = 1, value = 30),
-           sliderInput("r", label = "Per capita growth rate of Prey (r)", 
+           sliderInput("r", label = "Taxa de crescimento populacional da presa (r)", 
                        min = .0001, max = 1.0, value = .2),
-           sliderInput("q", label = "Prey self-limitation rate (q)",
+           sliderInput("q", label = "Coeficiente de auto-limitação da presa (q)",
                        min = 0, max = 0.10, step = 0.0001, value = .0066),
            br(),
            hr(),
-           numericInput("t", label = "Timesteps", min = 1, value = 1000),
+           numericInput("t", label = "Tempo a ser projetado", min = 1, value = 1000),
            checkboxGroupInput("fxnrep", 
-                              label = "Display plot of functional responses?",
-                              choices = c("Yes" = "Yes"),
+                              label = "Mostrar gráfico com as respostas funcionais?",
+                              choices = c("Sim" = "Yes"),
                               selected = NULL)
            
     ),
     
     column(4,
            ## now pred1 params + initial conditions
-           numericInput("P1", label = "Initial population size of Predator 1", 
+           numericInput("P1", label = "População inicial do predador 1", 
                         min = 1, value = 25),
-           sliderInput("a1", label = "Predator 1 attack rate (a1)", 
+           sliderInput("a1", label = "Taxa de consumo do predador 1 (a1)", 
                        min = .001, max = 1.0, value = .02),
-           sliderInput("T_h1", label = "Predator 1 handling time (Th_1)", 
+           sliderInput("T_h1", label = "Tempo de manipulação do predador 1 (Th_1)", 
                        min = 0, max = 1.0, value = 0.1),
-           sliderInput("e1", label = "Predator 1 conversion efficiency (e1)",
+           sliderInput("e1", label = "Eficiência de conversão do predador 1 (e1)",
                        min = .001, max = 1.0, value = 0.4),
-           sliderInput("d1", label = "Per capita death rate of Predator 1 (d1)",
+           sliderInput("d1", label = "Taxa de mortalidade do predador 1 (d1)",
                        min = .0001, max = 1.0, value = .1)
     ),
     
     column(4,
            ## now pred2 params + initial conditions
-           numericInput("P2", label = "Initial population size of Predator 2",
+           numericInput("P2", label = "População inicial do predador 2",
                         min = 1, value = 25),
-           sliderInput("a2", label = "Predator 2 attack rate (a2)",
+           sliderInput("a2", label = "Taxa de consumo do predador 2 (a2)",
                        min = .001, max = 1.0, value = .02),
-           sliderInput("T_h2", label = "Predator 2 handling time (Th_2)", 
+           sliderInput("T_h2", label = "Tempo de manipulação do predador 2 (Th_2)", 
                        min = 0, max = 1.0, value = 0.1),
-           sliderInput("e2", label = "Predator 2 conversion efficiency (e2)",
+           sliderInput("e2", label = "Eficiência de conversão do predador 2 (e2)",
                        min = .001, max = 1.0, value = 0.39),
-           sliderInput("d2", label = "Per capita death rate of Predator 2 (d2)", 
+           sliderInput("d2", label = "Taxa de mortalidade do predador 2 (d2)", 
                        min = .0001, max = 1.0, value = .1)
     )
   ))
