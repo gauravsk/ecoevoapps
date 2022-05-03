@@ -141,7 +141,7 @@ N_vs_Time <- reactive({
 
 ZNGI <- reactive({
   if ("ZNGI" %in% input$plots_to_show) {
-    plot_lvcomp_portrait(lvcomp_out(), params = params())
+    plot_lvcomp_portrait(lvcomp_out(), params = params(), margin_text = T)
   } 
 })
 
@@ -330,7 +330,8 @@ N_vs_Time_wo_K <- reactive({
 # Plot ZNGIs with population trajectories
 ZNGI_wo_K <- reactive({
   if ("ZNGI_wo_K" %in% input$plots_to_show_wo_K) {
-    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K())
+    plot_lvcomp_portrait(lvcomp_out_wo_K(), params = params_wo_K(),
+                         margin_text = T)
   } 
 })
 
