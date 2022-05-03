@@ -36,16 +36,20 @@ shiny_singlepop_continuous <- function(language = "en") {
 
 #' @rdname shiny_XXX
 #' @export
-shiny_singlepop_discrete <- function(language = "en") {
+shiny_population_growth_discrete <- function(language = "en") {
 
-  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
-            (language %in% c("en", "es", "ch")))
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
+            (language %in% c("en", "es", "ch", "tr", "pt")))
 
-  file_path <- dplyr::case_when(language == "en" ~ system.file("single_population_discrete/single_pop_discrete_app_en.Rmd",
+  file_path <- dplyr::case_when(language == "en" ~ system.file("population_growth_discrete/population_growth_discrete_en.Rmd",
                                                          package =  "ecoevoapps"),
-                           language == "es" ~ system.file("single_population_discrete/single_pop_discrete_app_es.Rmd",
+                           language == "es" ~ system.file("population_growth_discrete/population_growth_discrete_es.Rmd",
                                                           package =  "ecoevoapps"),
-                           language == "ch" ~ system.file("single_population_discrete/single_pop_discrete_app_ch.Rmd",
+                           language == "ch" ~ system.file("population_growth_discrete/population_growth_discrete_ch.Rmd",
+                                                          package =  "ecoevoapps"),
+                           language == "pt" ~ system.file("population_growth_discrete/population_growth_discrete_pt.Rmd",
+                                                          package =  "ecoevoapps"),
+                           language == "tr" ~ system.file("population_growth_discrete/population_growth_discrete_tr.Rmd",
                                                           package =  "ecoevoapps"))
 
   rmarkdown::run(
