@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/) | [Turkish](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_tr/) ***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/) | [português](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_pt) | [Turkish](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_tr/) ***
 
 
 ```{r setup, include=FALSE}
@@ -23,9 +23,9 @@ Lotka-Volterra 竞争方程描述了两个彼此竞争食物、空间、及其�
 
 经典的Lotka-Volterra竞争模型有多种构建方法。其中的主要方法是用各物种的环境承载力($K_1$和$K_2$)和相对种间竞争强度（$\alpha$和$\beta$）来描述竞争。下文第一个选项卡中的模型即使用了这种构建。而Peter Chesson在他发表于2000年的经典论文["Mechanisms of Maintenance of Speices Diversity"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf)中则提倡使用各物种的绝对竞争系数来描述Lotka-Volterra竞争方程。该模型构建可详见下文的第二个选项卡。
 
-# {.tabset}
+## {.tabset}
 
-## 使用环境承载力和相对种间竞争强度的模型
+### 使用环境承载力和相对种间竞争强度的模型
 
 使用环境承载力,Lotka-Volterra竞争方程可表述为：
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
@@ -68,9 +68,7 @@ sidebarLayout(
     # Allow user to select which plots to display
     checkboxGroupInput(inputId = "plots_to_show",
                        label = "勾选以展示图表",
-                       choices = c("N vs. Time" = "N_vs_Time", 
-                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
-                       selected = c("N_vs_Time")),
+                       choices = c("Zero net growh isoclines (ZNGIs)" = "ZNGI")),
     
     hr(),
     
@@ -154,7 +152,7 @@ plots_to_print <- reactive({
   })
 ```
 
-## 使用绝对竞争系数的模型
+### 使用绝对竞争系数的模型
 
 若不使用环境承载力，则Lotka-Volterra竞争方程可写为：
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$

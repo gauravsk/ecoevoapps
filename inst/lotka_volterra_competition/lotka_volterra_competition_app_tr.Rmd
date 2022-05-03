@@ -5,7 +5,7 @@ runtime: shiny
 ---
 
 
-***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition) |  Turkish ***
+***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | [English](https://ecoevoapps.shinyapps.io/lotka_volterra_competition) | [português](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_pt) | Turkish ***
 
 
 ```{r setup, include=FALSE}
@@ -24,9 +24,9 @@ Lotka-Volterra eşitliği iki tür arası yiyecek, alan, ve diğer kaynaklar iç
 
 Klasik Lotka- Volterra rekabet eşitliğini yazmanın bir sürü yolu vardır. Öncü olarak, burada sunduğumuz iki adet diferansiyel denkleminde görüldüğü üzere, rekabet her iki türün taşıma kapasitesi ($K_1$ and $K_2$) ve türler arası rekabetin relatif kuvveti ($\alpha$ ve $\beta$) ile ifade edilir. ["Tür çeşitliliğini sürdüren mekanizmalar"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf) isimli 2000 yılında yayınlanan makalesinde Peter Chesson, Lotka-Volterra eşitliğinin absolut rekabet katsayılarıyla yazılmasını savunmuştur (ikinci sayfada bu aplikasyonu inceleyebilirsiniz). 
 
-# {.tabset}
+## {.tabset}
 
-## Taşıma kapasitesi ve relatif rekabet katsayılarıyla yazılan model 
+### Taşıma kapasitesi ve relatif rekabet katsayılarıyla yazılan model 
 
 Taşıma kapasitesi Lotka-Volterra rekabeti denklemleri: 
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
@@ -69,10 +69,8 @@ sidebarLayout(
   sidebarPanel(
     # Allow user to select which plots to display
     checkboxGroupInput(inputId = "plots_to_show",
-                       label = "Select plots to diplay",
-                       choices = c("N vs. Time" = "N_vs_Time", 
-                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
-                       selected = c("N_vs_Time")),
+                       label = "Select plots",
+                       choices = c("Zero net growth isoclines (ZNGIs)" = "ZNGI")),
     
     hr(),
     
@@ -158,7 +156,7 @@ plots_to_print <- reactive({
   })
 ```
 
-## Absolut rekabet katsayılarıyla yazılan model 
+### Absolut rekabet katsayılarıyla yazılan model 
 
 Taşıma kapasitesiz Lotka-Volterra rekabeti denklemleri: 
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$

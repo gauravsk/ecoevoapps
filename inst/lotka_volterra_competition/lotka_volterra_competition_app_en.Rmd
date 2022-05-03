@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | English |  [Turkish](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_tr/) ***
+***[中文](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_ch/) | [Español](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) | English | [português](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_pt) |  [Turkish](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_tr/) ***
 
 
 ```{r setup, include=FALSE}
@@ -23,9 +23,9 @@ The Lotka-Volterra competition equations explore the dynamics of two species tha
 
 There are several ways of writing the classic Lotka-Volterra competition models. The primary way is to express competition in terms of each species' carrying capacity ($K_1$ and $K_2$) and the relative strength of interspecific competition $\alpha$ and $\beta$. This is the form of the model that is presented in the first tab below. In his classic 2000 paper ["Mechanisms of Maintenance of Species Diversity"](https://www.zoology.ubc.ca/bdg/pdfs_bdg/2013/fall/chesson/Chesson_2000.pdf), Peter Chesson advocated for expression the Lotka-Volterra competition equations in terms of the absolute competition coefficients for each species; the second tab below allows users to explore that form of the Lotka-Volterra competition model. 
 
-# {.tabset}
+## {.tabset}
 
-## Model in terms of carrying capacity and relative competitive effects
+### Model in terms of carrying capacity and relative competitive effects
 
 Equations for Lotka-Volterra Competition expressed with carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \frac{N_1 + \alpha N_2}{K_1}\right)$$
@@ -67,10 +67,8 @@ sidebarLayout(
   sidebarPanel(
     # Allow user to select which plots to display
     checkboxGroupInput(inputId = "plots_to_show",
-                       label = "Select plots to diplay",
-                       choices = c("N vs. Time" = "N_vs_Time", 
-                                   "Zero net growh isoclines (ZNGIs)" = "ZNGI"),
-                       selected = c("N_vs_Time")),
+                       label = "Select plots",
+                       choices = c("Zero net growth isoclines (ZNGIs)" = "ZNGI")),
     
     hr(),
     
@@ -156,7 +154,7 @@ plots_to_print <- reactive({
   })
 ```
 
-## Model in terms of absolute competition coefficients
+### Model in terms of absolute competition coefficients
 
 Equations for Lotka-Volterra Competition expressed without carrying capacities:
 $$\frac{dN_1}{dt} = r_1N_1\left(1 - \alpha_{11}N_1 - \alpha_{12}N_2\right)$$
