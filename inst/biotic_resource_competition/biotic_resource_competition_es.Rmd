@@ -179,6 +179,6 @@ plots_to_print <- reactive({
 
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer()
+ecoevoapps::print_app_footer(language = "es")
 ```
 

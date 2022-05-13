@@ -1409,6 +1409,8 @@ plots_to_render_sird_ft <- reactive({
 })
 ```
 
+##
+
 -------------
 
 ```{r, results='asis', echo = F}

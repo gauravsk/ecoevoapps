@@ -270,7 +270,7 @@ Dr. Jan Engelstädter'in [biyolojik veri analizi üzerine e-kitabı](https://boo
 
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer()
+ecoevoapps::print_app_footer(language = "tr")
 ```
 
 

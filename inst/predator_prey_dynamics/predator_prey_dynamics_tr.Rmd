@@ -695,6 +695,6 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 -------------
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer()
+ecoevoapps::print_app_footer(language = "tr")
 ```
 
