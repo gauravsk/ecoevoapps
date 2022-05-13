@@ -176,7 +176,7 @@ shiny_infectious_disease <- function(language = "en") {
 #' @export
 shiny_source_sink <- function() {
   rmarkdown::run(
-    file = system.file("source_sink_metapopulation/source_sink_shiny.Rmd",
+    file = system.file("source_sink_dynamics/source_sink_dynamics.Rmd",
                        package =  "ecoevoapps"),
     default_file = NULL,
     auto_reload = TRUE,
