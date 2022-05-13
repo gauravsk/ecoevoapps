@@ -4,12 +4,12 @@
 \alias{shiny_XXX}
 \alias{shiny_singlepop_continuous}
 \alias{shiny_population_growth_discrete}
-\alias{shiny_lvcompetition}
-\alias{shiny_consumer_resource}
+\alias{shiny_lvcomp}
+\alias{shiny_predprey}
 \alias{shiny_biotic_comp}
 \alias{shiny_infectious_disease}
-\alias{shiny_metapopulation}
-\alias{shiny_structured_pop}
+\alias{shiny_source_sink}
+\alias{shiny_structured_population}
 \alias{shiny_island_biogeo}
 \alias{shiny_abiotic_comp}
 \alias{shiny_smith_fretwell}
@@ -19,30 +19,29 @@ shiny_singlepop_continuous(language = "en")
 
 shiny_population_growth_discrete(language = "en")
 
-shiny_lvcompetition()
+shiny_lvcomp(language = "en")
 
-shiny_consumer_resource()
+shiny_predprey(language = "en")
 
-shiny_biotic_comp()
+shiny_biotic_comp(language = "en")
 
-shiny_infectious_disease()
+shiny_infectious_disease(language = "en")
 
-shiny_metapopulation()
+shiny_source_sink()
 
-shiny_structured_pop()
+shiny_structured_population(language = "en")
 
 shiny_island_biogeo(language = "en")
 
-shiny_abiotic_comp()
+shiny_abiotic_comp(language = "en")
 
 shiny_smith_fretwell()
 }
 \arguments{
 \item{language}{Two-letter vector indicating the language
-For most models, apps are available in at least
-three languages out of the following options:
+For most models, apps are available in the following languages:
 english (\code{language = "en"}), spanish (\code{language = "es"}),
-chinese (\code{language = "ch"}), turkish (\code{language = "tk"}),
+chinese (\code{language = "ch"}), turkish (\code{language = "tr"}),
 and portuguese (\code{language = "pt"}).}
 }
 \description{
