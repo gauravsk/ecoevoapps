@@ -1,5 +1,5 @@
 ---
-title: "Structured Populations"
+title: "Dynamics of Structured Populations"
 output: html_document
 runtime: shiny
 ---
@@ -106,7 +106,7 @@ fluidPage(
                        renderPlot({ plot_pop_trajectory() }),
                        h4("Trajectory of the age distribution"),
                        renderPlot({ plot_pop_agedist() }),
-                       h4("Trajectory of the overall populatin growth rate"),
+                       h4("Trajectory of the overall population growth rate"),
                        renderPlot({ plot_pop_lambda() }))
   )
   )
