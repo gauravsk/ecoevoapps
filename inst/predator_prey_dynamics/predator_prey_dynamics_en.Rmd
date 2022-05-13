@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_ch/) |  English |  [Turkish](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_tr/) ***
+***[中文](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_ch/) |  English | [português](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_tr/) ***
 
 
 ```{r setup, include=FALSE}
