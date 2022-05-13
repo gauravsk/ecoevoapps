@@ -4,7 +4,11 @@
 \alias{print_app_footer}
 \title{Print footer for Shiny apps}
 \usage{
-print_app_footer()
+print_app_footer(language = "en")
+}
+\arguments{
+\item{language}{which language to print footer in ("en", "es", "ch", "pt", or
+"tr")}
 }
 \description{
 This function is only intended for use in EcoEvoApps' shiny apps.

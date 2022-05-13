@@ -3,7 +3,7 @@
 \name{shiny_XXX}
 \alias{shiny_XXX}
 \alias{shiny_singlepop_continuous}
-\alias{shiny_singlepop_discrete}
+\alias{shiny_population_growth_discrete}
 \alias{shiny_lvcompetition}
 \alias{shiny_consumer_resource}
 \alias{shiny_biotic_comp}
@@ -17,7 +17,7 @@
 \usage{
 shiny_singlepop_continuous(language = "en")
 
-shiny_singlepop_discrete(language = "en")
+shiny_population_growth_discrete(language = "en")
 
 shiny_lvcompetition()
 
