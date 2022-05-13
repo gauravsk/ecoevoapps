@@ -10,7 +10,7 @@
 \alias{shiny_infectious_disease}
 \alias{shiny_source_sink}
 \alias{shiny_structured_population}
-\alias{shiny_island_biogeo}
+\alias{shiny_ibiogeo_model}
 \alias{shiny_abiotic_comp}
 \alias{shiny_smith_fretwell}
 \title{Run the shiny apps for various models}
@@ -31,7 +31,7 @@ shiny_source_sink()
 
 shiny_structured_population(language = "en")
 
-shiny_island_biogeo(language = "en")
+shiny_ibiogeo_model(language = "en")
 
 shiny_abiotic_comp(language = "en")
 

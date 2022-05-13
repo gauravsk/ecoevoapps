@@ -215,7 +215,7 @@ shiny_structured_population <- function(language = "en") {
 
 #' @rdname shiny_XXX
 #' @export
-shiny_island_biogeo <- function(language = "en") {
+shiny_ibiogeo_model <- function(language = "en") {
 
   stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tk", "pt")))
