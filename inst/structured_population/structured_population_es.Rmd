@@ -1,0 +1,202 @@
+---
+title: "Dinámicas de Poblaciones Estructuradas"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/structured_population_dynamics_ch/) | Español |[English] | [Turkish](https://ecoevoapps.shinyapps.io/structured_population_dynamics_tr/) ***
+
+```{r, include = F}
+# Set default parameters for R chunks in Rmd
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# Load the ecoevoapps package
+library(ecoevoapps)
+library(ggplot2)
+```
+
+Algunas poblaciones se modelan mejor como una colección de individuos en distintas categorías de edades ([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/)). El crecimiento de tales poblaciones estructuradas depende de la tasa de transición de una clase de edad (o fase) a la otra. Por ejemplo, la tasa de supervivencia de la fase juvenil hacia adultos jóvenes puede ser distinta de la tasa de supervivencia de adultos a adultos mayores. Podemos modelar esta dinámica conociendo las tasas de *supervivencia* de una clase a la siguiente, y sabiendo de qué manera los individuos en cada categoria contribuyen a la población por medio de la producción de nuevos individuos.
+
+### La Matriz de Leslie
+
+La [Matriz de Leslie](https://en.wikipedia.org/wiki/Leslie_matrix) es una forma conveniente de organizar las tasas de transición (supervivencia y fecundidad). La Matriz de Leslie es una matriz $NxN$, donde $N$ indica el número total de edades (fases) en el ciclo de la población. Los elementos de la matriz nos informan cómo los individuos en cada *columna* de edad contributyen a cada *fila* de edad. Por ejemplo, la segunda columna en la primera fila nos informa cuántos individuos que pretenecen a la clase de edad 2 contribuyen a la categoría de edad 1. 
+
+Además de ser una forma conveniente de dar cuenta de la información sobre la supervivencia y fecundidad, la matriz también tiene tres propiedades clave:
+
+1. Para simular la población en el siguiente paso de tiempo (tiempo $t+1$) uno solo necesita multiplicar la Matriz de Leslie por la matriz con los tamaños iniciales de la población (en el tiempo $t$).
+
+2. El mayor eigenvalor (valor propio) de la Matriz de Leslie es $\lambda$, la tasa de crecimiento asintótico para toda la población. Cuando $\lambda < 1$ la población disminuye hacia la extinción, cuando $\lambda > 1$, la población crece exponencialmente, y cuando $\lambda = 1$ el tamaño de la población permanece constante a lo largo del tiempo. 
+
+3. El eigenvector (vector propio) que corresponde al mayor eigenvalor nos da la estructura estable de la población (o las proporciones de cada clase de edad luego de que la población llegue al equilibrio).
+
+#### Usa la app de abajo para explorar las propiedades del crecimiento poblacional estructurado:
+
+```{r}
+
+### APP
+fluidPage(
+  ## INPUT
+  sidebarPanel(
+      
+    # Initial sizes
+    numericInput(inputId = "N1",
+                  label = "Número inicial de invividuos de edad 1",
+                  min = 0,
+                  max = NA,
+                  value = 100),
+    numericInput(inputId = "N2",
+                   label = "Número inicial de invividuos de edad 2",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+    numericInput(inputId = "N3",
+                   label = "Número inicial de invividuos de edad 3",
+                   min = 0,
+                   max = NA,
+                   value = 100),
+      
+    # Leslie matrix
+    numericInput(inputId = "F1",
+                  label = "Fecundidad a la edad de 1",
+                  min = 0,
+                  max = NA,
+                  value = 0),
+    numericInput(inputId = "F2",
+                  label = "Fecundidad a la edad de 2",
+                  min = 0,
+                  max = NA,
+                  value = 8),          
+    numericInput(inputId = "F3",
+                  label = "Fecundidad a la edad de 3",
+                  min = 0,
+                  max = NA,
+                  value = 1),
+    sliderInput(inputId = "S12",
+                  label = "Supervivencia de la edad 1 a 2 (%)",
+                  min = 1,
+                  max = 100,
+                  value = 40),
+    sliderInput(inputId = "S23",
+                  label = "Supervivencia de la edad 2 a 3 (%)",
+                  min = 0,
+                  max = 100,
+                  value = 80),
+    width=4),
+  
+  ## OUTPUT
+  mainPanel(
+  tabsetPanel(type = "pills",
+              tabPanel("Diagrama de la población y Matriz de Leslie",
+                       renderPlot({ diagr() }, width = 500),
+                       br(),
+                       column(width = 5,
+                              style='border-right: 0.02px solid grey',
+                              br(),
+                              h4("Matriz de Leslie"),
+                              renderTable({ Leslie_to_print() })),
+                       column(width = 7,
+                              h4("Eigenanálisis"),
+                              em(strong("Tasa de crecimiento asintótico (lambda)")),
+                              renderText({ eigenval() }),
+                              br(), # br(), br(),
+                              em(strong("Estructura estable de la población")),
+                              renderTable({ eigenvec() })
+                       )),
+              tabPanel("Trayectorias de la población",
+                       h4("Trayectoria de la población para cada clase de edad"),
+                       renderPlot({ plot_pop_trajectory() }),
+                       h4("Trayectoria de la distribución de edades"),
+                       renderPlot({ plot_pop_agedist() }),
+                       h4("Trayectoria de la tasa de crecimiento para la población total"),
+                       renderPlot({ plot_pop_lambda() }))
+  )
+  )
+)
+
+
+## Leslie matrix
+Leslie_matrix <- reactive({
+  matrix(
+      c(input$F1,input$F2, input$F3,
+        input$S12/100,0,0,
+        0, input$S23/100,0),
+      ncol = 3, byrow = T
+      )
+  })
+
+Leslie_to_print <- reactive({
+  ll <- Leslie_matrix()
+  colnames(ll) <- paste("Age",1:3)
+  ll
+})
+
+init <- reactive({
+  c(input$N1,input$N2,input$N3)
+})
+
+## Largest eigenvalue
+eigenval <- reactive({
+  paste0("Primer eigenvalor de la Matriz de Leslie = ",round(eigen(Leslie_matrix())$values,2)[1])
+  })
+
+## Eigenvector corresponding to largest eigenvalue
+tmp <- reactive({
+  round(eigen(Leslie_matrix())$vectors[,1]*100/
+          sum(eigen(Leslie_matrix())$vectors[,1]))
+})
+
+eigenvec <- reactive({
+  matrix(
+    c("Eigenvector", round(eigen(Leslie_matrix())$vectors[,1],2),
+      "%", tmp()[1], tmp()[2], tmp()[3]),
+    ncol=4, byrow=T,
+    dimnames = list(NULL, c(" ","Edad 1","Edad 2", "Edad 3"))
+  )
+})
+
+
+diagr <- reactive({ 
+  plot_leslie_diagram(Leslie_matrix())
+})
+
+# Simulation plots
+
+pop_trajectory <- reactive({
+  run_structured_population_simulation(leslie_mat = Leslie_matrix(), 
+                                       init = init(), time = 1000)
+})
+
+plot_pop_trajectory <- reactive({
+  plot_structured_population_size(pop_trajectory()) +
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13))
+})
+
+plot_pop_agedist <- reactive({
+  plot_structured_population_agedist(pop_trajectory(), 
+                                     leslie_mat = Leslie_matrix())+
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13),
+          plot.caption = element_text(size = 13))
+})
+
+plot_pop_lambda <- reactive({
+  plot_structured_population_lambda(pop_trajectory(), 
+                                    leslie_mat = Leslie_matrix()) +
+    labs(title = "") +
+    theme(legend.text = element_text(size = 13),
+          legend.title = element_text(size = 13),
+          plot.caption = element_text(size = 13))
+})
+
+```
+
+
+-------------
+
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer()
+```
