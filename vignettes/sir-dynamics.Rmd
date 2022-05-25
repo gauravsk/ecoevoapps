@@ -108,3 +108,28 @@ head(seir_out)
 
 plot_infectiousdisease_time(seir_out, model_type = "SEIR")
 ```
+
+### Susceptible-Infectious-Recovered-Dead
+
+In all the models above, we assume that individuals who are infected can eventually recover, and that there is no excess mortality associated with the disease. But we know that in some cases, disease condition is associated with increased mortality rates, which we can model by introducing a new compartment into these models:  
+
+\[
+\begin{align}
+\frac{dS}{dt} &= m(S + I + R)(1 - v) - mS - \beta SI\\
+\frac{dI}{dt} &= \beta SI - mI - \gamma I - \mu I\\
+\frac{dR}{dt} &= \gamma I - mR + mv(S + I + R)\\
+\frac{dD}{dt} &= \mu I\\
+\end{align}
+\]
+
+We can simulate this model as follows:
+
+```{r}
+sird_params_vec <- c(m = 0.1, beta = .1, gamma = 0.2, a = .025, v = 0, mu = 0.05)
+sird_init_vec <- c(S = 100, I = 2, R = 0, D = 0)
+sird_time_vec <- seq(0, 25, 0.1)
+sird_out <- run_infectiousdisease_model(time = sird_time_vec, init = sird_init_vec, params = sird_params_vec, model_type = "SIRD")
+head(sird_out)
+
+plot_infectiousdisease_time(sird_out, model_type = "SIRD")
+```

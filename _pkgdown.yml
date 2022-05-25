@@ -65,6 +65,7 @@ articles:
   - lotka-volterra-competition
   - predator-prey-interactions
   - mechanistic-competition-models
+  - sir-dynamics
   - island-biogeo
 - title: Extending ecoevoapps
   navbar: Extensions
