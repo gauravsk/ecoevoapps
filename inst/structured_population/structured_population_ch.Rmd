@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***中文 | [English](https://ecoevoapps.shinyapps.io/structured_population_dynamics/) | [português](https://ecoevoapps.shinyapps.io/structured_population_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/structured_population_dynamics_tr/) ***
+***中文 | [Español](https://ecoevoapps.shinyapps.io/structured_population_dynamics_es) | [English](https://ecoevoapps.shinyapps.io/structured_population_dynamics/) | [português](https://ecoevoapps.shinyapps.io/structured_population_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/structured_population_dynamics_tr/) ***
 
 ```{r, include = F}
 # Set default parameters for R chunks in Rmd
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
 # Load the ecoevoapps package
 library(ecoevoapps)
+library(ggplot2)
 ```
 
 一些种群适合表示为一系列处于不同年龄级、或不同大小等级的个体([Tenhumberg, 2010](https://www.nature.com/scitable/knowledge/library/ignoring-population-structure-can-lead-to-erroneous-15128671/))。这类结构式种群的增长率取决于一个等级向另一个等级过渡的速率。例如，幼体期至成体期的存活率可能不同于成体期至更大龄级的存活率。我们可以用一个年龄（或阶段）等级至下一个等级的*存活率*，以及各年龄（或阶段）通过*繁殖*对于种群增长的贡献，来模拟此类种群的动态。
