@@ -26,7 +26,19 @@ Authors@R:
       person(given = "Marcel",
              family = "Vaz",
              role = "aut",
-             email = "marcelvaz@gmail.com")
+             email = "marcelvaz@gmail.com"),
+      person(given = "Alejandra",
+             family = "Martinez-Blancas",
+             role = "ctb",
+             email = "alemtzb@ciencias.unam.mx"),
+      person(given = "Damla",
+             family = "Cinoglu",
+             role = "ctb",
+             email = "dcinoglu@utexas.edu"),
+      person(given = "Sheila",
+             family = "Vazquez-Morales",
+             role = "ctb",
+             email = "sheila.vazquez-morales@health.missouri.edu")
       )
 Maintainer: Gaurav Kandlikar <gkandlikar@missouri.edu>
 Description: A collection of Shiny apps for common models in 
