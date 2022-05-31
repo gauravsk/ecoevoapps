@@ -14,91 +14,86 @@ knitr::opts_chunk$set(
 )
 ```
 
-We envision EcoEvoApps as a community resource and have  developed the prohect with an explicit focus on enabling contributions from across the EEB community. There are a range of mechanisms by which community members with varying levels of theoretical, computational, and pedagogical expertise can contribute to this project. This vignette outlines these mechanisms and provides guidelines for how community members can become involved in this project. Beyond the contribution guidelines described here, we expect all individuals contributing to this project in any capacity to adhere to our [Contributor Covenant Code of Conduct](https://ecoevoapps.gitlab.io/codeofconduct).
+We envision EcoEvoApps as a community resource and have developed the project with an explicit focus on enabling contributions from across the EEB community. There are a range of mechanisms by which community members with varying degrees of theoretical, computational, and pedagogical expertise can contribute to this project. This vignette outlines these mechanisms and provides guidelines for how community members can become involved in this project. Beyond the contribution guidelines described here, we expect all individuals contributing to this project in any capacity to adhere to our [Contributor Covenant Code of Conduct](https://ecoevoapps.gitlab.io/code-of-conduct/). Contributors will be acknowledged in the `ecoevoapps` [R package](https://gitlab.com/ecoevoapps/ecoevoapps) source code and/or on the EcoEvoApps [website](https://ecoevoapps.gitlab.io/people/).
 
-## Mechanism 1: Write and contribute a new app
+## 1. Write and contribute a new app {#new}
 
-Development of the `ecoevoapps` R package and EcoEvoApps website takes place collaboratively on [GitLab](https://gitlab.com), where we write, review, and deploy new apps. If there is a model or app that you would like to see implemented in EcoEcoApps, you can help the project grow by writing and contributing a new app. The most direct way to do this is to develop the app directly in the [`ecoevoapps` repository on GitLab](https://gitlab.com/ecoevoapps/ecoevoapps). If you are new to using git, please see the section [Contributing to EcoEvoApps via GitLab](#gitlab-inst) for details regarding this workflow. However, if you have written an app but are unfamiliar with git, you are also welcome to email us at ecoevoapps@gmail.com. 
+Development of the `ecoevoapps` [R package](https://gitlab.com/ecoevoapps/ecoevoapps) and EcoEvoApps [website](https://ecoevoapps.gitlab.io/) takes place collaboratively on GitLab, where we write, review, and deploy new apps. If there is a model or app that you would like to see implemented in EcoEvoApps, you can help the project grow by writing and contributing a new app. The most direct way to do this is to interact directly with the `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) on GitLab. If you are new to using git or GitLab, please see the section [Contributing to EcoEvoApps via GitLab](#gitlab-workflow) for further information about this workflow. If you would like to contribute an app but are unfamiliar with git or GitLab, you can also email us at ecoevoapps@gmail.com.
 
-New apps should be developed so as to satisfy the basic  requirements described in the section [Review process for new apps](#review). You may wish to inquire about your intent to write and contribute a new app before doing so in order to prevent any miscommunications or duplication of efforts.
+New apps should aim to satisfy the basic requirements described in the section [Review process for contributed apps](#review). In addition to fully functioning apps, we also welcome contributions of code that simulates model dynamics but which has not yet been made into an interactive app. Such code can be used by core developers or other community members as the groundwork for writing a new app, potentially in collaboration with the author of the original code. If you are interested in contributing code in this manner, please email us at ecoevoapps@gmail.com.
 
-Apart from contributions of fully-functioning apps, we also welcome contributions of code that simulates model dynamics but which has not yet been made into an interactive app. Such submitted code can be used by core developers or other community members as the groundwork for writing a new app, potentially in collaboration with the author of the original code. If you are interested in contributing code in this manner, please contact us at ecoevoapps@gmail.com.
+We encourage community members to contact us at ecoevoapps@gmail.com prior to contributing a new app in order to avoid potential miscommunications or duplication of efforts.
 
+## 2. Revise or translate an existing app {#revise-translate}
 
-## Mechanism 2: Revise an existing app
+Community members can also contribute to EcoEvoApps by revising or translating existing apps. The most direct way to revise or translate an app is to interact directly with the `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) on GitLab. See the section [Contributing to EcoEvoApps via GitLab](#gitlab-workflow) for further information about this workflow. If you are not comfortable working with git or GitLab, you can also email us the revised code or translated text at ecoevoapps@gmail.com. If you have ideas for a revision but are not sure how to implement your idea, or want someone else to implement your idea, please email us or submit a feature request as described in the section [Provide feedback or request new apps/features](#feedback) below.
 
-Community members can also contribute to the EcoEvoApps project by revising or translating apps in `ecoevoapps`. The best way to revise an app is to do so directly in the [`ecoevoapps` GitLab repository](https://gitlab.com/ecoevoapps/ecoevoapps). See the section [Contributing to EcoEvoApps via GitLab](#gitlab-inst) for details regarding this workflow. If you are not comfortable with directly modifying an app using GitLab, you can also email us the revised code or translated text at ecoevoapps@gmail.com. If you have ideas for a revision but are not sure how to implement your idea, or want someone else to implement your idea, please email us or submit a feature request as described in the Mechanism 3 below.
+## 3. Provide feedback or request new apps/features {#feedback}
 
-## Mechanism 3: Provide feedback or request new apps/features
+We greatly value feedback and suggestions from community members on any aspect of EcoEvoApps. If you spot an issue with any of the existing apps, you can submit a bug report using this [form](https://forms.gle/M483PXy1AVAYB9oq5) or by directly opening an [issue](https://gitlab.com/ecoevoapps/ecoevoapps/-/issues) in the `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) on GitLab. You can similarly request new features for existing apps or request entirely new apps that you would like to see implemented. You can also directly correspond with us about any issues, suggestions, or requests by emailing us at ecoevoapps@gmail.com.
 
-We greatly value feedback and suggestions from community members on any aspect of EcoEvoApps. If you spot an issue with any of the existing apps, you can submit a bug report using [this form](https://forms.gle/M483PXy1AVAYB9oq5) or by directly [opening an issue](https://gitlab.com/ecoevoapps/ecoevoapps/-/issues) in the `ecoevoapps` GitLab repository. You can similarly use these avenues to request new features for existing apps or to request entirely new apps that you would like to see implemented. You can also directly correspond with us about any issues, suggestions, or requests by emailing us at ecoevoapps@gmail.com.
+## 4. Contribute classroom use cases and activities {#classroom}
 
-
-## Mechanism 4: Contribute classroom use cases and activities 
 To facilitate the adoption of EcoEvoApps in the classroom, we intend to compile and make available to community members resources, use cases, and activities that exemplify how instructors can use these apps in an educational context. If you are an instructor and are willing to share your experience or course materials pertaining to the use of EcoEvoApps in your classes, please get in touch with us at ecoevoapps@gmail.com. We also welcome testimonials and feedback from students who have interacted with EcoEvoApps in one or more of their classes. Further details regarding this effort are forthcoming.
 
 ## Review process for contributed apps {#review}
-Newly contributed apps or modifications to existing apps will be reviewed following a standard procedure prior to inclusion in the `ecoevoapps` R package or EcoEvoApps website. In this section we describe the basic requirements for contributed apps and provide an overview of the app review process.
 
-**Basic requirements for all apps:**  
-- Title of the app  
-- Short description of the model or app  
-- Equations or diagrams of the model (when applicable)  
-- Definitions of all variables and parameters  
-- At least one user-defined input  
-- At least one reactive figure complete with labels and legends  
-- References (when applicable)
+Newly contributed apps or modifications to existing apps will be reviewed following a standard procedure prior to inclusion in the `ecoevoapps` [R package](https://gitlab.com/ecoevoapps/ecoevoapps) or EcoEvoApps [website](https://ecoevoapps.gitlab.io/). In this section we describe the basic requirements for contributed apps and provide an overview of the app review process.
 
-New apps will receive following designations based on the degree to which they have been reviewed/tested:  
+**Basic requirements for all apps**:
 
-*Beta*: Newly contributed or modified apps will first be evaluated by one or more core developers for whether they satisfy all of the basic app requirements listed above. Apps that have been confirmed to satisfy these criteria will be marked as beta and will be uploaded to the EcoEvoApps website.
+* Title of the app  
+* Short description of the model or app  
+* Equations or diagrams representing the model (when applicable)  
+* Definitions of all variables and parameters  
+* At least one user-defined input  
+* At least one reactive figure complete with labels and legends  
+* References (when applicable)
 
-*Reviewed*: Recently contributed or modified apps in the beta stage will next be reviewed by one or more app reviewers, who will check whether the apps can be run without runtime errors (e.g. all figures update in response to user inputs, no error messages, no unexpectedly long delays, etc.). Apps that have passed this basic review process will be marked as reviewed on the EcoEvoApps website. 
+New apps will receive following designations based on the degree to which they have been tested and reviewed:  
 
-*Stable*: Additionally, reviewers who are familiar with the biological concepts underlying the apps and the expected behavior of the models at hand can review the description text, equations or diagrams, and model behavior (e.g. bifurcation points, equilibria, etc.) to confirm that the apps are not only fully functional but also biologically accurate. Apps that have passed this advanced review process will be marked as stable on the EcoEvoApps website, and will be incorporated into the `ecoevoapps` R package (unless otherwise requested by the contributor). Apps may be designated as stable without first being marked as reviewed if the reviewer sees fit.
+**Beta**: Newly contributed or modified apps will first be evaluated by one or more core developers for whether they satisfy all of the basic app requirements listed above. Apps that have been confirmed to satisfy these criteria will be marked as beta and will be deployed on the EcoEvoApps [website](https://ecoevoapps.gitlab.io/).
 
-## Contributing to EcoEvoApps via GitLab {#gitlab-inst}
+**Reviewed**: Recently contributed or modified apps in the beta stage will next be reviewed by one or more app reviewers, who will check whether the apps can be run without runtime errors (e.g. all figures update in response to user inputs, no error messages, no unexpectedly long delays, etc.). Apps that have passed this basic review process will be marked as reviewed on the EcoEvoApps [website](https://ecoevoapps.gitlab.io/).
 
-The most direct way to contribute a new app or to revise an existing app is to directly work with the `ecoevoapps` GitLab repository (https://gitlab.com/ecoevoapps/ecoevoapps). In this section we describe the general workflow for contributing to EcoEvoApps via GitLab. Note that this is not meant to be a comprehensive tutorial for git and GitLab, but rather is an outline of the general process of contributing to this project via GitLab.
+**Stable**: Additionally, reviewers who are familiar with the biological context and expected behavior of the apps can review the description text, equations or diagrams, and model behavior (e.g. bifurcation points, equilibria, etc.) to confirm that the apps are not only fully functional but also biologically accurate. Apps that have passed this advanced review process will be marked as stable on the EcoEvoApps [website](https://ecoevoapps.gitlab.io/), and can be incorporated into the `ecoevoapps` [R package](https://gitlab.com/ecoevoapps/ecoevoapps).
 
-1. Fork the `ecoevoapps` repository on GitLab. This creates a personal copy of the repository.
+If you would like to request an exception to the standard review process outlined above, please email us at ecoevoapps@gmail.com.
 
+## Contributing to EcoEvoApps via GitLab {#gitlab-workflow}
 
-2. Clone the forked repository to a desired directory on your local device. This allows you to modify your copy of the repository locally.
+The most direct way to contribute a new app or to revise an existing app is to directly work with the `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) on GitLab. In this section we describe the general workflow for contributing to EcoEvoApps via GitLab. Note that this is not meant to be a comprehensive tutorial for git and GitLab, but rather is a rough outline of the general process of contributing to this project via GitLab.
 
-```git clone https://gitlab.com/YOUR-USERNAME/ecoevoapps.git```
+1. [Fork](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html) the `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) on GitLab. This creates a personal copy of the repository.
 
+2. [Clone](https://docs.gitlab.com/ee/user/project/repository/#clone-a-repository) the forked repository to a desired directory on your device. This allows you to modify your copy of the repository locally.
 
-3. (Optional) It is often recommended that you keep your fork synced with the original repository while you work on it. This can be done by adding the original repository as an upstream remote and periodically obtaining any changes that have been made there. Once the upstream remote is configured, you can fetch and merge any changes in the original repository into the master branch of your fork on demand. Local updates to your fork will also have to be pushed to your remote origin. While you work on your feature branch (step 5) you may wish to periodically switch back to your master branch and merge any upstream changes to keep your fork up to date.
+    Clone with [SSH](https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html#clone-with-ssh):  
 
-```
-git remote -v
-git remote add upstream https://gitlab.com/ecoevoapps/ecoevoapps.git
-git checkout master
-git fetch upstream
-git merge upstream/master
-git push origin master
-```
+    ```
+    git clone git@gitlab.com:USERNAME/ecoevoapps.git
+    ```  
 
+    Clone with [HTTPS](https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html#clone-with-https):  
 
-4. Once you are ready to start working on a new app or feature, create a feature branch in your fork with a descriptive title. This allows you to make modifications to your fork without directly modifying the master branch.
+    ```
+    git clone https://gitlab.com/USERNAME/ecoevoapps.git
+    ```
 
-```git checkout -b FEATURE-BRANCH```
+3. Once you are ready to start working on a new app or feature, create a [feature branch](https://docs.gitlab.com/ee/gitlab-basics/feature_branch_workflow.html) in your fork with a descriptive title. This allows you to make modifications to your fork without directly modifying the master branch.
 
+    ```
+    git checkout -b FEATUREBRANCH
+    ```
 
-5. Now you can work on developing your new app or feature on the feature branch, staging, committing, and pushing any notable changes as you go. Remember to keep in mind the review criteria described in the section [Review process for contributed apps](#review) when writing or revising an app. Note: If you have configured the upstream remote in step 4, we generally recommend against merging any upstream changes into your feature branch in order to avoid duplication of commits when merging the feature branch to the original repository (step 7). We will reach out to you upon receipt of the merge request if your feature branch needs to be updated to match new changes to the original repository.
+4. Now you can work on developing your new app or feature on your feature branch, [staging](https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html#add-and-commit-local-changes), [committing](https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html#add-and-commit-local-changes), and [pushing](https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html#send-changes-to-gitlabcom) any notable changes to GitLab as you go. Remember to keep in mind the review criteria described in the section [Review process for contributed apps](#review) when writing or revising an app.
 
-```
-git stage -A
-git commit -m "COMMIT MESSAGE"
-git push origin FEATURE-BRANCH
-```
+    ```
+    git add -A
+    git commit -m "COMMIT MESSAGE"
+    git push origin FEATUREBRANCH
+    ```
 
+6. Once you are ready to submit your new app or feature, navigate to your forked repository on GitLab and create a [merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html#when-you-work-in-a-fork). Make sure to select the feature branch of your fork as the source branch and the master branch of the original `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps) as the target branch. Add a descriptive title to your merge request and describe the additions or changes you have made in the description box, then submit the merge request.
 
-6. Once you are ready to submit your new app or feature, navigate to your forked repository on GitLab and create a merge request. Make sure that you select your feature branch as the source branch and the master branch of the original `ecoevoapps` repository as the target branch. Add a descriptive title to your merge request and describe the additions or changes you have made in the description box (description templates forthcoming). When submitting your merge request, you can select to have your source branch deleted upon approval of the merge request (this will not automatically delete the feature branch on your local device). If your merge request contains an excessive number of commits, you can also select to have your commits squashed into one upon merging.
-
-
-7. Your merge request will be reviewed by one or more of the core developers. Once the merge request and the submitted app or feature has been satisfactorily reviewed (see section "[Review process for contributed apps](#review)"), the request will be accepted and your contributions will be incorporated into the original `ecoevoapps` repository and the EcoEvoApps website. We will communicate with you about any issues that need to be resolved prior to merging, should they arise.
-
-
-
+7. Your merge request will be reviewed by one or more of the core developers. Once the merge request and the submitted app or feature has been satisfactorily reviewed (see section [Review process for contributed apps](#review)), the merge request will be accepted and your contributions will be incorporated into the original `ecoevoapps` [repository](https://gitlab.com/ecoevoapps/ecoevoapps). We will communicate with you about any issues that need to be resolved prior to merging, should they arise.
