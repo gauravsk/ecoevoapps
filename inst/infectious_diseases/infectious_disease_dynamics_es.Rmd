@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_ch/) | Español | [English] | [português](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_tr/) ***
+***[中文](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_ch/) | Español | [English](https://ecoevoapps.shinyapps.io/sir_disease_dynamics/) | [português](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/sir_disease_dynamics_tr/) ***
 
 ```{r setup, include=FALSE}
 
@@ -1417,5 +1417,5 @@ plots_to_render_sird_ft <- reactive({
 -------------
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer()
+ecoevoapps::print_app_footer("es")
 ```
