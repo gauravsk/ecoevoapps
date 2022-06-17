@@ -1,0 +1,704 @@
+---
+title: "Dinámicas de Depredador y Presa"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_ch/) | Español | [English] | [português](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_tr/) ***
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ecoevoapps)
+library(kableExtra)
+library(tidyr)
+library(ggplot2)
+ggplot2::theme_set(ecoevoapps::theme_apps())
+```
+
+
+Esta aplicación presenta varios modelos que exploran las dinámicas entre depredadores y presas. Hay diferentes versiones de modelos depredador-presa presentados abajo, sin embargo, todos comparten una estructura similar. La población de la presa está considerada como una sola población en la que, en ausencia del depredador, crece exponencialmente o de manera logística. El depredador depende solo en esa presa para obtener energía (es un depredador especialista), y si no hay presas disponibles en el sistema, la población del depredador disminuye a zero. Mientras más abundante es la presa, más puede crecer la población del depredador. Pero mientras más crece la población del depredador, más disminuye la población de la presa. Esto resulta en las dinámicas cíclicas que observamos en varios modelos de depredador-presa. 
+
+De manera histórica, versiones de modelos de depredador-presa también han sido utilizadas para estudiar las dinámicas entre parásitos y sus huéspedes. Por ello, seguimos su convención modelando la "presa" utilizando la variable $H$ y el "depredador" utilizando la variable $P$.
+
+
+
+##  {.tabset}
+
+### Modelo Depredador-Presa de Lotka y Volterra
+
+El modelo clásico [Lotka-Volterra](https://es.wikipedia.org/wiki/Ecuaciones_Lotka–Volterra) captura las dinámicas entra una presa que sigue crecimiento exponencial y un depredador que consume la presa sin llegar a un punto de saturación ("Respuesta funcional tipo I", ver [abajo](#consumer-functional-response)):
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - aHP\\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params type 1, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tamaño de la población del Depredador",
+                 "Tasa de crecimiento per cápita de la Presa",
+                 "Tasa de ataque del Depredador",
+                 "Eficiencia de conversión del Depredador",
+                 "Tasa de mortalidad del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Ecuaciones para las isoclinas de crecimiento cero:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\\
+\\
+H^* &= \frac{d}{ea} 
+\end{align}
+\]
+
+
+```{r type 1 pred prey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_lv_pred1", label = "Tasa de crecimiento per cápita de la Presa", 
+                min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred1", label = "Tasa de ataque del Depredador", min = .001, 
+                max = 1.0, value = .1),
+    sliderInput("e_lv_pred1", label = "Eficiencia de conversión del Depredador",
+                min = .001, max = 1.0, value = 0.2),
+    sliderInput("d_lv_pred1", label = "Tasa de mortalidad per cápita del Depredador",
+                min = .0001, max = 1.0, value = .3),
+  
+    ### Ask users for initial conditions -----
+    #N1, N2
+    
+    numericInput("H_lv_pred1", label = "Tamaño inicial de la población de la Presa", 
+                 min = 1, value = 10),
+    numericInput("P_lv_pred1", label = "Tamaño inicial de la población del Depredador", 
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_lv_pred1", label = "Periodo", min = 10, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred1", label = "¿Mostrar campo vectorial?", 
+                       choices = c("Sí" = "Yes"), selected = "Sí")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred1()),
+            renderPlot(np_lvpred1())
+            )
+
+)
+
+# Set the initial population sizes
+init_lv_pred1 <- reactive({c(H = input$H_lv_pred1, P = input$P_lv_pred1)})
+
+# Set the parameter values
+pars_lv_pred1 <- reactive({
+  c(r = input$r_lv_pred1, a = input$a_lv_pred1, 
+    e = input$e_lv_pred1, d = input$d_lv_pred1)
+})
+
+# Time over which to simulate model dynamics
+time_lv_pred1 <- reactive({seq(0, input$t_lv_pred1, by = .1)})
+
+# simulate model dynamics
+out_lv_pred1 <- reactive({
+  data.frame(run_predprey_model(
+    time = time_lv_pred1(),
+    init = init_lv_pred1(),
+    params = pars_lv_pred1()
+  ))
+})
+
+# Plots ------
+## make abundance thru time plot
+plot_lvpred1 <- reactive({
+  plot_predprey_time(out_lv_pred1())
+})
+
+# plot trajectory of population
+np_lvpred1 <- reactive({
+  if("Yes" %in% input$vectors_lv_pred1) {
+    plot_predprey_portrait(out_lv_pred1(), pars_lv_pred1(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_lv_pred1(), pars_lv_pred1(), 
+                             vectors_field = F)
+  }
+  
+})
+
+```
+
+### Presa Logística
+
+Este modelo agrega una capa de realismo biológico al modelo Lotka-Volterra. Específicamente, en el modelo clásico, la presa es modelada con crecimiento exponencial. En este modelo, la presa experiencia crecimiento logístico hasta alcanzar la capacidad de carga $K$.
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - aHP \\
+\\
+\frac{dP}{dt} &= eaHP - dP
+\end{align}
+\]
+
+```{r params logistic growth, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tamaño de la población del Depredador",
+                 "Tasa de crecimiento per cápita de la Presa",
+                 "Capacidad de carga de la Presa",
+                 "Tasa de ataque del Depredador",
+                 "Eficiencia de conversión del Depredador",
+                 "Tasa de mortalidad del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Ecuaciones para las isoclinas de crecimiento cero:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)\\
+\\
+H^* &= \frac{d}{ea} \\
+\end{align}
+\]
+
+```{r logprey, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, e, d, K
+    
+    sliderInput("r_logprey", label = "Tasa de crecimiento per cápita de la Presa",
+                min = .0001, max = 1.0, value = .5),
+    numericInput("K_logprey", label = "Capacidad de carga de la Presa", 
+                 min = 1, value = 100),
+    sliderInput("a_logprey", label = "Tasa de ataque del Depredador",
+                min = .001, max = 1.0, value = .1),
+    sliderInput("e_logprey", label = "Eficiencia de conversión del Depredador", 
+                min = .001, max = 1.0, value = 0.5),
+    sliderInput("d_logprey", label = "Tasa de mortalidad per cápita del Depredador",
+                min = .0001, max = 1.0, value = .3),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    numericInput("H_logprey", label = "Tamaño inicial de la población de la Presa",
+                 min = 1, value = 10),
+    numericInput("P_logprey", label = "Tamaño inicial de la población del Depredador", 
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_logprey", label = "Periodo", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_logprey", label = "¿Mostrar campo vectorial?", 
+                       choices = c("Sí" = "Yes"), selected = "Sí")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_logprey()), 
+            renderPlot(np_logprey())
+            )
+)
+
+# Set the initial population sizes
+init_logprey <- reactive({
+  c(H = input$H_logprey, P = input$P_logprey)
+})
+
+# Set the parameter values
+pars_logprey <- reactive({
+  c(r = input$r_logprey, K = input$K_logprey, 
+    a = input$a_logprey, e = input$e_logprey, d = input$d_logprey)
+  })
+
+# Time over which to simulate model dynamics
+time_logprey <- reactive({seq(0, input$t_logprey, by = .1)})
+
+# Simulate the dynamics
+out_logprey <- reactive({
+    data.frame(run_predprey_model(
+    time = time_logprey(),
+    init = init_logprey(),
+    params = pars_logprey()
+  ))
+})
+  
+# Plots ------
+
+## make abundance thru time plot
+plot_logprey <- reactive({
+  plot_predprey_time(out_logprey())
+})
+
+
+np_logprey <- reactive({
+  if("Yes" %in% input$vectors_logprey) {
+    plot_predprey_portrait(out_logprey(), pars_logprey(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_logprey(), pars_logprey(), 
+                             vectors_field = FALSE)
+  }
+})
+
+```
+
+### Respuesta Funcional Tipo II
+
+Este modelo regresa a una presa con crecimiento exponencial, pero agrega una capa de realismo al *depredador*. Específicamente, en el modelo clásico Lotka-Volterra, los depredadores no consumen tiempo procesando la presa, y no se sacian. En este modelo, el depredador tiene una **[respuesta funcional tipo II](https://en.wikipedia.org/wiki/Functional_response)**, lo que quiere decir que la eficiencia del depredador en comer la presa es limitada por el tiempo que tiene para invertir en procesar la presa.
+
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH - \frac{aH}{1+aT_hH} P\\
+\\
+\frac{dP}{dt} &= eP \frac{aH}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params type ii, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tamaño de la población del Depredador",
+                 "Tasa de crecimiento per cápita de la Presa",
+                 "Tasa de ataque del Depredador",
+                 "Tiempo de manipulación del Depredador",
+                 "Eficiencia de conversión del Depredador",
+                 "Tasa de mortalidad del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Ecuaciones para las isoclinas de crecimiento cero:
+\[
+\begin{align}
+P^* &= \frac{r}{a} +rT_hH\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    sliderInput("r_lv_pred2", label = "Tasa de crecimiento per cápita de la Presa",
+                min = .0001, max = 1.0, value = .5),
+    sliderInput("a_lv_pred2", label = "Tasa de ataque del Depredador",
+                min = .001, max = 1.0, value = .1),
+    sliderInput("T_h_lv_pred2", label = "Tiempo de manipulación del Depredador",
+                min = 0.001, max = 1.0, value = 0.2),
+    sliderInput("e_lv_pred2", label = "Eficiencia de conversión del Depredador", 
+                min = .001, max = 1.0, value = 0.7),
+    sliderInput("d_lv_pred2", label = "Tasa de mortalidad per cápita del Depredador",
+                min = .0001, max = 1.0, value = .3),
+      
+    ### Ask users for initial conditions -----
+    numericInput("H_lv_pred2", label = "Tamaño inicial de la población de la Presa",
+                 min = 1, value = 10),
+    numericInput("P_lv_pred2", label = "Tamaño inicial de la población del Depredador",
+                 min = 1, value = 10),
+    
+    ### Ask users for time to simulate ----    
+    numericInput("t_lv_pred2", label = "Periodo", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_lv_pred2", label = "¿Mostrar campo vectorial?", 
+                       choices = c("Sí" = "Yes"), selected = "Sí")
+    
+  ),  
+  
+ 
+  mainPanel(renderPlot(plot_lvpred2()),
+            renderPlot(np_lvpred2())
+  )
+)
+
+# Set the initial population sizes
+init_lv_pred2 <- reactive({
+  c(H = input$H_lv_pred2 , P = input$P_lv_pred2)
+})
+
+# Set the parameter values
+pars_lv_pred2 <- reactive({
+  c(r = input$r_lv_pred2, a = input$a_lv_pred2, 
+    T_h = input$T_h_lv_pred2 , e = input$e_lv_pred2, 
+    d = input$d_lv_pred2 )})
+
+# Time over which to simulate model dynamics
+time_lv_pred2 <- reactive({seq(0,input$t_lv_pred2,by = .1)})
+
+# Simulate the dynamics
+out_lv_pred2 <- reactive({
+  data.frame(run_predprey_model(
+    time = time_lv_pred2(),
+    init = init_lv_pred2(),
+    params = pars_lv_pred2()
+  ))
+})
+  
+
+# Plots ------
+
+## make abundance thru time plot
+plot_lvpred2 <- reactive({
+  plot_predprey_time(out_lv_pred2())
+})
+
+np_lvpred2 <- reactive({
+  if("Yes" %in% input$vectors_lv_pred2) {
+    plot_predprey_portrait(out_lv_pred2(), pars_lv_pred2(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_lv_pred2(), pars_lv_pred2(), 
+                             vectors_field = FALSE)
+  }
+})
+
+
+```
+
+### Modelo Rosenzweig-MacArthur 
+
+Finalmente, el modelo Rosenzweig-MacArthur combina el crecimiento logístico para la presa así como la respuesta funcional tipo II para el depredador.
+
+\[
+\begin{align}
+\frac{dH}{dt} &= rH  \biggl(1-\frac{H}{K}\biggr) - \frac{aHP}{1+aT_hH} \\
+\\
+\frac{dP}{dt} &= e \frac{aHP}{1+aT_hH} - dP
+\end{align}
+\]
+
+```{r params rosen-mac, echo=F}
+pars_vars <- c("$H$", 
+               "$P$", 
+               "$r$", 
+               "$K$", 
+               "$a$", 
+               "$T_{h}$", 
+               "$e$", 
+               "$d$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tamaño de la población del Depredador",
+                 "Tasa de crecimiento per cápita de la Presa",
+                 "Capacidad de carga de la Presa",
+                 "Tasa de ataque del Depredador",
+                 "Tiempo de manipulación del Depredador",
+                 "Eficiencia de conversión del Depredador",
+                 "Tasa de mortalidad del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+Ecuaciones para las isoclinas de crecimiento cero:
+\[
+\begin{align}
+P^* &= \frac{r}{a}\bigg(1 - \frac{H}{K}\bigg)(1 + aT_hH)\\
+\\
+H^* &= \frac{d}{ea - adT_h} \\
+\end{align}
+\]
+
+
+```{r rosenzweig-macarthur, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    ## r, a, T_h, e, d
+    
+    sliderInput("r_rm", label = "Tasa de crecimiento per cápita de la Presa", 
+                min = .0001, max = 1.0, value = .2),
+    numericInput("K_rm", label = "Capacidad de carga de la Presa",
+                 min = 1, value = 150),
+    sliderInput("a_rm", label = "Tasa de ataque del Depredador",
+                min = .001, max = 1.0, value = .02),
+    sliderInput("T_h_rm", label = "Tiempo de mnanipulación del Depredador",
+                min = 0.001, max = 1.0, value = 0.3),
+    sliderInput("e_rm", label = "Eficiencia de conversión del Depredador", 
+                min = .001, max = 1.0, value = 0.6),
+    sliderInput("d_rm", label = "Tasa de mortalidad per cápita del Depredador",
+                min = .0001, max = 1.0, value = .4),
+    
+    
+      
+    ### Ask users for initial conditions -----
+    #N1, N2
+    numericInput("H_rm", label = "Tamaño inicial de la población de la Presa",
+                 min = 1, value = 30),
+    numericInput("P_rm", label = "Tamaño inicial de la población del Depredador", 
+                 min = 1, value = 25),
+    
+    ### Ask users for time to simulate ----
+    numericInput("t_rm", label = "Periodo", min = 1, value = 100),
+    
+    checkboxGroupInput("vectors_rm", label = "¿Mostrar campo vectorial?", 
+                       choices = c("Sí" = "Yes"), selected = "Sí")
+    
+  ),
+  
+  mainPanel(renderPlot(plot_rm()),
+            renderPlot(np_rm())
+            )
+  
+)
+
+# Set the initial population sizes
+init_rm <- reactive({c(H = input$H_rm , P = input$P_rm)})
+
+# Set the parameter values
+pars_rm <- reactive({
+  c(r = input$r_rm, K = input$K_rm, 
+    a = input$a_rm, T_h = input$T_h_rm, 
+    e = input$e_rm, d = input$d_rm )})
+
+# Time over which to simulate model dynamics
+time_rm <- reactive({seq(0,input$t_rm,by = .1)})
+
+out_rm <- reactive({
+    data.frame(run_predprey_model(
+    time = time_rm(),
+    init = init_rm(),
+    params = pars_rm()
+  ))
+  })
+  
+# Plots ------
+## make abundance thru time plot
+plot_rm <- reactive({
+    plot_predprey_time(out_rm())
+})
+
+np_rm <- reactive({
+  if("Yes" %in% input$vectors_rm) {
+    plot_predprey_portrait(out_rm(), pars_rm(), 
+                                         vectors_field = TRUE)
+  } else {
+    plot_predprey_portrait(out_rm(), pars_rm(), 
+                             vectors_field = FALSE)
+  }
+})
+
+```
+
+## Respuesta Funcional del Consumidor {.tabset}
+
+La respuesta funcional del consumidor captura la relación entre la tasa de consumo del consumidor en función a la densidad del recurso. En otras palabras, esta es la tasa a las que los consumidores pueden obtener energía de la presa, en función a la densidad de la presa. 
+ 
+
+```{r functional response functions, echo=FALSE}
+type1_fr <- function (H_init, H_final, a){
+  to_return <- c(a*(H_init:H_final))
+  return(to_return)
+}
+
+type2_fr <- function (H_init, H_final, a, Th){
+  to_return <- c((a*(H_init:H_final)/(1+a*Th*(H_init:H_final))))
+  return(to_return)
+}
+
+```
+
+### Tipo I
+
+Incremento lineal en la tasa de consumo a medida que aumenta de la densidad del recurso, como se muestra en la ecuación:
+
+$$f(H) = aH$$
+
+
+```{r params type 1 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tasa de ataque del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 1 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a
+    sliderInput("a_fr_type1", label = "Tasa de ataque del Depredador", min = .001, 
+                max = 1.0, value = .02),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type1", label = "Tamaño inicial de la población de la Presa", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type1", label = "Tamaño final de la población de la Presa", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type1())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type1 <- reactive({type1_fr(H_init = input$H_init_fr_type1, 
+                                   H_final = input$H_final_fr_type1,
+                                   a = input$a_fr_type1)})
+
+type1_fr_df <- reactive({data.frame(H = input$H_init_fr_type1:input$H_final_fr_type1,
+                                    f_rate = out_fr_type1())})
+
+#Plot
+
+plot_fr_type1 <- reactive ({ggplot(type1_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Cantidad de Presa") + 
+                            ylab("Tasa de Alimentación") +
+                            ylim(0,50)})
+   
+```
+
+### Tipo II
+
+Tasa de consumo que desacelera, donde la cima representa saciación del consumidor:
+
+
+$$g(H) = \frac {aH}{1+aT_hH}$$
+
+```{r params type 2 fr, echo=F}
+pars_vars <- c("$H$", 
+               "$a$", 
+               "$T_h$")
+descriptions <- c("Tamaño de la población de la Presa",
+                 "Tasa de ataque del Depredador",
+                 "Tiempo de manipulación del Depredador")
+param_df <- data.frame(pars_vars, descriptions)
+kable(x = param_df, format = "html", 
+      col.names = c("Parámetro/Variable", "Descripción")) %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```  
+
+
+```{r type 2 fr, echo=FALSE}
+sidebarLayout(
+  sidebarPanel(
+    ### Ask users for parameter values ----
+    # a, Th
+    
+    sliderInput("a_fr_type2", label = "Tasa de ataque del Depredador", min = .001, 
+                max = 1.0, value = .02),
+    sliderInput("T_h_fr_type2", label = "Tiempo de manipulación del Depredador", min = 0.001,
+                max = 1.0, value = 0.3),
+  
+    ### Ask users for initial and final conditions -----
+    #H_init, H_final
+    
+    numericInput("H_init_fr_type2", label = "Tamaño inicial de la población de la Presa", 
+                 min = 1, value = 30),
+    numericInput("H_final_fr_type2", label = "Tamaño final de la población de la Presa", 
+                 min = 1, value = 100), #Add warning: H_final>H_init 
+    
+  ),  
+  
+ mainPanel(renderPlot(plot_fr_type2())),
+
+)
+
+
+# Generate function output and data frame
+
+out_fr_type2 <- reactive({type2_fr(H_init = input$H_init_fr_type2, 
+                                   H_final = input$H_final_fr_type2,
+                                   a = input$a_fr_type2,
+                                   Th = input$T_h_fr_type2)})
+
+type2_fr_df <- reactive({data.frame(H = input$H_init_fr_type2:input$H_final_fr_type2,
+                                    f_rate = out_fr_type2())})
+
+#Plot
+
+plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
+                            geom_line(aes(x = H, y=f_rate), size = 2) +
+                            scale_color_brewer(palette = "Set1") +
+                            xlab("Cantidad de Presa") + 
+                            ylab("Tasa de Alimentación") +
+                            ylim(0,4)})
+   
+```
+
+
+## Referencias
+- [Consumer Resource Dynamics](https://press.princeton.edu/books/paperback/9780691006574/consumer-resource-dynamics-mpb-36) by Murdoch, Briggs and Nisbet - una copia digital puede estar disponible por medio de una biblioteca.  
+- [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272), 1963, by M. L. Rosenzweig and R. H. MacArthur.   
+- [Primer on functional response and numerical response](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
+- [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf), 1959, by C.S. Holling. 
+
+- [Impact of Food and Predation on the Snowshoe Hare Cycle](https://www.science.org/doi/10.1126/science.269.5227.1112), 1995, by C.J. Krebs et al.  
+
+- [Dynamics of Predation](https://www.nature.com/scitable/knowledge/library/dynamics-of-predation-13229468/), 2010, by A.N.P. Stevens
+
+*Referencias adicionales para las dinámicas de Huésped-Parásito/Parasitoide*:  
+- [Overivew of the Nicholson-Bailey model](https://en.wikipedia.org/wiki/Nicholson%E2%80%93Bailey_model) (Links to Wikipedia page)  
+- [Modelling the biological control of insect pests: a review of host-parasitoid models](https://www.sciencedirect.com/science/article/abs/pii/0304380095001778), 1996, by N.J. Mills and W.M. Getz
+
+-------------
+
+```{r, results='asis', echo = F}
+ecoevoapps::print_app_footer(language = "en")
+```
+
