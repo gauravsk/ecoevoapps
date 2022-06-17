@@ -26,7 +26,7 @@ Esta es una entrada del proyecto EcoEvoApps,
         https://ecoevoapps.gitlab.io o
         mándanos un correo a ecoevoapps@gmail.com.")
   } else if (language == "ch") {
-    cat("#### ***e***
+    cat("#### ***请探索系列中的其他app、给我们提供反馈、或帮助我们扩充项目内容***
 这个app是EcoEvoApp项目中的一部分。这个项目包含了一系列免费、
         开源的app，用于模拟理论生态和进化学中的经典模型。
         敬请探索系列中的其他app、给我们反馈、
