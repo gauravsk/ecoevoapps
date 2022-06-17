@@ -4,7 +4,7 @@ output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_ch/) |  [English](https://ecoevoapps.shinyapps.io/predator_prey_dynamics/) | [português](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_pt/) |  Turkish ***
+***[中文](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_ch/) | [Español](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_es/) |   [English](https://ecoevoapps.shinyapps.io/predator_prey_dynamics/) | [português](https://ecoevoapps.shinyapps.io/predator_prey_dynamics_pt/) |  Turkish ***
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -680,7 +680,7 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 
 ## Referanslar
 - Murdoch, Briggs and Nisbet tarafından [Consumer Resource Dynamics](https://press.princeton.edu/books/paperback/9780691006574/consumer-resource-dynamics-mpb-36) - dijital kopyasına bir kütüphaneden ulaşılabilir.
-- M. L. Rosenzweig and R. H. MacArthur tarafından (1963)[Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272).   
+- M. L. Rosenzweig and R. H. MacArthur tarafından (1963) [Graphical Representation and Stability Conditions of Predator-Prey Interactions](https://www.journals.uchicago.edu/doi/10.1086/282272).   
 - [Fonksiyonel ve numerik yanıt üzerine bir başlangıç](https://web.ma.utexas.edu/users/davis/375/popecol/lec10/funcresp.html)  
 - C.S. Holling tarafından (1995) [Some characteristics of simple types of predation and parasitism](https://hahana.soest.hawaii.edu/cmoreserver/summercourse/2010/documents/Holling_1959b.pdf). 
 
@@ -695,6 +695,6 @@ plot_fr_type2 <- reactive ({ggplot(type2_fr_df()) +
 -------------
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer(language = "tr")
+suppressWarnings(ecoevoapps::print_app_footer(language = "tr"))
 ```
 
