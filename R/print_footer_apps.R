@@ -33,14 +33,15 @@ Esta es una entrada del proyecto EcoEvoApps,
         帮助我们扩充项目内容： https://ecoevoapps.gitlab.io、
         或通过邮件联系我们：ecoevoapps@gmail.com。")
   } else if (language == "tr") {
-    "#### ***Aplikasyonları inceleyin, geri bildirim ya da katkı sağlayın!***
+    cat("#### ***Aplikasyonları inceleyin, geri bildirim ya da katkı sağlayın!***
 
 Bu aplikasyon EcoEvoApps projesi dahilindedir.
     EcoEvoApps projesi kabul görmüş teorik ekoloji ve evrimsel
     biyoloji modellerini içeren bedava aplikasyonlar koleksiyonudur.
     Lütfen diğer aplikasyonlarımızı inceleyin ve bize geri bildirimlerinizi
     ya da katkılarınızı bu adreslerden ulaştırın:
-    https://ecoevoapps.gitlab.io, ecoevoapps@gmail.com."
+    https://ecoevoapps.gitlab.io, ecoevoapps@gmail.com.")
+
   } else if(language == "en") {
     cat("#### ***Explore more apps, provide feedback, or contribute!***
 
