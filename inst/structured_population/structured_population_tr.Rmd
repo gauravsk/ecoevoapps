@@ -200,5 +200,5 @@ plot_pop_lambda <- reactive({
 
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer(language = "tr")
+suppressWarnings(ecoevoapps::print_app_footer(language = "tr"))
 ```

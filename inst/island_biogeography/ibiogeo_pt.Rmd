@@ -106,6 +106,6 @@ plot_to_print_pt <- reactive({
 
 
 ```{r, results='asis', echo = F}
-ecoevoapps::print_app_footer(language = "pt")
+suppressWarnings(ecoevoapps::print_app_footer(language = "pt"))
 ```
 
