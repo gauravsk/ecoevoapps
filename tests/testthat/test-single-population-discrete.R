@@ -1,4 +1,4 @@
-library(ecoevoapps)
+# library(ecoevoapps)
 
 test_that("Discrete exponential model works with proper parameters", {
   # Growing population (lambda > 1)

@@ -1,4 +1,4 @@
-library(ecoevoapps)
+# library(ecoevoapps)
 test_that("LV comp breaks with wrong parameters", {
   expect_error(run_lvcomp_model(params = c(r1 = .1, r2 = .1, K1 = 50, a = .5, b = .5))) # no K2
   expect_error(run_lvcomp_model(params = c(r1 = .1,  K1 = 50, K2 = 60, a = .5, b = .6))) # no K2

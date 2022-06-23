@@ -1,4 +1,4 @@
-library(ecoevoapps)
+# library(ecoevoapps)
 test_that("Structured population growth simulations work", {
   leslie_mat <- matrix(c(0, 8, 1, 1,
                          0.4, 0, 0, 0,

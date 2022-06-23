@@ -1,5 +1,3 @@
-library(ecoevoapps)
-
 test_that("run_ functions work as expected, and return errors with wrong parameters", {
   # exponential growth - check that population is big by the end
   exp_growth <-  run_exponential_model(time = 0:10, init = c(N1 = 1),
