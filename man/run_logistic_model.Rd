@@ -4,7 +4,11 @@
 \alias{run_logistic_model}
 \title{Run logistic growth model}
 \usage{
-run_logistic_model(time, init, params)
+run_logistic_model(
+  time = 0:10,
+  init = c(N1 = 1),
+  params = c(r = 0.15, K = 1000)
+)
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.

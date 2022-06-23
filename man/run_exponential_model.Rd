@@ -4,7 +4,7 @@
 \alias{run_exponential_model}
 \title{Run exponential growth model}
 \usage{
-run_exponential_model(time, init, params)
+run_exponential_model(time = 10, init = c(N1 = 1), params = c(r = 0.1))
 }
 \arguments{
 \item{time}{vector of time units over which to run model, starting from 0.

@@ -24,6 +24,10 @@ run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1
                                                                      ncol = 4, byrow = TRUE),
                                            init = c(10,10,10,10),
                                            time = 100) {
+  # Check that leslie matrix is a square
+  if(!(ncol(leslie_mat) == nrow(leslie_mat))) stop("leslie_mat should be a square matrix")
+
+
   pop <- matrix(init, nrow = length(init), ncol = 1) # start the matrix with initial population sizes
   nn <- sum(init) # total population size
   lambda <- numeric() # vector to hold discrete population growth
