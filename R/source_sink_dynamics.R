@@ -113,6 +113,11 @@ run_source_sink <- function(endtime, init, params) {
 #'   input `sim_df` for this function
 #' @export
 plot_source_sink <- function(sim_df, assumption_status){
+
+  # To suppress CMD Check
+  year <- value <- population <- NULL
+
+
   # if the input is a list, convert to data frame
   sim_df <- data.frame(sim_df)
   # reshape data & give column names

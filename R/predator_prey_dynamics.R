@@ -232,6 +232,8 @@ run_predprey_model <- function(time, init, params) {
 #' @keywords internal
 #' @importFrom purrr map2_df
 vector_field_input <- function(sim_df, params, vec_density = 20) {
+  # To suppress CMD check
+  Hstart <- dH <- Pstart <- dP <- NULL
 
   # determine the min and max of the number of prey and predators
   lowH <- 1
@@ -286,6 +288,8 @@ vector_field_input <- function(sim_df, params, vec_density = 20) {
 #' @import ggplot2
 #' @keywords internal
 plot_vector_field <- function(sim_df, params, vec_density = 20) {
+  # To suppress Cmd check
+  Hstart <- Pstart <- Hend <- Pend <- NULL
 
   vector_field_input_data <- vector_field_input(sim_df, params,
                                                 vec_density = vec_density)
@@ -318,6 +322,9 @@ plot_vector_field <- function(sim_df, params, vec_density = 20) {
 #' = TRUE)
 #' @export
 plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
+  # To suppress Cmd check
+  H <- P <- NULL
+
   sim_df <- data.frame(sim_df)
   if(vectors_field) {
     base_plot <- plot_vector_field(sim_df, params, ...)
@@ -396,6 +403,9 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
 #' plot_predprey_time(sim_df = sim_df)
 #' @export
 plot_predprey_time <- function(sim_df) {
+  # To suppress Cmd check
+  H <- P <- time <- value <- Population <- NULL
+
   sim_df <- data.frame(sim_df)
   sim_df_long <- pivot_longer(sim_df, c(H,P), "Population")
   ggplot(sim_df_long) +

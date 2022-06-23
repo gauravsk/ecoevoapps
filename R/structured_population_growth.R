@@ -11,7 +11,7 @@
 #'   transition diagram based on the specified Leslie matrix
 #' @examples
 #' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-#' ncol = 4, byrow = T)
+#' ncol = 4, byrow = TRUE)
 #' structured_pop_init <- c(10,10,10,10)
 #' structured_pop_time <- 5
 #' run_structured_population_simulation(leslie_mat = leslie_matrix, init =
@@ -21,7 +21,7 @@ run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1
                                                                        0.4,0,0,0,
                                                                        0,0.8,0,0,
                                                                        0,0,0.1,0),
-                                                                     ncol = 4, byrow = T),
+                                                                     ncol = 4, byrow = TRUE),
                                            init = c(10,10,10,10),
                                            time = 100) {
   pop <- matrix(init, nrow = length(init), ncol = 1) # start the matrix with initial population sizes
@@ -54,6 +54,9 @@ run_structured_population_simulation <- function(leslie_mat = matrix(c(0, 8,1, 1
 #' @import dplyr
 #' @keywords internal
 popmat_to_df <- function(pop_growth_matrix) {
+  # To suppress CMD Check
+  time <- NULL
+
   popgrowth_df <-
     pop_growth_matrix %>%
     t() %>%
@@ -78,7 +81,7 @@ popmat_to_df <- function(pop_growth_matrix) {
 #'   transition diagram based on the specified Leslie matrix
 #' @examples
 #' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-#' ncol = 4, byrow = T)
+#' ncol = 4, byrow = TRUE)
 #' structured_pop_init <- c(10,10,10,10)
 #' structured_pop_time <- 50
 #' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
@@ -87,6 +90,8 @@ popmat_to_df <- function(pop_growth_matrix) {
 #' @import ggplot2
 #' @export
 plot_structured_population_size <- function(pop_growth_matrix) {
+  # To suppress CMD Check
+  time <- `Population size` <- `Age class` <- NULL
 
   pop_growth_df <- popmat_to_df(pop_growth_matrix)
   # if(eigen(leslie)$values[1]<1) {tmp = .8} else {tmp = .2}
@@ -121,7 +126,7 @@ plot_structured_population_size <- function(pop_growth_matrix) {
 #'   transition diagram based on the specified Leslie matrix
 #' @examples
 #' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-#' ncol = 4, byrow = T)
+#' ncol = 4, byrow = TRUE)
 #' structured_pop_init <- c(10,10,10,10)
 #' structured_pop_time <- 50
 #' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
@@ -131,6 +136,9 @@ plot_structured_population_size <- function(pop_growth_matrix) {
 #' @import ggplot2
 #' @export
 plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = NULL) {
+  # To suppress CMD Check
+  `Population size` <- time <- prop <- `Age class` <- NULL
+
 
   pop_growth_df_prop <- popmat_to_df(pop_growth_matrix) %>%
     group_by(factor(time)) %>%
@@ -173,6 +181,7 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
 #' If the Leslie matrix is provided, the trajectory also includes lines indicating
 #' the stable age distribution
 #' @import ggplot2
+#' @importFrom stats na.omit
 #' @seealso [run_structured_population_simulation()] to simulate the growth of a
 #'   structured population given a Leslie matrix,
 #'   [plot_structured_population_size()] and
@@ -180,7 +189,7 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
 #'   population trajectory, and [plot_leslie_diagram()] for plotting an transition
 #' @examples
 #' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-#' ncol = 4, byrow = T)
+#' ncol = 4, byrow = TRUE)
 #' structured_pop_init <- c(10,10,10,10)
 #' structured_pop_time <- 50
 #' structured_pop_out <- run_structured_population_simulation(leslie_mat = leslie_matrix, init =
@@ -189,13 +198,17 @@ plot_structured_population_agedist <- function(pop_growth_matrix, leslie_mat = N
 #' @export
 plot_structured_population_lambda <- function(pop_growth_matrix,
                                               leslie_mat = NULL) {
+  # To suppress CMD Check
+  total_popsize <- time <- lambda <- NULL
+
+
   pop_growth_df <-
     t(pop_growth_matrix) %>%
     as_tibble() %>%
     dplyr::mutate(total_popsize = rowSums(.),
            lambda = total_popsize/lag(total_popsize),
            time = row_number()) %>%
-    na.omit # eliminate the first row, as there is no lambda for time step 1
+    na.omit() # eliminate the first row, as there is no lambda for time step 1
 
   lambda_plot <-
     ggplot(pop_growth_df, aes(x = time, y = lambda)) +
@@ -234,7 +247,7 @@ plot_structured_population_lambda <- function(pop_growth_matrix,
 #'   population trajectory
 #' @examples
 #' leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-#' ncol = 4, byrow = T)
+#' ncol = 4, byrow = TRUE)
 #' plot_leslie_diagram(leslie_matrix)
 #' @export
 plot_leslie_diagram <- function(leslie_mat) {

@@ -94,6 +94,10 @@ run_biotic_comp_model <- function(time = seq(0,10),
 #' competition model
 #' @export
 plot_biotic_comp_time <- function(sim_df) {
+
+  # To suppress CMD Check
+  H <- P1 <- P2 <- time <- value <- Population <- NULL
+
   sim_df <- data.frame(sim_df)
 
   # Reshape the data for plotting
@@ -111,14 +115,14 @@ plot_biotic_comp_time <- function(sim_df) {
 
 #' Plot population size over time for the biotic resource competition model
 #'
-#' @param params_vec vector of parameters describing the consumer species'
+#' @param params vector of parameters describing the consumer species'
 #' attack, consumption, and mortality rates, as well as their handling times;
 #' and the resource species' intrinsic growth and density-dependent mortality rates
 #' @examples
-#' params_vec <- c(r = 0.2, q = .0066,
+#' params <- c(r = 0.2, q = .0066,
 #' a1 = .02, T_h1 = 0.1, e1 = 0.4, d1 = 0.1,
 #' a2 = .02, T_h2 = 0.1, e2 = 0.39, d2 = 0.1)
-#' plot_functional_responses(params_vec)
+#' plot_functional_responses(params)
 #' @import ggplot2
 #' @import tidyr
 #' @import dplyr
@@ -126,6 +130,9 @@ plot_biotic_comp_time <- function(sim_df) {
 #' competition model
 #' @export
 plot_functional_responses <- function(params) {
+  # To suppress CMD Check
+  y1 <- y2 <- prey <- NULL
+
   fr_df <- data.frame(prey = 1:2000)
   fr_df <- fr_df %>%
     mutate(y1 = (params["a1"] * prey)/(1 + params["a1"] * params["T_h1"] * prey),
@@ -133,7 +140,7 @@ plot_functional_responses <- function(params) {
 
   plot_fxnrep_sp1 <-
       ggplot(fr_df, aes(x = prey, y = y1)) +
-        geom_path(col = brewer.pal(n = 3, name = "Set1")[2], size = 2) +
+        geom_path(col = "#377EB8", size = 2) +
         xlab("Prey Density") +
         ylab("Prey Consumed \nper Predator") +
         scale_x_continuous(expand = c(0, 0)) +
@@ -142,7 +149,7 @@ plot_functional_responses <- function(params) {
 
   plot_fxnrep_sp2 <-
     ggplot(fr_df, aes(x = prey, y = y2)) +
-    geom_path(col = brewer.pal(n = 3, name = "Set1")[3], size = 2) +
+    geom_path(col = "#4DAF4A", size = 2) +
     xlab("Prey Density") +
     ylab("Prey Consumed \nper Predator") +
     scale_x_continuous(expand = c(0, 0)) +

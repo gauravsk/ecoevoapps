@@ -23,7 +23,7 @@ Discrete exponential growth model
 run_discrete_exponential_model(N0 = 1, lambda = 1.1, time = 10)
 }
 \seealso{
-\code{\link[=run_exponential_growth_model]{run_exponential_growth_model()}} for simulation exponential growth
+\code{\link[=run_exponential_model]{run_exponential_model()}} for simulation exponential growth
 in continuous time, and see \code{\link[=run_discrete_logistic_model]{run_discrete_logistic_model()}},
 \code{\link[=run_beverton_holt_model]{run_beverton_holt_model()}}, and \code{\link[=run_ricker_model]{run_ricker_model()}} for discrete time
 models with population regulation

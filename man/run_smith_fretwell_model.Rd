@@ -4,14 +4,14 @@
 \alias{run_smith_fretwell_model}
 \title{Make a Smith-Fretwell plot to show the optimal seed size}
 \usage{
-run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = 0.02)
+run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Iymax = 1000, shapeval = 0.02)
 }
 \arguments{
 \item{Iymin}{Minimum seed size for a viable offspring}
 
 \item{Womax}{Maximum fitness that an offspring can achieve}
 
-\item{Ip}{Total amount of energy an adult has to invest into reproduction}
+\item{Iymax}{Total amount of energy an adult has to invest into reproduction}
 
 \item{shapeval}{slope of the Smith-Fretwell curve}
 }
@@ -19,5 +19,5 @@ run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = 0.02)
 Make a Smith-Fretwell plot to show the optimal seed size
 }
 \examples{
-run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
+run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Iymax = 1000)
 }

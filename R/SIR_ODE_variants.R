@@ -295,6 +295,11 @@ plot_infectiousdisease_portrait <- function(sim_df, x_axis, y_axis) {
 #' plot_infectiousdisease_time(sir_out, model_type = "SIR")
 #' @export
 plot_infectiousdisease_time <- function(sim_df, model_type) {
+
+  # To suppress CMD Check
+  R <- S <- grou <- E <- D <- time <- group <- value <- NULL
+
+
   if(model_type %in% c("SIR", "SIR_ft")) {
     sim_df_long <-
       pivot_longer(sim_df, c(S, I, R), "group") %>%

@@ -166,6 +166,8 @@ run_logistic_model <- function(time, init, params) {
 #' @import ggplot2
 #' @export
 plot_continuous_population_growth <- function(sim_df) {
+  # To suppress CMD Check
+  time <- N1 <- NULL
   sim_df <- data.frame(sim_df)
   ggplot(sim_df) +
     geom_line(aes(x = time, y = N1)) +

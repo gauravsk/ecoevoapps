@@ -88,6 +88,9 @@ make_islands_map <- function(tx, ty, txa, tya, txb, tyb,
 #' @importFrom magrittr "%>%"
 #' @keywords internal
 make_equilibrium_plot <- function(D, A, M, k) {
+
+  x <- NULL # Suppress CMD check
+
   # RColorBrewer::brewer.pdal(3, "Set1")
   colorpal <- c("#E41A1C", "#377EB8", "#4DAF4A")
 

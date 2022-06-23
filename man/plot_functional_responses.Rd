@@ -7,7 +7,7 @@
 plot_functional_responses(params)
 }
 \arguments{
-\item{params_vec}{vector of parameters describing the consumer species'
+\item{params}{vector of parameters describing the consumer species'
 attack, consumption, and mortality rates, as well as their handling times;
 and the resource species' intrinsic growth and density-dependent mortality rates}
 }
@@ -15,10 +15,10 @@ and the resource species' intrinsic growth and density-dependent mortality rates
 Plot population size over time for the biotic resource competition model
 }
 \examples{
-params_vec <- c(r = 0.2, q = .0066,
+params <- c(r = 0.2, q = .0066,
 a1 = .02, T_h1 = 0.1, e1 = 0.4, d1 = 0.1,
 a2 = .02, T_h2 = 0.1, e2 = 0.39, d2 = 0.1)
-plot_functional_responses(params_vec)
+plot_functional_responses(params)
 }
 \seealso{
 \code{\link[=run_biotic_comp_model]{run_biotic_comp_model()}}  for simulating the biotic resource

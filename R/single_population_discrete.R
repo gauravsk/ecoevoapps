@@ -2,7 +2,7 @@
 #' @param N0 initial population size of population
 #' @param lambda discrete population growth rate
 #' @param time Number of time steps over which to project the model
-#' @seealso [run_exponential_growth_model()] for simulation exponential growth
+#' @seealso [run_exponential_model()] for simulation exponential growth
 #'   in continuous time, and see [run_discrete_logistic_model()],
 #'   [run_beverton_holt_model()], and [run_ricker_model()] for discrete time
 #'   models with population regulation
@@ -148,6 +148,9 @@ run_beverton_holt_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time 
 #' @import ggplot2
 #' @export
 plot_discrete_population_growth <- function(sim_df) {
+  # To suppress R CMD check
+  time <- Nt <- NULL
+
   ggplot(sim_df) +
     geom_line(aes(x = time, y = Nt), size = .2) +
     geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
@@ -180,6 +183,8 @@ plot_discrete_population_growth <- function(sim_df) {
 #' @import ggplot2
 #' @export
 plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
+  # To suppress CMD Check
+  Ntm1 <- Nt <- NULL
 
   if(!(model_type %in% c("discrete_logistic", "beverton_holt", "ricker"))) {
     stop("model_type should be one of 'discrete_logstic', 'beverton_holt' or 'ricker'")

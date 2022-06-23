@@ -9,7 +9,7 @@ run_smith_fretwell_model_sp2(
   existing_plot,
   Iymin = 6,
   Womax = 0.6,
-  Ip = 1000,
+  Iymax = 1000,
   shapeval = 0.02
 )
 }
@@ -21,7 +21,7 @@ has the first (base) curve}
 
 \item{Womax}{Maximum fitness that an offspring can achieve}
 
-\item{Ip}{Total amount of energy an adult has to invest into reproduction}
+\item{Iymax}{Total amount of energy an adult has to invest into reproduction}
 
 \item{shapeval}{slope of the Smith-Fretwell curve}
 }
@@ -30,6 +30,6 @@ Add a new Smith-Fretwell curve to a ggplot object created with
 run_smith_fretwell_model
 }
 \examples{
-sf_species1 <- run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
-run_smith_fretwell_model_sp2(sf_species1, Iymin = 6, Womax = 0.6, Ip = 1000)
+sf_species1 <- run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Iymax = 1000)
+run_smith_fretwell_model_sp2(sf_species1, Iymin = 6, Womax = 0.6, Iymax = 1000)
 }

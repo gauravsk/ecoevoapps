@@ -1,19 +1,18 @@
 # Smith-Fretwell Function
-Wo <- function(Iy, Iymin = Iymin, Iymax = Ip, Womax = Womax, shapeval = .02) {
+Wo <- function(Iy, Iymin = Iymin, Iymax = Iymax, Womax = Womax, shapeval = .02) {
   (Womax*(Iy-Iymin)) / (shapeval*(Iymax + Iymin)/2+Iy)
 }
 
 #' Make a Smith-Fretwell plot to show the optimal seed size
 #' @param Iymin Minimum seed size for a viable offspring
 #' @param Womax Maximum fitness that an offspring can achieve
-#' @param Ip Total amount of energy an adult has to invest into reproduction
+#' @param Iymax Total amount of energy an adult has to invest into reproduction
 #' @param shapeval slope of the Smith-Fretwell curve
 #' @import ggplot2
 #' @examples
-#' run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
+#' run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Iymax = 1000)
 #' @export
-run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval = .02) {
-  Iymax <- Ip
+run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Iymax = 1000, shapeval = .02) {
   aval <- shapeval*(Iymin+Iymax)/2
   xopt <- Iymin + sqrt(Iymin^2 + aval*Iymin)
   yopt <- Wo(xopt, Iymin = Iymin, Iymax = Iymax, Womax = Womax)
@@ -24,7 +23,7 @@ run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval
     ggplot(data = df2) +
     coord_cartesian(clip = "off") +
     geom_function(fun = Wo,
-                  args = list(Iymin = Iymin, Iymax = Ip, Womax = Womax),
+                  args = list(Iymin = Iymin, Iymax = Iymax, Womax = Womax),
                   n = 1000) +
     ylab("Offspring Fitness (Wo)") +
     xlab("Seed size") +
@@ -37,7 +36,7 @@ run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval
                 slope = lineslope) +
     geom_segment(aes(x = xopt, xend = xopt, y = -0.04, yend = yopt), linetype = 2, size = 0.1) +
     annotate("text", x = xopt, y = -0.05, label = paste0("S_opt = ", floor(xopt)),  vjust = 1) +
-    annotate("text", x = xopt, y = yopt, label = paste0(" Wp = ", floor(yopt*(Ip/xopt))), hjust = 0, vjust = 1) +
+    annotate("text", x = xopt, y = yopt, label = paste0(" Wp = ", floor(yopt*(Iymax/xopt))), hjust = 0, vjust = 1) +
     ecoevoapps::theme_apps() +
     NULL
 
@@ -50,20 +49,20 @@ run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Ip = 1000, shapeval
 #'   has the first (base) curve
 #' @param Iymin Minimum seed size for a viable offspring
 #' @param Womax Maximum fitness that an offspring can achieve
-#' @param Ip Total amount of energy an adult has to invest into reproduction
+#' @param Iymax Total amount of energy an adult has to invest into reproduction
 #' @param shapeval slope of the Smith-Fretwell curve
 #' @import ggplot2
 #' @examples
-#' sf_species1 <- run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Ip = 1000)
-#' run_smith_fretwell_model_sp2(sf_species1, Iymin = 6, Womax = 0.6, Ip = 1000)
+#' sf_species1 <- run_smith_fretwell_model(Iymin = 3, Womax = 0.6, Iymax = 1000)
+#' run_smith_fretwell_model_sp2(sf_species1, Iymin = 6, Womax = 0.6, Iymax = 1000)
 #' @export
 run_smith_fretwell_model_sp2 <- function(existing_plot, Iymin = 6, Womax = .6,
-                                         Ip = 1000, shapeval = 0.02) {
+                                         Iymax = 1000, shapeval = 0.02) {
 
   # Define parameters
   Iymin2 <- Iymin
   Womax2 <- Womax
-  Iymax2 <- Ip
+  Iymax2 <- Iymax
   aval2 <- shapeval*(Iymin2+Iymax2)/2
   xopt2 <- Iymin2 + sqrt(Iymin2^2 + aval2*Iymin2)
   yopt2 <- Wo(xopt2, Iymin = Iymin2, Iymax = Iymax2, Womax = Womax2)
@@ -77,12 +76,12 @@ run_smith_fretwell_model_sp2 <- function(existing_plot, Iymin = 6, Womax = .6,
                 slope = lineslope2,
                 color = "#619cff") +
     geom_function(fun = Wo,
-                  args = list(Iymin = Iymin2, Iymax = Ip, Womax = Womax2, shapeval = shapeval),
+                  args = list(Iymin = Iymin2, Iymax = Iymax2, Womax = Womax2, shapeval = shapeval),
                   n = 1000, color = "#619cff") +
     geom_segment(aes(x = xopt2, xend = xopt2, y = 0, yend = yopt2),
                  linetype = 2, size = 0.1, color = "#619cff") +
     annotate("text", x = xopt2, y = -0.02, label = paste0("S_opt = ", floor(xopt2)),  vjust = 1) +
     annotate("text", x = xopt2, y = yopt2,
-             label = paste0(" Wp = ", floor(yopt2*(Ip/xopt2))), hjust = 0, vjust = 1)
+             label = paste0(" Wp = ", floor(yopt2*(Iymax/xopt2))), hjust = 0, vjust = 1)
 
 }

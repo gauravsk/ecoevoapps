@@ -86,7 +86,7 @@ offspring_fitness_max <-
   NULL
 
 
-offspring_fitness <- run_smith_fretwell_model(Iymin = Iymin, Womax = Womax, Ip = Ip)
+offspring_fitness <- run_smith_fretwell_model(Iymin = Iymin, Womax = Womax, Iymax = Ip)
 
   
 ```
@@ -157,7 +157,7 @@ sidebarLayout(
 shapeval <- reactive({0.02 * input$Womax2/0.6})
 
 pp <- reactive({
-  run_smith_fretwell_model_sp2(offspring_fitness, Iymin = input$Iymin2, Womax = input$Womax2, Ip = Ip, shapeval = 0.02 * input$Womax2/0.6) + 
+  run_smith_fretwell_model_sp2(offspring_fitness, Iymin = input$Iymin2, Womax = input$Womax2, Iymax = Ip, shapeval = 0.02 * input$Womax2/0.6) + 
     labs(caption =  paste0("Iymin = 3, Womax = 0.6 <br> 
        <span style = 'color:#619cff;'> Iymin = ", input$Iymin2,", Womax =  ", input$Womax2,"</span>")) +
     theme(plot.caption = element_textbox(size = 12),

@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=F}
 library(ecoevoapps)
-library(tidyverse)
 library(patchwork)
 ```
 

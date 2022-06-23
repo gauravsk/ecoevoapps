@@ -14,7 +14,7 @@ Generate diagram of population structure
 }
 \examples{
 leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-ncol = 4, byrow = T)
+ncol = 4, byrow = TRUE)
 plot_leslie_diagram(leslie_matrix)
 }
 \seealso{

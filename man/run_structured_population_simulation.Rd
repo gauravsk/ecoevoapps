@@ -6,7 +6,7 @@
 \usage{
 run_structured_population_simulation(
   leslie_mat = matrix(c(0, 8, 1, 1, 0.4, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 0.1, 0), ncol =
-    4, byrow = T),
+    4, byrow = TRUE),
   init = c(10, 10, 10, 10),
   time = 100
 )
@@ -26,7 +26,7 @@ Simulate growth of a (st)age-structured population
 }
 \examples{
 leslie_matrix <- matrix(c(0, 8,1, 1, 0.4,0,0,0,0,0.8,0,0,0,0,0.1,0),
-ncol = 4, byrow = T)
+ncol = 4, byrow = TRUE)
 structured_pop_init <- c(10,10,10,10)
 structured_pop_time <- 5
 run_structured_population_simulation(leslie_mat = leslie_matrix, init =

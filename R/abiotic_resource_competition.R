@@ -145,6 +145,9 @@ run_abiotic_comp_model <- function(time = seq(0,100,0.1),
 #'   the ZNGIs)
 #' @export
 plot_abiotic_comp_time <- function(sim_df) {
+  # To suppress CMD Check
+  x <- R1 <- R2 <- N1 <- N2 <- species <- time <- value <- NULL
+
   sim_df <- data.frame(sim_df)
   sim_df_long <-
     pivot_longer(sim_df, c(R1,R2,N1,N2), "species") %>%
@@ -179,6 +182,9 @@ plot_abiotic_comp_time <- function(sim_df) {
 #'   population dynamics over time
 #' @export
 plot_abiotic_comp_portrait <- function(rstar_vec, sim_df) {
+  # To suppress CMD Check
+  species <- R1star <- R2star <- R1 <- R2 <- tail <- NULL
+
   sim_df <- data.frame(sim_df)
   Rstar_df <-
     data.frame(species = c("N1", "N2"),

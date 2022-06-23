@@ -145,6 +145,8 @@ run_lvcomp_model <- function(time = 0:100, init = c(N1 = 20, N2 = 15),
 #'   [plot_lvcomp_time()] for making a plot of population dynamics over time
 #' @export
 plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
+  # To suppress CMD Check
+  x1 <- y1 <- xend1 <- yend1 <- x2 <- y2 <- xend2 <- yend2 <- N1 <- N2 <- NULL
 
   if("K1" %in% names(params)) {
     ZNGI_sp1 <- data.frame(x1 = 0, y1 = params["K1"]/params["a"],
@@ -251,6 +253,10 @@ plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
 #'   (including the ZNGIs) the ZNGIs)
 #' @export
 plot_lvcomp_time <- function(sim_df) {
+
+  # To suppress CMD Check
+  N1 <- N2 <- time <- value <- species <- NULL
+
   sim_df <- data.frame(sim_df)
   sim_df_long <-
     pivot_longer(data = sim_df, cols = c(N1, N2), names_to = "species")
