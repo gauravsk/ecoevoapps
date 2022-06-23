@@ -27,7 +27,7 @@ exponential_growth <- function(time,init,params) {
 #' run_exponential_model(time = 0:10, init = c(N1 = 1), params = c(r = .1))
 #' run_exponential_model(time = 10, init = c(N1 = 1), params = c(r = .1))
 #' @export
-run_exponential_model <- function(time, init, params) {
+run_exponential_model <- function(time = 10, init = c(N1 = 1), params = c(r = .1)) {
 
   # Run checks on user inputs
 
@@ -114,7 +114,8 @@ lagged_logistic_growth <- function(time, init, params) {
 #' run_logistic_model(time = 10, init = c(N1 = 1), params = c(r = .15, K = 1000))
 #' run_logistic_model(time = 0:10, init = c(N1 = 1), params = c(r = .15, K = 1000, tau = 2.1))
 #' @export
-run_logistic_model <- function(time, init, params) {
+run_logistic_model <- function(time = 0:10, init = c(N1 = 1),
+                               params = c(r = .15, K = 1000)) {
 
   # Run checks on user inputs
 
