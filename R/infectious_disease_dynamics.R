@@ -32,7 +32,7 @@ SIR_no_vitals <- function(time,init,params) {
     # gamma is the recovery rate
     dS_dt = -1*beta*S*I - v*S
     dI_dt = beta*S*I - gamma*I
-    dR_dt = gamma*I + v*S ### BUT REALLY delete this line and then R = N - S + I
+    dR_dt = gamma*I + v*S ### BUT can also replace with R = N - S + I
     return(list(c(dS = dS_dt, dI = dI_dt, dR = dR_dt)))
   })
 }
