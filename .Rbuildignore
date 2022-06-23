@@ -7,3 +7,4 @@
 ^pkgdown$
 inst/.*/rsconnect/
 ^\.gitlab-ci\.yml$
+^\.github$
