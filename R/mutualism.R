@@ -61,6 +61,7 @@ run_mutualism <- function(time = 0:50,
   # Simulate
   sim <- deSolve::ode(func = mutualism, y = init, times = time, parms = params)
   sim <- as.data.frame(sim)
+  attr(sim, "params") <- params
   attr(sim, "K") <- c(K1 = as.numeric(params["r1"]/params["d1"]),
                       K2 = as.numeric(params["r2"]/params["d2"]))
   return(sim)
@@ -70,7 +71,7 @@ plot_mutualism_time <- function(sim_df) {
   sim_df_long <- tidyr::pivot_longer(sim_df, c(N1, N2), names_to = "species")
   y_upper <- max(c(sim_df_long$value, attr(sim_df, "K")))
   K_df <- data.frame(species = c("N1", "N2"), K = attr(sim_df, "K"))
-  N_over_time <-
+  plot <-
     ggplot2::ggplot(sim_df_long) +
     ggplot2::geom_hline(ggplot2::aes(yintercept = K, color = species), K_df, lty = 2) +
     ggplot2::geom_line(ggplot2::aes(x = time, y = value, color = species), size = 2) +
@@ -82,5 +83,67 @@ plot_mutualism_time <- function(sim_df) {
     ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, y_upper*1.06)) +
     theme_apps() +
     ggplot2::theme(plot.caption = element_text(size = 12, color = "gray50", hjust = 1))
-  return(N_over_time)
+  return(plot)
+}
+
+mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
+  N1 <- seq(1, max(sim_df$N1)*2, length.out = vec.density)
+  N2 <- seq(1, max(sim_df$N2)*2, length.out = vec.density)
+  start <- expand.grid(N1 = N1, N2 = N2)
+  end <- sapply(1:nrow(start), function(i) {
+    run_mutualism(1, c(N1 = start[i, 1], N2 = start[i, 2]), attr(sim_df, "params"))[2, -1]
+  })
+  N1_end <- as.numeric(end[1, ])
+  N2_end <- as.numeric(end[2, ])
+  N1_end <- start$N1 + (N1_end - start$N1)*vec.scale
+  N2_end <- start$N2 + (N2_end - start$N2)*vec.scale
+  pts <- cbind(start, data.frame(N1_end, N2_end))
+  return(pts)
+}
+
+plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
+  params <- as.list(attr(sim_df, "params"))
+  N1_seq <- seq(0, max(sim_df$N1)*2, length.out = 100)
+  N2_seq <- seq(0, max(sim_df$N2)*2, length.out = 100)
+  ZNGIs <- with(params, {
+    ZNGI1 <- data.frame(species = "1",
+                         N1 = sapply(N2_seq, function(N2) (r1 + (a12*N2)/(b2 + N2))/d1),
+                         N2 = N2_seq)
+    ZNGI2 <- data.frame(species = "2",
+                         N1 = N1_seq,
+                         N2 = sapply(N1_seq, function(N1) (r2 + (a21*N1)/(b1 + N1))/d2))
+    rbind(ZNGI1, ZNGI2)
+  })
+  plot <-
+    ggplot2::ggplot(ZNGIs, ggplot2::aes(x = N1, y = N2)) +
+    ggplot2::geom_line(ggplot2::aes(group = species, color = species), size = 2) +
+    ggplot2::scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
+    ggplot2::labs(x= expression(N[1]), y = expression(N[2]), color = "Species",
+                  caption = "Colored curves: zero net growth isoclines") +
+    ggplot2::scale_x_continuous(expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    theme_apps() +
+    ggplot2::theme(plot.caption = element_text(size = 12, color = "gray50", hjust = 1))
+  if (vec == TRUE) {
+    vec_pts <- mutualism_vector_field(sim_df, ...)
+    plot <-
+      plot +
+      ggplot2::geom_segment(ggplot2::aes(xend = N1_end, yend = N2_end), vec_pts,
+                            arrow = arrow(length = unit(0.01, "npc")), color = "gray50")
+  }
+  if (traj == TRUE) {
+    plot <-
+      plot +
+      ggplot2::geom_line(data = sim_df, size = 1) +
+      ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[1], y = sim_df$N2[1]),
+                          size = 3, pch = 21, fill = "black") +
+      ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[nrow(sim_df)], y = sim_df$N2[nrow(sim_df)]),
+                          size = 3, pch = 21, fill = "white", stroke = 1) +
+      ggplot2::labs(x= expression(N[1]), y = expression(N[2]),
+                    caption = "Colored curves: zero net growth isoclines
+                               Black curve: population trajectory
+                               Black point: initial population
+                               White point: final population")
+  }
+  return(plot)
 }
