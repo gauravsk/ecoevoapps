@@ -8,7 +8,7 @@ mutualism <- function(time, init, params) {
 
 run_mutualism <- function(time = 0:50,
                           init = c(N1 = 20, N2 = 40),
-                          params = c(r1 = 1, a12 = 0.8, b2 = 20, d1 = 0.02, r2 = 1, a21 = 0.4, b1 = 20, d2 = 0.01)) {
+                          params = c(r1 = 0.5, a12 = 0.8, b2 = 10, d1 = 0.02, r2 = 0.5, a21 = 0.4, b1 = 10, d2 = 0.01)) {
 
   # Check time
   if (!is.numeric(time)) {
