@@ -1,3 +1,20 @@
+#' Internal function for mutualism with saturating functional response
+#'
+#' Used internally by `run_mutualism()`.
+#'
+#' @param time Vector of time units over which to run model.
+#' @param init Named vector of initial population sizes (N1, N2).
+#' @param params Named vector of model parameters.
+#' * r1: Per capita growth rate of species 1
+#' * r2: Per capita growth rate of species 1
+#' * a12: Effect of species 2 on species 1
+#' * a21: Effect of species 1 on species 2
+#' * b1: Half-saturation constant for species 1
+#' * b2: Half-saturation constant for species 2
+#' * d1: Death rate of self-limitation for species 1
+#' * d2: Death rate of self-limitation for species 2
+#'
+#' @keywords internal
 mutualism <- function(time, init, params) {
   with(as.list(c(time, init, params)), {
     dN1 <- r1*N1 + (a12*N2*N1)/(b2 + N2) - d1*N1^2
@@ -8,7 +25,7 @@ mutualism <- function(time, init, params) {
 
 run_mutualism <- function(time = 0:50,
                           init = c(N1 = 20, N2 = 40),
-                          params = c(r1 = 0.5, a12 = 0.8, b2 = 10, d1 = 0.02, r2 = 0.5, a21 = 0.4, b1 = 10, d2 = 0.01)) {
+                          params = c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)) {
 
   # Check time
   if (!is.numeric(time)) {
@@ -27,15 +44,15 @@ run_mutualism <- function(time = 0:50,
   # Check init
   if (!is.numeric(init)) {
     stop("init should be a named numeric vector of length 2.
-         e.g. c(N1 = 50, N2 = 100)")
+         e.g. c(N1 = 20, N2 = 40)")
   }
   if (length(init) != 2) {
     stop("init should be a named numeric vector of length 2.
-         e.g. c(N1 = 50, N2 = 100)")
+         e.g. c(N1 = 20, N2 = 40)")
   }
   if (!all(c("N1", "N2") %in% names(init))) {
     stop("Elements of init should be named N1 and N2.
-         e.g. c(N1 = 50, N2 = 100).")
+         e.g. c(N1 = 20, N2 = 40)")
   }
   if (any(init <= 0)) {
     stop("init should only contain positive values.")
@@ -44,15 +61,15 @@ run_mutualism <- function(time = 0:50,
   # Check params
   if (!is.numeric(params)) {
     stop("params should be a named numeric vector of length 8.
-         e.g. c(r1 = 1, a12 = 0.2, b2 = 20, d1 = 0.01, r2 = 1, a21 = 0.4, b1 = 20, d2 = 0.01)")
+         e.g. c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)")
   }
   if (length(params) != 8) {
     stop("params should be a named numeric vector of length 8.
-         e.g. c(r1 = 1, a12 = 0.2, b2 = 20, d1 = 0.01, r2 = 1, a21 = 0.4, b1 = 20, d2 = 0.01)")
+         e.g. c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)")
   }
   if (!all(c("r1", "r2", "a12", "a21", "b1", "b2", "d1", "d2") %in% names(params))) {
     stop("Elements of params should be named r1, r2, a12, a21, b1, b2, d1, d2.
-         e.g. c(r1 = 1, a12 = 0.2, b2 = 20, d1 = 0.01, r2 = 1, a21 = 0.4, b1 = 20, d2 = 0.01)")
+         e.g. c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)")
   }
   if (any(params <= 0)) {
     stop("params should only contain positive values.")
