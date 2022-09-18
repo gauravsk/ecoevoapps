@@ -1,19 +1,20 @@
-#' Internal function for mutualism with saturating functional response
+#' Model of mutualism with saturating functional response
 #'
-#' Used internally by `run_mutualism()`.
-#'
-#' @param time Vector of time units over which to run model.
-#' @param init Named vector of initial population sizes (N1, N2).
+#' Used internally by [run_mutualism()].
+#' @param time Vector of time units over which to run model, starting at 0.
+#' @param init Named vector of initial population sizes.
+#' * `N1`: Initial population size of species 1
+#' * `N2`: Initial population size of species 2
 #' @param params Named vector of model parameters.
-#' * r1: Per capita growth rate of species 1
-#' * r2: Per capita growth rate of species 1
-#' * a12: Effect of species 2 on species 1
-#' * a21: Effect of species 1 on species 2
-#' * b1: Half-saturation constant for species 1
-#' * b2: Half-saturation constant for species 2
-#' * d1: Death rate of self-limitation for species 1
-#' * d2: Death rate of self-limitation for species 2
-#'
+#' * `r1`: Per capita growth rate of species 1
+#' * `r2`: Per capita growth rate of species 1
+#' * `a12`: Effect of species 2 on species 1
+#' * `a21`: Effect of species 1 on species 2
+#' * `b1`: Half-saturation constant for species 1
+#' * `b2`: Half-saturation constant for species 2
+#' * `d1`: Death rate of self-limitation for species 1
+#' * `d2`: Death rate of self-limitation for species 2
+#' @seealso [run_mutualism()]
 #' @keywords internal
 mutualism <- function(time, init, params) {
   with(as.list(c(time, init, params)), {
@@ -23,6 +24,36 @@ mutualism <- function(time, init, params) {
   })
 }
 
+#' Run model of mutualism with saturating functional response
+#'
+#' Given a vector of time, initial values, and parameters, this function runs
+#' a phenomenological model of direct mutualism between two species as
+#' described by Holland (2015). This model features a saturating functional
+#' response for interspecific density dependence, which produces a stable
+#' equilibrium where both mutualist species can coexist above their respective
+#' population carrying capacities.
+#' @inheritParams mutualism
+#' @param time Vector of time units over which to run the model, starting at 0.
+#'   `time` can also be supplied as the total length of the simulation.
+#' @return
+#' A data frame produced by solving [mutualism()] with [deSolve::ode()] given
+#' `time`, `init`, and `params`. The data frame has additional attributes for
+#' input parameter values (`params`) and population carrying capacities
+#' calculated from these parameter values (`K`).
+#' @export
+#' @examples
+#' # Define full time series and run model with default parameter values
+#' run_mutualism(time = 0:10)
+#'
+#' # Define length of simulation and run model with default parameter values
+#' run_mutualism(time = 10)
+#'
+#' # Run model with custom input values
+#' tmax <- 10
+#' start <- c(N1 = 100, N2 = 50)
+#' pars <- c(r1 = 1, r2 = 1, a12 = 1.2, a21 = 0.8, b1 = 20, b2 = 20, d1 = 0.04, d2 = 0.02)
+#' run_mutualism(time = tmax, init = start, params = pars)
+#' @seealso [plot_mutualism_time()], [plot_mutualism_portrait()]
 run_mutualism <- function(time = 0:50,
                           init = c(N1 = 20, N2 = 40),
                           params = c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)) {

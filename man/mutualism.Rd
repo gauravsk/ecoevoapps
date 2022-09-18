@@ -2,28 +2,35 @@
 % Please edit documentation in R/mutualism.R
 \name{mutualism}
 \alias{mutualism}
-\title{Internal function for mutualism with saturating functional response}
+\title{Model of mutualism with saturating functional response}
 \usage{
 mutualism(time, init, params)
 }
 \arguments{
-\item{time}{Vector of time units over which to run model.}
+\item{time}{Vector of time units over which to run model, starting at 0.}
 
-\item{init}{Named vector of initial population sizes (N1, N2).}
+\item{init}{Named vector of initial population sizes.
+\itemize{
+\item \code{N1}: Initial population size of species 1
+\item \code{N2}: Initial population size of species 2
+}}
 
 \item{params}{Named vector of model parameters.
 \itemize{
-\item r1: Per capita growth rate of species 1
-\item r2: Per capita growth rate of species 1
-\item a12: Effect of species 2 on species 1
-\item a21: Effect of species 1 on species 2
-\item b1: Half-saturation constant for species 1
-\item b2: Half-saturation constant for species 2
-\item d1: Death rate of self-limitation for species 1
-\item d2: Death rate of self-limitation for species 2
+\item \code{r1}: Per capita growth rate of species 1
+\item \code{r2}: Per capita growth rate of species 1
+\item \code{a12}: Effect of species 2 on species 1
+\item \code{a21}: Effect of species 1 on species 2
+\item \code{b1}: Half-saturation constant for species 1
+\item \code{b2}: Half-saturation constant for species 2
+\item \code{d1}: Death rate of self-limitation for species 1
+\item \code{d2}: Death rate of self-limitation for species 2
 }}
 }
 \description{
-Used internally by \code{run_mutualism()}.
+Used internally by \code{\link[=run_mutualism]{run_mutualism()}}.
+}
+\seealso{
+\code{\link[=run_mutualism]{run_mutualism()}}
 }
 \keyword{internal}
