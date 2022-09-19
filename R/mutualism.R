@@ -14,6 +14,8 @@
 #' * `b2`: Half-saturation constant for species 2
 #' * `d1`: Death rate of self-limitation for species 1
 #' * `d2`: Death rate of self-limitation for species 2
+#' @return A list where the first and only element is a vector of derivatives
+#'   of the state variables (`N1`, `N2`) with respect to `time`, given `params`.
 #' @seealso [run_mutualism()]
 #' @keywords internal
 mutualism <- function(time, init, params) {
@@ -119,9 +121,8 @@ run_mutualism <- function(time = 0:50,
 
 #' Plot population trajectories over time for mutualism model
 #'
-#' Generate a plot of trajectories of population sizes (`N1`, `N2`) simulated
-#' through time for the model of mutualism with saturating functional response
-#' (Holland 2015).
+#' Generate a plot of trajectories of population sizes simulated through time
+#' for the model of mutualism with saturating functional response.
 #' @param sim_df Data frame of mutualism model simulation returned by
 #'   [run_mutualism()].
 #' @details
@@ -174,6 +175,23 @@ plot_mutualism_time <- function(sim_df) {
   return(plot)
 }
 
+#' Generate vector field for phase portrait of mutualism model
+#'
+#' Used internally by [plot_mutualism_portrait()].
+#' @inheritParams plot_mutualism_time
+#' @param vec.density Density of vectors. e.g. If `vec.density = 20` (default),
+#'   generates a 20 \eqn{\times} 20 grid evenly spaced along each axis, where
+#'   each grid point represents the starting point of a vector.
+#' @param vec.scale Value to scale magnitude of vectors by. e.g. If
+#'   `vec.scale = 0.1` (default) the magnitude of each vector is 0.1 times the
+#'   magnitude of the vector corresponding to running [mutualism()] for one time
+#'   step given each starting point selected via `vec.density` and `params`
+#'   inherited from `sim_df`.
+#' @return A data frame of start and end point values representing the vector
+#'   field for a phase portrait of the model of mutualism with saturating
+#'   functional response.
+#' @seealso [plot_mutualism_portrait()]
+#' @keywords internal
 mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
   N1 <- seq(1, max(sim_df$N1)*2, length.out = vec.density)
   N2 <- seq(1, max(sim_df$N2)*2, length.out = vec.density)

@@ -16,9 +16,8 @@ against time. Population carrying capacities for each species, calculated
 from model parameters, are also plotted.
 }
 \description{
-Generate a plot of trajectories of population sizes (\code{N1}, \code{N2}) simulated
-through time for the model of mutualism with saturating functional response
-(Holland 2015).
+Generate a plot of trajectories of population sizes simulated through time
+for the model of mutualism with saturating functional response.
 }
 \details{
 The plot generated with this function is constrained to display only the

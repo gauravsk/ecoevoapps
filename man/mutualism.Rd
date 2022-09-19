@@ -27,6 +27,10 @@ mutualism(time, init, params)
 \item \code{d2}: Death rate of self-limitation for species 2
 }}
 }
+\value{
+A list where the first and only element is a vector of derivatives
+of the state variables (\code{N1}, \code{N2}) with respect to \code{time}, given \code{params}.
+}
 \description{
 Used internally by \code{\link[=run_mutualism]{run_mutualism()}}.
 }
