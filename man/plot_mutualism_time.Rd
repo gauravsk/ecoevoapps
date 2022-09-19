@@ -21,8 +21,8 @@ of mutualism with saturating functional response.
 }
 \note{
 The plot generated with this function is constrained to display only the
-first quadrant of the plane defined by \code{N} and \code{time} (i.e. values of 0 and
-above) because negative values of \code{N} or \code{time} do not make biological sense.
+first quadrant (i.e. values of 0 and above) of the plane defined by \code{N} and
+\code{time} because negative values of \code{N} or \code{time} do not make biological sense.
 As a consequence, when \code{sim_df} is generated using negative values for \code{r1}
 and/or \code{r2}, the corresponding lines for population carrying capacities will
 not be visible in the plot because they will lie beyond the plot's limits.

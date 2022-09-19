@@ -127,8 +127,8 @@ run_mutualism <- function(time = 0:50,
 #'   [run_mutualism()].
 #' @note
 #' The plot generated with this function is constrained to display only the
-#' first quadrant of the plane defined by `N` and `time` (i.e. values of 0 and
-#' above) because negative values of `N` or `time` do not make biological sense.
+#' first quadrant (i.e. values of 0 and above) of the plane defined by `N` and
+#' `time` because negative values of `N` or `time` do not make biological sense.
 #' As a consequence, when `sim_df` is generated using negative values for `r1`
 #' and/or `r2`, the corresponding lines for population carrying capacities will
 #' not be visible in the plot because they will lie beyond the plot's limits.
@@ -228,7 +228,72 @@ mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
   return(pts)
 }
 
+#' Plot phase portrait for mutualism model
+#'
+#' Generate a phase portrait for the model of mutualism with saturating
+#' functional response.
+#' @inheritParams plot_mutualism_time
+#' @inheritDotParams mutualism_vector_field
+#' @param vec Logical. If `TRUE` (default), a vector field will be drawn.
+#' @param traj Logical. If `TRUE` (default), trajectories of population sizes in
+#'   `sim_df` will be drawn.
+#' @note
+#' The plot generated with this function is constrained to display only the
+#' first quadrant (i.e. values of 0 and above) of the phase plane defined by
+#' `N1` and `N2` because negative values of `N` do not make biological sense. As
+#' a consequence, when `sim_df` is generated using negative values for `r1`
+#' and/or `r2`, the corresponding zero net growth isoclines may not be visible
+#' in the plot if they lie largely beyond the plot's limits.
+#' @return
+#' A ggplot object with population sizes (`N1`, `N2`) plotted against one
+#' another as a phase portrait. Zero net growth isoclines for each species are
+#' also plotted. Optionally, a vector field and/or trajectories of population
+#' sizes can also be plotted.
+#' @export
+#' @examples
+#' # Plot phase portrait with vector field and population trajectories
+#' sim <- run_mutualism()
+#' plot_mutualism_portrait(sim)
+#'
+#' # Plot phase portrait without vector field
+#' sim <- run_mutualism()
+#' plot_mutualism_portrait(sim, vec = FALSE)
+#'
+#' # Plot phase portrait without population trajectories
+#' sim <- run_mutualism()
+#' plot_mutualism_portrait(sim, traj = FALSE)
+#'
+#' # Customize vector field
+#' sim <- run_mutualism()
+#' plot_mutualism_portrait(sim, vec.density = 10, vec.scale = 0.2)
+#' @seealso [run_mutualism()], [plot_mutualism_time()]
 plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
+
+  # Check sim_df
+  if(length(attr(sim_df, "model")) != 1) {
+    stop("sim_df should be a data frame returned by run_mutualism().")
+  }
+  if (attr(sim_df, "model") != "mutualism") {
+    stop("sim_df should be a data frame returned by run_mutualism().")
+  }
+
+  # Check vec
+  if (length(vec) != 1) {
+    stop("vec should be either TRUE or FALSE.")
+  }
+  if (!is.logical(vec)) {
+    stop("vec should be either TRUE or FALSE.")
+  }
+
+  # Check traj
+  if (length(traj) != 1) {
+    stop("traj should be either TRUE or FALSE.")
+  }
+  if (!is.logical(traj)) {
+    stop("traj should be either TRUE or FALSE.")
+  }
+
+  # Plot
   params <- as.list(attr(sim_df, "params"))
   N1_lim <- c(0, max(sim_df$N1)*2)
   N2_lim <- c(0, max(sim_df$N2)*2)
