@@ -10,15 +10,16 @@ mutualism_vector_field(sim_df, vec.density = 20, vec.scale = 0.1)
 \item{sim_df}{Data frame of mutualism model simulation returned by
 \code{\link[=run_mutualism]{run_mutualism()}}.}
 
-\item{vec.density}{Density of vectors. e.g. If \code{vec.density = 20} (default),
-generates a 20 \eqn{\times} 20 grid evenly spaced along each axis, where
-each grid point represents the starting point of a vector.}
+\item{vec.density}{Density of vectors, specified as a single numeric value
+larger than 0. e.g. If \code{vec.density = 20} (default), a 20 \eqn{\times} 20
+point grid evenly spaced along each axis is generated, where each grid
+point represents the starting point of a vector.}
 
-\item{vec.scale}{Value to scale magnitude of vectors by. e.g. If
-\code{vec.scale = 0.1} (default) the magnitude of each vector is 0.1 times the
-magnitude of the vector corresponding to running \code{\link[=mutualism]{mutualism()}} for one time
-step given each starting point selected via \code{vec.density} and \code{params}
-inherited from \code{sim_df}.}
+\item{vec.scale}{Value to scale magnitude of vectors by, specified as a
+single numeric value larger than 0. e.g. If \code{vec.scale = 0.1} (default) the
+magnitude of each vector is 0.1 times the magnitude of the vector produced
+by running \code{\link[=run_mutualism]{run_mutualism()}} for one time step given each starting point
+(specified via \code{vec.density}) and \code{params} (inherited from \code{sim_df}).}
 }
 \value{
 A data frame of start and end point values representing the vector
