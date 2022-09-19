@@ -34,10 +34,11 @@ run_mutualism(
 }}
 }
 \value{
-A data frame produced by solving \code{\link[=mutualism]{mutualism()}} with \code{\link[deSolve:ode]{deSolve::ode()}} given
-\code{time}, \code{init}, and \code{params}. The data frame has additional attributes for
-input parameter values (\code{params}) and population carrying capacities
-calculated from these parameter values (\code{K}).
+A data frame of population sizes (\code{N1}, \code{N2}) simulated through time,
+produced by solving \code{\link[=mutualism]{mutualism()}} with \code{deSolve::ode()} given \code{time}, \code{init},
+and \code{params}. The data frame has additional attributes for input parameter
+values (\code{params}) and population carrying capacities calculated from these
+parameter values (\code{K}).
 }
 \description{
 Given a vector of time, initial values, and parameters, this function runs

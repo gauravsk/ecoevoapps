@@ -36,10 +36,11 @@ mutualism <- function(time, init, params) {
 #' @param time Vector of time units over which to run the model, starting at 0.
 #'   `time` can also be supplied as the total length of the simulation.
 #' @return
-#' A data frame produced by solving [mutualism()] with [deSolve::ode()] given
-#' `time`, `init`, and `params`. The data frame has additional attributes for
-#' input parameter values (`params`) and population carrying capacities
-#' calculated from these parameter values (`K`).
+#' A data frame of population sizes (`N1`, `N2`) simulated through time,
+#' produced by solving [mutualism()] with [deSolve::ode()] given `time`, `init`,
+#' and `params`. The data frame has additional attributes for input parameter
+#' values (`params`) and population carrying capacities calculated from these
+#' parameter values (`K`).
 #' @export
 #' @examples
 #' # Define full time series and run model with default parameter values
@@ -102,8 +103,8 @@ run_mutualism <- function(time = 0:50,
     stop("Elements of params should be named r1, r2, a12, a21, b1, b2, d1, d2.
          e.g. c(r1 = 0.5, r2 = 0.5, a12 = 0.8, a21 = 0.4, b1 = 10, b2 = 10, d1 = 0.02, d2 = 0.01)")
   }
-  if (any(params <= 0)) {
-    stop("params should only contain positive values.")
+  if (any(params[c("a12", "a21", "b1", "b2", "d1", "d2")] <= 0)) {
+    stop("params a12, a21, b1, b2, d1, d2 should be positive.")
   }
 
   # Simulate
@@ -151,8 +152,10 @@ mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
 
 plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
   params <- as.list(attr(sim_df, "params"))
-  N1_seq <- seq(0, max(sim_df$N1)*2, length.out = 100)
-  N2_seq <- seq(0, max(sim_df$N2)*2, length.out = 100)
+  N1_lim <- c(0, max(sim_df$N1)*2)
+  N2_lim <- c(0, max(sim_df$N2)*2)
+  N1_seq <- seq(N1_lim[1], N1_lim[2], length.out = 100)
+  N2_seq <- seq(N2_lim[1], N2_lim[2], length.out = 100)
   ZNGIs <- with(params, {
     ZNGI1 <- data.frame(species = "1",
                          N1 = sapply(N2_seq, function(N2) (r1 + (a12*N2)/(b2 + N2))/d1),
@@ -170,6 +173,7 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
                   caption = "Colored curves: zero net growth isoclines") +
     ggplot2::scale_x_continuous(expand = c(0, 0)) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    coord_cartesian(xlim = N1_lim, ylim = N2_lim) +
     theme_apps() +
     ggplot2::theme(plot.caption = element_text(size = 12, color = "gray50", hjust = 1))
   if (vec == TRUE) {
@@ -182,7 +186,7 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
   if (traj == TRUE) {
     plot <-
       plot +
-      ggplot2::geom_line(data = sim_df, size = 1) +
+      ggplot2::geom_path(data = sim_df, size = 1) +
       ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[1], y = sim_df$N2[1]),
                           size = 3, pch = 21, fill = "black") +
       ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[nrow(sim_df)], y = sim_df$N2[nrow(sim_df)]),
