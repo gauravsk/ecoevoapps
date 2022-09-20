@@ -8,6 +8,10 @@ runtime: shiny
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+Mutualism is a major type of species interaction in which two or more interacting species confer a net beneficial effect on one another. Mutualisms can occur in various forms, including (but not limited to) plant-pollinator interactions, dispersal of seeds by animal vectors, and defense from predators. For example, fig wasps pollinate, lay eggs in, and feed on figs ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Another example is the mutualism between ants and acacia plants, in which ants feed on and shelter in acacias while protecting them from other herbivorous insects ([Janzen 1966](https://doi.org/10.2307/2406628)). A detailed overview of mutualisms can be found in [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001).
+
+This app explores a phenomenological (i.e. no explicit mechanism) model of direct mutualism between two species.
+
 ```{r app}
 ##### UI #####
 
@@ -154,6 +158,12 @@ plot <- reactive({
   }
 })
 ```
+
+## References
+
+- Bronstein, J.L. (2015). [*Mutualism*](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
+- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). *Trends in Ecology and Evolution*, 18, 241-248.
+- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). *Evolution*, 20, 249-275.
 
 ```{r footer, results ='asis'}
 # Print footer
