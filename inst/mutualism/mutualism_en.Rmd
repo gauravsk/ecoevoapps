@@ -68,11 +68,19 @@ wellPanel(
                            value = 10,
                            min = 0,
                            step = 1)),
-    column(4, radioButtons(inputId = "plot",
-                           label = "Plot(s) to display",
-                           choices = c("Population size over time" = "time",
+    column(2, radioButtons(inputId = "plot",
+                           label = "Plot",
+                           choices = c("N vs. time" = "time",
                                        "Phase portrait" = "phase",
-                                       "Both" = "both"))))
+                                       "Both" = "both"),
+                           selected = "both")),
+    column(2, conditionalPanel(
+      condition = "input.plot != 'time'",
+      checkboxGroupInput(inputId = "phase_opt",
+                         label = "Draw",
+                         choices = c("Vector field" = "vec",
+                                     "Population trajectories" = "traj"),
+                         selected = c("vec", "traj")))))
 )
 
 # Validate input
