@@ -154,12 +154,15 @@ sidebarLayout(
   )
 )
   
-shapeval <- reactive({0.02 * input$Womax2/0.6})
+# shapeval <- reactive({0.02 * input$Womax2/0.6})
 
 pp <- reactive({
-  run_smith_fretwell_model_sp2(offspring_fitness, Iymin = input$Iymin2, Womax = input$Womax2, Iymax = Ip, shapeval = 0.02 * input$Womax2/0.6) + 
+  run_smith_fretwell_model_sp2(offspring_fitness, 
+                               Iymin = input$Iymin2, 
+                               Womax = input$Womax2, Iymax = Ip) + 
     labs(caption =  paste0("Iymin = 3, Womax = 0.6 <br> 
-       <span style = 'color:#619cff;'> Iymin = ", input$Iymin2,", Womax =  ", input$Womax2,"</span>")) +
+       <span style = 'color:#619cff;'> Iymin = ", input$Iymin2,", Womax =  ", 
+       input$Womax2,"</span>")) +
     theme(plot.caption = element_textbox(size = 12),
           plot.margin = margin(b =10, r = 0, t = 5, unit = "pt"),
     )
