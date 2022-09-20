@@ -9,6 +9,8 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r app}
+##### UI #####
+
 # Input panel
 wellPanel(
   fluidRow(
@@ -83,6 +85,13 @@ wellPanel(
                          selected = c("vec", "traj")))))
 )
 
+# Output panel
+fluidRow(
+  column(12, renderPlot(plot(), height = 500))
+)
+
+##### Server #####
+
 # Validate input
 observeEvent(input$a12, {
   if (input$a12 <= 0) updateNumericInput(inputId = "a12", value = 0.1)
@@ -111,4 +120,42 @@ observeEvent(input$N2, {
 observeEvent(input$time, {
   if (input$time < 1) updateNumericInput(inputId = "time", value = 1)
 })
+
+# Retrieve user inputs
+params <- reactive({c(r1 = input$r1,
+                      r2 = input$r2,
+                      a12 = input$a12,
+                      a21 = input$a21,
+                      d1 = input$d1,
+                      d2 = input$d2,
+                      b1 = input$b1,
+                      b2 = input$b2)})
+init <- reactive({c(N1 = input$N1, N2 = input$N2)})
+time <- reactive({input$time})
+vec <- reactive({"vec" %in% input$phase_opt})
+traj <- reactive({"traj" %in% input$phase_opt})
+
+# Run mutualism model
+sim <- reactive({run_mutualism(time(), init(), params())})
+
+# Plot population trajectories over time
+plot <- reactive({
+  if (input$plot == "time") {
+    plot_mutualism_time(sim()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else if (input$plot == "phase") {
+    plot_mutualism_portrait(sim(), vec(), traj()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else {
+    patchwork::wrap_plots(plot_mutualism_time(sim()),
+                          plot_mutualism_portrait(sim(), vec(), traj()),
+                          nrow = 1) +
+      ggplot2::theme(aspect.ratio = 1)
+  }
+})
+```
+
+```{r footer, results ='asis'}
+# Print footer
+suppressWarnings(print_app_footer())
 ```
