@@ -279,3 +279,21 @@ shiny_smith_fretwell <- function() {
   )
 }
 
+#' @rdname shiny_XXX
+#' @export
+shiny_mutualism <- function(language = "en") {
+
+  stopifnot("Your selected language is not (yet) available; please choose English (en)" =
+              (language %in% c("en")))
+
+  file_path <- dplyr::case_when(language == "en" ~ system.file("mutualism/mutualism_en.Rmd",
+                                                               package =  "ecoevoapps"))
+
+  rmarkdown::run(
+    file = file_path,
+    default_file = NULL,
+    auto_reload = TRUE,
+    shiny_args = NULL,
+    render_args = NULL
+  )
+}

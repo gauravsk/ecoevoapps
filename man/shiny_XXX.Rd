@@ -13,6 +13,7 @@
 \alias{shiny_ibiogeo_model}
 \alias{shiny_abiotic_comp}
 \alias{shiny_smith_fretwell}
+\alias{shiny_mutualism}
 \title{Run the shiny apps for various models}
 \usage{
 shiny_singlepop_continuous(language = "en")
@@ -36,6 +37,8 @@ shiny_ibiogeo_model(language = "en")
 shiny_abiotic_comp(language = "en")
 
 shiny_smith_fretwell()
+
+shiny_mutualism(language = "en")
 }
 \arguments{
 \item{language}{Two-letter vector indicating the language

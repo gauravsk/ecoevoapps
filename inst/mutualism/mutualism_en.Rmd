@@ -1,0 +1,106 @@
+---
+title: "Mutualism"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r app}
+# Input panel
+wellPanel(
+  fluidRow(
+    column(4, numericInput(inputId = "r1",
+                           label = HTML("r<sub>1</sub>: Per capita growth rate of sp. 1"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "r2",
+                           label = HTML("r<sub>2</sub>: Per capita growth rate of sp. 2"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N1",
+                           label = "Initial population size of sp. 1",
+                           value = 20,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "a12",
+                           label = HTML("&alpha;<sub>12</sub>: Effect of sp. 2 on sp. 1"),
+                           value = 0.8,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "a21",
+                           label = HTML("&alpha;<sub>21</sub>: Effect of sp. 1 on sp. 2"),
+                           value = 0.4,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N2",
+                           label = "Initial population size of sp. 2",
+                           value = 40,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "d1",
+                           label = HTML("d<sub>1</sub>: Rate of self-limitation for sp. 1"),
+                           value = 0.02,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "d2",
+                           label = HTML("d<sub>2</sub>: Rate of self-limitation for sp. 2"),
+                           value = 0.01,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "time",
+                           label = "Length of simulation",
+                           value = 50,
+                           min = 1,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "b1",
+                           label = HTML("b<sub>1</sub>: Half-saturation constant for sp. 1"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(4, numericInput(inputId = "b2",
+                           label = HTML("b<sub>2</sub>: Half-saturation constant for sp. 2"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(4, radioButtons(inputId = "plot",
+                           label = "Plot(s) to display",
+                           choices = c("Population size over time" = "time",
+                                       "Phase portrait" = "phase",
+                                       "Both" = "both"))))
+)
+
+# Validate input
+observeEvent(input$a12, {
+  if (input$a12 <= 0) updateNumericInput(inputId = "a12", value = 0.1)
+})
+observeEvent(input$a21, {
+  if (input$a21 <= 0) updateNumericInput(inputId = "a21", value = 0.1)
+})
+observeEvent(input$d1, {
+  if (input$d1 <= 0) updateNumericInput(inputId = "d1", value = 0.01)
+})
+observeEvent(input$d2, {
+  if (input$d2 <= 0) updateNumericInput(inputId = "d2", value = 0.01)
+})
+observeEvent(input$b1, {
+  if (input$b1 <= 0) updateNumericInput(inputId = "b1", value = 1)
+})
+observeEvent(input$b2, {
+  if (input$b2 <= 0) updateNumericInput(inputId = "b2", value = 1)
+})
+observeEvent(input$N1, {
+  if (input$N1 <= 0) updateNumericInput(inputId = "N1", value = 1)
+})
+observeEvent(input$N2, {
+  if (input$N2 <= 0) updateNumericInput(inputId = "N2", value = 1)
+})
+observeEvent(input$time, {
+  if (input$time < 1) updateNumericInput(inputId = "time", value = 1)
+})
+```
