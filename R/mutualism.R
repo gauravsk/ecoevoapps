@@ -178,15 +178,15 @@ plot_mutualism_time <- function(sim_df) {
 #' @param vec.density Density of vectors, specified as a single numeric value
 #'   larger than 0. e.g. If `vec.density = 20` (default), a 20 \eqn{\times} 20
 #'   point grid evenly spaced along each axis is generated, where each grid
-#'   point represents the starting point of a vector.
+#'   point is the starting point of a vector.
 #' @param vec.scale Value to scale magnitude of vectors by, specified as a
 #'   single numeric value larger than 0. e.g. If `vec.scale = 0.1` (default) the
 #'   magnitude of each vector is 0.1 times the magnitude of the vector produced
 #'   by running [run_mutualism()] for one time step given each starting point
 #'   (specified via `vec.density`) and `params` (inherited from `sim_df`).
-#' @return A data frame of start and end point values representing the vector
-#'   field for a phase portrait of the model of mutualism with saturating
-#'   functional response.
+#' @return A data frame of vector start and end point values, collectively
+#'   representing the vector field for a phase portrait of the model of
+#'   mutualism with saturating functional response.
 #' @seealso [plot_mutualism_portrait()]
 #' @keywords internal
 mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {

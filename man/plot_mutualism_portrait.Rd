@@ -21,7 +21,7 @@ plot_mutualism_portrait(sim_df, vec = TRUE, traj = TRUE, ...)
     \item{\code{vec.density}}{Density of vectors, specified as a single numeric value
 larger than 0. e.g. If \code{vec.density = 20} (default), a 20 \eqn{\times} 20
 point grid evenly spaced along each axis is generated, where each grid
-point represents the starting point of a vector.}
+point is the starting point of a vector.}
     \item{\code{vec.scale}}{Value to scale magnitude of vectors by, specified as a
 single numeric value larger than 0. e.g. If \code{vec.scale = 0.1} (default) the
 magnitude of each vector is 0.1 times the magnitude of the vector produced

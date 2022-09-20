@@ -13,7 +13,7 @@ mutualism_vector_field(sim_df, vec.density = 20, vec.scale = 0.1)
 \item{vec.density}{Density of vectors, specified as a single numeric value
 larger than 0. e.g. If \code{vec.density = 20} (default), a 20 \eqn{\times} 20
 point grid evenly spaced along each axis is generated, where each grid
-point represents the starting point of a vector.}
+point is the starting point of a vector.}
 
 \item{vec.scale}{Value to scale magnitude of vectors by, specified as a
 single numeric value larger than 0. e.g. If \code{vec.scale = 0.1} (default) the
@@ -22,9 +22,9 @@ by running \code{\link[=run_mutualism]{run_mutualism()}} for one time step given
 (specified via \code{vec.density}) and \code{params} (inherited from \code{sim_df}).}
 }
 \value{
-A data frame of start and end point values representing the vector
-field for a phase portrait of the model of mutualism with saturating
-functional response.
+A data frame of vector start and end point values, collectively
+representing the vector field for a phase portrait of the model of
+mutualism with saturating functional response.
 }
 \description{
 Used internally by \code{\link[=plot_mutualism_portrait]{plot_mutualism_portrait()}}.
