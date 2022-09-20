@@ -167,7 +167,7 @@ plot_mutualism_time <- function(sim_df) {
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ggplot2::coord_cartesian(ylim = c(0, y_upper*1.06)) +
     theme_apps() +
-    ggplot2::theme(plot.caption = element_text(size = 12, color = "gray50", hjust = 1))
+    ggplot2::theme(plot.caption = element_text(size = 12, color = "gray30", hjust = 1))
   return(plot)
 }
 
@@ -318,7 +318,7 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     coord_cartesian(xlim = N1_lim, ylim = N2_lim) +
     theme_apps() +
-    ggplot2::theme(plot.caption = element_text(size = 12, color = "gray50", hjust = 1))
+    ggplot2::theme(plot.caption = element_text(size = 12, color = "gray30", hjust = 1))
   if (vec == TRUE) {
     vec_pts <- mutualism_vector_field(sim_df, ...)
     plot <-
