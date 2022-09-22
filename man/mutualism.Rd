@@ -23,8 +23,8 @@ mutualism(time, init, params)
 \item \code{a21}: Effect of species 1 on species 2
 \item \code{b1}: Half-saturation constant for species 1
 \item \code{b2}: Half-saturation constant for species 2
-\item \code{d1}: Death rate of self-limitation for species 1
-\item \code{d2}: Death rate of self-limitation for species 2
+\item \code{d1}: Rate of self-limitation for species 1
+\item \code{d2}: Rate of self-limitation for species 2
 }}
 }
 \value{

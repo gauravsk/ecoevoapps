@@ -12,8 +12,8 @@
 #' * `a21`: Effect of species 1 on species 2
 #' * `b1`: Half-saturation constant for species 1
 #' * `b2`: Half-saturation constant for species 2
-#' * `d1`: Death rate of self-limitation for species 1
-#' * `d2`: Death rate of self-limitation for species 2
+#' * `d1`: Rate of self-limitation for species 1
+#' * `d2`: Rate of self-limitation for species 2
 #' @return A list where the first and only element is a vector of derivatives
 #'   of the state variables (`N1`, `N2`) with respect to `time`, given `params`.
 #' @seealso [run_mutualism()]
@@ -30,13 +30,17 @@ mutualism <- function(time, init, params) {
 #'
 #' Given a vector of time, initial values, and parameters, this function runs
 #' a phenomenological model of direct mutualism between two species as
-#' described by Holland (2015). This model features a saturating functional
+#' described by Holland (2012). This model features a saturating functional
 #' response for interspecific density dependence, which produces a stable
 #' equilibrium where both mutualist species can coexist above their respective
 #' population carrying capacities.
 #' @inheritParams mutualism
 #' @param time Vector of time units over which to run the model, starting at 0.
 #'   `time` can also be supplied as the total length of the simulation.
+#' @note
+#' See the following for further context and details regarding this model:
+#' Holland, N.J. (2012). Population dynamics of mutualism. Nature Education
+#' Knowledge, 3, 2.
 #' @return
 #' A data frame of population sizes (`N1`, `N2`) simulated through time,
 #' produced by solving [mutualism()] with [deSolve::ode()] given `time`, `init`,

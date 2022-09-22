@@ -8,9 +8,18 @@ runtime: shiny
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-Mutualism is a major type of species interaction in which two or more interacting species confer a net beneficial effect on one another. Mutualisms can occur in various forms, including (but not limited to) plant-pollinator interactions, dispersal of seeds by animal vectors, and defense from predators. For example, fig wasps pollinate, lay eggs in, and feed on figs ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Another example is the mutualism between ants and acacia plants, in which ants feed on and shelter in acacias while protecting them from other herbivorous insects ([Janzen 1966](https://doi.org/10.2307/2406628)). A detailed overview of mutualisms can be found in [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001).
+<!-- Add language options here once available -->
 
-This app explores a phenomenological (i.e. no explicit mechanism) model of direct mutualism between two species.
+Mutualism is a type of species interaction in which two or more interacting species confer a net beneficial effect on one another. Mutualisms can manifest in various forms, including (but not limited to) plant-pollinator interactions, dispersal of seeds by animal vectors, and defense from predators. For example, fig wasps pollinate, lay eggs in, and feed on figs ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Another example is the mutualism between ants and acacia plants, in which ants feed on and shelter in acacias while protecting them from other herbivorous insects ([Janzen 1966](https://doi.org/10.2307/2406628)). A detailed overview of mutualisms can be found in [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001).
+
+This app explores a phenomenological model (i.e. a model with no explicit mechanism) of direct mutualism between two species ([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/)). The core idea of the model is that each species' population growth rate ($dN/dt$) is modified by interactions with both individuals of its own species and of another species, not unlike the classic [Lotka-Volterra competition model](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/) except that here the effect of the other species is net positive (as opposed to negative). In addition, the model assumes that there are diminishing returns on the benefits conferred by the mutualist species as it increases in population size. Given these considerations, the model can be expressed as:
+
+$$\frac{dN_1}{dt} = r_1N_1 + \frac{\alpha_{12}N_2}{b_2 + N_2}N_1 - d_1N_1^2$$
+$$\frac{dN_2}{dt} = r_2N_2 + \frac{\alpha_{21}N_1}{b_1 + N_1}N_2 - d_2N_2^2$$
+
+where $N_i$ is the population size of species $i$, $r_i$ is the per capita growth rate of species $i$, $\alpha_{ij}$ is the mutualistic effect of species $j$ on species $i$, and $d_i$ is the rate of self-limitation for species $i$. The first term on the right-hand side of each equation describes population growth in the absence of interactions. The second term describes how population growth increases as a saturating function of the mutualist's population size (specifically, expressed in the form of a [Michaelis–Menten curve](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics) with a half-saturation constant of $b_i$). Finally, the third term describes how population growth decreases as the population grows in size.
+
+To explore how populations grow with mutualistic interactions, we can use the model to simulate population trajectories over time (select "N vs. time"). Alternatively, to explore the long-term outcomes of mutualistic interactions, we can derive and plot zero net growth isoclines (along which population growth is zero, or $dN_1/dt = dN_2/dt = 0$) to identify the combination of population sizes at which both populations no longer change in population size (select "Phase portrait").
 
 ```{r app}
 ##### UI #####
@@ -161,9 +170,10 @@ plot <- reactive({
 
 ## References
 
-- Bronstein, J.L. (2015). [*Mutualism*](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
-- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). *Trends in Ecology and Evolution*, 18, 241-248.
-- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). *Evolution*, 20, 249-275.
+- Bronstein, J.L. (2015). [Mutualism](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
+- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). Trends in Ecology and Evolution, 18, 241-248.
+- Holland, N.J. (2012). [Population dynamics of mutualism](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/). Nature Education Knowledge, 3, 2.
+- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). Evolution, 20, 249-275.
 
 ```{r footer, results ='asis'}
 # Print footer

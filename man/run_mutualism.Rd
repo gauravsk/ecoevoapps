@@ -29,8 +29,8 @@ run_mutualism(
 \item \code{a21}: Effect of species 1 on species 2
 \item \code{b1}: Half-saturation constant for species 1
 \item \code{b2}: Half-saturation constant for species 2
-\item \code{d1}: Death rate of self-limitation for species 1
-\item \code{d2}: Death rate of self-limitation for species 2
+\item \code{d1}: Rate of self-limitation for species 1
+\item \code{d2}: Rate of self-limitation for species 2
 }}
 }
 \value{
@@ -43,10 +43,15 @@ capacities calculated from the parameter values (\code{K}).
 \description{
 Given a vector of time, initial values, and parameters, this function runs
 a phenomenological model of direct mutualism between two species as
-described by Holland (2015). This model features a saturating functional
+described by Holland (2012). This model features a saturating functional
 response for interspecific density dependence, which produces a stable
 equilibrium where both mutualist species can coexist above their respective
 population carrying capacities.
+}
+\note{
+See the following for further context and details regarding this model:
+Holland, N.J. (2012). Population dynamics of mutualism. Nature Education
+Knowledge, 3, 2.
 }
 \examples{
 # Define full time series and run model with default parameter values
