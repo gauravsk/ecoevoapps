@@ -71,7 +71,7 @@ run_mutualism <- function(time = 0:50,
   }
   if (length(time) == 1) {
     tmax <- time
-    time <- seq(0, tmax)
+    time <- seq(0, tmax, 0.1)
   } else if (time[1] != 0) {
     stop("time vector should start at 0.")
   }
