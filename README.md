@@ -7,7 +7,7 @@ This is a community resource for interactive ([shiny](https://shiny.rstudio.com/
 EcoEvoApps allow users to explore the dynamics of apps through simple simulations. For example, when exploring [population growth in continuous time](https://ecoevoapps.gitlab.io/apps/singlepop-continuous/), users can switch between density-independent or dependent growth, and can easily change parameter values: 
 
 
-![animation of users switching between density dependent and independent growth in population growth app](man/figures/logistic.gif)
+![](man/figures/logistic.gif "animation of users switching between density dependent and independent growth in population growth app")
 
 ### What models are available? 
 
