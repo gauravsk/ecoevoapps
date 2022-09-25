@@ -182,15 +182,15 @@ sim <- reactive({run_mutualism(time(), init(), params())})
 plot <- reactive({
   if (input$plot == "time") {
     plot_mutualism_time(sim()) +
-      ggplot2::theme(aspect.ratio = 1)
+      theme(aspect.ratio = 1)
   } else if (input$plot == "phase") {
     plot_mutualism_portrait(sim(), vec(), traj()) +
-      ggplot2::theme(aspect.ratio = 1)
+      theme(aspect.ratio = 1)
   } else {
     wrap_plots(plot_mutualism_time(sim()),
                           plot_mutualism_portrait(sim(), vec(), traj()),
                           nrow = 1) +
-      ggplot2::theme(aspect.ratio = 1)
+      theme(aspect.ratio = 1)
   }
 })
 ```
