@@ -222,7 +222,7 @@ mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
   N2 <- seq(1, max(sim_df$N2)*2, length.out = vec.density)
   start <- expand.grid(N1 = N1, N2 = N2)
   end <- sapply(1:nrow(start), function(i) {
-    run_mutualism(1, c(N1 = start[i, 1], N2 = start[i, 2]), attr(sim_df, "params"))[2, -1]
+    run_mutualism(0:1, c(N1 = start[i, 1], N2 = start[i, 2]), attr(sim_df, "params"))[2, -1]
   })
   N1_end <- as.numeric(end[1, ])
   N2_end <- as.numeric(end[2, ])
