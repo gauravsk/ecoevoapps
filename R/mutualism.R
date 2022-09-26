@@ -333,12 +333,14 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
                             arrow = arrow(length = unit(0.01, "npc")), color = "gray50")
   }
   if (traj == TRUE) {
+    start_df <- data.frame(N1 = sim_df$N1[1], N2 = sim_df$N2[1])
+    end_df <- data.frame(N1 = sim_df$N1[nrow(sim_df)], N2 = sim_df$N2[nrow(sim_df)])
     plot <-
       plot +
       ggplot2::geom_path(data = sim_df, size = 1) +
-      ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[1], y = sim_df$N2[1]),
+      ggplot2::geom_point(ggplot2::aes(x = .data$N1, y = .data$N2), start_df,
                           size = 3, pch = 21, fill = "black") +
-      ggplot2::geom_point(ggplot2::aes(x = sim_df$N1[nrow(sim_df)], y = sim_df$N2[nrow(sim_df)]),
+      ggplot2::geom_point(ggplot2::aes(x = .data$N1, y = .data$N2), end_df,
                           size = 3, pch = 21, fill = "white", stroke = 1) +
       ggplot2::labs(x= expression(N[1]), y = expression(N[2]),
                     caption = "Colored curves: zero net growth isoclines
