@@ -145,6 +145,7 @@ run_mutualism <- function(time = 0:50,
 #' sim <- run_mutualism()
 #' plot_mutualism_time(sim)
 #' @seealso [run_mutualism()], [plot_mutualism_portrait()]
+#' @importFrom rlang .data
 plot_mutualism_time <- function(sim_df) {
 
   # Check sim_df
@@ -156,13 +157,13 @@ plot_mutualism_time <- function(sim_df) {
   }
 
   # Plot
-  sim_df_long <- tidyr::pivot_longer(sim_df, c(N1, N2), names_to = "species")
+  sim_df_long <- tidyr::pivot_longer(sim_df, c(.data$N1, .data$N2), names_to = "species")
   y_upper <- max(c(sim_df_long$value, attr(sim_df, "K")))
   K_df <- data.frame(species = c("N1", "N2"), K = attr(sim_df, "K"))
   plot <-
     ggplot2::ggplot(sim_df_long) +
-    ggplot2::geom_hline(ggplot2::aes(yintercept = K, color = species), K_df, lty = 2) +
-    ggplot2::geom_line(ggplot2::aes(x = time, y = value, color = species), size = 2) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = .data$K, color = .data$species), K_df, lty = 2) +
+    ggplot2::geom_line(ggplot2::aes(x = .data$time, y = .data$value, color = .data$species), size = 2) +
     ggplot2::scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
     ggplot2::labs(x = "Time", y = "Population size (N)", color = "Species",
                   caption = "Solid curves: population trajectories
@@ -271,6 +272,7 @@ mutualism_vector_field <- function(sim_df, vec.density = 20, vec.scale = 0.1) {
 #' sim <- run_mutualism()
 #' plot_mutualism_portrait(sim, vec.density = 10, vec.scale = 0.2)
 #' @seealso [run_mutualism()], [plot_mutualism_time()]
+#' @importFrom rlang .data
 plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
 
   # Check sim_df
@@ -313,8 +315,8 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
     rbind(ZNGI1, ZNGI2)
   })
   plot <-
-    ggplot2::ggplot(ZNGIs, ggplot2::aes(x = N1, y = N2)) +
-    ggplot2::geom_line(ggplot2::aes(group = species, color = species), size = 2) +
+    ggplot2::ggplot(ZNGIs, ggplot2::aes(x = .data$N1, y = .data$N2)) +
+    ggplot2::geom_line(ggplot2::aes(group = .data$species, color = .data$species), size = 2) +
     ggplot2::scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
     ggplot2::labs(x= expression(N[1]), y = expression(N[2]), color = "Species",
                   caption = "Colored curves: zero net growth isoclines") +
@@ -327,7 +329,7 @@ plot_mutualism_portrait <- function(sim_df, vec = TRUE, traj = TRUE, ...) {
     vec_pts <- mutualism_vector_field(sim_df, ...)
     plot <-
       plot +
-      ggplot2::geom_segment(ggplot2::aes(xend = N1_end, yend = N2_end), vec_pts,
+      ggplot2::geom_segment(ggplot2::aes(xend = .data$N1_end, yend = .data$N2_end), vec_pts,
                             arrow = arrow(length = unit(0.01, "npc")), color = "gray50")
   }
   if (traj == TRUE) {
