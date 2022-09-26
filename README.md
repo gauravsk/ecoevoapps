@@ -43,7 +43,7 @@ ecoevoapps::run_lvcomp_model(time = 100, params = c(K1 = 500, K2 = 500, a = .07,
                                init = c(N1 = 100, N2 = 50))
 ```
 
-The complete list of functions for running and plotting model outputs is available the [reference index](reference/index.html). For more details on how to implement particular models through the R command line, check out the package [vignettes](articles/index.html).
+The complete list of functions for running and plotting model outputs is available the [reference index](https://ecoevoapps.gitlab.io/docs/reference/index.html). For more details on how to implement particular models through the R command line, check out the package [vignettes](https://ecoevoapps.gitlab.io/docs/articles/index.html).
 
 ## Contributing
 
