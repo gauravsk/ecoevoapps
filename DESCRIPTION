@@ -60,8 +60,9 @@ Imports:
     stats,
     shiny,
     kableExtra,
-    patchwork
-RoxygenNote: 7.2.0
+    patchwork,
+    rlang
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,

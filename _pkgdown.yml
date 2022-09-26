@@ -45,6 +45,10 @@ reference:
   contents:
   - "run_infectiousdisease_model"
   - starts_with("plot_infectiousdisease_")
+- title: "Mutualisms"
+  contents:
+  - "run_mutualism"
+  - starts_with("plot_mutualism_")
 - title: "Other models"
   contents:
   - "run_ibiogeo_model"
@@ -53,6 +57,10 @@ reference:
   desc: Functions to run shiny apps from the command line
   contents:
   - starts_with("shiny_")
+- title: "Utility functions"
+  desc: Other utility functions in the package
+  contents:
+  - "theme_apps"
 url: https://ecoevoapps.gitlab.io/docs
 repo:
   url:
@@ -65,6 +73,7 @@ articles:
   - lotka-volterra-competition
   - predator-prey-interactions
   - mechanistic-competition-models
+  - mutualisms
   - sir-dynamics
   - island-biogeo
 - title: Extending ecoevoapps

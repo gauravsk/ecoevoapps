@@ -1,0 +1,210 @@
+---
+title: "Mutualism"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ecoevoapps)
+library(tidyverse)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+```
+
+<!-- Add language options here once available -->
+
+Mutualism is a type of species interaction in which interacting species confer a net beneficial effect on one another. Mutualisms can manifest in various forms, including (but not limited to) plant-pollinator interactions, dispersal of seeds by animal vectors, and defense from predators. For example, fig wasps pollinate, lay eggs in, and feed on figs ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Another example is the mutualism between ants and acacia plants, in which ants feed on and shelter in acacias while protecting the plant from herbivores ([Janzen 1966](https://doi.org/10.2307/2406628)). A detailed overview of mutualisms can be found in [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001).
+
+This app explores a model of direct mutualism between two species ([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/)). The core idea of the model is that each species' population growth rate ($\frac{dN}{dt}$) is modified by interactions with both individuals of its own species and of another species, not unlike the classic [Lotka-Volterra competition model](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/). When growing alone, each species experiences intraspecific competition and grows in population size up to its population carrying capacity. But when the two species interact, they confer a benefit to each other, such that each species can grow to a population size beyond its carrying capacity. The model also assumes that there are diminishing returns on the beneficial effects of the mutualism, i.e. that the positive effects of each species level off at some population size. 
+
+Given these considerations, the model can be expressed as:
+
+$$\frac{dN_1}{dt} = r_1N_1 + \frac{\alpha_{12}N_2}{b_2 + N_2}N_1 - d_1N_1^2$$
+$$\frac{dN_2}{dt} = r_2N_2 + \frac{\alpha_{21}N_1}{b_1 + N_1}N_2 - d_2N_2^2$$
+
+The parameter descriptions are listed in the table below. In each equation, the first term ($r_iN_i$) describes population growth in the absence of interactions. The second term  ($\frac{\alpha_{ij}N_j}{b_j + N_j}N_i$) describes how population growth increases as a saturating function of the mutualist's population size (expressed in the form of a [Michaelis–Menten curve](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics)). Finally, the third term ($d_iN_i^2$) describes how the rate of population growth decreases as the population grows in size.
+
+```{r parameter descriptions, caption="test"}
+pars <- c("$r_i$",
+          "$N_i$",
+          "$\\alpha_{ij}$",
+          "$d_i$",
+          "$b_i$")
+descriptions <- c("Per capita growth rate of species $i$",
+                  "Population size of species $i$",
+                  "Per capita mutualistic effect of species $j$ on species $i$",
+                  "Rate of self-limitation for species $i$",
+                  "Half-saturation constant of the Michaelis-Menten equation, i.e. the population size of species $i$ at which it provides half its maximum benefit to species $j$")
+param_df <- data.frame(pars, descriptions)
+kable(x = param_df,
+      format = "html",
+      col.names = c("Parameter or Variable", "Description"),
+      table.attr = "style='width:50%;'") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+To explore how populations grow with mutualistic interactions, we can use the model to simulate population trajectories over time (select "N vs. time"). We can also explore the long-term outcomes of mutualistic interactions by studying the zero net growth isoclines plots, which show the conditions at which population growth is zero ($\frac{dN_1}{dt} = \frac{dN_2}{dt} = 0$), to identify the combination of population sizes at which both populations equilibriate (select "Phase portrait").
+
+```{r app}
+##### UI #####
+
+# Input panel
+wellPanel(
+  fluidRow(
+    column(4, numericInput(inputId = "r1",
+                           label = HTML("r<sub>1</sub>: Per capita growth rate of sp. 1"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "r2",
+                           label = HTML("r<sub>2</sub>: Per capita growth rate of sp. 2"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N1",
+                           label = "Initial population size of sp. 1",
+                           value = 20,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "a12",
+                           label = HTML("&alpha;<sub>12</sub>: Effect of sp. 2 on sp. 1"),
+                           value = 0.8,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "a21",
+                           label = HTML("&alpha;<sub>21</sub>: Effect of sp. 1 on sp. 2"),
+                           value = 0.4,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N2",
+                           label = "Initial population size of sp. 2",
+                           value = 40,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "d1",
+                           label = HTML("d<sub>1</sub>: Rate of self-limitation for sp. 1"),
+                           value = 0.02,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "d2",
+                           label = HTML("d<sub>2</sub>: Rate of self-limitation for sp. 2"),
+                           value = 0.01,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "time",
+                           label = "Length of simulation",
+                           value = 50,
+                           min = 1,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "b1",
+                           label = HTML("b<sub>1</sub>: Half-saturation constant for sp. 1"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(4, numericInput(inputId = "b2",
+                           label = HTML("b<sub>2</sub>: Half-saturation constant for sp. 2"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(2, radioButtons(inputId = "plot",
+                           label = "Plot",
+                           choices = c("N vs. time" = "time",
+                                       "Phase portrait" = "phase",
+                                       "Both" = "both"),
+                           selected = "both")),
+    column(2, conditionalPanel(
+      condition = "input.plot != 'time'",
+      checkboxGroupInput(inputId = "phase_opt",
+                         label = "Draw",
+                         choices = c("Vector field" = "vec",
+                                     "Population trajectories" = "traj"),
+                         selected = c("vec", "traj")))))
+)
+
+# Output panel
+fluidRow(
+  column(12, renderPlot(plot(), height = 500))
+)
+
+##### Server #####
+
+# Validate input
+observeEvent(input$a12, {
+  if (input$a12 <= 0) updateNumericInput(inputId = "a12", value = 0.1)
+})
+observeEvent(input$a21, {
+  if (input$a21 <= 0) updateNumericInput(inputId = "a21", value = 0.1)
+})
+observeEvent(input$d1, {
+  if (input$d1 <= 0) updateNumericInput(inputId = "d1", value = 0.01)
+})
+observeEvent(input$d2, {
+  if (input$d2 <= 0) updateNumericInput(inputId = "d2", value = 0.01)
+})
+observeEvent(input$b1, {
+  if (input$b1 <= 0) updateNumericInput(inputId = "b1", value = 1)
+})
+observeEvent(input$b2, {
+  if (input$b2 <= 0) updateNumericInput(inputId = "b2", value = 1)
+})
+observeEvent(input$N1, {
+  if (input$N1 <= 0) updateNumericInput(inputId = "N1", value = 1)
+})
+observeEvent(input$N2, {
+  if (input$N2 <= 0) updateNumericInput(inputId = "N2", value = 1)
+})
+observeEvent(input$time, {
+  if (input$time < 1) updateNumericInput(inputId = "time", value = 1)
+})
+
+# Retrieve user inputs
+params <- reactive({c(r1 = input$r1,
+                      r2 = input$r2,
+                      a12 = input$a12,
+                      a21 = input$a21,
+                      d1 = input$d1,
+                      d2 = input$d2,
+                      b1 = input$b1,
+                      b2 = input$b2)})
+init <- reactive({c(N1 = input$N1, N2 = input$N2)})
+time <- reactive({input$time})
+vec <- reactive({"vec" %in% input$phase_opt})
+traj <- reactive({"traj" %in% input$phase_opt})
+
+# Run mutualism model
+sim <- reactive({run_mutualism(time(), init(), params())})
+
+# Plot population trajectories over time
+plot <- reactive({
+  if (input$plot == "time") {
+    plot_mutualism_time(sim()) +
+      theme(aspect.ratio = 1)
+  } else if (input$plot == "phase") {
+    plot_mutualism_portrait(sim(), vec(), traj()) +
+      theme(aspect.ratio = 1)
+  } else {
+    wrap_plots(plot_mutualism_time(sim()),
+                          plot_mutualism_portrait(sim(), vec(), traj()),
+                          nrow = 1) +
+      theme(aspect.ratio = 1)
+  }
+})
+```
+
+## References
+
+- Bronstein, J.L. (2015). [Mutualism](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
+- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). Trends in Ecology and Evolution, 18, 241-248.
+- Holland, N.J. (2012). [Population dynamics of mutualism](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/). Nature Education Knowledge, 3, 2.
+- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). Evolution, 20, 249-275.
+
+----------
+
+```{r footer, results ='asis'}
+# Print footer
+suppressWarnings(print_app_footer())
+```
