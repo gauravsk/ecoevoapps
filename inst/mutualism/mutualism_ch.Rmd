@@ -1,0 +1,219 @@
+---
+title: "互利关系"
+output: html_document
+runtime: shiny
+---
+
+***中文 | [Español](https://ecoevoapps.shinyapps.io/mutualism_es/) | [English](https://ecoevoapps.shinyapps.io/mutualism) | [português](https://ecoevoapps.shinyapps.io/mutualism_pt) | [Turkish](https://ecoevoapps.shinyapps.io/mutualism_tr/) ***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ecoevoapps)
+library(tidyverse)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+```
+
+
+在互利关系(mutualism)中，两个互相影响的物种对彼此都有益。互利可以有多种形式，包括（但不限于）植物和传粉者之间的互动、动物帮助植物传播种子或防御天敌。比如，榕小蜂帮榕树传粉，同时也食用榕果并在其中产卵([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4))。另一个例子是蚂蚁和金合欢之间的互利关系：金合欢为蚂蚁提供食宿，而蚂蚁帮助金合欢抵御食草动物([Janzen 1966](https://doi.org/10.2307/2406628))。[Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001)一书详细概述了各种互利共生关系。
+
+此app模拟了两个物种之间的直接互利关系([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/))。该模型的核心在于，每个物种的种群增长率($dN/dt$)同时受到同种个体和其互利物种个体的影响 -- 这有些类似于经典的[Lotka-Volterra 竞争模型](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)。当每个物种单独存在时，它们只受到种间竞争，并因此种群只能增长至其环境承载力。但当两个物种作用于彼此时，它们给彼此带来有利影响，因此可以使彼此的种群规模超过其环境承载力。这个模型假设了互利关系带来的边际收益是递减的，即互利收益会随种群增长而趋于饱和。
+
+综上，模型可写为：
+
+$$\frac{dN_1}{dt} = r_1N_1 + \frac{\alpha_{12}N_2}{b_2 + N_2}N_1 - d_1N_1^2$$
+$$\frac{dN_2}{dt} = r_2N_2 + \frac{\alpha_{21}N_1}{b_1 + N_1}N_2 - d_2N_2^2$$
+
+模型参数的描述可见下文表格。动态方程的第一项($r_iN_i$) 描述了种群在无任何种间竞争或互利关系下的增长。第二项($\frac{\alpha_{ij}N_j}{b_j + N_j}N_i$) 描述了各种群随其互利物种的增长而增长的饱和函数(呈[Michaelis–Menten 曲线](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics)，其中半饱和常数为$b_i$)。最后一项表示种群增长率随其规模增长而减缓。
+
+
+```{r parameter descriptions}
+pars <- c("$r_1$",
+          "$r_2$",
+          "$N_1$",
+          "$N_2$",
+          "$\\alpha_{12}$",
+          "$\\alpha_{21}$",
+          "$d_1$",
+          "$d_2$",
+          "$b_i$")
+descriptions <- c("物种1的人均增长率",
+                  "物种2的人均增长率",
+                  "物种1的种群规模",
+                  "物种2的种群规模",
+                  "物种2对于物种1的人均有利影响",
+                  "物种1对于物种2的人均有利影响",
+                  "物种1的自限性",
+                  "物种2的自限性",
+                  "Michelis-Menten方程的半饱和常数，即种群$i$对$j$的有利影响为最大值一半时，种群$i$的规模")
+param_df <- data.frame(pars, descriptions)
+kable(x = param_df, format = "html",
+      col.names = c("参数/变量", "描述")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+这个模型可以模拟种群轨迹随时间的变化（选择“种群规模vs.时间”），该选项可帮助我们探索种群如何在互利影响下如何增长。我们也可以通过零增长等斜线 (zero net growth isocline)来研究互利关系对于种群的长期影响。零增长等斜线表述了在什么条件下各种群会零增长($dN_1/dt = dN_2/dt = 0$) ，以及两个种群会在什么规模下平衡（选择“相图”）。
+
+```{r app}
+##### UI #####
+
+# Input panel
+wellPanel(
+  fluidRow(
+    column(4, numericInput(inputId = "r1",
+                           label = HTML("r<sub>1</sub>: 物种1的人均增长率"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "r2",
+                           label = HTML("r<sub>2</sub>: 物种2的人均增长率"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N1",
+                           label = "物种1的起始种群规模",
+                           value = 20,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "a12",
+                           label = HTML("&alpha;<sub>12</sub>: 物种2对1的影响"),
+                           value = 0.8,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "a21",
+                           label = HTML("&alpha;<sub>21</sub>: 物种1对2的影响"),
+                           value = 0.4,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N2",
+                           label = "物种2的起始种群规模",
+                           value = 40,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "d1",
+                           label = HTML("d<sub>1</sub>: 物种1的自限性"),
+                           value = 0.02,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "d2",
+                           label = HTML("d<sub>2</sub>: 物种2的自限性"),
+                           value = 0.01,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "time",
+                           label = "模拟时长",
+                           value = 50,
+                           min = 1,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "b1",
+                           label = HTML("b<sub>1</sub>: 物种1的半饱和常数"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(4, numericInput(inputId = "b2",
+                           label = HTML("b<sub>2</sub>: 物种2的半饱和常数"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(2, radioButtons(inputId = "plot",
+                           label = "图表",
+                           choices = c("种群规模vs.时间" = "time",
+                                       "相图（Phase portrait）" = "phase",
+                                       "全选" = "both"),
+                           selected = "both")),
+    column(2, conditionalPanel(
+      condition = "input.plot != 'time'",
+      checkboxGroupInput(inputId = "phase_opt",
+                         label = "包括",
+                         choices = c("向量场" = "vec",
+                                     "种群轨迹" = "traj"),
+                         selected = c("vec", "traj")))))
+)
+
+# Output panel
+fluidRow(
+  column(12, renderPlot(plot(), height = 500))
+)
+
+##### Server #####
+
+# Validate input
+observeEvent(input$a12, {
+  if (input$a12 <= 0) updateNumericInput(inputId = "a12", value = 0.1)
+})
+observeEvent(input$a21, {
+  if (input$a21 <= 0) updateNumericInput(inputId = "a21", value = 0.1)
+})
+observeEvent(input$d1, {
+  if (input$d1 <= 0) updateNumericInput(inputId = "d1", value = 0.01)
+})
+observeEvent(input$d2, {
+  if (input$d2 <= 0) updateNumericInput(inputId = "d2", value = 0.01)
+})
+observeEvent(input$b1, {
+  if (input$b1 <= 0) updateNumericInput(inputId = "b1", value = 1)
+})
+observeEvent(input$b2, {
+  if (input$b2 <= 0) updateNumericInput(inputId = "b2", value = 1)
+})
+observeEvent(input$N1, {
+  if (input$N1 <= 0) updateNumericInput(inputId = "N1", value = 1)
+})
+observeEvent(input$N2, {
+  if (input$N2 <= 0) updateNumericInput(inputId = "N2", value = 1)
+})
+observeEvent(input$time, {
+  if (input$time < 1) updateNumericInput(inputId = "time", value = 1)
+})
+
+# Retrieve user inputs
+params <- reactive({c(r1 = input$r1,
+                      r2 = input$r2,
+                      a12 = input$a12,
+                      a21 = input$a21,
+                      d1 = input$d1,
+                      d2 = input$d2,
+                      b1 = input$b1,
+                      b2 = input$b2)})
+init <- reactive({c(N1 = input$N1, N2 = input$N2)})
+time <- reactive({input$time})
+vec <- reactive({"vec" %in% input$phase_opt})
+traj <- reactive({"traj" %in% input$phase_opt})
+
+# Run mutualism model
+sim <- reactive({run_mutualism(time(), init(), params())})
+
+# Plot population trajectories over time
+plot <- reactive({
+  if (input$plot == "time") {
+    plot_mutualism_time(sim()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else if (input$plot == "phase") {
+    plot_mutualism_portrait(sim(), vec(), traj()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else {
+    wrap_plots(plot_mutualism_time(sim()),
+                          plot_mutualism_portrait(sim(), vec(), traj()),
+                          nrow = 1) +
+      ggplot2::theme(aspect.ratio = 1)
+  }
+})
+```
+
+## 参考文献
+
+- Bronstein, J.L. (2015). [Mutualism](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
+- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). Trends in Ecology and Evolution, 18, 241-248.
+- Holland, N.J. (2012). [Population dynamics of mutualism](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/). Nature Education Knowledge, 3, 2.
+- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). Evolution, 20, 249-275.
+
+----------
+
+```{r footer, results ='asis'}
+# Print footer
+suppressWarnings(print_app_footer())
+```

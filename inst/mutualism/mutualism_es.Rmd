@@ -1,10 +1,10 @@
 ---
-title: "Mutualism"
+title: "Mutualismo"
 output: html_document
 runtime: shiny
 ---
 
-***[中文](https://ecoevoapps.shinyapps.io/mutualism_ch/) | [Español](https://ecoevoapps.shinyapps.io/mutualism_es/) | English | [português](https://ecoevoapps.shinyapps.io/mutualism_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/mutualism_tr/) ***
+***[中文](https://ecoevoapps.shinyapps.io/mutualism_ch/) | Español | [English](https://ecoevoapps.shinyapps.io/mutualism/) | [português](https://ecoevoapps.shinyapps.io/mutualism_pt/) | [Turkish](https://ecoevoapps.shinyapps.io/mutualism_tr/) ***
 
 
 ```{r setup, include=FALSE}
@@ -16,16 +16,19 @@ library(knitr)
 library(kableExtra)
 ```
 
-Mutualism is a type of species interaction in which interacting species confer a net beneficial effect on one another. Mutualisms can manifest in various forms, including (but not limited to) plant-pollinator interactions, dispersal of seeds by animal vectors, and defense from predators. For example, fig wasps pollinate, lay eggs in, and feed on figs ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Another example is the mutualism between ants and acacia plants, in which ants feed on and shelter in acacias while protecting the plant from herbivores ([Janzen 1966](https://doi.org/10.2307/2406628)). A detailed overview of mutualisms can be found in [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001).
 
-This app explores a model of direct mutualism between two species ([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/)). The core idea of the model is that each species' population growth rate ($\frac{dN}{dt}$) is modified by interactions with both individuals of its own species and of another species, not unlike the classic [Lotka-Volterra competition model](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/). When growing alone, each species experiences intraspecific competition and grows in population size up to its population carrying capacity. But when the two species interact, they confer a benefit to each other, such that each species can grow to a population size beyond its carrying capacity. The model also assumes that there are diminishing returns on the beneficial effects of the mutualism, i.e. that the positive effects of each species level off at some population size. 
+El mutualismo es un tipo de interacción en donde las especies que interactúan se confieren un efecto benéfico neto entre ellas. Los mutualismos se pueden manifestar de diversas formas que incluyen (pero no se limitan a) las interacciones planta-polinizador, la dispersión de semillas por vectores animales y la defensa de depredadores. Por ejemplo, las avispas de los higos polinizan, ponen sus huevos y se alimentan de los higos ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Otre ejemplo es el mutualismo que existe entre las hormigas y las acacias en donde las hormigas se alimentan de las acacias y se refugian en ellas al mismo tiempo que las protegen de herbívoros ([Janzen 1966](https://doi.org/10.2307/2406628)). [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001) presenta un recuento detallado de los mutualismos.
 
-Given these considerations, the model can be expressed as:
+
+Esta app explora un modelo de mutualismo directo entre dos especies ([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/)). La idea central del modelo es que la tasa de crecimiento poblacional de cada especie ($\frac{dN}{dt}$) se ve modificada por la interacción de individuos de su misma especie y de la otra especie, como sucede un modelo clásico de competencia de [Lotka-Volterra competition model](https://ecoevoapps.shinyapps.io/lotka_volterra_competition_es/) Cuando cada especie se encuentra creciendo sola experimenta competencia intraespecífica y solamente crece hasta la capacidad de carga de su población. Sin embargo, cuando las dos especies interactúan ambas se benefician, de tal forma que cada especie puede crecer más allá de su capacidad de carga. El modelo también supone que los beneficios que pueden obtener las poblaciones del mutualismo van disminuyendo, es decir que los efectos positivos de cada especie se estabilizan en cierto tamaño poblacional 
+
+Dadas estas condiciones el modelo se puede expresar de la siguiente forma:
 
 $$\frac{dN_1}{dt} = r_1N_1 + \frac{\alpha_{12}N_2}{b_2 + N_2}N_1 - d_1N_1^2$$
 $$\frac{dN_2}{dt} = r_2N_2 + \frac{\alpha_{21}N_1}{b_1 + N_1}N_2 - d_2N_2^2$$
 
-The parameter descriptions are listed in the table below. In each equation, the first term ($r_iN_i$) describes population growth in the absence of interactions. The second term  ($\frac{\alpha_{ij}N_j}{b_j + N_j}N_i$) describes how population growth increases as a saturating function of the mutualist's population size (expressed in the form of a [Michaelis–Menten curve](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics)). Finally, the third term ($d_iN_i^2$) describes how the rate of population growth decreases as the population grows in size.
+Las descripciones de los parámetros se encuentran en la tabla subsecuente. En cada ecuación el primer término ($r_iN_i$) describe el crecimiento poblacional en ausencia de interacciones. El segundo término ($\frac{\alpha_{ij}N_j}{b_j + N_j}N_i$) describe cómo incrementa el crecimiento poblacional como una función de saturación del tamaño poblacional del mutualista (expresado como una curva de [Michaelis–Menten](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics)). Finalmente, el tercer término ($d_iN_i^2$) describe cómo disminuye la tasa de crecimiento poblacional conforme aumenta el tamaño poblacional.
+
 
 ```{r parameter descriptions, caption="test"}
 pars <- c("$r_i$",
@@ -33,21 +36,22 @@ pars <- c("$r_i$",
           "$\\alpha_{ij}$",
           "$d_i$",
           "$b_i$")
-descriptions <- c("Per capita growth rate of species $i$",
-                  "Population size of species $i$",
-                  "Per capita mutualistic effect of species $j$ on species $i$",
-                  "Rate of self-limitation for species $i$",
-                  "Half-saturation constant of the Michaelis-Menten equation, i.e. the population size of species $i$ at which it provides half its maximum benefit to species $j$")
+descriptions <- c("Tasa de crecimiento per cápita de la especie $i$",
+                  "Tamaño poblacional de la especie $i$",
+                  "Efecto mutualista per cápita de la especie $j$ sobre la especie $i$",
+                  "Tasa de autolimitación de la especie $i$",
+                  "Constante de la mitad de la saturación de la ecuación de Michaelis-Menten, es decir el tamaño poblacional de la especie $i$ a la cual provee la mitad del beneficio máximo a la especie $j$" )
 param_df <- data.frame(pars, descriptions)
 kable(x = param_df,
       format = "html",
-      col.names = c("Parameter or Variable", "Description"),
+      col.names = c("Parámetro o Variable", "Descripción"),
       table.attr = "style='width:50%;'") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 position = "center")
 ```
 
-To explore how populations grow with mutualistic interactions, we can use the model to simulate population trajectories over time (select "N vs. time"). We can also explore the long-term outcomes of mutualistic interactions by studying the zero net growth isoclines plots, which show the conditions at which population growth is zero ($\frac{dN_1}{dt} = \frac{dN_2}{dt} = 0$), to identify the combination of population sizes at which both populations equilibriate (select "Phase portrait").
+Para explorar cómo crecen las poblaciones en presencia de las interacciones mutualistas podemos utilizar al modelo para simular las trayectorias poblacionales en el tiempo (selecciona "N vs tiempo"). También podemos explorar el resultado a largo plazo de las interacciones mutualistas al estudiar las gráficas de las isoclinas de crecimiento cero. Éstas muestran las condiciones en las cuales el crecimiento poblacional es cero ($\frac{dN_1}{dt} = \frac{dN_2}{dt} = 0$), para identificar la combinación de tamaños poblaciones en las cuáles ambas poblaciones están al equilibrio (selecciona "Diagrama de fase").
+
 
 ```{r app}
 ##### UI #####
@@ -56,73 +60,73 @@ To explore how populations grow with mutualistic interactions, we can use the mo
 wellPanel(
   fluidRow(
     column(4, numericInput(inputId = "r1",
-                           label = HTML("r<sub>1</sub>: Per capita growth rate of sp. 1"),
+                           label = HTML("r<sub>1</sub>: tasa de crecimiento per cápita de la sp. 1"),
                            value = 0.5,
                            step = 0.1)),
     column(4, numericInput(inputId = "r2",
-                           label = HTML("r<sub>2</sub>: Per capita growth rate of sp. 2"),
+                           label = HTML("r<sub>2</sub>: tasa de crecimiento per cápita de la sp. 2"),
                            value = 0.5,
                            step = 0.1)),
     column(4, numericInput(inputId = "N1",
-                           label = "Initial population size of sp. 1",
+                           label = "Tamaño inicial de la población de la sp. 1",
                            value = 20,
                            min = 0,
                            step = 1))),
   fluidRow(
     column(4, numericInput(inputId = "a12",
-                           label = HTML("&alpha;<sub>12</sub>: Effect of sp. 2 on sp. 1"),
+                           label = HTML("&alpha;<sub>12</sub>: Efecto de la sp. 2 sobre la sp. 1"),
                            value = 0.8,
                            min = 0,
                            step = 0.1)),
     column(4, numericInput(inputId = "a21",
-                           label = HTML("&alpha;<sub>21</sub>: Effect of sp. 1 on sp. 2"),
+                           label = HTML("&alpha;<sub>21</sub>:  Efecto de la sp. 1 sobre la sp. 2"),
                            value = 0.4,
                            min = 0,
                            step = 0.1)),
     column(4, numericInput(inputId = "N2",
-                           label = "Initial population size of sp. 2",
+                           label = "Tamaño inicial de la población de la sp. 2",
                            value = 40,
                            min = 0,
                            step = 1))),
   fluidRow(
     column(4, numericInput(inputId = "d1",
-                           label = HTML("d<sub>1</sub>: Rate of self-limitation for sp. 1"),
+                           label = HTML("d<sub>1</sub>: Tasa de autolimitación de la sp. 1"),
                            value = 0.02,
                            min = 0,
                            step = 0.01)),
     column(4, numericInput(inputId = "d2",
-                           label = HTML("d<sub>2</sub>: Rate of self-limitation for sp. 2"),
+                           label = HTML("d<sub>2</sub>: Tasa de autolimitación de la sp. 2"),
                            value = 0.01,
                            min = 0,
                            step = 0.01)),
     column(4, numericInput(inputId = "time",
-                           label = "Length of simulation",
+                           label = "Duración de la simulación",
                            value = 50,
                            min = 1,
                            step = 1))),
   fluidRow(
     column(4, numericInput(inputId = "b1",
-                           label = HTML("b<sub>1</sub>: Half-saturation constant for sp. 1"),
+                           label = HTML("b<sub>1</sub>: constante de la mitad de la saturación para la sp. 1"),
                            value = 10,
                            min = 0,
                            step = 1)),
     column(4, numericInput(inputId = "b2",
-                           label = HTML("b<sub>2</sub>: Half-saturation constant for sp. 2"),
+                           label = HTML("b<sub>2</sub>: constante de la mitad de la saturación para la sp. 2"),
                            value = 10,
                            min = 0,
                            step = 1)),
     column(2, radioButtons(inputId = "plot",
-                           label = "Plot",
-                           choices = c("N vs. time" = "time",
-                                       "Phase portrait" = "phase",
-                                       "Both" = "both"),
+                           label = "Gráfica",
+                           choices = c("N vs tiempo" = "time",
+                                       "Diagrama de fase" = "phase",
+                                       "Ambos" = "both"),
                            selected = "both")),
     column(2, conditionalPanel(
       condition = "input.plot != 'time'",
       checkboxGroupInput(inputId = "phase_opt",
-                         label = "Draw",
-                         choices = c("Vector field" = "vec",
-                                     "Population trajectories" = "traj"),
+                         label = "Dibuja",
+                         choices = c("Campos de vectores" = "vec",
+                                     "Trayectorias de las poblaciones" = "traj"),
                          selected = c("vec", "traj")))))
 )
 
@@ -196,7 +200,7 @@ plot <- reactive({
 })
 ```
 
-## References
+## Referencias bibliográficas
 
 - Bronstein, J.L. (2015). [Mutualism](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
 - Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). Trends in Ecology and Evolution, 18, 241-248.
