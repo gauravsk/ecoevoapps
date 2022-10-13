@@ -1,0 +1,224 @@
+---
+title: "Mutualizm"
+output: html_document
+runtime: shiny
+---
+
+***[中文](https://ecoevoapps.shinyapps.io/mutualism_ch/) | [Español](https://ecoevoapps.shinyapps.io/mutualism_es/) | [English](https://ecoevoapps.shinyapps.io/mutualism) | [português](https://ecoevoapps.shinyapps.io/mutualism_pt) | Turkish ***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ecoevoapps)
+library(tidyverse)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+```
+
+
+İki türün birbirini net pozitif etkilediği ilişkilere mutualizm denir. Mutualizmler farklı şekillerde ortaya çıkabilirler. Bitki – polen taşıyıcı etkileşimleri, hayvanlar tarafından tohum taşınması, ve avcılardan korunma mutualizmlere fırsat olabilir. Örnek olarak, incir yabanarıları incirleri tozlaştırır ama aynı zamanda larvalarını incirlerin içine bırakır ve incirlerle beslenir ([Cook & Rasplus 2003](https://doi.org/10.1016/S0169-5347(03)00062-4)). Bir başka örnek de akasyaların karıncalar tarafından habitat ve besin olarak kullanılması ama ayni zamanda onları başka tüketicilerden korumalarıdır ([Janzen 1966](https://doi.org/10.2307/2406628)). Mutualizmler hakkında detaylı bir özet [Bronstein (2015)](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001) tarafından yazılmıştır. 
+
+
+Bu aplikasyon iki tür arası mutualizmi inceler ([Holland 2012](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/)). Bu modelin temel fikri her bir türün popülasyonunun büyüme oranının (dNdt) hem kendi bireyleri tarafından hem de başka türlerin bireyleri tarafından etkilenmesidir (bkz. [Lotka-Volterra Rekabeti](https://ecoevoapps.shinyapps.io/lotka_volterra_competition/)). Yalnız büyüdüğünde, her tür türler içi rekabeti tecrübe ederek, taşıma kapasitesine kadar büyür. Fakat iki tür birbiriyle etkileştiği zaman, birbirlerine sağladıkları fayda ile iki tür de kendi taşıma kapasitelerini aşacak şekilde büyüyebilirler. Modelin önemli varsayımlarından biri mutualizmin pozitif etkilerinin azalan verimli olmasıdır, yani her türün tecrübe ettiği marjinal fayda belirli bir popülasyon boyutunda sıfırlanır. 
+
+
+Bu detayları dikkate alarak, modeli aşağıdaki gibi yazabiliriz:
+
+$$\frac{dN_1}{dt} = r_1N_1 + \frac{\alpha_{12}N_2}{b_2 + N_2}N_1 - d_1N_1^2$$
+$$\frac{dN_2}{dt} = r_2N_2 + \frac{\alpha_{21}N_1}{b_1 + N_1}N_2 - d_2N_2^2$$
+
+Parametre tanımları aşağıdaki tabloda sıralanmıştır. Her denklemde, ilk terim ($r_iN_i$) popülasyonun mutualizm olmadan büyümesini özetler. İkinci terim ($\frac{\alpha_{ij}N_j}{b_j + N_j}N_i$) popülasyon büyümesinin mutualiz popülasyonun boyutunun yoğunlaşan bir fonksiyonudur (bkz. [Michaelis–Menten egrisi](https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics)).  Son olarak, üçüncü terim ($di$) popülasyonun büyüme oranının popülasyon boyunun büyümesiyle düşüşünü gösterir
+
+
+
+```{r parameter descriptions}
+pars <- c("$r_1$",
+          "$r_2$",
+          "$N_1$",
+          "$N_2$",
+          "$\\alpha_{12}$",
+          "$\\alpha_{21}$",
+          "$d_1$",
+          "$d_2$",
+          "$b_i$")
+descriptions <- c("i türünün kişi başı popülasyon büyüme oranı",
+                  "j türünün kişi başı popülasyon büyüme oranı",
+                  "i türünün popülasyon boyutu",
+                  "j türünün popülasyon boyutu",
+                  "2 türünün 1 türü üzerine kişi başı mutualiz faydası",
+                  "1 türünün 2 türü üzerine kişi başı mutualiz faydası",
+                  "1 türünün kendini kısıtlama oranı",
+                  "2 türünün kendini kısıtlama oranı",
+                  "I türünün j türüne toplam faydasının tam olarak yarısını sağladığı popülasyon boyutu")
+param_df <- data.frame(pars, descriptions)
+kable(x = param_df, format = "html",
+      col.names = c("Parametre veya değişken", "Tanım")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped", "hover", "condensed"),
+                position = "center")
+```
+
+
+Popülasyonların mutualizmlerle nasıl büyüdüğünü gözlemlemek için, modeli popülasyon boyutlarının zaman içindeki değişimini incelemek için kullanabiliriz ("N" ve "Zaman"). İkinci grafikleri de mutualizmlerin uzun dönemdeki etkilerini gözlemlemek için kullanabiliriz. Bu grafik popülasyon büyümesinin 0 olduğu durumu göstermektedir ($dN_1/dt = dN_2/dt = 0$).
+
+
+```{r app}
+##### UI #####
+
+# Input panel
+wellPanel(
+  fluidRow(
+    column(4, numericInput(inputId = "r1",
+                           label = HTML("r<sub>1</sub>: 1 türünün kişi başı popülasyon büyüme oranı"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "r2",
+                           label = HTML("r<sub>2</sub>: 2 türünün kişi başı popülasyon büyüme oranı"),
+                           value = 0.5,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N1",
+                           label = "1 türünün popülasyon boyutu",
+                           value = 20,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "a12",
+                           label = HTML("&alpha;<sub>12</sub>: 2 türünün 1 türü üzerine kişi başı mutualiz faydası"),
+                           value = 0.8,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "a21",
+                           label = HTML("&alpha;<sub>21</sub>: 1 türünün 2 türü üzerine kişi başı mutualiz faydası"),
+                           value = 0.4,
+                           min = 0,
+                           step = 0.1)),
+    column(4, numericInput(inputId = "N2",
+                           label = "2 türünün popülasyon boyutu",
+                           value = 40,
+                           min = 0,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "d1",
+                           label = HTML("d<sub>1</sub>: 1 türünün kendini kısıtlama oranı"),
+                           value = 0.02,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "d2",
+                           label = HTML("d<sub>2</sub>: 2 türünün kendini kısıtlama oranı"),
+                           value = 0.01,
+                           min = 0,
+                           step = 0.01)),
+    column(4, numericInput(inputId = "time",
+                           label = "Zaman",
+                           value = 50,
+                           min = 1,
+                           step = 1))),
+  fluidRow(
+    column(4, numericInput(inputId = "b1",
+                           label = HTML("b<sub>1</sub>: 2 türünün 1 türüne toplam faydasının tam olarak yarısını sağladığı popülasyon boyutu"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(4, numericInput(inputId = "b2",
+                           label = HTML("b<sub>2</sub>: 1 türünün 2 türüne toplam faydasının tam olarak yarısını sağladığı popülasyon boyutu"),
+                           value = 10,
+                           min = 0,
+                           step = 1)),
+    column(2, radioButtons(inputId = "plot",
+                           label = "图表",
+                           choices = c("N vs. Zaman" = "time",
+                                       "Phase portrait" = "phase",
+                                       "her iki" = "both"),
+                           selected = "both")),
+    column(2, conditionalPanel(
+      condition = "input.plot != 'time'",
+      checkboxGroupInput(inputId = "phase_opt",
+                         label = "Draw",
+                         choices = c("Vector field" = "vec",
+                                     "Population trajectories" = "traj"),
+                         selected = c("vec", "traj")))))
+)
+
+# Output panel
+fluidRow(
+  column(12, renderPlot(plot(), height = 500))
+)
+
+##### Server #####
+
+# Validate input
+observeEvent(input$a12, {
+  if (input$a12 <= 0) updateNumericInput(inputId = "a12", value = 0.1)
+})
+observeEvent(input$a21, {
+  if (input$a21 <= 0) updateNumericInput(inputId = "a21", value = 0.1)
+})
+observeEvent(input$d1, {
+  if (input$d1 <= 0) updateNumericInput(inputId = "d1", value = 0.01)
+})
+observeEvent(input$d2, {
+  if (input$d2 <= 0) updateNumericInput(inputId = "d2", value = 0.01)
+})
+observeEvent(input$b1, {
+  if (input$b1 <= 0) updateNumericInput(inputId = "b1", value = 1)
+})
+observeEvent(input$b2, {
+  if (input$b2 <= 0) updateNumericInput(inputId = "b2", value = 1)
+})
+observeEvent(input$N1, {
+  if (input$N1 <= 0) updateNumericInput(inputId = "N1", value = 1)
+})
+observeEvent(input$N2, {
+  if (input$N2 <= 0) updateNumericInput(inputId = "N2", value = 1)
+})
+observeEvent(input$time, {
+  if (input$time < 1) updateNumericInput(inputId = "time", value = 1)
+})
+
+# Retrieve user inputs
+params <- reactive({c(r1 = input$r1,
+                      r2 = input$r2,
+                      a12 = input$a12,
+                      a21 = input$a21,
+                      d1 = input$d1,
+                      d2 = input$d2,
+                      b1 = input$b1,
+                      b2 = input$b2)})
+init <- reactive({c(N1 = input$N1, N2 = input$N2)})
+time <- reactive({input$time})
+vec <- reactive({"vec" %in% input$phase_opt})
+traj <- reactive({"traj" %in% input$phase_opt})
+
+# Run mutualism model
+sim <- reactive({run_mutualism(time(), init(), params())})
+
+# Plot population trajectories over time
+plot <- reactive({
+  if (input$plot == "time") {
+    plot_mutualism_time(sim()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else if (input$plot == "phase") {
+    plot_mutualism_portrait(sim(), vec(), traj()) +
+      ggplot2::theme(aspect.ratio = 1)
+  } else {
+    wrap_plots(plot_mutualism_time(sim()),
+                          plot_mutualism_portrait(sim(), vec(), traj()),
+                          nrow = 1) +
+      ggplot2::theme(aspect.ratio = 1)
+  }
+})
+```
+
+## Referanslar
+
+- Bronstein, J.L. (2015). [Mutualism](https://doi.org/10.1093/acprof:oso/9780199675654.001.0001). Oxford University Press, Oxford, UK.
+- Cook, J.M. & Rasplus, J.-Y. (2003). [Mutualists with attitude: coevolving fig wasps and figs](https://doi.org/10.1016/S0169-5347(03)00062-4). Trends in Ecology and Evolution, 18, 241-248.
+- Holland, N.J. (2012). [Population dynamics of mutualism](https://www.nature.com/scitable/knowledge/library/population-dynamics-of-mutualism-61656069/). Nature Education Knowledge, 3, 2.
+- Janzen, D.H. (1966). [Coevolution between ants and acacias in Central America](https://doi.org/10.2307/2406628). Evolution, 20, 249-275.
+
+----------
+
+```{r footer, results ='asis'}
+# Print footer
+suppressWarnings(print_app_footer(language = "tr"))
+```
