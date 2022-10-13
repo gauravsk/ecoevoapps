@@ -120,7 +120,7 @@ shiny_predprey <- function(language = "en") {
 #' @rdname shiny_XXX
 #' @export
 shiny_biotic_comp <- function(language = "en") {
-  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tr", "pt")))
 
   file_path <- dplyr::case_when(language == "en" ~ system.file("biotic_resource_competition/biotic_resource_competition_en",
@@ -148,7 +148,7 @@ shiny_biotic_comp <- function(language = "en") {
 #' @rdname shiny_XXX
 #' @export
 shiny_infectious_disease <- function(language = "en") {
-  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tr", "pt")))
 
   file_path <- dplyr::case_when(language == "en" ~ system.file("infectious_diseases/infectious_disease_dynamics_en.Rmd",
@@ -217,7 +217,7 @@ shiny_structured_population <- function(language = "en") {
 #' @export
 shiny_ibiogeo_model <- function(language = "en") {
 
-  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tk", "pt")))
 
   file_path <- dplyr::case_when(language == "en" ~ system.file("island_biogeography/ibiogeo_en.Rmd",
@@ -243,7 +243,7 @@ shiny_ibiogeo_model <- function(language = "en") {
 #' @rdname shiny_XXX
 #' @export
 shiny_abiotic_comp <- function(language = "en") {
-  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), or Chinese (ch)" =
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tr", "pt")))
 
   file_path <- dplyr::case_when(language == "en" ~ system.file("abiotic_resource_competition/abiotic_resource_competition_en.Rmd",
@@ -283,10 +283,18 @@ shiny_smith_fretwell <- function() {
 #' @export
 shiny_mutualism <- function(language = "en") {
 
-  stopifnot("Your selected language is not (yet) available; please choose English (en)" =
-              (language %in% c("en")))
+  stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
+              (language %in% c("en", "es", "ch", "pt", "tr")))
 
   file_path <- dplyr::case_when(language == "en" ~ system.file("mutualism/mutualism_en.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "es" ~ system.file("mutualism/mutualism_es.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "ch" ~ system.file("mutualism/mutualism_ch.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "pt" ~ system.file("mutualism/mutualism_pt.Rmd",
+                                                               package =  "ecoevoapps"),
+                                language == "tr" ~ system.file("mutualism/mutualism_tr.Rmd",
                                                                package =  "ecoevoapps"))
 
   rmarkdown::run(
