@@ -62,7 +62,7 @@ run_ricker_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), time = 100) 
 #' @param rd Population growth rate
 #' @param K Carrying capacity
 #' @noRd
-discretelogistic_eqn <- function(Nt, rd, K) rd*Nt*(1-Nt/K)
+discretelogistic_eqn <- function(Nt, rd, K) (Nt + (rd*Nt*(1-Nt/K)))
 
 #' Discrete logistic model
 #' @param N0 initial population size of population
@@ -85,7 +85,7 @@ run_discrete_logistic_model <- function(N0 = 1, params = c(rd = 1.1, K = 100), t
   to_return[1] <- N0
   for(current_time in 2:time) {
     Nt <- to_return[current_time-1]
-    to_return[current_time] <-discretelogistic_eqn(Nt, params["rd"], params["K"])
+    to_return[current_time] <- discretelogistic_eqn(Nt, params["rd"], params["K"])
   }
   to_return_df <- data.frame(time = 1:time,
                              Nt = to_return)
