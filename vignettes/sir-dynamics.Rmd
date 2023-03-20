@@ -49,7 +49,7 @@ head(sir_out)
 We can then use `plot_infectiousdisease_time()` to plot the trajectory of these compartments over time:
 
 ```{r}
-plot_infectiousdisease_time(sir_out, model_type = "SIR")
+plot_infectiousdisease_time(sim_df = sir_out, model_type = "SIR")
 ```
 
 We can also use `plot_infectiousdisease_portrait()` to track how the compartments change relative to one another:
@@ -80,7 +80,7 @@ sis_time_vec <- seq(0, 25, 0.1)
 sis_out <- run_infectiousdisease_model(time = sis_time_vec, init = sis_init_vec, params = sis_params_vec, model_type = "SIS")
 head(sis_out)
 
-plot_infectiousdisease_time(sis_out, model_type = "SIS")
+plot_infectiousdisease_time(sim_df = sis_out, model_type = "SIS")
 
 ```
 
@@ -106,7 +106,7 @@ seir_time_vec <- seq(0, 25, 0.1)
 seir_out <- run_infectiousdisease_model(time = seir_time_vec, init = seir_init_vec, params = seir_params_vec, model_type = "SEIR")
 head(seir_out)
 
-plot_infectiousdisease_time(seir_out, model_type = "SEIR")
+plot_infectiousdisease_time(sim_df = seir_out, model_type = "SEIR")
 ```
 
 ### Susceptible-Infectious-Recovered-Dead
@@ -131,5 +131,5 @@ sird_time_vec <- seq(0, 25, 0.1)
 sird_out <- run_infectiousdisease_model(time = sird_time_vec, init = sird_init_vec, params = sird_params_vec, model_type = "SIRD")
 head(sird_out)
 
-plot_infectiousdisease_time(sird_out, model_type = "SIRD")
+plot_infectiousdisease_time(sim_df = sird_out, model_type = "SIRD")
 ```

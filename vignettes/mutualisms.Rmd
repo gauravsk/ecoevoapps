@@ -41,13 +41,13 @@ head(mut_out)
 We can then use `plot_mutualism_time()` to plot the trajectory of these compartments over time:
 
 ```{r}
-plot_mutualism_time(mut_out)
+plot_mutualism_time(sim_df = mut_out)
 ```
 
 We can also plot the phase portrait of this model using the function `plot_mutualism_portrait()`:
 
 ```{r}
-plot_mutualism_portrait(mut_out)
+plot_mutualism_portrait(sim_df = mut_out)
 # To turn off the vector field, set vec = FALSE
 # To turn off the realized trajectory, set traj = FALSE
 ```

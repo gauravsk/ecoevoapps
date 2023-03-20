@@ -95,8 +95,8 @@ head(sim_df_lvpp_K)
 We can again plot these dynamics using `plot_predprey_time()` and `plot_predprey_portrait()`:
 
 ```{r}
-plot_predprey_time(sim_df_lvpp_K) +
-  plot_predprey_portrait(sim_df_lvpp_K, params_lvpp_K)
+plot_predprey_time(sim_df = sim_df_lvpp_K) +
+  plot_predprey_portrait(sim_df = sim_df_lvpp_K, params = params_lvpp_K)
 ```
 
 The plots above show us one of the key insights to emerge from this model: adding a carrying capacity to the prey adds a level of stabiity (self-regulation) to the system, such that over time, the cyclic dynamics between predator and prey give way to a stationary equilibrium point. 
@@ -130,8 +130,8 @@ head(sim_df_tIIFR)
 Plotting the trajectory and portrait of these dynamics reveals the destabilizing effects of the functional response:
 
 ```{r}
-plot_predprey_time(sim_df_tIIFR) + 
-  plot_predprey_portrait(sim_df_tIIFR, params_tIIFR)
+plot_predprey_time(sim_df = sim_df_tIIFR) + 
+  plot_predprey_portrait(sim_df = sim_df_tIIFR, params = params_tIIFR)
 ```
 
 ## Logistic growth and Type II functional responses
@@ -157,8 +157,8 @@ init_MR <- c(H = 10, P = 10)
 sim_df_MR_lowK <- run_predprey_model(time = time_MR, init = init_MR, params = params_MR_lowK)
 sim_df_MR_hiK <- run_predprey_model(time = time_MR, init = init_MR, params = params_MR_hiK)
 
-plot_predprey_time(sim_df_MR_lowK) +
-  plot_predprey_time(sim_df_MR_hiK)
+plot_predprey_time(sim_df = sim_df_MR_lowK) +
+  plot_predprey_time(sim_df = sim_df_MR_hiK)
 
 ```
 In the left hand plot, with $K = 150$, the oscillations get smaller over time, and will eventually reach a stationary equilibrium, while in the right, with $K = 350$, the magnitude of the oscillations grows with time. 
@@ -166,8 +166,8 @@ In the left hand plot, with $K = 150$, the oscillations get smaller over time, a
 We can use `plot_predprey_portrait()` to evaluate why these dynamics arise:
 
 ```{r}
-plot_predprey_portrait(sim_df_MR_lowK, params_MR_lowK) +
-  plot_predprey_portrait(sim_df_MR_hiK, params_MR_hiK) 
+plot_predprey_portrait(sim_df = sim_df_MR_lowK, params = params_MR_lowK) +
+  plot_predprey_portrait(sim_df = sim_df_MR_hiK, params = params_MR_hiK) 
 ```
 
 The key insight is that whether predator-prey dynamics lead to damped oscillations or oscillations that destabilize over time depends on the slope of the predator isocline when it intersects the prey isocline. 

@@ -58,7 +58,7 @@ head(sim_df_exp)
 We can plot the size of this population over time using the function `plot_continuous_population_growth()`:
 
 ```{r}
-plot_continuous_population_growth(sim_df_exp)
+plot_continuous_population_growth(sim_df = sim_df_exp)
 ```
 
 ### Logistic growth 
@@ -88,7 +88,7 @@ head(sim_df_log)
 We can plot the trajectory of this population over time using the same code above:
 
 ```{r}
-plot_continuous_population_growth(sim_df_log)
+plot_continuous_population_growth(sim_df = sim_df_log)
 ```
 
 ### Lagged logistic growth
@@ -110,7 +110,7 @@ sim_df_laglog <- run_logistic_model(time = time_laglog, init = init_laglog, para
 This again produces a data frame with columns time and N1, though we are not showing it here to avoid repetition. At sufficiently large values of $r$ and/or $\tau$, this model results in damped oscillations in population sizes, before the population ultimately converges to its carrying capacity: 
 
 ```{r}
-plot_continuous_population_growth(sim_df_laglog)
+plot_continuous_population_growth(sim_df = sim_df_laglog)
 
 ```
 
@@ -140,7 +140,7 @@ head(sim_df_dexp)
 We can plot the population growth over time using the function `plot_discrete_population_growth()`:
 
 ```{r}
-plot_discrete_population_growth(sim_df_dexp)
+plot_discrete_population_growth(sim_df = sim_df_dexp)
 ```
 
 ### Logistic growth in discrete time
@@ -162,7 +162,7 @@ sim_df_disclog <- run_discrete_logistic_model(N0 = 1, params = params_disclog, t
 As above we can use the `plot_discrete_population_growth()` function to plot the dynamics of this model:
 
 ```{r}
-plot_discrete_population_growth(sim_df_disclog)
+plot_discrete_population_growth(sim_df = sim_df_disclog)
 ```
 
 Robert May's 1974 paper (show above) showed that at sufficiently large values of `$r_d$`, this simple model was capable of producing not only cyclic population dynamics, but also chaotic dynamics:
@@ -176,8 +176,8 @@ params_disclog_chaos <- c(rd = 3.75, K = 1000)
 
 sim_df_disclog_chaos <- run_discrete_logistic_model(params = params_disclog_chaos, time = 75)
 
-plot_discrete_population_growth(sim_df_disclog_cyc) +
-  plot_discrete_population_growth(sim_df_disclog_chaos)
+plot_discrete_population_growth(sim_df = sim_df_disclog_cyc) +
+  plot_discrete_population_growth(sim_df = sim_df_disclog_chaos)
 
 ```
 
@@ -186,7 +186,7 @@ One helpful way to visualize the dynamics of a discrete logistic model is with a
 We can make a cobweb plot using the function `plot_discrete_population_cobweb()`. For this function, we need to provide the simulated data frame, as well as the parameter vector and the model type:
 
 ```{r}
-plot_discrete_population_cobweb(sim_df_disclog_cyc,
+plot_discrete_population_cobweb(sim_df = sim_df_disclog_cyc,
                                 params_vec = params_disclog_cyc,
                                 model_type = "discrete_logistic")
 
@@ -195,7 +195,7 @@ plot_discrete_population_cobweb(sim_df_disclog_cyc,
 Compare the cobweb plot of the population with cyclic dynamics with that of the population with chaotic behavior:
 
 ```{r}
-plot_discrete_population_cobweb(sim_df_disclog_chaos,
+plot_discrete_population_cobweb(sim_df = sim_df_disclog_chaos,
                                 params_vec = params_disclog_chaos,
                                 model_type = "discrete_logistic")
 
@@ -258,7 +258,7 @@ structured_popgrowth <- run_structured_population_simulation(leslie_mat = leslie
 Before we visualize the model output, we can make a population structure diagram for the defined Leslie matrix using the function `plot_leslie_diagram()`:
 
 ```{r}
-plot_leslie_diagram(leslie_mat)
+plot_leslie_diagram(leslie_mat = leslie_mat)
 ```
 This function generates a matrix with as many rows as the number of age classes defined in the leslie matrix, and as many columns as the number of time steps (plus the initial time step):
 
@@ -269,13 +269,13 @@ dim(structured_popgrowth)
 We can plot the number of individuals in each age class using the function `plot_structured_population_agedist()` :
 
 ```{r}
-plot_structured_population_size(structured_popgrowth)
+plot_structured_population_size(pop_growth_matrix = structured_popgrowth)
 ```
 
 We can also plot the proportion of individuals in each age class using the function `plot_structured_population_agedist()`:
 
 ```{r}
-plot_structured_population_agedist(structured_popgrowth)
+plot_structured_population_agedist(pop_growth_matrix = structured_popgrowth)
 ```
 
 <!--

@@ -44,7 +44,7 @@ head(lvcomp_simulation)
 We can then use the `ecoevoapps` function `plot_lvcomp_time()` to generate a trajectory of these populations over time:
 
 ```{r}
-plot_lvcomp_time(lvcomp_simulation)
+plot_lvcomp_time(sim_df = lvcomp_simulation)
 ```
 
 We can also plot the phase portrait of this model, which shows how N1 and N2 change relative to each other over time, using the function `plot_lvcomp_portrait()`. In this case, we need to provide the function the simulation generated above, as well as the parameter vector we used to generate the simulation. The function uses this information to plot the trajectory of the populations, as well as the "zero net growth isoclines" (ZNGIs). (For more info about ZNGIs, please refer to these resources: [link 1](https://www.youtube.com/watch?v=obasfCufOr0), [link 2](https://hankstevens.github.io/Primer-of-Ecology/competition.html#isoclines)):
@@ -71,8 +71,8 @@ lvcomp_params_abs <- c(r1 = .5, r2 = .5,
 lvcomp_simulation_abs <- run_lvcomp_model(time = lvcomp_time, init = lvcomp_init, 
                                           params = lvcomp_params_abs)
 
-plot_lvcomp_time(lvcomp_simulation_abs)
-plot_lvcomp_portrait(lvcomp_simulation_abs, lvcomp_params_abs)
+plot_lvcomp_time(sim_df = lvcomp_simulation_abs)
+plot_lvcomp_portrait(sim_df = lvcomp_simulation_abs, params = lvcomp_params_abs)
 ```
 
 

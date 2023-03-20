@@ -102,7 +102,7 @@ head(abiotic_rc_params, 5)
 The trajectory of resources and consumers through time can be plotted with `plot_abiotic_comp_time()`:
 
 ```{r}
-plot_abiotic_comp_time(sim_df_abiotic_rc)
+plot_abiotic_comp_time(sim_df = sim_df_abiotic_rc)
 ```
 The package also includes functions to calculate the R* (`run_abiotic_comp_rstar()`) and to visualize the trajectory of resource levels (`plot_abiotic_comp_portrait()`):
 
