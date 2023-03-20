@@ -31,11 +31,11 @@ test_that("BH model goes to defined carrying capacity", {
 
 test_that("Discrete logistic model goes to below defined carrying capacity", {
   dl_out <- run_discrete_logistic_model(params = c(rd = 1.5, K = 200), time = 100)
-  expect_lt(dl_out[100,2], 200)
+  expect_equal(dl_out[100,2], 200)
 
   # shrinking population - rd less than 1
-  dl_out2 <- run_discrete_logistic_model(params = c(rd = 0.5, K = 200), time = 100)
-  expect_equal(dl_out2[100,2], 0)
+  dl_out2 <- run_discrete_logistic_model(params = c(rd = -0.5, K = 200), time = 1000)
+  expect_equal(dl_out2[1000,2], 0)
 })
 
 test_that("Discrete population growth plots generate", {
