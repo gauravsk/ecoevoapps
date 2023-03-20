@@ -157,7 +157,7 @@ plot_mutualism_time <- function(sim_df) {
   }
 
   # Plot
-  sim_df_long <- tidyr::pivot_longer(sim_df, c(.data$N1, .data$N2), names_to = "species")
+  sim_df_long <- tidyr::pivot_longer(sim_df, cols = c(.data$N1, .data$N2), names_to = "species")
   y_upper <- max(c(sim_df_long$value, attr(sim_df, "K")))
   K_df <- data.frame(species = c("N1", "N2"), K = attr(sim_df, "K"))
   plot <-

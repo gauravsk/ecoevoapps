@@ -101,7 +101,7 @@ plot_biotic_comp_time <- function(sim_df) {
   sim_df <- data.frame(sim_df)
 
   # Reshape the data for plotting
-  sim_df_long <- pivot_longer(sim_df, c(H, P1, P2), "Population")
+  sim_df_long <- pivot_longer(sim_df, cols = c(H, P1, P2), names_to = "Population")
 
   # Make plot
   ggplot(sim_df_long) +

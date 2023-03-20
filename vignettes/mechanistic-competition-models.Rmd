@@ -3,8 +3,8 @@ title: "Mechanistic models of competition for biotic/abiotic resources"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Mechanistic models of competition for biotic/abiotic resources}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, include = FALSE}

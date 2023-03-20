@@ -407,7 +407,7 @@ plot_predprey_time <- function(sim_df) {
   H <- P <- time <- value <- Population <- NULL
 
   sim_df <- data.frame(sim_df)
-  sim_df_long <- pivot_longer(sim_df, c(H,P), "Population")
+  sim_df_long <- pivot_longer(sim_df, cols = c(H,P), names_to = "Population")
   ggplot(sim_df_long) +
     geom_line(aes(x = time, y = value, color = Population), size = 2) +
     scale_color_brewer(palette = "Set1") +

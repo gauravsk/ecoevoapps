@@ -297,24 +297,24 @@ plot_infectiousdisease_portrait <- function(sim_df, x_axis, y_axis) {
 plot_infectiousdisease_time <- function(sim_df, model_type) {
 
   # To suppress CMD Check
-  R <- S <- grou <- E <- D <- time <- group <- value <- NULL
+  R <- S <- E <- D <- time <- group <- value <- NULL
 
 
   if(model_type %in% c("SIR", "SIR_ft")) {
     sim_df_long <-
-      pivot_longer(sim_df, c(S, I, R), "group") %>%
+      pivot_longer(sim_df, cols = c(S, I, R), names_to = "group") %>%
       mutate(group = factor(group, levels = c("S", "I", "R")))
   } else if(model_type %in% c("SEIR", "SEIR_ft")) {
     sim_df_long <-
-      pivot_longer(sim_df, c(S, E, I, R), "group") %>%
+      pivot_longer(sim_df, cols = c(S, E, I, R), names_to =  "group") %>%
       mutate(group = factor(group, levels = c("S", "E", "I", "R")))
   } else if(model_type %in% c("SIRD", "SIRD_ft")) {
     sim_df_long <-
-      pivot_longer(sim_df, c(S, I, R, D), "group") %>%
+      pivot_longer(sim_df, cols = c(S, I, R, D), names_to = "group") %>%
       mutate(group = factor(group, levels = c("S", "I", "R", "D")))
   } else if(model_type %in% c("SIS", "SIS_ft")) {
     sim_df_long <-
-      pivot_longer(sim_df, c(S, I), "group") %>%
+      pivot_longer(sim_df, cols = c(S, I), names_to = "group") %>%
       mutate(group = factor(group, levels = c("S", "I")))
   } else {
     stop("The specified model_type is not supported.")

@@ -122,7 +122,7 @@ plot_source_sink <- function(sim_df, assumption_status){
   sim_df <- data.frame(sim_df)
   # reshape data & give column names
   colnames(sim_df) <- c("year", "source", "sink")
-  sim_df <- pivot_longer(sim_df, c(source,sink), "population")
+  sim_df <- pivot_longer(sim_df, cols = c(source,sink), names_to = "population")
 
   plot <- ggplot(sim_df) +
     geom_line(aes(x = year, y = value, color = population), size = 2) +

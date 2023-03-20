@@ -150,7 +150,7 @@ plot_abiotic_comp_time <- function(sim_df) {
 
   sim_df <- data.frame(sim_df)
   sim_df_long <-
-    pivot_longer(sim_df, c(R1,R2,N1,N2), "species") %>%
+    pivot_longer(sim_df, cols = c(R1,R2,N1,N2), names_to = "species") %>%
     filter(species %in% c("N1", "N2"))
 
   ggplot(sim_df_long) +
