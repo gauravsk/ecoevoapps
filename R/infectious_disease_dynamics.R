@@ -268,7 +268,7 @@ plot_infectiousdisease_portrait <- function(sim_df, x_axis, y_axis) {
                  xend = sim_df$x_axis[round(nrows_df/25) + 1],
                  yend = sim_df$y_axis[round(nrows_df/25) + 1],
                  arrow = arrow(length = unit(0.15, "npc"))) +
-    geom_path(aes(x = x_axis, y = y_axis), size = 2) +
+    geom_path(aes(x = x_axis, y = y_axis), linewidth = 2) +
     ylab(paste0(y_axis, " size")) +
     xlab(paste0(x_axis, " size")) +
     theme_apps()
@@ -321,8 +321,9 @@ plot_infectiousdisease_time <- function(sim_df, model_type) {
   }
 
   ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = group), size = 2) +
-    scale_color_brewer(palette = "Set1") +
+    geom_line(aes(x = time, y = value, color = group), linewidth = 2) +
+    scale_color_manual(values = c("#77AADD", "#EE6677", "#CCBB44", "#BBBBBB")) +
+    #scale_color_brewer(palette = "Set1") +
     ylab("Population size") +
     theme_apps()
 }

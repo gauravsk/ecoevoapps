@@ -154,7 +154,7 @@ plot_abiotic_comp_time <- function(sim_df) {
     filter(species %in% c("N1", "N2"))
 
   ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = species), size = 2) +
+    geom_line(aes(x = time, y = value, color = species), linewidth = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") +
     theme_apps()
@@ -194,11 +194,11 @@ plot_abiotic_comp_portrait <- function(rstar_vec, sim_df) {
   ggplot(sim_df) +
     geom_segment(data = Rstar_df,
                  aes(x = R1star, xend = R1star, y = R2star,
-                     yend = Inf, color = species), size = 1.5) +
+                     yend = Inf, color = species), linewidth = 1.5) +
     geom_segment(data = Rstar_df,
                  aes(x = R1star, xend = Inf, y = R2star,
-                     yend = R2star, color = species), size = 1.5) +
-    geom_path(aes(x = R1, y = R2), size = 1) +
+                     yend = R2star, color = species), linewidth = 1.5) +
+    geom_path(aes(x = R1, y = R2), linewidth = 1) +
     geom_point(data = tail(sim_df, 1), aes(x = R1, y = R2),
                size = 4, stroke = 2, shape = 21) +
     xlab("Resource 1") + ylab("Resource 2") +

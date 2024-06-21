@@ -105,7 +105,7 @@ plot_biotic_comp_time <- function(sim_df) {
 
   # Make plot
   ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = Population), size = 2) +
+    geom_line(aes(x = time, y = value, color = Population), linewidth = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") +
     scale_x_continuous(expand = c(0, 0)) +
@@ -140,7 +140,7 @@ plot_functional_responses <- function(params) {
 
   plot_fxnrep_sp1 <-
       ggplot(fr_df, aes(x = prey, y = y1)) +
-        geom_path(col = "#377EB8", size = 2) +
+        geom_path(col = "#377EB8", linewidth = 2) +
         xlab("Prey Density") +
         ylab("Prey Consumed \nper Predator") +
         scale_x_continuous(expand = c(0, 0)) +
@@ -149,7 +149,7 @@ plot_functional_responses <- function(params) {
 
   plot_fxnrep_sp2 <-
     ggplot(fr_df, aes(x = prey, y = y2)) +
-    geom_path(col = "#4DAF4A", size = 2) +
+    geom_path(col = "#4DAF4A", linewidth = 2) +
     xlab("Prey Density") +
     ylab("Prey Consumed \nper Predator") +
     scale_x_continuous(expand = c(0, 0)) +

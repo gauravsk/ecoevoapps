@@ -34,7 +34,7 @@ run_smith_fretwell_model <- function(Iymin = 3, Womax = 0.6, Iymax = 1000, shape
     geom_abline(intercept = 0,
                 linetype = 2,
                 slope = lineslope) +
-    geom_segment(aes(x = xopt, xend = xopt, y = -0.04, yend = yopt), linetype = 2, size = 0.1) +
+    geom_segment(aes(x = xopt, xend = xopt, y = -0.04, yend = yopt), linetype = 2, linewidth = 0.1) +
     annotate("text", x = xopt, y = -0.05, label = paste0("S_opt = ", floor(xopt)),  vjust = 1) +
     annotate("text", x = xopt, y = yopt, label = paste0(" Wp = ", floor(yopt*(Iymax/xopt))), hjust = 0, vjust = 1) +
     ecoevoapps::theme_apps() +
@@ -79,7 +79,7 @@ run_smith_fretwell_model_sp2 <- function(existing_plot, Iymin = 6, Womax = .6,
                   args = list(Iymin = Iymin2, Iymax = Iymax2, Womax = Womax2, shapeval = shapeval),
                   n = 1000, color = "#619cff") +
     geom_segment(aes(x = xopt2, xend = xopt2, y = 0, yend = yopt2),
-                 linetype = 2, size = 0.1, color = "#619cff") +
+                 linetype = 2, linewidth = 0.1, color = "#619cff") +
     annotate("text", x = xopt2, y = -0.02, label = paste0("S_opt = ", floor(xopt2)),  vjust = 1) +
     annotate("text", x = xopt2, y = yopt2,
              label = paste0(" Wp = ", floor(yopt2*(Iymax/xopt2))), hjust = 0, vjust = 1)

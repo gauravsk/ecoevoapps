@@ -336,11 +336,11 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
     base_plot +
 
     # the trace of the simulation and arrow for direction of the trace
-    geom_path(data = sim_df, aes(x = H, y = P), size = 2) +
+    geom_path(data = sim_df, aes(x = H, y = P), linewidth = 2) +
     geom_segment(x = sim_df$H[5], y = sim_df$P[5],
                  xend = sim_df$H[6], yend = sim_df$P[6],
                  arrow = arrow(length = unit(0.05, "npc")),
-                 size = 1.5) +
+                 linewidth = 1.5) +
 
     # plot appearance
     xlab("Number of Prey") +
@@ -357,35 +357,35 @@ plot_predprey_portrait <- function(sim_df, params, vectors_field = FALSE,...) {
       traj +
       stat_function(fun = function(x) (params["r"]/params["a"])*
                       (1 - x/params["K"])*(1 + params["a"] * params["T_h"] * x),
-                    col = "#E41A1C", size = 2) +
+                    col = "#E41A1C", linewidth = 2) +
       geom_vline(xintercept = params["d"]/(params["e"]*params["a"] - params["a"]*params["d"]*params["T_h"]),
-                 col = "#377EB8", size = 2)
+                 col = "#377EB8", linewidth = 2)
 
   } else if ("T_h" %in% names(params)) {
     # Type II
     traj <- traj +
           geom_abline(intercept = params["r"]/params["a"],
                       slope = params["r"]*params["T_h"],
-                      col = "#E41A1C", size = 2) +
+                      col = "#E41A1C", linewidth = 2) +
           geom_vline(xintercept = params["d"]/
                        (params["e"]*params["a"] -
                           params["a"]*params["d"]*params["T_h"]),
-                     col = "#377EB8", size = 2)
+                     col = "#377EB8", linewidth = 2)
   } else if ("K" %in% names(params)) {
     # logistic prey
     traj <- traj +
       geom_abline(intercept = params["r"]/params["a"],
                   slope = (-1 * params["r"])/(params["a"] * params["K"]),
-                  col = "#E41A1C", size = 2) +
+                  col = "#E41A1C", linewidth = 2) +
       geom_vline(xintercept = params["d"]/(params["e"]*params["a"]),
-                 col = "#377EB8", size = 2)
+                 col = "#377EB8", linewidth = 2)
   } else {
     # Type I + exponential prey
     traj <- traj +
       geom_hline(yintercept = params["r"]/params["a"],
-                 col = "#E41A1C", size = 2) +
+                 col = "#E41A1C", linewidth = 2) +
       geom_vline(xintercept = params["d"]/(params["e"]*params["a"]),
-                 col = "#377EB8", size = 2)
+                 col = "#377EB8", linewidth = 2)
   }
   return(traj)
 }
@@ -409,7 +409,7 @@ plot_predprey_time <- function(sim_df) {
   sim_df <- data.frame(sim_df)
   sim_df_long <- pivot_longer(sim_df, cols = c(H,P), names_to = "Population")
   ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = Population), size = 2) +
+    geom_line(aes(x = time, y = value, color = Population), linewidth = 2) +
     scale_color_brewer(palette = "Set1") +
     ylab("Population size") +
     scale_y_continuous(expand = c(0,0), limits = c(0, max(sim_df_long$value)*1.05)) +
