@@ -125,7 +125,7 @@ plot_source_sink <- function(sim_df, assumption_status){
   sim_df <- pivot_longer(sim_df, cols = c(source,sink), names_to = "population")
 
   plot <- ggplot(sim_df) +
-    geom_line(aes(x = year, y = value, color = population), size = 2) +
+    geom_line(aes(x = year, y = value, color = population), linewidth = 2) +
     theme_apps() +
     scale_x_continuous(expand = c(0, 0, .1, 0)) +
     scale_y_continuous(expand = c(0, 0, .1, 0)) +

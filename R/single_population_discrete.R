@@ -152,7 +152,7 @@ plot_discrete_population_growth <- function(sim_df) {
   time <- Nt <- NULL
 
   ggplot(sim_df) +
-    geom_line(aes(x = time, y = Nt), size = .2) +
+    geom_line(aes(x = time, y = Nt), linewidth = .2) +
     geom_point(aes(y = Nt, x = time), size = 5, shape = 21,
                fill = "white", stroke = 0) +
     geom_point(aes(x = time, y = Nt), size = 2, shape = 21,
@@ -194,9 +194,9 @@ plot_discrete_population_cobweb <- function(sim_df, params_vec, model_type) {
 
   base_plot <-
     ggplot(sim_df)  +
-    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), size = 0.5, color = "red") +
-    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), size = 0.5, color = "red") +
-    geom_abline(size = 0.2, linetype = 2) +
+    geom_segment(aes(x = Ntm1, xend = Ntm1, y = Ntm1, yend = Nt), linewidth = 0.5, color = "red") +
+    geom_segment(aes(x = Ntm1, xend = Nt, y = Nt, yend = Nt), linewidth = 0.5, color = "red") +
+    geom_abline(linewidth = 0.2, linetype = 2) +
     ylab(expression('N'["t+1"])) +
     xlab(expression('N'["t"])) +
     labs(title = "Cobweb plot") +

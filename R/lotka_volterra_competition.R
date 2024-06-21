@@ -167,13 +167,13 @@ plot_lvcomp_portrait <- function(sim_df, params, margin_text = FALSE) {
     ggplot(data = sim_df) +
     geom_segment(data = ZNGI_sp1,
                  aes(x = x1, y = y1, xend = xend1, yend = yend1,
-                     color = "Species 1"), size = 2) +
+                     color = "Species 1"), linewidth = 2) +
     geom_segment(data = ZNGI_sp2,
                  aes(x = x2, y = y2, xend = xend2, yend = yend2,
-                     color = "Species 2"), size = 2) +
+                     color = "Species 2"), linewidth = 2) +
     scale_color_manual(values = color_pal,
                        labels = c("Species 1", "Species 2")) +
-    geom_path(aes(x = N1, y = N2), size = 1) +
+    geom_path(aes(x = N1, y = N2), linewidth = 1) +
     geom_point(x = first(sim_df$N1), y = first(sim_df$N2),
                pch = 21, size = 3, fill = "black") +
     geom_point(x = last(sim_df$N1), y = last(sim_df$N2),
@@ -263,7 +263,7 @@ plot_lvcomp_time <- function(sim_df) {
 
   N_over_time <-
     ggplot(data = sim_df_long) +
-    geom_line(aes(x = time, y = value, color = species), size = 2) +
+    geom_line(aes(x = time, y = value, color = species), linewidth = 2) +
     scale_color_brewer(palette = "Set1", labels = c("1", "2")) +
     labs(x = "Time", y = "Population size (N)", color = "Species") +
     scale_x_continuous(expand = c(0, 0)) +

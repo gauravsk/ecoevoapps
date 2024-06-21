@@ -123,7 +123,7 @@ shiny_biotic_comp <- function(language = "en") {
   stopifnot("Your selected language is not (yet) available; please choose between English (en), Spanish (es), Portuguese (pt), Turkish (tr), or Chinese (ch)" =
               (language %in% c("en", "es", "ch", "tr", "pt")))
 
-  file_path <- dplyr::case_when(language == "en" ~ system.file("biotic_resource_competition/biotic_resource_competition_en",
+  file_path <- dplyr::case_when(language == "en" ~ system.file("biotic_resource_competition/biotic_resource_competition_en.Rmd",
                                                                package =  "ecoevoapps"),
                                 language == "es" ~ system.file("biotic_resource_competition/biotic_resource_competition_es.Rmd",
                                                                package =  "ecoevoapps"),
