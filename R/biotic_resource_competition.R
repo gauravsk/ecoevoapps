@@ -105,12 +105,12 @@ plot_biotic_comp_time <- function(sim_df) {
 
   # Make plot
   ggplot(sim_df_long) +
-    geom_line(aes(x = time, y = value, color = Population), linewidth = 2) +
-    scale_color_brewer(palette = "Set1") +
-    ylab("Population size") +
-    scale_x_continuous(expand = c(0, 0)) +
-    scale_y_continuous(expand = c(0, 0)) +
-    theme_apps()
+    geom_line(aes(x = time, y = value, color = Population), size = 2) +
+    scale_fill_manual(values = c("#77AADD", "#FFAABB", "#AAAA00")) +
+                        ylab("Population size") +
+                        scale_x_continuous(expand = c(0, 0)) +
+                        scale_y_continuous(expand = c(0, 0)) +
+                        theme_apps()
 }
 
 #' Plot population size over time for the biotic resource competition model
@@ -139,17 +139,17 @@ plot_functional_responses <- function(params) {
            y2 = (params["a2"] * prey)/(1 + params["a2"] * params["T_h2"] * prey))
 
   plot_fxnrep_sp1 <-
-      ggplot(fr_df, aes(x = prey, y = y1)) +
-        geom_path(col = "#377EB8", linewidth = 2) +
-        xlab("Prey Density") +
-        ylab("Prey Consumed \nper Predator") +
-        scale_x_continuous(expand = c(0, 0)) +
-        scale_y_continuous(expand = c(0, 0)) +
-        theme_apps()
+    ggplot(fr_df, aes(x = prey, y = y1)) +
+    geom_path(col = "#77AADD", size = 2) +
+    xlab("Prey Density") +
+    ylab("Prey Consumed \nper Predator") +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme_apps()
 
   plot_fxnrep_sp2 <-
     ggplot(fr_df, aes(x = prey, y = y2)) +
-    geom_path(col = "#4DAF4A", linewidth = 2) +
+    geom_path(col = "#AAAA00", size = 2) +
     xlab("Prey Density") +
     ylab("Prey Consumed \nper Predator") +
     scale_x_continuous(expand = c(0, 0)) +
@@ -161,4 +161,3 @@ plot_functional_responses <- function(params) {
   return(to_return)
 
 }
-
