@@ -241,7 +241,7 @@ trajectory <- reactive({
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       annotate("text", x = 0, y = 0, label = "") +
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_manual("Species", values = c("#77aadd", "#ee8866")) +
       ylab("Population size") 
     } 
 })
@@ -251,7 +251,7 @@ trajectory_log <- reactive({
   if("lnNvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
       geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_manual("Species", values = c("#77aadd", "#ee8866")) +
       ecoevoapps::theme_apps() +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
@@ -280,7 +280,7 @@ n1_over_n <- reactive({
       geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
       xlab("Population Size") + 
       ylab("Population growth rate (dN/dt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_manual("Species", values = c("#77aadd", "#ee8866")) +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
       theme_apps() 
@@ -307,7 +307,7 @@ n1n_over_n <- reactive({
       geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
       xlab("Population Size") + 
       ylab("per-capita population growth rate\n(dN/Ndt)") + 
-      scale_color_brewer("Species", palette = "Set1") +
+      scale_color_manual("Species", values = c("#77aadd", "#ee8866")) +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
       scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
