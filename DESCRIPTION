@@ -62,7 +62,7 @@ Imports:
     kableExtra,
     patchwork,
     rlang
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,

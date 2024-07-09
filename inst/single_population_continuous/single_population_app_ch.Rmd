@@ -67,7 +67,7 @@ sidebarLayout(
     
     # User defined intrinsic growth rate r -----
     sliderInput("r_val", label = "Intrinsic growth rate (r):",
-                min = 0.01, max = 1, value = .2, step = 0.01),
+                min = -0.25, max = 1, value = .25),
     
     # If Density Dependent growth requested, ask for K -----
     conditionalPanel(condition = "input.densdep == 'dep'",
@@ -99,7 +99,7 @@ sidebarLayout(
                      
                      # User defined intrinsic growth rate r2 -----
                      sliderInput("r_val2", label = "Intrinsic growth rate for species 2 (r2):",
-                                 min = 0.01, max = 1, value = .15, step = 0.01),
+                min = -0.25, max = 1, value = .25),
                      
                      # If Density Dependent growth requested for sp2, ask for K2 -----
                      conditionalPanel(condition = "input.densdep2 == 'dep'",
@@ -234,7 +234,7 @@ plot_caption <- reactive ({
 trajectory <- reactive({
   if("Nvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
-      geom_line(aes(x = time, y = N1, color = which_pop), size = 2) +
+      geom_line(aes(x = time, y = N1, color = which_pop), linewidth = 2) +
       ecoevoapps::theme_apps() +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       scale_y_continuous(expand = c(0, 0, .1, 0)) +
@@ -248,7 +248,7 @@ trajectory <- reactive({
 trajectory_log <- reactive({
   if("lnNvtime" %in% input$plots_to_show) {
     ggplot(pops_combined()) + 
-      geom_line(aes(x = time, y = log(N1), color = which_pop), size = 2) +
+      geom_line(aes(x = time, y = log(N1), color = which_pop), linewidth = 2) +
       scale_color_brewer("Species", palette = "Set1") +
       ecoevoapps::theme_apps() +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
@@ -275,7 +275,7 @@ n1_over_n <- reactive({
       }
     
     ggplot(dndt_out_for_plot) +
-      geom_line(aes(x= x, y = dndt, color = which_pop), size = 2) + 
+      geom_line(aes(x= x, y = dndt, color = which_pop), linewidth = 2) + 
       xlab("Population Size") + 
       ylab("Population growth rate (dN/dt)") + 
       scale_color_brewer("Species", palette = "Set1") +
@@ -302,14 +302,13 @@ n1n_over_n <- reactive({
       }
     
     ggplot(dnNdt_out_for_plot) +
-      geom_line(aes(x = x, y = dnNdt, color = which_pop), size = 2) + 
+      geom_line(aes(x = x, y = dnNdt, color = which_pop), linewidth = 2) + 
       xlab("Population Size") + 
       ylab("per-capita population growth rate\n(dN/Ndt)") + 
       scale_color_brewer("Species", palette = "Set1") +
       scale_x_continuous(expand = c(0, 0, .1, 0)) +
       # limits = c(0, min(max(pop_growth()$N1)), max(pop_growth2()$N1)
-      scale_y_continuous(limits = c(0, max(input$r_val, input$r_val2)*1.2), 
-                         expand = c(0, 0, .1, 0)) +
+      scale_y_continuous(limits = c(-0.26, 1),                           expand = c(0, 0, .1, 0)) +
       theme_apps() 
     }
 })
