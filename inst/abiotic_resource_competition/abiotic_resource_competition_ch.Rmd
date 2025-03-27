@@ -192,7 +192,7 @@ plot_out <- reactive({
 
 ## 参考文献 
 
-Tilman, D. 1980. [Resources: A graphical-mechanistic approach to competition and predation](http://max2.ese.u-psud.fr/epc/conservation/PDFs/HIPE/Tilman1980.pdf). The American Naturalist.
+Tilman, D. 1980. [Resources: A graphical-mechanistic approach to competition and predation](https://www.jstor.org/stable/2463311). The American Naturalist.
 
 Tilman, D. 1982. Resource Competition and Community Structure. Princeton University Press, Princeton, New Jersey. 296 pages. 
 
