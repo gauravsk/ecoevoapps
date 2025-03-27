@@ -172,7 +172,7 @@ plots_to_print <- reactive({
 
 - Armstrong and McGeehee, 1976. [Coexistence of species competing for shared resources](http://www-users.math.umn.edu/~mcgehee/publications/Armstrong1976b/Armstrong1976TheorPopBio9p317.pdf). Theoretical Population Biology.  
 - Armstrong and McGeehee, 1980. [Competitive Exclusion](https://www.journals.uchicago.edu/doi/10.1086/283553). The American Naturalist.   
-- Chesson, 1990. [MacArthur’s consumer–resource model](http://eebweb.arizona.edu/Faculty/chesson/Peter/Reprints/1990_MacArthur%27s%20consumer-resource%20model.pdf) Theoretical Population Biology.   
+- Chesson, 1990. [MacArthur’s consumer–resource model](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=1f9bbb4e1843733eaacfb404452518779fdd105f) Theoretical Population Biology.   
 - Chesson and Kuang, 2008.  [The interaction between predation and competition.](https://www.nature.com/articles/nature07248) Nature. 
 
 -------------
