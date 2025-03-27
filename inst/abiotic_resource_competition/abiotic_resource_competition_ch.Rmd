@@ -20,7 +20,7 @@ library(patchwork)
 
 这个模型模拟了依赖相同非生物资源（如营养素）的两个物种之间的动态。因为两个物种均依赖相同资源，所以两者之间存在竞争，使得其中一个物种的种群可以降低另一个物种的生长率。
 
-具体来说，这个app展示了一个非生物资源竞争模型。此模型由[Dave Tilman](https://cbs.umn.edu/tilman-lab/davidtilman)研发，最初用于研究藻类之间的资源竞争，后来也用于研究草原植物之间的资源竞争。模型的基础结构是焦点物种（“消费者”）随着摄入资源而生长。每个消费者可以以不同的效率消耗和利用不同的资源。资源随着被消耗而从环境中减少，但资源也可以通过外部来源而进入环境（如营养素随溪流进入湖泊）。本理论模型带来的一个重要结论在于，当物种有其“专门”利用的资源时，竞争非生物资源的物种可以共生。更全面的模型描述详见Don Alstad博士所著的[Populus guide](https://cbs.umn.edu/sites/cbs.umn.edu/files/public/downloads/PopulusHelp_e.pdf) (42页之后)。
+具体来说，这个app展示了一个非生物资源竞争模型。此模型由[Dave Tilman](https://cbs.umn.edu/tilman-lab/davidtilman)研发，最初用于研究藻类之间的资源竞争，后来也用于研究草原植物之间的资源竞争。模型的基础结构是焦点物种（“消费者”）随着摄入资源而生长。每个消费者可以以不同的效率消耗和利用不同的资源。资源随着被消耗而从环境中减少，但资源也可以通过外部来源而进入环境（如营养素随溪流进入湖泊）。本理论模型带来的一个重要结论在于，当物种有其“专门”利用的资源时，竞争非生物资源的物种可以共生。更全面的模型描述详见Don Alstad博士所著的[Populus guide](https://cbs.umn.edu/sites/cbs.umn.edu/files/migrated-files/downloads/PopulusHelp_p.pdf) (42页之后)。
 
 这个app展示了由两个物种和两种资源构成的“必要资源”模型。
 
